@@ -54,7 +54,7 @@
 - حساب + مصادقة (Supabase Auth) + إعداد باقة أساسي
 - موقع عقاري واحد، بمحرك سحب وإفلات **مقيّد النطاق** (قسم 6)
 - عقار بسيط (بدون هرمية مشروع/مبنى/وحدة) بصور **وفيديو** يرفعهما الوسيط مباشرة للمنصة
-- صفحات عقارات عامة + **بحث وتصفية** (مدينة، نوع، بيع/إيجار، نطاق سعر، عدد غرف) + نموذج استفسار محمي بـ Captcha
+- صفحات عقارات عامة + **بحث وتصفية** (مدينة، حي، نوع، بيع/إيجار، نطاق سعر، عدد غرف) + نموذج استفسار محمي بـ Captcha — المدينة والحي **قوائم اختيار** لا نص حر، لضمان دقة الفلترة
 - تجربة **PWA** على الموقع العام ولوحة التحكم (قابلة للإضافة للشاشة الرئيسية، تنقل سلس بلا إعادة تحميل)
 - CRM بسيط: Leads بحالة (جديد/تم التواصل/مؤهل/صفقة/مرفوض)، ملاحظات، تاريخ متابعة يدوي
 - بريد فوري عند Lead جديد + **بريد يومي مجمّع** لتذكير المتابعات المستحقة
@@ -117,7 +117,9 @@
 
 ## 9. نموذج البيانات
 
-**`tenants`**: `id`, `name_ar`, `name_en`, `account_type (individual|institution|company)`, `fal_license_number (text, required)`, `cr_number (text, nullable — required if institution/company)`, `tax_number (text, nullable — required if institution/company)`, `subdomain (unique)`, `custom_domain (unique, nullable)`, `plan_tier (basic|advanced)`, `status (active|suspended|cancelled)`, `created_at`
+**`plans`**: `id`, `name_ar`, `name_en`, `price`, `max_properties`, `max_users`, `custom_domain_allowed (bool)`, `is_active` — بيانات مرجعية على مستوى المنصة، يديرها المؤسس بالكامل من `/platform-admin` (سعر/حدود كل باقة، إضافة باقات جديدة) دون تدخل برمجي
+
+**`tenants`**: `id`, `name_ar`, `name_en`, `account_type (individual|institution|company)`, `fal_license_number (text, required)`, `cr_number (text, nullable — required if institution/company)`, `tax_number (text, nullable — required if institution/company)`, `subdomain (unique)`, `custom_domain (unique, nullable)`, `plan_id (FK plans)`, `status (active|suspended|cancelled)`, `created_at`
 
 **`users`**: `id`, `tenant_id`, `auth_user_id`, `full_name` (الاسم الثلاثي لصاحب الحساب Owner)، `phone (unique, required — معرّف الدخول الأساسي)`, `email (nullable — للإشعارات فقط، غير مطلوب للدخول)`, `role (owner|admin|agent)`, `status`, `created_at`
 
@@ -127,7 +129,11 @@
 
 **`website_sections`**: `id`, `website_id`, `type`, `order_index`, `is_visible`, `config (jsonb)`
 
-**`properties`**: `id`, `tenant_id`, `title_ar/en`, `description_ar/en`, `property_type`, `listing_type (sale|rent)`, `price`, `area_sqm`, `bedrooms`, `bathrooms`, `city`, `district`, `lat/lng (nullable)`, `status (draft|published|archived)`, `availability`, `agent_id (nullable)`, `created_at`, `updated_at`
+**`cities`**: `id`, `name_ar`, `name_en` — بيانات مرجعية على مستوى المنصة (ليست Tenant-scoped)، يديرها المؤسس من `/platform-admin`؛ تبدأ بقائمة أولية للمدن الرئيسية السعودية
+
+**`districts`**: `id`, `city_id (FK cities)`, `name_ar`, `name_en` — نفس نمط الإدارة، تبدأ بأحياء معروفة لكل مدينة أولية
+
+**`properties`**: `id`, `tenant_id`, `title_ar/en`, `description_ar/en`, `property_type`, `listing_type (sale|rent)`, `price`, `area_sqm`, `bedrooms`, `bathrooms`, `city_id (FK cities)`, `district_id (FK districts, nullable)`, `lat/lng (nullable)`, `status (draft|published|archived)`, `availability`, `agent_id (nullable)`, `created_at`, `updated_at`
 
 **`property_media`**: `id`, `property_id`, `media_type (image|video)`, `url`, `order_index` — رفع فيديو مباشر مدعوم (بلا معالجة/ضغط تلقائي، انظر التنبيه في قسم 12)
 
