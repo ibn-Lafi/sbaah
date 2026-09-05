@@ -53,7 +53,7 @@
 ### داخل النسخة
 - حساب + مصادقة (Supabase Auth) + إعداد باقة أساسي
 - موقع عقاري واحد، بمحرك سحب وإفلات **مقيّد النطاق** (قسم 6)
-- عقار بسيط (بدون هرمية مشروع/مبنى/وحدة)
+- عقار بسيط (بدون هرمية مشروع/مبنى/وحدة) بصور **وفيديو** يرفعهما الوسيط مباشرة للمنصة
 - صفحات عقارات عامة + **بحث وتصفية** (مدينة، نوع، بيع/إيجار، نطاق سعر، عدد غرف) + نموذج استفسار محمي بـ Captcha
 - تجربة **PWA** على الموقع العام ولوحة التحكم (قابلة للإضافة للشاشة الرئيسية، تنقل سلس بلا إعادة تحميل)
 - CRM بسيط: Leads بحالة (جديد/تم التواصل/مؤهل/صفقة/مرفوض)، ملاحظات، تاريخ متابعة يدوي
@@ -129,7 +129,7 @@
 
 **`properties`**: `id`, `tenant_id`, `title_ar/en`, `description_ar/en`, `property_type`, `listing_type (sale|rent)`, `price`, `area_sqm`, `bedrooms`, `bathrooms`, `city`, `district`, `lat/lng (nullable)`, `status (draft|published|archived)`, `availability`, `agent_id (nullable)`, `created_at`, `updated_at`
 
-**`property_images`**: `id`, `property_id`, `url`, `order_index`
+**`property_media`**: `id`, `property_id`, `media_type (image|video)`, `url`, `order_index` — رفع فيديو مباشر مدعوم (بلا معالجة/ضغط تلقائي، انظر التنبيه في قسم 12)
 
 **`leads`**: `id`, `tenant_id`, `property_id (nullable)`, `full_name`, `phone`, `email (nullable)`, `source (website_form|whatsapp_click|manual)`, `status`, `assigned_agent_id (nullable)`, `follow_up_at (nullable)`, `created_at`
 
@@ -158,6 +158,8 @@
 ## 12. النشر
 
 3 خدمات Railway من Monorepo واحد (Root Directory مختلف لكل خدمة). Supabase مُدار خارجيًا. فرع إنتاج واحد. يُوصى بترقية Supabase لخطة Pro (نسخ احتياطي حقيقي) بمجرد أول عميل حقيقي يدفع.
+
+**تنبيه فيديو العقارات (قرار المؤسس: رفع مباشر بلا معالجة):** فيديو مرفوع مباشرة من جوال بلا ضغط/تحويل (Transcoding) قد يكون كبير الحجم وبطيء التحميل على الموقع العام، ويستهلك تخزين ونقل بيانات Supabase أسرع بكثير من الصور. **حدود إلزامية للتحكم بالمخاطرة دون بناء خط معالجة كامل:** حد أقصى لحجم كل فيديو (مثلًا 50 ميجابايت)، وحد أقصى لعدد الفيديوهات لكل عقار (مثلًا فيديو أو فيديوهان). يُعاد تقييم إضافة معالجة فعلية (Cloudflare Stream أو مشابه) إذا تبيّن أن التخزين/الأداء يتحول لمشكلة حقيقية بعد الإطلاق.
 
 ## 13. تعريف الاكتمال (لأي ميزة)
 
