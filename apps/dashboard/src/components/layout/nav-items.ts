@@ -1,10 +1,10 @@
 /**
- * Sidebar nav — PRODUCT_SPEC.md section 4 approved scope only. The
- * founder's mockup includes extra items (unit/building/project/rental
- * hierarchy, applicants, custom-domain self-service, an apps
- * marketplace) that go beyond the approved MVP — see
- * docs/DASHBOARD_DESIGN_SYSTEM.md "نطاق غير معتمد" before adding any
- * of them here.
+ * Sidebar nav. PRODUCT_SPEC.md section 4.1's property hierarchy
+ * (project/building) and section 4.2's rentals were approved after
+ * docs/DASHBOARD_DESIGN_SYSTEM.md was first written — their entries here
+ * are added only as each screen actually gets built (26/42, 27/42), not
+ * ahead of time. Still explicitly out of scope: job applicants and an
+ * apps/integrations marketplace (PRODUCT_SPEC.md section 4, declined).
  */
 export interface NavItem {
   href: string;
@@ -14,6 +14,8 @@ export interface NavItem {
 export const NAV_ITEMS: NavItem[] = [
   { href: '/', label: 'لوحة القيادة' },
   { href: '/properties', label: 'العقارات' },
+  { href: '/projects', label: 'المشاريع' },
+  { href: '/buildings', label: 'العمارات' },
   { href: '/leads', label: 'العملاء المحتملون' },
   { href: '/site', label: 'محرر الموقع' },
   { href: '/site/preview', label: 'معاينة الموقع' },

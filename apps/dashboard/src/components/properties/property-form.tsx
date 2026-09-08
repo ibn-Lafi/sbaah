@@ -8,8 +8,10 @@ import {
   PROPERTY_AVAILABILITY,
   PROPERTY_STATUSES,
   PROPERTY_TYPES,
+  type Building,
   type City,
   type District,
+  type Project,
   type PropertyInput,
   type PropertyUpdateInput,
 } from '@sbaah/shared';
@@ -19,6 +21,7 @@ import { Select } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { FormError } from '@/components/ui/form-error';
 import { listCities, listDistricts } from '@/lib/api/reference-data';
+import { listBuildings, listProjects } from '@/lib/api/hierarchy';
 import {
   LISTING_TYPE_LABELS,
   PROPERTY_AVAILABILITY_LABELS,
@@ -40,6 +43,8 @@ type FormState = {
   bathrooms: string;
   city_id: string;
   district_id: string;
+  project_id: string;
+  building_id: string;
   status: string;
   availability: string;
 };
@@ -57,6 +62,8 @@ const EMPTY_STATE: FormState = {
   bathrooms: '',
   city_id: '',
   district_id: '',
+  project_id: '',
+  building_id: '',
   status: 'draft',
   availability: 'available',
 };
@@ -75,6 +82,8 @@ function toFormState(property: PropertyWithMedia): FormState {
     bathrooms: property.bathrooms === null ? '' : String(property.bathrooms),
     city_id: property.city_id,
     district_id: property.district_id ?? '',
+    project_id: property.project_id ?? '',
+    building_id: property.building_id ?? '',
     status: property.status,
     availability: property.availability,
   };
@@ -83,21 +92,26 @@ function toFormState(property: PropertyWithMedia): FormState {
 interface PropertyFormProps {
   mode: 'create' | 'edit';
   initialValues?: PropertyWithMedia;
+  accessToken: string;
   onSubmit: (input: PropertyInput | PropertyUpdateInput) => Promise<void>;
   submitLabel: string;
 }
 
 /** Shared by /properties/new and /properties/[id] — the only difference is whether status/availability show and what onSubmit does with the payload. */
-export function PropertyForm({ mode, initialValues, onSubmit, submitLabel }: PropertyFormProps) {
+export function PropertyForm({ mode, initialValues, accessToken, onSubmit, submitLabel }: PropertyFormProps) {
   const [form, setForm] = useState<FormState>(initialValues ? toFormState(initialValues) : EMPTY_STATE);
   const [cities, setCities] = useState<City[]>([]);
   const [districts, setDistricts] = useState<District[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [buildings, setBuildings] = useState<Building[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     void listCities().then(setCities);
-  }, []);
+    void listProjects(accessToken).then((result) => setProjects(result.projects));
+    void listBuildings(accessToken).then((result) => setBuildings(result.buildings));
+  }, [accessToken]);
 
   useEffect(() => {
     if (!form.city_id) {
@@ -128,6 +142,8 @@ export function PropertyForm({ mode, initialValues, onSubmit, submitLabel }: Pro
       bathrooms: form.bathrooms === '' ? null : Number(form.bathrooms),
       city_id: form.city_id,
       district_id: form.district_id || null,
+      project_id: form.project_id || null,
+      building_id: form.building_id || null,
       ...(mode === 'edit' ? { status: form.status, availability: form.availability } : {}),
     };
 
@@ -235,6 +251,26 @@ export function PropertyForm({ mode, initialValues, onSubmit, submitLabel }: Pro
           {districts.map((district) => (
             <option key={district.id} value={district.id}>
               {district.name_ar}
+            </option>
+          ))}
+        </Select>
+      </div>
+
+      {/* PRODUCT_SPEC.md section 4.1 — optional hierarchy grouping; both independent nullable FKs (a unit can belong to a building without a project, or vice versa). */}
+      <div className="grid grid-cols-2 gap-4">
+        <Select value={form.project_id} onChange={(e) => set('project_id', e.target.value)}>
+          <option value="">بلا مشروع (اختياري)</option>
+          {projects.map((project) => (
+            <option key={project.id} value={project.id}>
+              {project.name_ar}
+            </option>
+          ))}
+        </Select>
+        <Select value={form.building_id} onChange={(e) => set('building_id', e.target.value)}>
+          <option value="">بلا عمارة (اختياري)</option>
+          {buildings.map((building) => (
+            <option key={building.id} value={building.id}>
+              {building.name_ar}
             </option>
           ))}
         </Select>

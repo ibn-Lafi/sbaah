@@ -24,6 +24,7 @@ export default function NewPropertyPage() {
       <Card className="max-w-[720px] p-8">
         <PropertyForm
           mode="create"
+          accessToken={accessToken}
           submitLabel="إضافة العقار"
           onSubmit={async (input) => {
             const { property } = await createProperty(accessToken, input as PropertyInput);
