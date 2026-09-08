@@ -1,1 +1,66 @@
 @import 'tailwindcss';
+
+/**
+ * Design tokens extracted from the founder's Claude Design mockup
+ * ("SBAAH App"). See docs/DASHBOARD_DESIGN_SYSTEM.md for the full
+ * reference — this file must stay in sync with that document.
+ */
+@theme {
+  --font-sans: var(--font-ibm-plex-arabic), system-ui, sans-serif;
+
+  --color-brand: #68458a;
+  --color-brand-hover: #4f3269;
+  --color-brand-surface: #f3eef7;
+  --color-brand-surface-2: #e0d3ea;
+  --color-brand-surface-3: #c4abd6;
+
+  --color-text-primary: #1f1d22;
+  --color-text-secondary: #6f6b74;
+  --color-text-tertiary: #4a454f;
+  --color-text-muted: #8b8792;
+  --color-text-placeholder: #a5a1ab;
+
+  --color-border-default: #dddbe1;
+  --color-border-subtle: #eae8ed;
+  --color-border-secondary: #dad7de;
+  --color-border-disabled: #c9c5cf;
+
+  --color-surface-page: #efedf1;
+  --color-surface-card: #ffffff;
+  --color-surface-subtle: #f4f2f6;
+  --color-surface-subtle-2: #f7f6f8;
+  --color-surface-subtle-3: #f1eff3;
+  --color-surface-header: #faf9fb;
+
+  --color-success: #0e7a4d;
+  --color-success-surface: #e6f4ec;
+  --color-warning: #8a5200;
+  --color-warning-surface: #fdf2e3;
+  --color-danger: #b3261e;
+  --color-danger-strong: #8c1d17;
+  --color-danger-surface: #fbebe9;
+
+  /* Account-type badge colors — PRODUCT_SPEC.md section 6, unchanged here. */
+  --color-account-individual: #1d9bf0;
+  --color-account-institution: #68458a;
+  --color-account-company: #d4af37;
+
+  --radius-control: 12px;
+  --radius-input: 14px;
+  --radius-card: 20px;
+}
+
+body {
+  margin: 0;
+  background: var(--color-surface-page);
+  font-family: var(--font-sans);
+  color: var(--color-text-primary);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::placeholder {
+  color: var(--color-text-placeholder);
+}
