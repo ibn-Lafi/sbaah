@@ -17,6 +17,16 @@ export const publicLeadInputSchema = z.object({
 });
 export type PublicLeadInput = z.infer<typeof publicLeadInputSchema>;
 
+/** POST /v1/leads (authenticated, Owner/Admin only) — staff manually entering a lead, e.g. a walk-in. Always source='manual'. */
+export const manualLeadInputSchema = z.object({
+  property_id: z.string().uuid().optional().nullable(),
+  full_name: z.string().min(2, 'الاسم مطلوب'),
+  phone: saudiPhoneSchema,
+  email: z.string().email().optional().nullable(),
+  assigned_agent_id: z.string().uuid().optional().nullable(),
+});
+export type ManualLeadInput = z.infer<typeof manualLeadInputSchema>;
+
 export const updateLeadStatusSchema = z.object({
   status: z.enum(LEAD_STATUSES),
 });
@@ -31,3 +41,11 @@ export const setFollowUpSchema = z.object({
   follow_up_at: z.string().datetime().nullable(),
 });
 export type SetFollowUpInput = z.infer<typeof setFollowUpSchema>;
+
+/** PATCH /v1/leads/[id] — status, follow-up date, and reassignment in one call rather than three tiny endpoints. */
+export const leadUpdateSchema = z.object({
+  status: z.enum(LEAD_STATUSES).optional(),
+  follow_up_at: z.string().datetime().nullable().optional(),
+  assigned_agent_id: z.string().uuid().nullable().optional(),
+});
+export type LeadUpdateInput = z.infer<typeof leadUpdateSchema>;
