@@ -188,5 +188,27 @@
 
 **مهام Railway الآن:** لا شيء بعد.
 
+### 🔄 تحديث على المهمة 9/35 — تغيير مزود OTP إلى Twilio Verify
+
+قررت (المؤسس) استخدام **Twilio Verify** بدل Authentica. هذا يحسم النقطة الوحيدة التي كانت معلّقة في التقرير أعلاه (نقطة 1 من "تحتاج فعلًا منك") — Twilio Verify عقد API عالمي موثّق بثقة، فحدّثت `docs/OTP_FLOW.md` بالكامل: تفاصيل العقد الفعلي (Endpoints، Basic Auth، `CodeLength` قابل للضبط 4-10 خانات من إعدادات الـService)، وتوضيح أن حدود الـ90 ثانية/5 محاولات نفرضها نحن تطبيقيًا بغض النظر عن مهلة Twilio الداخلية (الأطول افتراضيًا). حدّثت أيضًا `PRODUCT_SPEC.md` قسم 2 (كل إشارات Authentica → Twilio Verify، وأصبحت نقطة دعم 4 خانات **مؤكَّدة** بدل "تحتاج تأكيد فني").
+
+**تغيير بسيط في `supabase/migrations/0007_otp_verifications.sql`:** أعدت تسمية عمود `provider_reference` إلى `twilio_verification_sid` (أوضح الآن بعد تأكيد المزوّد). اختبرته محليًا مجددًا — يعمل بلا أي خطأ. **إن كنت شغّلت النسخة القديمة من الملف في Supabase بالفعل**، نفّذ هذا السطر بدل إعادة الملف كاملًا:
+```sql
+alter table otp_verifications rename column provider_reference to twilio_verification_sid;
+```
+**وإن لم تكن شغّلته بعد**، تجاهل السطر أعلاه وشغّل الملف المحدّث كما هو مباشرة.
+
+`apps/api/.env.example` تغيّر أيضًا: `AUTHENTICA_API_KEY`/`AUTHENTICA_API_BASE_URL` → `TWILIO_ACCOUNT_SID`/`TWILIO_AUTH_TOKEN`/`TWILIO_VERIFY_SERVICE_SID`.
+
+**🔴 الإعداد اليدوي المطلوب منك الآن (بدل "افتح حساب Authentica"):**
+1. أنشئ حساب Twilio وفعّل خدمة Verify.
+2. **Verify → Services → Create** — واضبط `CodeLength = 4`.
+3. انسخ `Account SID` و`Auth Token` (أو مفتاح API مخصص) و`Service SID` الجديد — تحتاجها لاحقًا في متغيرات بيئة `apps/api` عند بناء الكود الفعلي (المهمة 12/35)، وليس الآن.
+4. راجع صفحة تسعير Twilio Verify للتأكد من التكلفة الفعلية على أرقام سعودية — لم أستطع الوصول للصفحة الحية من بيئة العمل.
+
+النقطة الثانية (إعداد مدة الجلسة 30 يومًا في Supabase) لم تتغيّر، لا تزال مطلوبة كما هي.
+
+**مهام Railway:** لا شيء.
+
 **التالي:** المهمة 10/35 — هيكلة `apps/api` الفعلية (Next.js Route Handlers، بادئة `/v1`، Health Check موسّع) تمهيدًا لبناء Endpoints المصادقة على أساس هذا التصميم.
 

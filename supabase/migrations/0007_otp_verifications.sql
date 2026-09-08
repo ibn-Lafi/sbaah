@@ -3,12 +3,12 @@
 -- docs/OTP_FLOW.md (task 9/35). Run after 0006.
 --
 -- NOT part of the original 15-table data model in PRODUCT_SPEC.md section 9
--- — discovered while designing the actual Authentica integration (task 9/35).
--- Authentica almost certainly owns the OTP code's lifecycle itself (see
+-- — discovered while designing the actual Twilio Verify integration
+-- (task 9/35). Twilio Verify owns the OTP code's lifecycle itself (see
 -- docs/OTP_FLOW.md section 2), so this table stores no OTP code at all.
--- Its only job is our OWN abuse/cost control on top of Authentica: how many
--- SMS were requested for a phone number recently, and whether that phone is
--- currently locked out after too many failed verify attempts.
+-- Its only job is our OWN abuse/cost control on top of Twilio Verify: how
+-- many SMS were requested for a phone number recently, and whether that
+-- phone is currently locked out after too many failed verify attempts.
 --
 -- RLS is enabled with ZERO policies for anon/authenticated — this table is
 -- touched exclusively by `api`'s pre-auth endpoints (send-otp/verify-otp),
@@ -25,10 +25,10 @@ create table otp_verifications (
   id uuid primary key default gen_random_uuid(),
   phone text not null,
   purpose otp_purpose not null,
-  -- Authentica's own verification/session id for this request, if its API
-  -- returns one (needed to call their "check/verify" endpoint) — nullable
-  -- until task 12/35 confirms the real response shape.
-  provider_reference text,
+  -- Twilio Verify's own Verification SID for this request (its "check"
+  -- endpoint is keyed by `To` + `Code`, not this SID, but we keep it for
+  -- support/debugging traceability against Twilio's own logs/console).
+  twilio_verification_sid text,
   attempt_count int not null default 0,
   locked_until timestamptz,
   expires_at timestamptz not null,
