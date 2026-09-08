@@ -6,6 +6,7 @@
 
 import type {
   AccountType,
+  CustomDomainStatus,
   LeadSource,
   LeadStatus,
   ListingType,
@@ -14,6 +15,7 @@ import type {
   PropertyAvailability,
   PropertyStatus,
   PropertyType,
+  RentalStatus,
   TenantStatus,
   UserRole,
   UserStatus,
@@ -49,6 +51,8 @@ export interface Tenant {
   tax_number: string | null;
   subdomain: string;
   custom_domain: string | null;
+  /** PRODUCT_SPEC section 4.3 — always paired with custom_domain (both null or both set), enforced by a DB check constraint. */
+  custom_domain_status: CustomDomainStatus | null;
   plan_id: string;
   status: TenantStatus;
   created_at: string;
@@ -106,9 +110,37 @@ export interface District {
   name_en: string;
 }
 
+/** PRODUCT_SPEC section 4.1 — optional hierarchy grouping, added with migration 0008. */
+export interface Project {
+  id: string;
+  tenant_id: string;
+  name_ar: string;
+  name_en: string | null;
+  description_ar: string | null;
+  description_en: string | null;
+  city_id: string;
+  district_id: string | null;
+  status: PropertyStatus;
+  created_at: string;
+}
+
+export interface Building {
+  id: string;
+  tenant_id: string;
+  project_id: string | null;
+  name_ar: string;
+  name_en: string | null;
+  city_id: string;
+  district_id: string | null;
+  floors_count: number | null;
+  created_at: string;
+}
+
 export interface Property {
   id: string;
   tenant_id: string;
+  project_id: string | null;
+  building_id: string | null;
   title_ar: string;
   title_en: string | null;
   description_ar: string;
@@ -136,6 +168,21 @@ export interface PropertyMedia {
   media_type: MediaType;
   url: string;
   order_index: number;
+}
+
+/** PRODUCT_SPEC section 4.2 — simple lease tracking, added with migration 0008. */
+export interface Rental {
+  id: string;
+  tenant_id: string;
+  property_id: string;
+  tenant_name: string;
+  tenant_phone: string;
+  rent_amount: number;
+  contract_start_date: string;
+  contract_end_date: string;
+  status: RentalStatus;
+  notes: string | null;
+  created_at: string;
 }
 
 export interface Lead {

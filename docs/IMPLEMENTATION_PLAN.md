@@ -4,7 +4,7 @@
 
 **🔄 تحديث العدد من 35 إلى 42:** بعد مراجعتك لتصميم `dashboard` على Claude Design، اعتمدت توسيع نطاق `PRODUCT_SPEC.md` (قسم 4.1-4.3): هرمية مشروع/عمارة/وحدة، إدارة إيجارات بسيطة، ودومين مخصص ذاتي الخدمة جزئيًا. أضفت 7 مهام جديدة تعكس هذا (تفاصيل كل مهمة جديدة في مكانها أدناه) — **لم أُعد ترقيم المهام 1-12 المكتملة/المُبلَّغ عنها سابقًا**، فقط أدرجت الجديد بعدها وحرّكت الباقي.
 
-**آخر تحديث:** المهام 1-16/42 مكتملة (12/42، 14/42، و16/42 تحتاج التحقق النهائي منك — انظر تقاريرها)
+**آخر تحديث:** المهام 1-17/42 مكتملة (12/42، 14/42، و16/42 تحتاج التحقق النهائي منك — انظر تقاريرها)
 
 ## رمز الحالة
 `⬜ لم تبدأ` · `🟡 قيد التنفيذ` · `✅ مكتملة (تحتاج إجراء منك)` · `✔️ مكتملة بالكامل`
@@ -36,7 +36,7 @@
 | 14/42 | Endpoint التسجيل: إنشاء Tenant + Owner حسب نوع الحساب (فرد/مؤسسة/شركة) | ✅ |
 | 15/42 | Middleware تفويض `console` (تحقق من `platform_admins`، ليس من `role`) | ✔️ |
 | 16/42 | Endpoints العقارات (CRUD) + رفع وسائط (صور/فيديو) عبر Supabase Storage | ✅ |
-| 17/42 | 🆕 Endpoints المشاريع والعمارات (CRUD) — `projects`/`buildings` | ⬜ |
+| 17/42 | 🆕 Endpoints المشاريع والعمارات (CRUD) — `projects`/`buildings` | ✔️ |
 | 18/42 | 🆕 Endpoints الإيجارات (CRUD) — `rentals` | ⬜ |
 | 19/42 | Endpoints الموقع (تحديث الثيم/الألوان/الخط/الشعار/البانر/الأقسام) | ⬜ |
 | 20/42 | Endpoints الـLeads (قائمة، تحديث حالة، ملاحظات) | ⬜ |
@@ -418,5 +418,26 @@ alter table otp_verifications rename column provider_reference to twilio_verific
 
 **مهام Railway:** لا شيء.
 
-**التالي:** المهمة 17/42 — Endpoints المشاريع والعمارات (CRUD) — `projects`/`buildings`.
+### ✔️ المهمة 17/42 — Endpoints المشاريع والعمارات
+
+**ماذا نُفّذ:** 8 Endpoints — `GET/POST /v1/projects`، `GET/PATCH/DELETE /v1/projects/[id]`، `GET/POST /v1/buildings`، `GET/PATCH/DELETE /v1/buildings/[id]` — بنفس نمط عقارات المهمة 16/42 تمامًا: رفض مبكر للوسيط بـ403 واضح (لا سياسة كتابة له على الجدولين من المهمة 7/42)، وRLS هو من يفرض عزل الحسابات فعليًا لا الكود.
+
+**🔴 3 ثغرات في `packages/shared` من المهمة 13/42 اكتشفتها وأصلحتها قبل البدء بهذه المهمة:** عند إضافة جداول `projects`/`buildings`/`rentals` وعمود `tenants.custom_domain_status` في تلك المهمة، **نسيت تحديث ملفات TypeScript المقابلة في `packages/shared`** (كانت SQL فقط بلا Types) — لم يكن أي كود TypeScript يعرف بوجود هذه الأعمدة/الجداول إطلاقًا حتى الآن:
+1. `types/enums.ts`: أضفت `RENTAL_STATUSES`/`RentalStatus` و`CUSTOM_DOMAIN_STATUSES`/`CustomDomainStatus` (كانا موجودين في SQL كـ`enum` منذ المهمة 13، بلا مقابل TypeScript).
+2. `types/database.ts`: أضفت واجهات `Project`/`Building`/`Rental` الكاملة، وحدّثت `Property` لإضافة `project_id`/`building_id`، وحدّثت `Tenant` لإضافة `custom_domain_status`.
+3. `validation/project.ts` (جديد): `projectInputSchema`/`projectUpdateSchema`/`buildingInputSchema`/`buildingUpdateSchema`.
+
+اكتشاف هذه الثغرات أثناء بناء Endpoints يعتمد عليها مباشرة — وليس بمراجعة منفصلة — يعكس بالضبط سبب فحص كل مهمة فعليًا قبل اعتبارها منتهية.
+
+**التحقق:**
+- `pnpm typecheck`/`build`/`lint` على كل الحزم الخمس ✅ بعد كل التعديلات (تأكدت أن إضافة حقول جديدة لواجهات موجودة لم تكسر أي كود سابق يستخدمها).
+- **8 اختبارات حقيقية** لمخططات Zod الجديدة (مشروع بلا مدينة مرفوض، عمارة بعدد طوابق غير موجب مرفوضة، تحديثات جزئية مقبولة...).
+
+**مراجعة الأمان:** لا شيء جديد على مستوى RLS — الجدولان محميان أصلًا منذ المهمة 13/42 (0009)، هذه المهمة فقط توصّل تلك الحماية عبر HTTP بشكل صحيح.
+
+**ما حُذف/لم يُبنَ:** لا Endpoint لربط عقار موجود بمشروع/عمارة بشكل مستقل — هذا موجود أصلًا ضمن `PATCH /v1/properties/[id]` (حقلا `project_id`/`building_id` في `propertyUpdateSchema` من المهمة 16/42).
+
+**SQL/Railway:** لا شيء جديد.
+
+**التالي:** المهمة 18/42 — Endpoints الإيجارات (CRUD) — `rentals`.
 

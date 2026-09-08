@@ -3,6 +3,7 @@ export * from './types/database';
 export * from './validation/auth';
 export * from './validation/tenant';
 export * from './validation/property';
+export * from './validation/project';
 export * from './validation/lead';
 export * from './supabase/client';
 export * from './supabase/bearer-token';

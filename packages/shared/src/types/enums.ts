@@ -34,6 +34,14 @@ export type PropertyStatus = (typeof PROPERTY_STATUSES)[number];
 export const PROPERTY_AVAILABILITY = ['available', 'reserved', 'sold', 'rented'] as const;
 export type PropertyAvailability = (typeof PROPERTY_AVAILABILITY)[number];
 
+/** PRODUCT_SPEC section 4.2 — added with the property hierarchy/rentals scope expansion (migration 0008). */
+export const RENTAL_STATUSES = ['active', 'ended'] as const;
+export type RentalStatus = (typeof RENTAL_STATUSES)[number];
+
+/** PRODUCT_SPEC section 4.3 — partially self-service custom domain (migration 0008). */
+export const CUSTOM_DOMAIN_STATUSES = ['pending', 'verified'] as const;
+export type CustomDomainStatus = (typeof CUSTOM_DOMAIN_STATUSES)[number];
+
 export const MEDIA_TYPES = ['image', 'video'] as const;
 export type MediaType = (typeof MEDIA_TYPES)[number];
 
