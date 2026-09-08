@@ -57,21 +57,60 @@
 ### داخل النسخة
 - حساب + مصادقة (Supabase Auth) + إعداد باقة أساسي
 - موقع عقاري واحد، بمحرك سحب وإفلات **مقيّد النطاق** (قسم 6)
-- عقار بسيط (بدون هرمية مشروع/مبنى/وحدة) بصور **وفيديو** يرفعهما الوسيط مباشرة للمنصة
+- عقار (وحدة) بصور **وفيديو** يرفعهما الوسيط مباشرة للمنصة، مع **هرمية اختيارية**
+  مشروع ← عمارة ← وحدة (قسم 4.1) — عقار مستقل بلا مشروع/عمارة يبقى يعمل تمامًا كما هو، الهرمية إضافة اختيارية فوقه لا تغيير جذري
+- **إدارة إيجارات بسيطة** (قسم 4.2): ربط وحدة بمستأجر وعقد إيجار (تواريخ، مبلغ)
 - صفحات عقارات عامة + **بحث وتصفية** (مدينة، حي، نوع، بيع/إيجار، نطاق سعر، عدد غرف) + نموذج استفسار محمي بـ Captcha — المدينة والحي **قوائم اختيار** لا نص حر، لضمان دقة الفلترة
 - تجربة **PWA** على الموقع العام ولوحة التحكم (قابلة للإضافة للشاشة الرئيسية، تنقل سلس بلا إعادة تحميل)
-- CRM بسيط: Leads بحالة (جديد/تم التواصل/مؤهل/صفقة/مرفوض)، ملاحظات، تاريخ متابعة يدوي
+- CRM بسيط: Leads بحالة (جديد/تم التواصل/مؤهل/صفقة/مرفوض)، ملاحظات، تاريخ متابعة يدوي — شاشة "جميع العملاء" في لوحة التحكم عرض/تبويب مختلف على **نفس** جدول `leads`، بلا أي تغيير في نموذج البيانات
 - بريد فوري عند Lead جديد + **بريد يومي مجمّع** لتذكير المتابعات المستحقة
 - 3 أدوار: Owner / Admin / Agent + وصول مالك المنصة (قسم 8)
 - تحليلات أساسية: مشاهدات العقار، عدد Leads، مصدرها
 - WhatsApp كرابط Click-to-Chat فقط
-- دومين مخصص بإعداد يدوي لكل عميل
+- **دومين مخصص ذاتي الخدمة جزئيًا** (قسم 4.3): العميل يُدخل نطاقه من لوحة التحكم وتُعرض له سجلات DNS المطلوبة، لكن التحقق/التفعيل يبقى بمراجعة يدوية من المؤسس حتى عتبة 15 عميل (قسم 15) — ليس أتمتة كاملة (Cloudflare for SaaS) بعد
 - الموقع العام ثنائي اللغة (عربي/إنجليزي)، لوحة التحكم عربي فقط (بنية الكود تدعم الإنجليزية لاحقًا بلا إعادة هيكلة)
 - رخصة "فال" **إلزامية** عند التسجيل لكل أنواع الحساب (قسم 2)
 - **شارة "سبعة" إلزامية في Footer كل موقع عميل** — غير قابلة للإخفاء أو التعطيل من محرر الموقع، بعكس بقية الأقسام
+- **ثيمات متعددة قابلة للاختيار** — البنية (جدول `themes`) كانت جاهزة لهذا أصلًا (قسم 6)؛ **لكن يوجد ثيم واحد مصمَّم فعليًا في هذه النسخة**، محرر اختيار الثيم يعرض قائمة تتسع لثيمات إضافية لاحقًا دون تعديل بنية
+
+### 4.1 هرمية العقار: مشروع ← عمارة ← وحدة (إضافة معتمدة من المؤسس)
+
+**كانت مستثناة صراحة في نسخة سابقة من هذا المستند، ثم اعتمدها المؤسس
+بعد مراجعة تصميم لوحة التحكم على Claude Design.** التصميم النهائي:
+
+- `projects` (مشروع): جدول جديد — تجميع تسويقي/إداري لعدة عمارات أو وحدات (مثال: "مشروع الياسمين السكني")
+- `buildings` (عمارة): جدول جديد — عمارة فعلية، قد تتبع مشروعًا أو تكون مستقلة
+- `properties` (الوحدة، الجدول الموجود أصلًا): يُضاف له `project_id`/`building_id` **اختياريان (nullable)** — عقار بلا مشروع/عمارة يبقى يعمل بالضبط كما هو مصمَّم اليوم، هذا **توسيع إضافي غير جذري**، وليس إعادة هيكلة تكسر الوسيط الفردي البسيط الذي هو الشخصية المستهدفة الأساسية (قسم 2)
+
+### 4.2 إدارة الإيجارات (إضافة معتمدة من المؤسس)
+
+جدول جديد `rentals` — عقد إيجار بسيط يربط وحدة (`properties`) بمستأجر: اسم
+المستأجر وجواله، تواريخ العقد (بداية/نهاية)، مبلغ الإيجار، الحالة
+(نشط/منتهٍ). **ليس** نظام محاسبة إيجارات كامل (لا فواتير دورية آلية، لا
+بوابة دفع للمستأجر) — تتبّع بسيط لعقد قائم، يعكس حالة `properties.availability = 'rented'` الموجودة أصلًا.
+
+### 4.3 الدومين المخصص ذاتي الخدمة جزئيًا (تحديث على القرار السابق)
+
+القرار السابق (قسم 15) كان إعداد يدوي بالكامل من طرف المؤسس. **تحديث:**
+العميل يُدخل نطاقه المطلوب من إعدادات لوحة التحكم، والنظام يعرض له سجل
+DNS المطلوب (CNAME) ليضبطه بنفسه لدى مزوّد الدومين الخاص به —
+**لا أتمتة تحقق أو SSL تلقائي بعد** (يحتاج تأكيد فعلي من قدرات Railway
+الحالية لشهادات SSL لكل نطاق مخصص قبل المهمة الخاصة بهذا، انظر قسم 15).
+المؤسس يتابع حالة الطلبات ويُفعّلها يدويًا حتى عتبة 15 عميل، تمامًا كما
+كان مخطَّطًا، فقط تجربة إدخال الدومين نفسها أصبحت ذاتية الخدمة بدل طلب
+عبر تواصل مباشر مع المؤسس.
 
 ### خارج هذه النسخة (بلا تفاصيل تصميم — تُصمَّم عند الحاجة الفعلية لاحقًا)
-أي ذكاء اصطناعي، SMS، WhatsApp Business API الرسمي، هرمية مشاريع للمطورين، تتبع حملات إعلانية (Meta/TikTok/Snapchat)، أتمتة الدومين المخصص، صلاحيات مخصصة، Sales Pipeline متقدم.
+
+أي ذكاء اصطناعي، SMS، WhatsApp Business API الرسمي، تتبع حملات إعلانية
+(Meta/TikTok/Snapchat)، أتمتة الدومين المخصص الكاملة (تحقق DNS تلقائي +
+SSL تلقائي عبر Cloudflare for SaaS أو مشابه)، صلاحيات مخصصة، Sales
+Pipeline متقدم.
+
+**استُبعدت صراحة بعد عرضها في تصميم لوحة التحكم وسؤال المؤسس مباشرة
+(وليست إغفالًا):**
+- **صفحة "المتقدمون للوظائف" / نظام توظيف** — المؤسس أكّد عدم الحاجة إليها إطلاقًا.
+- **التطبيقات والتكاملات الخارجية** (قسم "Apps" في تصميم لوحة التحكم) — لا تكامل محدد طُلب؛ لا تُبنى بلا قائمة تكاملات فعلية محددة مسبقًا.
 
 ## 5. رحلة المستخدم
 
@@ -139,11 +178,11 @@
 
 **`plans`**: `id`, `name_ar`, `name_en`, `price`, `max_properties`, `max_users`, `custom_domain_allowed (bool)`, `is_active` — بيانات مرجعية على مستوى المنصة، يديرها المؤسس بالكامل من خدمة `console` (سعر/حدود كل باقة، إضافة باقات جديدة) دون تدخل برمجي
 
-**`tenants`**: `id`, `name_ar`, `name_en`, `account_type (individual|institution|company)`, `fal_license_number (text, required)`, `cr_number (text, nullable — required if institution/company)`, `tax_number (text, nullable — required if institution/company)`, `subdomain (unique)`, `custom_domain (unique, nullable)`, `plan_id (FK plans)`, `status (active|suspended|cancelled)`, `created_at`
+**`tenants`**: `id`, `name_ar`, `name_en`, `account_type (individual|institution|company)`, `fal_license_number (text, required)`, `cr_number (text, nullable — required if institution/company)`, `tax_number (text, nullable — required if institution/company)`, `subdomain (unique)`, `custom_domain (unique, nullable)`, `custom_domain_status (nullable, pending|verified — قسم 4.3، يُملأ فقط بعد إدخال العميل لنطاقه)`, `plan_id (FK plans)`, `status (active|suspended|cancelled)`, `created_at`
 
 **`users`**: `id`, `tenant_id`, `auth_user_id`, `full_name` (الاسم الثلاثي لصاحب الحساب Owner)، `phone (unique, required — معرّف الدخول الأساسي)`, `email (nullable — للإشعارات فقط، غير مطلوب للدخول)`, `role (owner|admin|agent)`, `status`, `created_at`
 
-**`themes`**: `id`, `name_ar`, `name_en`, `is_active` — بيانات ثابتة على مستوى المنصة (ليست Tenant-scoped)؛ **صف واحد فقط في هذه النسخة: "الثيم الأساسي"**
+**`themes`**: `id`, `name_ar`, `name_en`, `is_active` — بيانات ثابتة على مستوى المنصة (ليست Tenant-scoped)؛ **صف واحد فقط مصمَّم بصريًا في هذه النسخة: "الثيم الأساسي"** — الجدول والواجهة يتّسعان لثيمات إضافية لاحقًا (قسم 4) بلا تعديل بنية، لكن تصميم أي ثيم إضافي فعليًا عمل مستقبلي
 
 **`websites`**: `id`, `tenant_id (unique)`, `theme_id (FK themes)`, `primary_color`, `secondary_color`, `font_family`, `logo_url`, `banner_image_url`
 
@@ -153,9 +192,15 @@
 
 **`districts`**: `id`, `city_id (FK cities)`, `name_ar`, `name_en` — نفس نمط الإدارة، تبدأ بأحياء معروفة لكل مدينة أولية
 
-**`properties`**: `id`, `tenant_id`, `title_ar/en`, `description_ar/en`, `property_type`, `listing_type (sale|rent)`, `price`, `area_sqm`, `bedrooms`, `bathrooms`, `city_id (FK cities)`, `district_id (FK districts, nullable)`, `lat/lng (nullable)`, `status (draft|published|archived)`, `availability`, `agent_id (nullable)`, `created_at`, `updated_at`
+**`properties`**: `id`, `tenant_id`, `project_id (FK projects, nullable)`, `building_id (FK buildings, nullable)`, `title_ar/en`, `description_ar/en`, `property_type`, `listing_type (sale|rent)`, `price`, `area_sqm`, `bedrooms`, `bathrooms`, `city_id (FK cities)`, `district_id (FK districts, nullable)`, `lat/lng (nullable)`, `status (draft|published|archived)`, `availability`, `agent_id (nullable)`, `created_at`, `updated_at` — `project_id`/`building_id` إضافة قسم 4.1، اختياريان بالكامل، عقار بلا مشروع/عمارة يعمل بلا أي تغيير
 
 **`property_media`**: `id`, `property_id`, `media_type (image|video)`, `url`, `order_index` — رفع فيديو مباشر مدعوم (بلا معالجة/ضغط تلقائي، انظر التنبيه في قسم 12)
+
+**`projects`** (قسم 4.1، جدول جديد): `id`, `tenant_id`, `name_ar/en`, `description_ar/en (nullable)`, `city_id (FK cities)`, `district_id (FK districts, nullable)`, `status (draft|published|archived)`, `created_at`
+
+**`buildings`** (قسم 4.1، جدول جديد): `id`, `tenant_id`, `project_id (FK projects, nullable — عمارة قد تكون مستقلة بلا مشروع)`, `name_ar/en`, `city_id (FK cities)`, `district_id (FK districts, nullable)`, `floors_count (nullable)`, `created_at`
+
+**`rentals`** (قسم 4.2، جدول جديد): `id`, `tenant_id`, `property_id (FK properties — الوحدة المؤجَّرة)`, `tenant_name`, `tenant_phone`, `rent_amount`, `contract_start_date`, `contract_end_date`, `status (active|ended)`, `notes (nullable)`, `created_at` — تتبّع عقد بسيط، ليس نظام محاسبة إيجارات
 
 **`leads`**: `id`, `tenant_id`, `property_id (nullable)`, `full_name`, `phone`, `email (nullable)`, `source (website_form|whatsapp_click|manual)`, `status`, `assigned_agent_id (nullable)`, `follow_up_at (nullable)`, `created_at`
 
@@ -202,6 +247,7 @@
 - **4 خدمات Railway نهائيًا (`public-site`, `dashboard`, `console`, `api`)** — مرّ هذا القرار بعدة تصحيحات مني (5→3→2) قبل أن يستقر المؤسس على 4 بسببين صريحين: `api` مطلوبة الآن تحضيرًا لتطبيق جوال (وليس مؤجلة لحين بدء ذلك المشروع)، و`console` منشورة مستقلة تمامًا عن `dashboard` (عزل أمني أعلى لأعلى قيمة هجوم في النظام). `worker` وحدها بقيت محذوفة فعليًا (استُبدلت بمهمة Supabase مجدولة `pg_cron` لعدم وجود مبرر لحاوية قائمة طوال الوقت لعمل ثوانٍ يوميًا) — لم يطلب أحد إعادتها.
 - **AI مؤجل بالكامل** — لا قيمة لميزة ذكاء اصطناعي قبل إثبات الحلقة الأساسية.
 - **مصادقة بجوال + مسارين (OTP عبر Twilio Verify، أو كلمة مرور كبديل)** — تجمع سرعة تجربة OTP الافتراضية مع مسار احتياطي حقيقي عند تعطّل مزود OTP الوحيد، بدل الاعتماد الكامل على Twilio Verify كنقطة فشل وحيدة. تكلفة SMS الفعلية لا تزال قائمة عند استخدام OTP، مخفَّفة بجلسة 30 يومًا لكل جهاز.
+- **هرمية مشروع/عمارة/وحدة + إيجارات + دومين ذاتي الخدمة جزئيًا أُضيفت بعد اعتماد المستند** (قسم 4.1-4.3) — كانت مستثناة صراحة، ثم صمّم المؤسس لوحة تحكم كاملة على Claude Design تفترض وجودها فعليًا وطلب اعتمادها. راجعت التصميم، ميّزت العناصر ذات القيمة الحقيقية (الهرمية والإيجارات، بإضافة اختيارية بلا كسر للعقار المستقل البسيط) عن عناصر لم يكن خلفها تصميم فعلي أصلًا (صفحة توظيف، تكاملات خارجية بلا قائمة محددة) وسألت المؤسس تحديدًا عنها بدل افتراض القبول — استبعد الأخيرتين صراحة.
 
 ## 15. القرارات المتبقية والمخاطر المقبولة
 
