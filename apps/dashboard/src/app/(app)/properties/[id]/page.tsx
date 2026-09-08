@@ -2,8 +2,10 @@
 
 import { use, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import type { PropertyUpdateInput } from '@sbaah/shared';
+import Link from 'next/link';
+import type { PropertyUpdateInput, Rental } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { FormError } from '@/components/ui/form-error';
@@ -12,6 +14,8 @@ import { PropertyMediaManager } from '@/components/properties/property-media-man
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { ROLE_LABELS } from '@/lib/auth/role-labels';
 import { deleteProperty, getProperty, updateProperty, type PropertyWithMedia } from '@/lib/api/properties';
+import { listRentals } from '@/lib/api/rentals';
+import { RENTAL_STATUS_LABELS } from '@/lib/rental/labels';
 import { ApiRequestError } from '@/lib/api/client';
 
 export default function EditPropertyPage({ params }: { params: Promise<{ id: string }> }) {
@@ -19,6 +23,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
   const router = useRouter();
   const { me, accessToken } = useCurrentUser();
   const [property, setProperty] = useState<PropertyWithMedia | null>(null);
+  const [rentals, setRentals] = useState<Rental[]>([]);
   const [notFound, setNotFound] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
@@ -26,7 +31,11 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
     let cancelled = false;
     getProperty(accessToken, id)
       .then(({ property: loaded }) => {
-        if (!cancelled) setProperty(loaded);
+        if (cancelled) return;
+        setProperty(loaded);
+        void listRentals(accessToken, { property_id: id }).then((result) => {
+          if (!cancelled) setRentals(result.rentals);
+        });
       })
       .catch(() => {
         if (!cancelled) setNotFound(true);
@@ -94,6 +103,29 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
               media={property.property_media}
               onChange={(media) => setProperty({ ...property, property_media: media })}
             />
+          </Card>
+
+          <Card className="p-8">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-base font-semibold text-text-primary">عقود الإيجار على هذا العقار</h2>
+              <Link href={`/rentals/new?property_id=${id}`} className="text-sm font-semibold text-brand hover:underline">
+                + إضافة إيجار
+              </Link>
+            </div>
+            {rentals.length === 0 ? (
+              <p className="text-sm text-text-secondary">لا عقود إيجار مسجّلة بعد.</p>
+            ) : (
+              <ul className="flex flex-col gap-2">
+                {rentals.map((rental) => (
+                  <li key={rental.id} className="flex items-center justify-between">
+                    <Link href={`/rentals/${rental.id}`} className="text-sm font-medium text-text-primary hover:text-brand">
+                      {rental.tenant_name}
+                    </Link>
+                    <Badge status={rental.status} label={RENTAL_STATUS_LABELS[rental.status]} />
+                  </li>
+                ))}
+              </ul>
+            )}
           </Card>
 
           {canManage && (

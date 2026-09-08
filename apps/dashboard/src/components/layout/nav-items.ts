@@ -16,6 +16,7 @@ export const NAV_ITEMS: NavItem[] = [
   { href: '/properties', label: 'العقارات' },
   { href: '/projects', label: 'المشاريع' },
   { href: '/buildings', label: 'العمارات' },
+  { href: '/rentals', label: 'الإيجارات' },
   { href: '/leads', label: 'العملاء المحتملون' },
   { href: '/site', label: 'محرر الموقع' },
   { href: '/site/preview', label: 'معاينة الموقع' },
