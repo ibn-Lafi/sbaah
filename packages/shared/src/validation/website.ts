@@ -36,3 +36,20 @@ export const sectionReorderSchema = z.object({
     .min(1, 'قائمة الأقسام لا يمكن أن تكون فارغة'),
 });
 export type SectionReorderInput = z.infer<typeof sectionReorderSchema>;
+
+/**
+ * PRODUCT_SPEC section 6 gives no explicit size limit for logo/banner
+ * uploads (only the video-risk case in section 12 has one) — a single
+ * small branding image, so 5MB is a generous, low-risk default rather
+ * than an arbitrary guess needing later revisiting like the video limit.
+ */
+export const MAX_WEBSITE_ASSET_SIZE_MB = 5;
+
+/**
+ * PRODUCT_SPEC section 6: "خط من قائمة مدعومة" without naming the list —
+ * resolved here with four free, Arabic-supporting Google Fonts already
+ * common in Saudi products. IBM Plex Sans Arabic matches the dashboard's
+ * own font (docs/DASHBOARD_DESIGN_SYSTEM.md) so it's the default.
+ */
+export const SUPPORTED_WEBSITE_FONTS = ['IBM Plex Sans Arabic', 'Cairo', 'Tajawal', 'Almarai'] as const;
+export type SupportedWebsiteFont = (typeof SUPPORTED_WEBSITE_FONTS)[number];
