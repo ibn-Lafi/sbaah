@@ -18,6 +18,8 @@ export const individualRegistrationSchema = z.object({
 
 const organizationFields = {
   name_ar: z.string().min(2, 'اسم الجهة مطلوب'),
+  /** The registering person, distinct from the entity's own name_ar above — becomes the Owner user's full_name. */
+  owner_full_name: z.string().min(3, 'الاسم الثلاثي لمسؤول الحساب مطلوب'),
   cr_number: z.string().min(1, 'رقم السجل التجاري مطلوب'),
   tax_number: z.string().min(1, 'الرقم الضريبي مطلوب'),
   fal_license_number: falLicenseNumberSchema,

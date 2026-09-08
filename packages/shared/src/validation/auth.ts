@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { OTP_PURPOSES } from '../types/enums';
+import { tenantRegistrationSchema } from './tenant';
 
 /**
  * Saudi mobile numbers only, E.164 format (e.g. +966501234567).
@@ -50,3 +51,15 @@ export const resetPasswordSchema = z.object({
   new_password: passwordSchema,
 });
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
+
+/**
+ * docs/OTP_FLOW.md section 5a step 5: `registration_token` is the
+ * short-lived token from a successful `purpose: 'register'` OTP verify —
+ * it already carries the phone number, so it isn't repeated here.
+ */
+export const registerSchema = z.object({
+  registration_token: z.string().min(1),
+  password: passwordSchema,
+  account: tenantRegistrationSchema,
+});
+export type RegisterInput = z.infer<typeof registerSchema>;
