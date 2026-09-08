@@ -25,13 +25,30 @@ async function handleResponse<T>(response: Response): Promise<T> {
   return json as T;
 }
 
-/** Every `/v1/auth/otp/*`, `/v1/auth/register` and `/v1/auth/reset-password` call is an unauthenticated POST — no Authorization header, per docs/OTP_FLOW.md. */
-export async function apiPost<T>(path: string, body: unknown): Promise<T> {
+interface RequestOptions {
+  method?: 'GET' | 'POST' | 'PATCH' | 'DELETE';
+  body?: unknown;
+  accessToken?: string;
+}
+
+/** Every call in the app funnels through here — a plain object body is sent as JSON, a FormData body (media upload) is sent as-is. */
+async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  const headers: Record<string, string> = {};
+  if (options.accessToken) headers.Authorization = `Bearer ${options.accessToken}`;
+
+  let body: BodyInit | undefined;
+  if (options.body instanceof FormData) {
+    body = options.body;
+  } else if (options.body !== undefined) {
+    headers['Content-Type'] = 'application/json';
+    body = JSON.stringify(options.body);
+  }
+
   try {
     const response = await fetch(`${requireApiUrl()}${path}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
+      method: options.method ?? 'GET',
+      headers,
+      body,
     });
     return await handleResponse<T>(response);
   } catch (err) {
@@ -40,15 +57,25 @@ export async function apiPost<T>(path: string, body: unknown): Promise<T> {
   }
 }
 
-/** Authenticated GET — every call after login carries the caller's own Supabase access token. */
-export async function apiGet<T>(path: string, accessToken: string): Promise<T> {
-  try {
-    const response = await fetch(`${requireApiUrl()}${path}`, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
-    return await handleResponse<T>(response);
-  } catch (err) {
-    if (err instanceof ApiRequestError) throw err;
-    throw new ApiRequestError('network_error', 'تعذّر الاتصال بالخادم، تحقق من اتصالك بالإنترنت');
-  }
+/** Unauthenticated by default (docs/OTP_FLOW.md's /v1/auth/otp/* + register + reset-password); pass accessToken for authenticated POSTs. */
+export function apiPost<T>(path: string, body: unknown, accessToken?: string): Promise<T> {
+  return request<T>(path, { method: 'POST', body, accessToken });
+}
+
+export function apiPatch<T>(path: string, body: unknown, accessToken: string): Promise<T> {
+  return request<T>(path, { method: 'PATCH', body, accessToken });
+}
+
+export function apiDelete<T>(path: string, accessToken: string): Promise<T> {
+  return request<T>(path, { method: 'DELETE', accessToken });
+}
+
+/** GET /v1/auth/me and every tenant-scoped list/detail call requires accessToken; GET /v1/public/* endpoints don't. */
+export function apiGet<T>(path: string, accessToken?: string): Promise<T> {
+  return request<T>(path, { accessToken });
+}
+
+/** multipart/form-data upload (property media) — never set Content-Type manually, the browser adds the correct boundary. */
+export function apiUpload<T>(path: string, formData: FormData, accessToken: string): Promise<T> {
+  return request<T>(path, { method: 'POST', body: formData, accessToken });
 }
