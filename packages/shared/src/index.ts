@@ -7,5 +7,6 @@ export * from './validation/project';
 export * from './validation/rental';
 export * from './validation/website';
 export * from './validation/lead';
+export * from './validation/console';
 export * from './supabase/client';
 export * from './supabase/bearer-token';
