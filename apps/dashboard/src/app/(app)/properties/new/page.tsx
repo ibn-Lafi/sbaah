@@ -25,6 +25,7 @@ export default function NewPropertyPage() {
         <PropertyForm
           mode="create"
           accessToken={accessToken}
+          role={me.user.role}
           submitLabel="إضافة العقار"
           onSubmit={async (input) => {
             const { property } = await createProperty(accessToken, input as PropertyInput);

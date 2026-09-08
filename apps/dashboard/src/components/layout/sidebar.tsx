@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { BrandMark } from '@/components/ui/brand-mark';
 import { AccountAvatar } from '@/components/ui/account-avatar';
 import { NAV_ITEMS } from './nav-items';
+import { useCurrentUser } from '@/lib/auth/current-user-context';
 import type { AccountType } from '@sbaah/shared';
 
 interface SidebarProps {
@@ -17,6 +18,8 @@ interface SidebarProps {
 /** Matches the sidebar in the founder's mockup exactly (216px, dot-indicator nav, account switcher). */
 export function Sidebar({ orgName, accountType, roleLabel }: SidebarProps) {
   const pathname = usePathname();
+  const { me } = useCurrentUser();
+  const visibleItems = NAV_ITEMS.filter((item) => !item.roles || item.roles.includes(me.user.role));
 
   return (
     <div className="flex w-[216px] flex-none flex-col border-e border-border-subtle bg-surface-card p-[10px_10px_18px]">
@@ -25,7 +28,7 @@ export function Sidebar({ orgName, accountType, roleLabel }: SidebarProps) {
       </div>
 
       <nav className="flex flex-1 flex-col gap-px overflow-auto">
-        {NAV_ITEMS.map((item) => {
+        {visibleItems.map((item) => {
           const active = pathname === item.href;
           return (
             <Link

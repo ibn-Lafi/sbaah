@@ -16,6 +16,7 @@ import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { ROLE_LABELS } from '@/lib/auth/role-labels';
 import { addLeadNote, deleteLead, getLead, updateLead, type LeadWithNotes } from '@/lib/api/leads';
 import { getProperty } from '@/lib/api/properties';
+import { listTeam, type TeamMember } from '@/lib/api/team';
 import { ApiRequestError } from '@/lib/api/client';
 import { LEAD_STATUS_LABELS, LEAD_SOURCE_LABELS } from '@/lib/lead/labels';
 import { datetimeLocalToIso, isoToDatetimeLocal } from '@/lib/lead/datetime';
@@ -26,6 +27,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
   const { me, accessToken } = useCurrentUser();
   const [lead, setLead] = useState<LeadWithNotes | null>(null);
   const [property, setProperty] = useState<Property | null>(null);
+  const [team, setTeam] = useState<TeamMember[]>([]);
   const [notFound, setNotFound] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -53,6 +55,22 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
   }, [accessToken, id]);
 
   const canManage = me.user.role !== 'agent';
+
+  useEffect(() => {
+    if (canManage) {
+      void listTeam(accessToken).then((result) => setTeam(result.members));
+    }
+  }, [accessToken, canManage]);
+
+  async function saveAssignedAgent(assignedAgentId: string) {
+    setError(null);
+    try {
+      const { lead: updated } = await updateLead(accessToken, id, { assigned_agent_id: assignedAgentId || null });
+      setLead((current) => (current ? { ...current, ...updated } : current));
+    } catch (err) {
+      setError(err instanceof ApiRequestError ? err.message : 'تعذّر حفظ المسؤول');
+    }
+  }
 
   async function saveStatus(status: string) {
     setError(null);
@@ -185,6 +203,22 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
                   onBlur={(e) => void saveFollowUp(e.target.value)}
                 />
               </div>
+              {canManage && (
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs text-text-secondary">المسؤول عن المتابعة</label>
+                  <Select
+                    defaultValue={lead.assigned_agent_id ?? ''}
+                    onChange={(e) => void saveAssignedAgent(e.target.value)}
+                  >
+                    <option value="">بلا مسؤول</option>
+                    {team.map((member) => (
+                      <option key={member.id} value={member.id}>
+                        {member.full_name}
+                      </option>
+                    ))}
+                  </Select>
+                </div>
+              )}
             </div>
           </Card>
 

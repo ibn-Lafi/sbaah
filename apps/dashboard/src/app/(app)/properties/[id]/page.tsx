@@ -87,6 +87,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
               mode="edit"
               initialValues={property}
               accessToken={accessToken}
+              role={me.user.role}
               submitLabel="حفظ التعديلات"
               onSubmit={async (input) => {
                 const { property: updated } = await updateProperty(accessToken, id, input as PropertyUpdateInput);

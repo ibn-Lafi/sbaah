@@ -3,6 +3,7 @@ import { customDomainInputSchema } from '@sbaah/shared';
 import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
+import { assertOwner } from '@/lib/auth/assert-owner';
 
 /** PRODUCT_SPEC section 4.3: the CNAME target is a deployment-time value (task 42/42's Railway guide), never hardcoded. */
 function requireCnameTarget(): string {
@@ -15,13 +16,6 @@ function requireCnameTarget(): string {
 
 function dnsRecordFor(customDomain: string) {
   return { type: 'CNAME', name: customDomain, value: requireCnameTarget() };
-}
-
-/** tenants_owner_update (migration 0005) restricts writes to role='owner' exactly — not Admin, unlike website editing. */
-function assertOwner(role: string): void {
-  if (role !== 'owner') {
-    throw new ApiError(403, 'forbidden', 'إعداد الدومين المخصص متاح لمالك الحساب فقط');
-  }
 }
 
 export const GET = withErrorHandling(async (request: NextRequest) => {

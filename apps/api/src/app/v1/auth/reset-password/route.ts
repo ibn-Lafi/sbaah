@@ -19,7 +19,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   const supabase = createServiceRoleClient();
   const { data: user, error: userError } = await supabase
     .from('users')
-    .select('auth_user_id')
+    .select('auth_user_id, status')
     .eq('phone', payload.phone)
     .single();
   if (userError || !user) {
@@ -31,6 +31,13 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   });
   if (updateError) {
     throw new Error(`Failed to update password: ${updateError.message}`);
+  }
+
+  // An invited team member can also set a password via "forgot password"
+  // (same phone-OTP mechanism) instead of the passwordless login flow —
+  // this is an equally valid activation event.
+  if (user.status === 'invited') {
+    await supabase.from('users').update({ status: 'active' }).eq('phone', payload.phone);
   }
 
   return okResponse({ status: 'ok' });

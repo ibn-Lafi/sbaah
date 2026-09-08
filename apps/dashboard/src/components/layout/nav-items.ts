@@ -6,9 +6,13 @@
  * ahead of time. Still explicitly out of scope: job applicants and an
  * apps/integrations marketplace (PRODUCT_SPEC.md section 4, declined).
  */
+import type { UserRole } from '@sbaah/shared';
+
 export interface NavItem {
   href: string;
   label: string;
+  /** Omitted = visible to every role. PRODUCT_SPEC section 8: Agent has no website/team/billing access. */
+  roles?: UserRole[];
 }
 
 export const NAV_ITEMS: NavItem[] = [
@@ -18,9 +22,8 @@ export const NAV_ITEMS: NavItem[] = [
   { href: '/buildings', label: 'العمارات' },
   { href: '/rentals', label: 'الإيجارات' },
   { href: '/leads', label: 'العملاء المحتملون' },
-  { href: '/site', label: 'محرر الموقع' },
-  { href: '/site/preview', label: 'معاينة الموقع' },
-  { href: '/team', label: 'الفريق' },
-  { href: '/settings', label: 'الإعدادات' },
-  { href: '/billing', label: 'الفوترة والاشتراك' },
+  { href: '/site', label: 'محرر الموقع', roles: ['owner', 'admin'] },
+  { href: '/team', label: 'الفريق', roles: ['owner', 'admin'] },
+  { href: '/settings', label: 'الإعدادات', roles: ['owner', 'admin'] },
+  { href: '/billing', label: 'الفوترة والاشتراك', roles: ['owner'] },
 ];

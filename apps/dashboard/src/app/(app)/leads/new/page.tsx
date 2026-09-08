@@ -13,22 +13,26 @@ import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { ROLE_LABELS } from '@/lib/auth/role-labels';
 import { createLead } from '@/lib/api/leads';
 import { listProperties } from '@/lib/api/properties';
+import { listTeam, type TeamMember } from '@/lib/api/team';
 import { ApiRequestError } from '@/lib/api/client';
 
-/** RLS (leads_owner_admin_manage) has no insert policy for Agent — matches POST /v1/leads' explicit 403 for that role. */
+/** RLS (leads_owner_admin_manage) has no insert policy for Agent — matches POST /v1/leads' explicit 403 for that role. Same reasoning is why the agent-assignment select below fetches GET /v1/team unconditionally: only Owner/Admin ever render this page. */
 export default function NewLeadPage() {
   const router = useRouter();
   const { me, accessToken } = useCurrentUser();
   const [properties, setProperties] = useState<Property[]>([]);
+  const [team, setTeam] = useState<TeamMember[]>([]);
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [propertyId, setPropertyId] = useState('');
+  const [assignedAgentId, setAssignedAgentId] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     void listProperties(accessToken).then((result) => setProperties(result.properties));
+    void listTeam(accessToken).then((result) => setTeam(result.members));
   }, [accessToken]);
 
   async function handleSubmit(event: FormEvent) {
@@ -40,6 +44,7 @@ export default function NewLeadPage() {
       phone,
       email: email || null,
       property_id: propertyId || null,
+      assigned_agent_id: assignedAgentId || null,
     };
 
     const result = manualLeadInputSchema.safeParse(candidate);
@@ -84,6 +89,14 @@ export default function NewLeadPage() {
             {properties.map((property) => (
               <option key={property.id} value={property.id}>
                 {property.title_ar}
+              </option>
+            ))}
+          </Select>
+          <Select value={assignedAgentId} onChange={(e) => setAssignedAgentId(e.target.value)}>
+            <option value="">بلا مسؤول (اختياري)</option>
+            {team.map((member) => (
+              <option key={member.id} value={member.id}>
+                {member.full_name}
               </option>
             ))}
           </Select>

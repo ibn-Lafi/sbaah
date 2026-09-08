@@ -14,6 +14,7 @@ import {
   type Project,
   type PropertyInput,
   type PropertyUpdateInput,
+  type UserRole,
 } from '@sbaah/shared';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,6 +30,7 @@ import {
   PROPERTY_TYPE_LABELS,
 } from '@/lib/property/labels';
 import type { PropertyWithMedia } from '@/lib/api/properties';
+import { listTeam, type TeamMember } from '@/lib/api/team';
 
 type FormState = {
   title_ar: string;
@@ -45,6 +47,7 @@ type FormState = {
   district_id: string;
   project_id: string;
   building_id: string;
+  agent_id: string;
   status: string;
   availability: string;
 };
@@ -64,6 +67,7 @@ const EMPTY_STATE: FormState = {
   district_id: '',
   project_id: '',
   building_id: '',
+  agent_id: '',
   status: 'draft',
   availability: 'available',
 };
@@ -84,6 +88,7 @@ function toFormState(property: PropertyWithMedia): FormState {
     district_id: property.district_id ?? '',
     project_id: property.project_id ?? '',
     building_id: property.building_id ?? '',
+    agent_id: property.agent_id ?? '',
     status: property.status,
     availability: property.availability,
   };
@@ -93,24 +98,32 @@ interface PropertyFormProps {
   mode: 'create' | 'edit';
   initialValues?: PropertyWithMedia;
   accessToken: string;
+  /** GET /v1/team is Owner/Admin-only — an Agent viewing/editing their own assigned property never sees or fetches the assignment field. */
+  role: UserRole;
   onSubmit: (input: PropertyInput | PropertyUpdateInput) => Promise<void>;
   submitLabel: string;
 }
 
 /** Shared by /properties/new and /properties/[id] — the only difference is whether status/availability show and what onSubmit does with the payload. */
-export function PropertyForm({ mode, initialValues, accessToken, onSubmit, submitLabel }: PropertyFormProps) {
+export function PropertyForm({ mode, initialValues, accessToken, role, onSubmit, submitLabel }: PropertyFormProps) {
   const [form, setForm] = useState<FormState>(initialValues ? toFormState(initialValues) : EMPTY_STATE);
   const [cities, setCities] = useState<City[]>([]);
   const [districts, setDistricts] = useState<District[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [buildings, setBuildings] = useState<Building[]>([]);
+  const [team, setTeam] = useState<TeamMember[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const canAssignAgent = role !== 'agent';
 
   useEffect(() => {
     void listCities().then(setCities);
     void listProjects(accessToken).then((result) => setProjects(result.projects));
     void listBuildings(accessToken).then((result) => setBuildings(result.buildings));
+    if (canAssignAgent) {
+      void listTeam(accessToken).then((result) => setTeam(result.members));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken]);
 
   useEffect(() => {
@@ -144,6 +157,7 @@ export function PropertyForm({ mode, initialValues, accessToken, onSubmit, submi
       district_id: form.district_id || null,
       project_id: form.project_id || null,
       building_id: form.building_id || null,
+      ...(canAssignAgent ? { agent_id: form.agent_id || null } : {}),
       ...(mode === 'edit' ? { status: form.status, availability: form.availability } : {}),
     };
 
@@ -275,6 +289,17 @@ export function PropertyForm({ mode, initialValues, accessToken, onSubmit, submi
           ))}
         </Select>
       </div>
+
+      {canAssignAgent && (
+        <Select value={form.agent_id} onChange={(e) => set('agent_id', e.target.value)}>
+          <option value="">بلا مسؤول (اختياري)</option>
+          {team.map((member) => (
+            <option key={member.id} value={member.id}>
+              {member.full_name}
+            </option>
+          ))}
+        </Select>
+      )}
 
       {mode === 'edit' && (
         <div className="grid grid-cols-2 gap-4">

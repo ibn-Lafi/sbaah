@@ -67,11 +67,17 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   // purpose === 'login': the account already exists (checked at send time).
   const { data: user, error: userError } = await supabase
     .from('users')
-    .select('auth_user_id')
+    .select('auth_user_id, status')
     .eq('phone', phone)
     .single();
   if (userError || !user) {
     throw new Error(`Failed to load user for login session minting: ${userError?.message}`);
+  }
+
+  // A team invite creates the user with status 'invited' and no password;
+  // their first successful login (this OTP flow) is the activation event.
+  if (user.status === 'invited') {
+    await supabase.from('users').update({ status: 'active' }).eq('phone', phone);
   }
 
   const session = await mintSessionForUser(supabase, user.auth_user_id);
