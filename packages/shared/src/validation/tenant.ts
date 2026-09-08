@@ -42,3 +42,13 @@ export const tenantRegistrationSchema = z.discriminatedUnion('account_type', [
 ]);
 
 export type TenantRegistrationInput = z.infer<typeof tenantRegistrationSchema>;
+
+/** PRODUCT_SPEC section 4.3 — partially self-service custom domain. Bare hostname, no protocol/path. */
+export const customDomainInputSchema = z.object({
+  custom_domain: z
+    .string()
+    .min(3)
+    .max(253)
+    .regex(/^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i, 'صيغة الدومين غير صحيحة (مثال: example.com)'),
+});
+export type CustomDomainInput = z.infer<typeof customDomainInputSchema>;
