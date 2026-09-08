@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { LISTING_TYPES, PROPERTY_TYPES } from '../types/enums';
+import { LISTING_TYPES, PROPERTY_AVAILABILITY, PROPERTY_STATUSES, PROPERTY_TYPES } from '../types/enums';
 
 export const propertyInputSchema = z.object({
   title_ar: z.string().min(3, 'عنوان العقار مطلوب'),
@@ -17,8 +17,18 @@ export const propertyInputSchema = z.object({
   lat: z.number().optional().nullable(),
   lng: z.number().optional().nullable(),
   agent_id: z.string().uuid().optional().nullable(),
+  /** PRODUCT_SPEC section 4.1 — optional hierarchy grouping, added after the original property model. */
+  project_id: z.string().uuid().optional().nullable(),
+  building_id: z.string().uuid().optional().nullable(),
 });
 export type PropertyInput = z.infer<typeof propertyInputSchema>;
+
+/** PATCH body — every field optional, plus status/availability which POST never sets directly (DB defaults handle creation). */
+export const propertyUpdateSchema = propertyInputSchema.partial().extend({
+  status: z.enum(PROPERTY_STATUSES).optional(),
+  availability: z.enum(PROPERTY_AVAILABILITY).optional(),
+});
+export type PropertyUpdateInput = z.infer<typeof propertyUpdateSchema>;
 
 /** Query params for the public search/filter endpoint (PRODUCT_SPEC section 4). */
 export const propertySearchSchema = z.object({
