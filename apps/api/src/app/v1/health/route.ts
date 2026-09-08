@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server';
+import { okResponse } from '@/lib/http';
 
 /** Liveness check — no auth, no database access. */
 export function GET() {
-  return NextResponse.json({ status: 'ok' });
+  return okResponse({ status: 'ok' });
 }
