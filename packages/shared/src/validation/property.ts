@@ -30,17 +30,21 @@ export const propertyUpdateSchema = propertyInputSchema.partial().extend({
 });
 export type PropertyUpdateInput = z.infer<typeof propertyUpdateSchema>;
 
-/** Query params for the public search/filter endpoint (PRODUCT_SPEC section 4). */
+/**
+ * Query params for the public search/filter endpoint (PRODUCT_SPEC section
+ * 4). `.coerce` throughout — these arrive as strings from a URL query
+ * string (`request.nextUrl.searchParams`), never as a JSON body.
+ */
 export const propertySearchSchema = z.object({
   city_id: z.string().uuid().optional(),
   district_id: z.string().uuid().optional(),
   property_type: z.enum(PROPERTY_TYPES).optional(),
   listing_type: z.enum(LISTING_TYPES).optional(),
-  min_price: z.number().nonnegative().optional(),
-  max_price: z.number().positive().optional(),
-  bedrooms: z.number().int().nonnegative().optional(),
-  page: z.number().int().positive().default(1),
-  page_size: z.number().int().positive().max(50).default(20),
+  min_price: z.coerce.number().nonnegative().optional(),
+  max_price: z.coerce.number().positive().optional(),
+  bedrooms: z.coerce.number().int().nonnegative().optional(),
+  page: z.coerce.number().int().positive().default(1),
+  page_size: z.coerce.number().int().positive().max(50).default(20),
 });
 export type PropertySearchInput = z.infer<typeof propertySearchSchema>;
 
