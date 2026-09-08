@@ -1,0 +1,61 @@
+import type { NextRequest } from 'next/server';
+import { createServiceRoleClient, requestOtpSchema } from '@sbaah/shared';
+import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
+import { sendVerification } from '@/lib/twilio/verify-client';
+import { OTP_CONFIG } from '@/lib/otp/otp-config';
+import { computeExpiresAt, hasExceededSendLimit } from '@/lib/otp/otp-policy';
+
+export const POST = withErrorHandling(async (request: NextRequest) => {
+  const { phone, purpose } = requestOtpSchema.parse(await request.json());
+  const supabase = createServiceRoleClient();
+
+  const { data: existingUser } = await supabase
+    .from('users')
+    .select('id')
+    .eq('phone', phone)
+    .maybeSingle();
+
+  if (purpose === 'register' && existingUser) {
+    throw new ApiError(409, 'phone_already_registered', 'رقم الجوال مسجّل بالفعل');
+  }
+  if (purpose !== 'register' && !existingUser) {
+    throw new ApiError(404, 'phone_not_registered', 'رقم الجوال غير مسجّل');
+  }
+
+  const windowStart = new Date(Date.now() - OTP_CONFIG.sendWindowMs).toISOString();
+  const { data: recentSends, error: recentSendsError } = await supabase
+    .from('otp_verifications')
+    .select('id')
+    .eq('phone', phone)
+    .eq('purpose', purpose)
+    .gte('created_at', windowStart);
+
+  if (recentSendsError) {
+    throw new Error(`Failed to check OTP send rate limit: ${recentSendsError.message}`);
+  }
+  if (hasExceededSendLimit(recentSends?.length ?? 0)) {
+    throw new ApiError(429, 'otp_rate_limited', 'عدد كبير من الطلبات، حاول لاحقًا');
+  }
+
+  // docs/OTP_FLOW.md section 6: a new send invalidates any still-active previous row.
+  await supabase
+    .from('otp_verifications')
+    .update({ expires_at: new Date().toISOString() })
+    .eq('phone', phone)
+    .eq('purpose', purpose)
+    .is('consumed_at', null);
+
+  const verification = await sendVerification(phone);
+
+  const { error: insertError } = await supabase.from('otp_verifications').insert({
+    phone,
+    purpose,
+    twilio_verification_sid: verification.sid,
+    expires_at: computeExpiresAt(),
+  });
+  if (insertError) {
+    throw new Error(`Failed to record OTP send: ${insertError.message}`);
+  }
+
+  return okResponse({ status: 'sent' });
+});

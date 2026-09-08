@@ -12,6 +12,7 @@
   "dependencies": {
     "@sbaah/shared": "workspace:*",
     "@supabase/supabase-js": "^2.47.10",
+    "jose": "^5.9.6",
     "next": "^15.1.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

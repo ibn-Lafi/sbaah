@@ -10,6 +10,7 @@ import type {
   LeadStatus,
   ListingType,
   MediaType,
+  OtpPurpose,
   PropertyAvailability,
   PropertyStatus,
   PropertyType,
@@ -164,6 +165,19 @@ export interface PropertyView {
   tenant_id: string;
   property_id: string;
   source: string | null;
+  created_at: string;
+}
+
+/** Not part of PRODUCT_SPEC's original data model — see docs/OTP_FLOW.md. Never holds the OTP code itself. */
+export interface OtpVerification {
+  id: string;
+  phone: string;
+  purpose: OtpPurpose;
+  twilio_verification_sid: string | null;
+  attempt_count: number;
+  locked_until: string | null;
+  expires_at: string;
+  consumed_at: string | null;
   created_at: string;
 }
 

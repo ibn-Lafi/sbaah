@@ -53,6 +53,10 @@ export const WEBSITE_SECTION_TYPES = [
 ] as const;
 export type WebsiteSectionType = (typeof WEBSITE_SECTION_TYPES)[number];
 
+/** Not part of PRODUCT_SPEC's original data model — see docs/OTP_FLOW.md. */
+export const OTP_PURPOSES = ['register', 'login', 'reset_password'] as const;
+export type OtpPurpose = (typeof OTP_PURPOSES)[number];
+
 /** Account-type badge color, per PRODUCT_SPEC section 6. */
 export const ACCOUNT_TYPE_BADGE_COLOR: Record<AccountType, string> = {
   individual: '#1D9BF0',
