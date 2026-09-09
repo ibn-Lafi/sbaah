@@ -2,7 +2,7 @@ import type { Session, SupabaseClient } from '@supabase/supabase-js';
 
 /**
  * docs/OTP_FLOW.md section 4 — mints a real Supabase session for a user
- * who was verified via Twilio Verify, not Supabase's own OTP flow.
+ * who was verified via Authentica, not Supabase's own OTP flow.
  * `supabase` MUST be a service-role client (`admin.generateLink` requires
  * it). UNTESTED against a live Supabase project — see the warning in
  * that section; validate this first when task 12/35 credentials exist.

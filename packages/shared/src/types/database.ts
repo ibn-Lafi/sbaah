@@ -221,7 +221,6 @@ export interface OtpVerification {
   id: string;
   phone: string;
   purpose: OtpPurpose;
-  twilio_verification_sid: string | null;
   attempt_count: number;
   locked_until: string | null;
   expires_at: string;

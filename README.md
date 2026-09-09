@@ -29,7 +29,7 @@ cp apps/api/.env.example apps/api/.env.local
 cp apps/dashboard/.env.example apps/dashboard/.env.local
 cp apps/console/.env.example apps/console/.env.local
 cp apps/public-site/.env.example apps/public-site/.env.local
-# عبّئ القيم الفعلية في كل .env.local (مفاتيح Supabase، Twilio، إلخ)
+# عبّئ القيم الفعلية في كل .env.local (مفاتيح Supabase، Authentica، إلخ)
 pnpm dev
 ```
 

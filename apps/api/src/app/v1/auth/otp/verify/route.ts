@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { createServiceRoleClient, verifyOtpSchema } from '@sbaah/shared';
 import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
-import { checkVerification } from '@/lib/twilio/verify-client';
+import { verifyOtpSms } from '@/lib/authentica/client';
 import {
   computeLockedUntil,
   isExpired,
@@ -38,9 +38,9 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
     throw new ApiError(400, 'otp_expired', 'انتهت صلاحية الرمز، اطلب رمزًا جديدًا');
   }
 
-  const check = await checkVerification(phone, code);
+  const verified = await verifyOtpSms(phone, code);
 
-  if (check.status !== 'approved') {
+  if (!verified) {
     const willLock = shouldLockAfterFailedAttempt(row.attempt_count);
     await supabase
       .from('otp_verifications')

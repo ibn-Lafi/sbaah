@@ -2,7 +2,7 @@ import { OTP_CONFIG } from './otp-config';
 
 /**
  * Pure decision functions with no I/O — the actual send/verify limits
- * from docs/OTP_FLOW.md section 6, kept separate from the Supabase/Twilio
+ * from docs/OTP_FLOW.md section 6, kept separate from the Supabase/Authentica
  * calls around them so they can be unit-tested without a live project.
  */
 

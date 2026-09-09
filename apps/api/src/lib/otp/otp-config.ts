@@ -1,6 +1,6 @@
-/** docs/OTP_FLOW.md section 6 — every number here is our own control, independent of Twilio's internal limits. */
+/** docs/OTP_FLOW.md section 6 — every number here is our own control, independent of Authentica's internal limits. */
 export const OTP_CONFIG = {
-  /** Code validity window we enforce ourselves, shorter than Twilio's own default. */
+  /** Code validity window we enforce ourselves — Authentica documents no expiry of its own to compare against. */
   ttlMs: 90 * 1000,
   /** Max OTP sends for the same phone+purpose within `sendWindowMs`. */
   maxSendsPerWindow: 3,

@@ -1,7 +1,8 @@
 import type { NextRequest } from 'next/server';
 import { createServiceRoleClient, requestOtpSchema } from '@sbaah/shared';
 import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
-import { sendVerification } from '@/lib/twilio/verify-client';
+import { sendOtpSms } from '@/lib/authentica/client';
+import { generateOtpCode } from '@/lib/otp/generate-code';
 import { OTP_CONFIG } from '@/lib/otp/otp-config';
 import { computeExpiresAt, hasExceededSendLimit } from '@/lib/otp/otp-policy';
 
@@ -45,12 +46,12 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
     .eq('purpose', purpose)
     .is('consumed_at', null);
 
-  const verification = await sendVerification(phone);
+  const code = generateOtpCode();
+  await sendOtpSms(phone, code);
 
   const { error: insertError } = await supabase.from('otp_verifications').insert({
     phone,
     purpose,
-    twilio_verification_sid: verification.sid,
     expires_at: computeExpiresAt(),
   });
   if (insertError) {
