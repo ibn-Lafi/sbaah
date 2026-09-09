@@ -10,6 +10,11 @@
  */
 
 const AUTHENTICA_BASE_URL = 'https://api.authentica.sa/api/v2';
+// No timeout on the underlying fetch previously — a slow/hung Authentica
+// response held the whole /v1/auth/otp/send or /verify request open
+// indefinitely, eating into the OTP's own validity window before the
+// customer even saw the "sent" response. Fails fast instead.
+const REQUEST_TIMEOUT_MS = 10_000;
 
 function requireEnv(name: string): string {
   const value = process.env[name];
@@ -41,6 +46,7 @@ export async function sendOtpSms(phone: string, otp: string, fetchImpl: typeof f
     method: 'POST',
     headers: buildHeaders(),
     body: JSON.stringify(body),
+    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
   });
 
   if (!response.ok) {
@@ -61,6 +67,7 @@ export async function verifyOtpSms(phone: string, otp: string, fetchImpl: typeof
     method: 'POST',
     headers: buildHeaders(),
     body: JSON.stringify({ phone, otp }),
+    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
   });
 
   if (!response.ok) {
