@@ -18,6 +18,18 @@ export default function ConsoleHomePage() {
             <p className="text-sm text-black/60">أسعار وحدود الباقات المعروضة للعملاء.</p>
           </Card>
         </Link>
+        <Link href="/cities">
+          <Card className="p-6 hover:shadow-[0_2px_16px_rgba(31,29,34,.14)]">
+            <h2 className="mb-1 font-semibold text-brand">المدن</h2>
+            <p className="text-sm text-black/60">المدن المتاحة عند إضافة عقار أو موقع.</p>
+          </Card>
+        </Link>
+        <Link href="/districts">
+          <Card className="p-6 hover:shadow-[0_2px_16px_rgba(31,29,34,.14)]">
+            <h2 className="mb-1 font-semibold text-brand">الأحياء</h2>
+            <p className="text-sm text-black/60">أحياء كل مدينة — تُدار مرتبطة بمدينتها.</p>
+          </Card>
+        </Link>
       </div>
     </ConsoleShell>
   );

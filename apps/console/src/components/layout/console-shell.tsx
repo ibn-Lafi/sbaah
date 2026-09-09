@@ -8,6 +8,8 @@ import { signOut } from '@/lib/auth/session';
 const NAV_ITEMS = [
   { href: '/accounts', label: 'الحسابات' },
   { href: '/plans', label: 'الباقات' },
+  { href: '/cities', label: 'المدن' },
+  { href: '/districts', label: 'الأحياء' },
 ];
 
 /** Every authenticated console screen wraps its content in this — small top nav, no sidebar (console has far fewer sections than dashboard). */
