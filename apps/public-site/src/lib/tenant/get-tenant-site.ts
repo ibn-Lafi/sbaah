@@ -1,7 +1,7 @@
 import { cache } from 'react';
-import { headers } from 'next/headers';
 import type { AccountType, Website, WebsiteSection } from '@sbaah/shared';
 import { apiGet, ApiRequestError } from '@/lib/api/client';
+import { getHost } from './get-host';
 
 export interface TenantSite {
   tenant: { name_ar: string; name_en: string; account_type: AccountType };
@@ -26,7 +26,7 @@ export interface TenantSite {
  * that requires it, extending the resolver to expose tenant status.
  */
 export const getTenantSite = cache(async (): Promise<TenantSite | null> => {
-  const host = (await headers()).get('host');
+  const host = await getHost();
   if (!host) {
     return null;
   }

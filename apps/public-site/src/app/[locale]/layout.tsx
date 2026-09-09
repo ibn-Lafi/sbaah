@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { headers } from 'next/headers';
 import Link from 'next/link';
 import '../globals.css';
 import { isLocale, DEFAULT_LOCALE, type Locale } from '@/lib/i18n/locales';
@@ -39,7 +40,12 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
 
   const font = resolveWebsiteFont(site.website.font_family);
   const tenantName = locale === 'ar' ? site.tenant.name_ar : site.tenant.name_en;
-  const otherLocaleHref = locale === 'ar' ? '/en' : '/';
+
+  // "This same page, other language" — middleware.ts forwards the
+  // locale-stripped path (+ query) as a header since Server Components
+  // have no usePathname() equivalent.
+  const pathWithoutLocale = (await headers()).get('x-pathname') ?? '/';
+  const otherLocaleHref = locale === 'ar' ? `/en${pathWithoutLocale === '/' ? '' : pathWithoutLocale}` : pathWithoutLocale;
 
   return (
     <html
@@ -54,7 +60,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
     >
       <body className={font.className}>
         <header className="flex items-center justify-between border-b border-black/10 px-6 py-4">
-          <Link href="/" className="flex items-center gap-2 font-semibold text-tenant-primary">
+          <Link href={locale === 'ar' ? '/' : '/en'} className="flex items-center gap-2 font-semibold text-tenant-primary">
             {site.website.logo_url ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={site.website.logo_url} alt={tenantName} className="h-9 w-auto" />
@@ -62,9 +68,14 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
               <span className="text-lg">{tenantName}</span>
             )}
           </Link>
-          <Link href={otherLocaleHref} className="text-sm text-tenant-primary hover:underline">
-            {dict.languageSwitch}
-          </Link>
+          <nav className="flex items-center gap-5">
+            <Link href={locale === 'ar' ? '/properties' : '/en/properties'} className="text-sm hover:text-tenant-primary">
+              {dict.properties}
+            </Link>
+            <Link href={otherLocaleHref} className="text-sm text-tenant-primary hover:underline">
+              {dict.languageSwitch}
+            </Link>
+          </nav>
         </header>
 
         <main>{children}</main>

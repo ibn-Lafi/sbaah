@@ -13,10 +13,12 @@ const dictionaries = {
   ar: {
     languageSwitch: 'English',
     comingSoon: 'قريبًا',
+    properties: 'العقارات',
   },
   en: {
     languageSwitch: 'العربية',
     comingSoon: 'Coming soon',
+    properties: 'Properties',
   },
 } satisfies Record<Locale, Record<string, string>>;
 

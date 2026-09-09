@@ -10,16 +10,25 @@ import { LOCALES, DEFAULT_LOCALE } from '@/lib/i18n/locales';
  * further routing logic duplicated per page.
  */
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  const { pathname, search } = request.nextUrl;
 
   const prefixedLocale = LOCALES.find((locale) => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`));
+  // The layout's language switcher (task 33/42) needs "this same page,
+  // other language" — Server Components have no equivalent of
+  // usePathname(), so the locale-stripped path + query is forwarded as a
+  // request header here, the one place that already knows it.
+  const pathWithoutLocale = prefixedLocale ? pathname.slice(`/${prefixedLocale}`.length) || '/' : pathname;
+
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set('x-pathname', `${pathWithoutLocale}${search}`);
+
   if (prefixedLocale) {
-    return NextResponse.next();
+    return NextResponse.next({ request: { headers: requestHeaders } });
   }
 
   const url = request.nextUrl.clone();
   url.pathname = `/${DEFAULT_LOCALE}${pathname}`;
-  return NextResponse.rewrite(url);
+  return NextResponse.rewrite(url, { request: { headers: requestHeaders } });
 }
 
 export const config = {

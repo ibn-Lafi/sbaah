@@ -24,9 +24,12 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
   // status='published' rows of active tenants — tenant_id/status here are
   // explicit anyway, per PRODUCT_SPEC section 10 ("فلترة tenant_id صريحة
   // داخل api قبل أي استعلام"), not relied on as the only guard.
+  // Thumbnail for the listing page (task 33/42) — the full ordered
+  // gallery is only needed on the single-property page (task 34/42),
+  // so only the lightweight columns a card needs are embedded here.
   let query = supabase
     .from('properties')
-    .select('*', { count: 'exact' })
+    .select('*, property_media(url, media_type, order_index)', { count: 'exact' })
     .eq('tenant_id', tenantId)
     .eq('status', 'published');
 
