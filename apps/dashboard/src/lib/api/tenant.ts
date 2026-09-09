@@ -25,3 +25,7 @@ export function setDomain(accessToken: string, custom_domain: string) {
 export function removeDomain(accessToken: string) {
   return apiDelete<{ status: string }>('/tenant/domain', accessToken);
 }
+
+export function updateSubdomain(accessToken: string, subdomain: string) {
+  return apiPatch<{ subdomain: string }>('/tenant/subdomain', { subdomain }, accessToken);
+}

@@ -52,3 +52,28 @@ export const customDomainInputSchema = z.object({
     .regex(/^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i, 'صيغة الدومين غير صحيحة (مثال: example.com)'),
 });
 export type CustomDomainInput = z.infer<typeof customDomainInputSchema>;
+
+/**
+ * Owner-chosen subdomain (`{subdomain}.sbaah.com`) — same DNS-label
+ * shape as `generateUniqueSubdomain()`'s auto-generated default
+ * (apps/api/src/lib/tenant/subdomain.ts), which this schema deliberately
+ * mirrors so a user-entered value is never stricter or looser than what
+ * registration itself would have produced. Reserved words block real
+ * platform routes (the marketing homepage, other services' own
+ * subdomains if they were ever exposed under this root domain) from
+ * being claimed by a tenant.
+ */
+const RESERVED_SUBDOMAINS = new Set([
+  'www', 'api', 'console', 'dashboard', 'admin', 'app', 'mail', 'ftp',
+  'ns1', 'ns2', 'sbaah', 'support', 'help', 'docs', 'status', 'cdn', 'static', 'assets',
+]);
+
+export const subdomainInputSchema = z.object({
+  subdomain: z
+    .string()
+    .min(3, 'النطاق الفرعي يجب أن يكون 3 أحرف على الأقل')
+    .max(63, 'النطاق الفرعي طويل جدًا')
+    .regex(/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/, 'أحرف إنجليزية صغيرة وأرقام وشرطات فقط، بلا شرطة في البداية أو النهاية')
+    .refine((value) => !RESERVED_SUBDOMAINS.has(value), 'هذا النطاق الفرعي محجوز، اختر غيره'),
+});
+export type SubdomainInput = z.infer<typeof subdomainInputSchema>;

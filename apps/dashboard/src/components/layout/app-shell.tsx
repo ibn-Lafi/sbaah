@@ -4,6 +4,7 @@ import type { AccountType } from '@sbaah/shared';
 import { Sidebar } from './sidebar';
 import { Topbar } from './topbar';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
+import { getPlatformRootDomain } from '@/lib/env/platform-root-domain';
 
 interface AppShellProps {
   title: string;
@@ -30,12 +31,15 @@ const SUSPENDED_MESSAGE: Record<'suspended' | 'cancelled', string> = {
 export function AppShell({ title, orgName, accountType, roleLabel, children }: AppShellProps) {
   const { me } = useCurrentUser();
   const status = me.tenant.status;
+  // Always the subdomain URL, never the (possibly unverified/not-yet-
+  // DNS-configured) custom domain — this link must always actually load.
+  const siteUrl = `https://${me.tenant.subdomain}.${getPlatformRootDomain()}`;
 
   return (
     <div className="flex min-h-screen">
       <Sidebar orgName={orgName} accountType={accountType} roleLabel={roleLabel} />
       <div className="flex min-w-0 flex-1 flex-col">
-        <Topbar title={title} />
+        <Topbar title={title} siteUrl={siteUrl} />
         {status !== 'active' && (
           <div className="border-b border-amber-200 bg-amber-50 px-7 py-3 text-sm font-medium text-amber-800">
             {SUSPENDED_MESSAGE[status]}
