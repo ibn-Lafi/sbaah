@@ -28,11 +28,17 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 
   const { data: tenant, error: tenantError } = await supabase
     .from('tenants')
-    .select('plan_id, plans(max_users)')
+    .select('status, plan_id, plans(max_users)')
     .eq('id', caller.tenantId)
     .single();
   if (tenantError || !tenant) {
     throw new Error(`Failed to load tenant plan for team invite: ${tenantError?.message}`);
+  }
+  // Uses the service role (createUser needs Admin API), which bypasses the
+  // RLS write-lock from migration 0019 — check status explicitly here,
+  // the one write path in this app that isn't already covered by it.
+  if (tenant.status !== 'active') {
+    throw new ApiError(403, 'tenant_not_active', 'الحساب معلَّق حاليًا، لا يمكن دعوة أعضاء جدد');
   }
   const maxUsers = (tenant.plans as unknown as { max_users: number } | null)?.max_users;
   if (typeof maxUsers !== 'number') {
