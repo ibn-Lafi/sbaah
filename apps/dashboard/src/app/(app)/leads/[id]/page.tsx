@@ -154,7 +154,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
               <div>
                 <dt className="text-text-secondary">الجوال</dt>
                 <dd className="font-medium text-text-primary" dir="ltr">
-                  {lead.phone}
+                  {lead.phone ?? '—'}
                 </dd>
               </div>
               <div>

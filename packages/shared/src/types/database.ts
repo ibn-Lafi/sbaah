@@ -190,7 +190,8 @@ export interface Lead {
   tenant_id: string;
   property_id: string | null;
   full_name: string;
-  phone: string;
+  /** Nullable only for source='whatsapp_click' — migration 0015. */
+  phone: string | null;
   email: string | null;
   source: LeadSource;
   status: LeadStatus;

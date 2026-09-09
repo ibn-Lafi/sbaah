@@ -7,6 +7,8 @@ export interface TenantSite {
   tenant: { name_ar: string; name_en: string; account_type: AccountType };
   website: Omit<Website, 'id' | 'tenant_id' | 'theme_id'>;
   sections: Pick<WebsiteSection, 'id' | 'type' | 'order_index' | 'config'>[];
+  /** The tenant Owner's phone (task 34/42's WhatsApp click-to-chat button) — `users` has no anon SELECT policy, so `api` resolves this server-side, never queried directly from here. */
+  whatsapp_phone: string;
 }
 
 /**

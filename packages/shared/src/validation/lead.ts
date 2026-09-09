@@ -17,6 +17,20 @@ export const publicLeadInputSchema = z.object({
 });
 export type PublicLeadInput = z.infer<typeof publicLeadInputSchema>;
 
+/**
+ * WhatsApp click-to-chat (PRODUCT_SPEC section 4 — "أي تفاعل زائر عليه
+ * (نموذج/واتساب) يتحول تلقائيًا إلى Lead"). Deliberately carries no
+ * `captcha_token`/contact fields: a wa.me link click opens the
+ * *visitor's* own WhatsApp app, so the site never learns their name or
+ * phone (see migration 0015) — this only logs that the interaction
+ * happened, same tenant/property validation as the inquiry form.
+ */
+export const publicWhatsappClickInputSchema = z.object({
+  tenant_id: z.string().uuid(),
+  property_id: z.string().uuid().optional().nullable(),
+});
+export type PublicWhatsappClickInput = z.infer<typeof publicWhatsappClickInputSchema>;
+
 /** POST /v1/leads (authenticated, Owner/Admin only) — staff manually entering a lead, e.g. a walk-in. Always source='manual'. */
 export const manualLeadInputSchema = z.object({
   property_id: z.string().uuid().optional().nullable(),

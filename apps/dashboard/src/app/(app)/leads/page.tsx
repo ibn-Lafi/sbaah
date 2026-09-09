@@ -162,7 +162,7 @@ export default function LeadsPage() {
                     </Link>
                   </td>
                   <td className="px-5 py-3 text-text-secondary" dir="ltr">
-                    {lead.phone}
+                    {lead.phone ?? '—'}
                   </td>
                   <td className="px-5 py-3 text-text-secondary" dir="ltr">
                     {lead.email ?? '—'}

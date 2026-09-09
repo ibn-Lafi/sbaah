@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { z } from 'zod';
-import { createAnonClient } from '@sbaah/shared';
+import { createAnonClient, createServiceRoleClient } from '@sbaah/shared';
 import { okResponse, withErrorHandling } from '@/lib/http';
 import { resolvePublicTenantId } from '@/lib/tenant/resolve-public-tenant';
 
@@ -11,8 +11,9 @@ const publicWebsiteQuerySchema = z.object({
 /**
  * `public-site`'s single per-request fetch (task 32/42) — tenant chrome
  * (name/account type for the سبعة badge color, task 35/42) + theme
- * (colors/font/logo/banner) + the visible section list, all in one call
- * since a full page render always needs all three together.
+ * (colors/font/logo/banner) + the visible section list + the Owner's
+ * WhatsApp contact number (task 34/42), all in one call since a full
+ * page render always needs all of it together.
  */
 export const GET = withErrorHandling(async (request: NextRequest) => {
   const { domain } = publicWebsiteQuerySchema.parse(Object.fromEntries(request.nextUrl.searchParams));
@@ -54,5 +55,21 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     throw new Error(`Failed to load public website sections: ${sectionsError.message}`);
   }
 
-  return okResponse({ tenant, website: websiteConfig, sections });
+  // `users` has no anon SELECT policy at all (migration 0005 — phone
+  // numbers aren't generally queryable), so the one legitimate public
+  // use of a phone number here (the WhatsApp click-to-chat button,
+  // task 34/42) goes through the service role deliberately, scoped to
+  // exactly the Owner's phone and nothing else on the row.
+  const serviceRole = createServiceRoleClient();
+  const { data: owner, error: ownerError } = await serviceRole
+    .from('users')
+    .select('phone')
+    .eq('tenant_id', tenantId)
+    .eq('role', 'owner')
+    .single();
+  if (ownerError || !owner) {
+    throw new Error(`Failed to load public tenant WhatsApp contact: ${ownerError?.message}`);
+  }
+
+  return okResponse({ tenant, website: websiteConfig, sections, whatsapp_phone: owner.phone });
 });
