@@ -11,34 +11,55 @@ export interface TenantSite {
   whatsapp_phone: string;
 }
 
+export type TenantSiteResult =
+  | { status: 'not_found' }
+  /** PRODUCT_SPEC section 2 — a suspended/cancelled tenant's domain still resolves, but the whole site must show "غير متاح حاليًا" instead of a plain 404 (task 36/42). Deliberately carries no tenant name/branding — a generic message, not a personalized one, keeps a random visitor from learning anything about *why* or *whose* account this is. */
+  | { status: 'suspended' }
+  | { status: 'active'; site: TenantSite };
+
 /**
  * The one server-side fetch every page/layout in this app needs — reads
  * the incoming `Host` header (how a visitor's browser identifies "whose
  * site is this", PRODUCT_SPEC section 7) and resolves it via `api`.
  * Wrapped in React's `cache()` (request-scoped memoization) so calling
- * this from both the root layout AND a page in the same request hits
- * the network exactly once, with no prop-drilling between them needed.
- *
- * Returns `null` for "no such site" (api's `site_not_found`, migration
- * 0013's `resolve_public_tenant`) so callers can render `notFound()`
- * themselves — a suspended tenant currently resolves the same way as a
- * domain that never existed (the RPC filters `status = 'active'` before
- * this code ever runs), so the two cannot yet be told apart here. Task
- * 36/42 owns building the distinct "account suspended" page and, if
- * that requires it, extending the resolver to expose tenant status.
+ * this from multiple places in the same request (root layout, a page)
+ * hits the network exactly once — `getTenantSite()` below and
+ * `getTenantSiteResult()` both go through this same cached call, so
+ * neither duplicates the other's fetch.
  */
-export const getTenantSite = cache(async (): Promise<TenantSite | null> => {
+const fetchTenantSiteResult = cache(async (): Promise<TenantSiteResult> => {
   const host = await getHost();
   if (!host) {
-    return null;
+    return { status: 'not_found' };
   }
 
   try {
-    return await apiGet<TenantSite>(`/public/website?domain=${encodeURIComponent(host)}`);
+    const site = await apiGet<TenantSite>(`/public/website?domain=${encodeURIComponent(host)}`);
+    return { status: 'active', site };
   } catch (error) {
     if (error instanceof ApiRequestError && error.code === 'site_not_found') {
-      return null;
+      return { status: 'not_found' };
+    }
+    if (error instanceof ApiRequestError && error.code === 'tenant_suspended') {
+      return { status: 'suspended' };
     }
     throw error;
   }
 });
+
+/** For the root layout only (task 36/42) — the one place that must branch on "suspended" vs "not found" to render a different page for each. */
+export async function getTenantSiteResult(): Promise<TenantSiteResult> {
+  return fetchTenantSiteResult();
+}
+
+/**
+ * For every other caller (property pages, sections) — collapses
+ * "suspended" into `null` alongside "not found", same as before task
+ * 36/42: the root layout already renders the suspended page and never
+ * reaches these callers' `children` in that case, so they never
+ * actually need to distinguish the two.
+ */
+export async function getTenantSite(): Promise<TenantSite | null> {
+  const result = await fetchTenantSiteResult();
+  return result.status === 'active' ? result.site : null;
+}

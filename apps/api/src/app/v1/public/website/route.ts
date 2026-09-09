@@ -1,8 +1,8 @@
 import type { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { createAnonClient, createServiceRoleClient } from '@sbaah/shared';
-import { okResponse, withErrorHandling } from '@/lib/http';
-import { resolvePublicTenantId } from '@/lib/tenant/resolve-public-tenant';
+import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
+import { resolvePublicTenantChrome } from '@/lib/tenant/resolve-public-tenant';
 
 const publicWebsiteQuerySchema = z.object({
   domain: z.string().min(1, 'الدومين مطلوب'),
@@ -14,21 +14,27 @@ const publicWebsiteQuerySchema = z.object({
  * (colors/font/logo/banner) + the visible section list + the Owner's
  * WhatsApp contact number (task 34/42), all in one call since a full
  * page render always needs all of it together.
+ *
+ * `resolvePublicTenantChrome` (task 36/42) both resolves the domain AND
+ * tells "no such domain" (404) apart from "domain matches a
+ * suspended/cancelled tenant" (403 tenant_suspended, PRODUCT_SPEC
+ * section 2's "غير متاح حاليًا" page) — the whole reason it exists
+ * instead of reusing `resolvePublicTenantId`, which only ever resolves
+ * active tenants.
  */
 export const GET = withErrorHandling(async (request: NextRequest) => {
   const { domain } = publicWebsiteQuerySchema.parse(Object.fromEntries(request.nextUrl.searchParams));
 
   const supabase = createAnonClient();
-  const tenantId = await resolvePublicTenantId(domain, supabase);
-
-  const { data: tenant, error: tenantError } = await supabase
-    .from('tenants')
-    .select('id, name_ar, name_en, account_type')
-    .eq('id', tenantId)
-    .single();
-  if (tenantError || !tenant) {
-    throw new Error(`Failed to load public tenant chrome: ${tenantError?.message}`);
+  const chrome = await resolvePublicTenantChrome(domain, supabase);
+  if (!chrome) {
+    throw new ApiError(404, 'site_not_found', 'الموقع غير موجود');
   }
+  if (chrome.status !== 'active') {
+    throw new ApiError(403, 'tenant_suspended', 'الحساب غير متاح حاليًا');
+  }
+  const tenantId = chrome.id;
+  const tenant = { name_ar: chrome.name_ar, name_en: chrome.name_en, account_type: chrome.account_type };
 
   const { data: website, error: websiteError } = await supabase
     .from('websites')

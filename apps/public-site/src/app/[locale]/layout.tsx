@@ -5,24 +5,25 @@ import Link from 'next/link';
 import '../globals.css';
 import { isLocale, DEFAULT_LOCALE, type Locale } from '@/lib/i18n/locales';
 import { getDictionary } from '@/lib/i18n/dictionary';
-import { getTenantSite } from '@/lib/tenant/get-tenant-site';
+import { getTenantSiteResult } from '@/lib/tenant/get-tenant-site';
 import { resolveWebsiteFont } from '@/lib/theme/fonts';
 import { SiteBadge } from '@/components/site-badge';
+import { SuspendedPage } from '@/components/suspended-page';
 
 interface LocaleLayoutProps {
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
 }
 
-/** Reads the Host header once per request (via getTenantSite's cache()) so the browser tab title matches the visited tenant, not a generic "سبعة". */
+/** Reads the Host header once per request (via getTenantSiteResult's cache()) so the browser tab title matches the visited tenant, not a generic "سبعة". */
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale: rawLocale } = await params;
   const locale = isLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
-  const site = await getTenantSite();
-  if (!site) {
+  const result = await getTenantSiteResult();
+  if (result.status !== 'active') {
     return { title: 'سبعة' };
   }
-  return { title: locale === 'ar' ? site.tenant.name_ar : site.tenant.name_en };
+  return { title: locale === 'ar' ? result.site.tenant.name_ar : result.site.tenant.name_en };
 }
 
 export default async function LocaleLayout({ children, params }: LocaleLayoutProps) {
@@ -34,11 +35,25 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   const dir = locale === 'ar' ? 'rtl' : 'ltr';
   const dict = getDictionary(locale);
 
-  const site = await getTenantSite();
-  if (!site) {
+  const result = await getTenantSiteResult();
+  if (result.status === 'not_found') {
     notFound();
   }
 
+  // Suspended/cancelled tenant (PRODUCT_SPEC section 2, task 36/42) —
+  // its own complete, unbranded shell (no tenant colors/font/logo,
+  // deliberately: see SuspendedPage), never reaching `children`.
+  if (result.status === 'suspended') {
+    return (
+      <html lang={locale} dir={dir}>
+        <body>
+          <SuspendedPage />
+        </body>
+      </html>
+    );
+  }
+
+  const { site } = result;
   const font = resolveWebsiteFont(site.website.font_family);
   const tenantName = locale === 'ar' ? site.tenant.name_ar : site.tenant.name_en;
 
