@@ -1,5 +1,7 @@
 import { isLocale, DEFAULT_LOCALE } from '@/lib/i18n/locales';
 import { getTenantSite } from '@/lib/tenant/get-tenant-site';
+import { isMarketingHost } from '@/lib/tenant/get-host';
+import { MarketingHome } from '@/components/marketing-home';
 import { HeroSection } from '@/components/sections/hero-section';
 import { TextSection } from '@/components/sections/text-section';
 import { PropertyGridSection } from '@/components/sections/property-grid-section';
@@ -16,6 +18,13 @@ import { ContactSection } from '@/components/sections/contact-section';
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale: rawLocale } = await params;
   const locale = isLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
+
+  // سبعة's own marketing homepage (not a tenant site) — the bare
+  // platform root domain never goes through tenant resolution at all;
+  // see `[locale]/layout.tsx` for the matching chrome branch.
+  if (await isMarketingHost()) {
+    return <MarketingHome locale={locale} />;
+  }
 
   const site = await getTenantSite();
   if (!site) return null; // layout.tsx already calls notFound() in this case

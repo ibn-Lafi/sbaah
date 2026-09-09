@@ -2,23 +2,33 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { headers } from 'next/headers';
 import Link from 'next/link';
+import { IBM_Plex_Sans_Arabic } from 'next/font/google';
 import '../globals.css';
 import { isLocale, DEFAULT_LOCALE, type Locale } from '@/lib/i18n/locales';
 import { getDictionary } from '@/lib/i18n/dictionary';
 import { getTenantSiteResult } from '@/lib/tenant/get-tenant-site';
+import { isMarketingHost } from '@/lib/tenant/get-host';
 import { resolveWebsiteFont } from '@/lib/theme/fonts';
 import { SiteBadge } from '@/components/site-badge';
 import { SuspendedPage } from '@/components/suspended-page';
+import { MarketingChrome } from '@/components/marketing-chrome';
+import { MARKETING_CONTENT } from '@/lib/marketing/content';
 
 interface LocaleLayoutProps {
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
 }
 
+/** سبعة's own brand font for the marketing homepage — fixed, unlike `resolveWebsiteFont()` which picks per-tenant. */
+const marketingFont = IBM_Plex_Sans_Arabic({ subsets: ['arabic'], weight: ['400', '500', '600', '700'] });
+
 /** Reads the Host header once per request (via getTenantSiteResult's cache()) so the browser tab title matches the visited tenant, not a generic "سبعة". */
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale: rawLocale } = await params;
   const locale = isLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
+  if (await isMarketingHost()) {
+    return { title: MARKETING_CONTENT[locale].brand };
+  }
   const result = await getTenantSiteResult();
   if (result.status !== 'active') {
     return { title: 'سبعة' };
@@ -33,6 +43,20 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   }
   const locale: Locale = rawLocale;
   const dir = locale === 'ar' ? 'rtl' : 'ltr';
+
+  // سبعة's own marketing homepage (not a tenant site) — the bare
+  // platform root domain never goes through tenant resolution or
+  // renders tenant chrome at all. See components/marketing-chrome.tsx.
+  if (await isMarketingHost()) {
+    return (
+      <html lang={locale} dir={dir}>
+        <body className={marketingFont.className}>
+          <MarketingChrome locale={locale}>{children}</MarketingChrome>
+        </body>
+      </html>
+    );
+  }
+
   const dict = getDictionary(locale);
 
   const result = await getTenantSiteResult();
