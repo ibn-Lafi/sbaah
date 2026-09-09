@@ -7,6 +7,7 @@ import { signOut } from '@/lib/auth/session';
 
 const NAV_ITEMS = [
   { href: '/accounts', label: 'الحسابات' },
+  { href: '/domains', label: 'طلبات الدومين' },
   { href: '/plans', label: 'الباقات' },
   { href: '/cities', label: 'المدن' },
   { href: '/districts', label: 'الأحياء' },

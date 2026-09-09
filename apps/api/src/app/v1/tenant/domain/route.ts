@@ -4,19 +4,7 @@ import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
 import { assertOwner } from '@/lib/auth/assert-owner';
-
-/** PRODUCT_SPEC section 4.3: the CNAME target is a deployment-time value (task 42/42's Railway guide), never hardcoded. */
-function requireCnameTarget(): string {
-  const target = process.env.PUBLIC_SITE_CNAME_TARGET;
-  if (!target) {
-    throw new Error('Missing required environment variable: PUBLIC_SITE_CNAME_TARGET');
-  }
-  return target;
-}
-
-function dnsRecordFor(customDomain: string) {
-  return { type: 'CNAME', name: customDomain, value: requireCnameTarget() };
-}
+import { dnsRecordFor } from '@/lib/tenant/dns-record';
 
 export const GET = withErrorHandling(async (request: NextRequest) => {
   const { supabase } = getAuthenticatedClient(request);

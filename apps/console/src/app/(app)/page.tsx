@@ -12,6 +12,12 @@ export default function ConsoleHomePage() {
             <p className="text-sm text-black/60">قائمة حسابات المنصة — تفعيل، تعليق، وتغيير الباقة.</p>
           </Card>
         </Link>
+        <Link href="/domains">
+          <Card className="p-6 hover:shadow-[0_2px_16px_rgba(31,29,34,.14)]">
+            <h2 className="mb-1 font-semibold text-brand">طلبات الدومين</h2>
+            <p className="text-sm text-black/60">مراجعة طلبات ربط نطاق مخصص وتفعيلها يدويًا.</p>
+          </Card>
+        </Link>
         <Link href="/plans">
           <Card className="p-6 hover:shadow-[0_2px_16px_rgba(31,29,34,.14)]">
             <h2 className="mb-1 font-semibold text-brand">الباقات</h2>
