@@ -1,35 +1,31 @@
 import type { NextRequest } from 'next/server';
 import { createAnonClient, createServiceRoleClient, consoleLoginSchema } from '@sbaah/shared';
 import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
-import { signConsoleTotpToken } from '@/lib/console-auth/totp-token';
 
 /**
- * Step 1 of console login (task 37/42) — first factor only. A success
- * here NEVER returns a usable Supabase session: `signInWithPassword`
- * below does mint one internally, but it's discarded — only a
- * short-lived challenge/setup token goes back to the client. The real
- * session is only minted after the second factor (TOTP) also passes,
- * in verify-totp/confirm-totp.
+ * Console login (task 37/42, revised — single factor, no TOTP). Unlike
+ * the old two-step flow, `signInWithPassword` itself already returns a
+ * real, usable session — no need for the magic-link `mintSessionForUser`
+ * dance the TOTP flow used to defer session issuance to a second step.
  */
 export const POST = withErrorHandling(async (request: NextRequest) => {
-  const { phone, password } = consoleLoginSchema.parse(await request.json());
+  const { email, password } = consoleLoginSchema.parse(await request.json());
 
   const anon = createAnonClient();
-  const { data: signInData, error: signInError } = await anon.auth.signInWithPassword({ phone, password });
+  const { data: signInData, error: signInError } = await anon.auth.signInWithPassword({ email, password });
   // Deliberately identical error for "wrong password" and "not a
   // platform admin" below — this endpoint must never let a caller
-  // distinguish "this phone/password is a valid customer account" from
-  // "this phone/password is a valid admin account" from "neither".
-  if (signInError || !signInData?.user) {
+  // distinguish "this email/password is a valid customer account" from
+  // "this email/password is a valid admin account" from "neither".
+  if (signInError || !signInData?.user || !signInData.session) {
     throw new ApiError(401, 'invalid_credentials', 'بيانات الدخول غير صحيحة');
   }
-  const authUserId = signInData.user.id;
 
   const serviceRole = createServiceRoleClient();
   const { data: admin, error: adminError } = await serviceRole
     .from('platform_admins')
-    .select('id, totp_enabled')
-    .eq('auth_user_id', authUserId)
+    .select('id')
+    .eq('auth_user_id', signInData.user.id)
     .maybeSingle();
   if (adminError) {
     throw new Error(`Failed to check platform admin membership: ${adminError.message}`);
@@ -38,11 +34,6 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
     throw new ApiError(401, 'invalid_credentials', 'بيانات الدخول غير صحيحة');
   }
 
-  const challenge_token = await signConsoleTotpToken({
-    purpose: 'challenge',
-    platformAdminId: admin.id,
-    authUserId,
-  });
-
-  return okResponse({ challenge_token, totp_enabled: admin.totp_enabled });
+  const { access_token, refresh_token, expires_at } = signInData.session;
+  return okResponse({ access_token, refresh_token, expires_at });
 });

@@ -1,6 +1,6 @@
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 
-/** Adopts the session `api` mints only after both login factors pass (password + TOTP, task 37/42) — the login/setup-totp/confirm-totp/verify-totp endpoints never return a session on their own. */
+/** Adopts the session `POST /console-auth/login` returns on a successful email+password login (task 37/42). */
 export async function adoptSession(accessToken: string, refreshToken: string): Promise<void> {
   const { error } = await getSupabaseBrowserClient().auth.setSession({
     access_token: accessToken,

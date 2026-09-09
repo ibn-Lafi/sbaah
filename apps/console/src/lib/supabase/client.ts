@@ -5,7 +5,7 @@ let browserClient: SupabaseClient | undefined;
 /**
  * `console`'s own Supabase session, obtained directly with the public
  * anon key (PRODUCT_SPEC.md section 7) — used to adopt the session `api`
- * mints after a successful password + TOTP login (task 37/42), same
+ * mints after a successful email+password login (task 37/42), same
  * pattern as `dashboard`'s equivalent client.
  *
  * `NEXT_PUBLIC_*` vars must be referenced as static `process.env.X`
