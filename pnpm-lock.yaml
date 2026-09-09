@@ -38,6 +38,9 @@ importers:
 
   apps/api:
     dependencies:
+      '@rkiza/sndr':
+        specifier: ^0.2.0
+        version: 0.2.0
       '@sbaah/shared':
         specifier: workspace:*
         version: link:../../packages/shared
@@ -552,6 +555,10 @@ packages:
 
   '@otplib/preset-v11@12.0.1':
     resolution: {integrity: sha512-9hSetMI7ECqbFiKICrNa4w70deTUfArtwXykPUvSHWOdzOlfa9ajglu7mNCntlvxycTiOAXkQGwjQCzzDEMRMg==}
+
+  '@rkiza/sndr@0.2.0':
+    resolution: {integrity: sha512-UGAOH4eGHje62j20vONjE9ryxA4ITTaq3Qe1pGLIET05YU92iE2NaC0gbXE5qmYxoH2unb7xyxCc6nuJJOlnBg==}
+    engines: {node: '>=18'}
 
   '@rtsao/scc@1.1.0':
     resolution: {integrity: sha512-zt6OdqaDoOnJ1ZYsCYGt9YmWzDXl4vQdKTyJev62gFhRGKdx7mcT54V9KIjg+d2wi9EXsPvAPKe7i7WjfVWB8g==}
@@ -2479,6 +2486,8 @@ snapshots:
       '@otplib/core': 12.0.1
       '@otplib/plugin-crypto': 12.0.1
       '@otplib/plugin-thirty-two': 12.0.1
+
+  '@rkiza/sndr@0.2.0': {}
 
   '@rtsao/scc@1.1.0': {}
 

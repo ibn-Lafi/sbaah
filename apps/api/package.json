@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@rkiza/sndr": "^0.2.0",
     "@sbaah/shared": "workspace:*",
     "@supabase/supabase-js": "^2.47.10",
     "jose": "^5.9.6",
