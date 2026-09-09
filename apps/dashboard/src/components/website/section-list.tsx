@@ -5,12 +5,15 @@ import type { WebsiteSection } from '@sbaah/shared';
 import { Switch } from '@/components/ui/switch';
 import { updateSection, reorderSections } from '@/lib/api/website';
 import { SECTION_TYPE_LABELS } from '@/lib/website/labels';
+import { SectionConfigEditor } from './section-config-editor';
 
 interface SectionListProps {
   sections: WebsiteSection[];
   accessToken: string;
   onChange: (sections: WebsiteSection[]) => void;
 }
+
+const EDITABLE_TYPES: WebsiteSection['type'][] = ['hero', 'about', 'why_us', 'contact'];
 
 /**
  * Native HTML5 drag-and-drop (no new dependency) — a plain vertical list
@@ -19,6 +22,7 @@ interface SectionListProps {
  */
 export function SectionList({ sections, accessToken, onChange }: SectionListProps) {
   const [ordered, setOrdered] = useState(sections);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const dragIndex = useRef<number | null>(null);
 
   function handleDrop(dropIndex: number) {
@@ -43,25 +47,45 @@ export function SectionList({ sections, accessToken, onChange }: SectionListProp
     onChange(next.map((item) => (item.id === updated.id ? updated : item)));
   }
 
+  function handleConfigSaved(updated: WebsiteSection) {
+    const next = ordered.map((item) => (item.id === updated.id ? updated : item));
+    setOrdered(next);
+    onChange(next);
+    setEditingId(null);
+  }
+
   return (
     <div className="flex flex-col gap-2">
       {ordered.map((section, index) => (
-        <div
-          key={section.id}
-          draggable
-          onDragStart={() => {
-            dragIndex.current = index;
-          }}
-          onDragOver={(event) => event.preventDefault()}
-          onDrop={() => handleDrop(index)}
-          className="flex cursor-move items-center gap-3 rounded-input border border-border-default bg-surface-card px-4 py-3"
-        >
-          <span aria-hidden="true" className="text-text-placeholder">
-            ⠿
-          </span>
-          <span className="flex-1 text-sm font-medium text-text-primary">{SECTION_TYPE_LABELS[section.type]}</span>
-          {section.type === 'footer' && <span className="text-xs text-text-secondary">شارة سبعة تظهر دائمًا</span>}
-          <Switch checked={section.is_visible} onChange={() => void handleToggle(section)} />
+        <div key={section.id} className="flex flex-col gap-2">
+          <div
+            draggable
+            onDragStart={() => {
+              dragIndex.current = index;
+            }}
+            onDragOver={(event) => event.preventDefault()}
+            onDrop={() => handleDrop(index)}
+            className="flex cursor-move items-center gap-3 rounded-input border border-border-default bg-surface-card px-4 py-3"
+          >
+            <span aria-hidden="true" className="text-text-placeholder">
+              ⠿
+            </span>
+            <span className="flex-1 text-sm font-medium text-text-primary">{SECTION_TYPE_LABELS[section.type]}</span>
+            {section.type === 'footer' && <span className="text-xs text-text-secondary">شارة سبعة تظهر دائمًا</span>}
+            {EDITABLE_TYPES.includes(section.type) && (
+              <button
+                type="button"
+                onClick={() => setEditingId(editingId === section.id ? null : section.id)}
+                className="text-xs font-semibold text-brand hover:underline"
+              >
+                {editingId === section.id ? 'إغلاق' : 'تحرير المحتوى'}
+              </button>
+            )}
+            <Switch checked={section.is_visible} onChange={() => void handleToggle(section)} />
+          </div>
+          {editingId === section.id && (
+            <SectionConfigEditor section={section} accessToken={accessToken} onSaved={handleConfigSaved} />
+          )}
         </div>
       ))}
     </div>

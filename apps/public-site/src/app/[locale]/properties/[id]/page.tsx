@@ -85,7 +85,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
           <WhatsappButton
             locale={locale}
             phone={site.whatsapp_phone}
-            title={title}
+            propertyTitle={title}
             tenantId={property.tenant_id}
             propertyId={property.id}
           />

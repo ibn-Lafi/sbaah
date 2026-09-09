@@ -23,7 +23,7 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
 
   const { data: tenant, error: tenantError } = await supabase
     .from('tenants')
-    .select('name_ar, name_en, account_type')
+    .select('id, name_ar, name_en, account_type')
     .eq('id', tenantId)
     .single();
   if (tenantError || !tenant) {

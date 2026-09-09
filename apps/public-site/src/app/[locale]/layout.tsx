@@ -7,6 +7,7 @@ import { isLocale, DEFAULT_LOCALE, type Locale } from '@/lib/i18n/locales';
 import { getDictionary } from '@/lib/i18n/dictionary';
 import { getTenantSite } from '@/lib/tenant/get-tenant-site';
 import { resolveWebsiteFont } from '@/lib/theme/fonts';
+import { SiteBadge } from '@/components/site-badge';
 
 interface LocaleLayoutProps {
   children: React.ReactNode;
@@ -80,7 +81,10 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
 
         <main>{children}</main>
 
-        <footer className="border-t border-black/10 px-6 py-6 text-sm text-black/60">{tenantName}</footer>
+        <footer className="flex flex-col items-center gap-3 border-t border-black/10 px-6 py-6 text-sm text-black/60">
+          <span>{tenantName}</span>
+          <SiteBadge accountType={site.tenant.account_type} locale={locale} />
+        </footer>
       </body>
     </html>
   );
