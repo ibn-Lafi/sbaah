@@ -1,1 +1,22 @@
 @import 'tailwindcss';
+
+/**
+ * Unlike `dashboard`'s fixed brand palette, these tokens resolve to CSS
+ * custom properties set inline per-request on `<html>` (see
+ * app/[locale]/layout.tsx) from the visiting tenant's own
+ * `websites.primary_color`/`secondary_color` — every tenant's site gets
+ * its own colors from the exact same Tailwind utility classes
+ * (`bg-tenant-primary`, `text-tenant-secondary`, ...).
+ */
+@theme {
+  --color-tenant-primary: var(--tenant-primary, #68458a);
+  --color-tenant-secondary: var(--tenant-secondary, #000000);
+}
+
+body {
+  margin: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
