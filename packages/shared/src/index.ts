@@ -2,6 +2,7 @@ export * from './types/enums';
 export * from './types/database';
 export * from './types/website-section-config';
 export * from './validation/auth';
+export * from './validation/console-auth';
 export * from './validation/tenant';
 export * from './validation/property';
 export * from './validation/project';

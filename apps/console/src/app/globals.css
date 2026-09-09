@@ -1,1 +1,18 @@
 @import 'tailwindcss';
+
+/**
+ * `console` has no design mockup (unlike `dashboard`'s
+ * DASHBOARD_DESIGN_SYSTEM.md) — a small, deliberately minimal token set
+ * using سبعة's own brand purple, since this app has no per-tenant
+ * theming concept at all (task 37/42).
+ */
+@theme {
+  --color-brand: #68458a;
+  --color-brand-hover: #4f3269;
+  --color-surface-page: #f4f2f6;
+}
+
+body {
+  margin: 0;
+  background: var(--color-surface-page);
+}
