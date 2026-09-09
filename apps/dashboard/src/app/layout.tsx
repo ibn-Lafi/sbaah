@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { IBM_Plex_Sans_Arabic } from 'next/font/google';
 import './globals.css';
+import { ServiceWorkerRegister } from '@/components/pwa/service-worker-register';
 
 /**
  * Self-hosted via next/font (no runtime request to Google, no
@@ -17,13 +18,19 @@ const ibmPlexSansArabic = IBM_Plex_Sans_Arabic({
 
 export const metadata: Metadata = {
   title: 'سبعة — لوحة التحكم',
+  appleWebApp: { title: 'سبعة', statusBarStyle: 'default' },
 };
+
+export const viewport = { themeColor: '#68458A' };
 
 /** Dashboard is Arabic-first RTL, per PRODUCT_SPEC section 4. */
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ar" dir="rtl" className={ibmPlexSansArabic.variable}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <ServiceWorkerRegister />
+      </body>
     </html>
   );
 }

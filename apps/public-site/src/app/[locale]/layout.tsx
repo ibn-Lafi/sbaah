@@ -13,11 +13,14 @@ import { SiteBadge } from '@/components/site-badge';
 import { SuspendedPage } from '@/components/suspended-page';
 import { MarketingChrome } from '@/components/marketing-chrome';
 import { MARKETING_CONTENT } from '@/lib/marketing/content';
+import { ServiceWorkerRegister } from '@/components/pwa/service-worker-register';
 
 interface LocaleLayoutProps {
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
 }
+
+export const viewport = { themeColor: '#68458A' };
 
 /** سبعة's own brand font for the marketing homepage — fixed, unlike `resolveWebsiteFont()` which picks per-tenant. */
 const marketingFont = IBM_Plex_Sans_Arabic({ subsets: ['arabic'], weight: ['400', '500', '600', '700'] });
@@ -52,6 +55,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
       <html lang={locale} dir={dir}>
         <body className={marketingFont.className}>
           <MarketingChrome locale={locale}>{children}</MarketingChrome>
+          <ServiceWorkerRegister />
         </body>
       </html>
     );
@@ -124,6 +128,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
           <span>{tenantName}</span>
           <SiteBadge accountType={site.tenant.account_type} locale={locale} />
         </footer>
+        <ServiceWorkerRegister />
       </body>
     </html>
   );
