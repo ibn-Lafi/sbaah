@@ -1209,7 +1209,8 @@ alter table otp_verifications rename column provider_reference to twilio_verific
 - المنطق: يجلب كل عميل محتمل تجاوز `follow_up_at` وحالته ليست won/lost (**نفس شرط** `GET /v1/dashboard/summary` من المهمة السابقة، حرفيًا)، يجمعهم حسب الوسيط المسؤول، ويرسل لكل وسيط بريدًا واحدًا مجمّعًا عبر SNDR (أول استخدام فعلي للعميل المبني في هذه الجلسة).
 - **الوسيط مؤهَّل فقط إذا**: حسابه `status='active'`، لديه بريد إلكتروني مسجَّل، **وحسابه (Tenant) نشط** — استبعدت الحسابات المعلَّقة عمدًا: عضو حساب معلَّق لا يقدر أصلًا على تعديل حالة العميل المحتمل (قفل RLS من المهمة 19/42)، فتذكيره بمتابعة لا يقدر على تنفيذها إزعاج لا فائدة منه.
 - استُخرج منطق التجميع/التأهيل إلى دالة نقية `groupEligibleLeadsByAgent` (`apps/api/src/lib/digest/group-overdue-leads.ts`) بلا أي استدعاء شبكة — لتكون قابلة للاختبار المباشر بمعزل عن Supabase/SNDR، بنفس نمط الاستخلاص المتبع في مهام سابقة (`dns-record.ts` من المهمة 40/42).
-- `supabase/migrations/0020_daily_digest_cron.sql` (جديد، أُرسل للمستخدم) — يُفعِّل `pg_cron`/`pg_net` ويجدول المهمة يوميًا (`0 3 * * *` UTC = 6ص بتوقيت الرياض)، مع `cron.unschedule` قبل الجدولة الجديدة لضمان عدم تكرار المهمة لو أُعيد تطبيق الملف. الرابط والسرّ **ليسا مضمَّنين في الملف** (لا يليق وضع سرّ في SQL مُدار بـ git) — بل يُقرآن من إعدادات Postgres مخصَّصة (`app.settings.cron_secret`، `app.settings.api_base_url` باختياري افتراضي = رابط الـapi الفعلي المؤكَّد لهذا النشر) يضبطها المستخدم يدويًا مرة واحدة عبر `alter database postgres set ...` — التفاصيل والأمر بالضبط في تعليق الملف نفسه.
+- `supabase/migrations/0020_daily_digest_cron.sql` (جديد، أُرسل للمستخدم) — يُفعِّل `pg_cron`/`pg_net` ويجدول المهمة يوميًا (`0 3 * * *` UTC = 6ص بتوقيت الرياض)، مع `cron.unschedule` قبل الجدولة الجديدة لضمان عدم تكرار المهمة لو أُعيد تطبيق الملف. الرابط ثابت (قيمة حرفية، ليس سرًّا). السرّ **غير مضمَّن في الملف** (لا يليق وضع سرّ في SQL مُدار بـ git).
+  **تصحيح بعد التجربة الفعلية مع المستخدم:** المحاولة الأولى استخدمت `alter database postgres set app.settings.cron_secret = ...` — رفضتها منصة Supabase المُدارة فعليًا (`ERROR 42501: permission denied to set parameter`، حساب المشروع لا يملك صلاحية تغيير إعدادات على مستوى قاعدة البيانات كاملة، هذه بنية تحتية تديرها Supabase نفسها). الحل الصحيح المُعتمَد من Supabase تحديدًا لهذه الحالة (سرّ يحتاجه `pg_cron`/`pg_net` وقت التنفيذ): **Vault** — مدير أسرار مدمج في كل مشروع Supabase افتراضيًا (لا يحتاج تفعيل)، صلاحياته ممنوحة لحساب المشروع فعليًا بخلاف `ALTER DATABASE`. المهاجرة الآن تقرأ السرّ عبر `(select decrypted_secret from vault.decrypted_secrets where name = 'internal_cron_secret')` بدل `current_setting(...)`.
 
 **مراجعة أمنية:** لا سطح هجوم جديد يصل بيانات مستأجر آخر — الـEndpoint يستخدم service role عبر منطق تطبيقي صريح (لا RLS هنا أصلًا، مثل بقية مسارات service role في المشروع) وينفّذ استعلامًا قراءة-فقط ثم يرسل بريدًا؛ الحماية الوحيدة المطلوبة (منع استدعاء عشوائي من الإنترنت) مؤمَّنة بمقارنة سرّ زمنياً-آمنة. فشل إرسال بريد واحد لا يُسقط الدفعة كاملة (`Promise.allSettled`) ولا يُسرِّب تفاصيل الخطأ في الاستجابة (فقط `console.error` + عداد `agents_failed`).
 
@@ -1227,11 +1228,15 @@ alter table otp_verifications rename column provider_reference to twilio_verific
 
 **🔴 لماذا ✅ لا ✔️:** استدعاء `net.http_post` الفعلي (الجزء الوحيد المتبقي) وSNDR الحقيقي (مفتاح ونطاق مُتحقَّق منه فعليًا) يحتاجان مشروع Supabase ونطاق بريد حقيقيَّين — غير متاحين في هذه البيئة.
 
-**SQL/Railway:** `supabase/migrations/0020_daily_digest_cron.sql` **مُرسَل، لازم يُشغَّل** — بعده، **خطوة يدوية إضافية لازمة مرة واحدة** في محرر SQL بمشروع Supabase (التفاصيل والقيم بالضبط داخل تعليق رأس الملف):
+**SQL/Railway:** `supabase/migrations/0020_daily_digest_cron.sql` (النسخة المُصحَّحة) **مُرسَل، لازم يُشغَّل** — بعده، **خطوة يدوية واحدة** في محرر SQL بمشروع Supabase (عبر Vault بدل `ALTER DATABASE`، تفصيل أعلاه):
 ```sql
-alter database postgres set app.settings.cron_secret = '<نفس قيمة INTERNAL_CRON_SECRET>';
+select vault.create_secret(
+  '<نفس قيمة INTERNAL_CRON_SECRET>',
+  'internal_cron_secret',
+  'Shared secret for pg_cron -> POST /v1/internal/cron/daily-digest (task 41/42)'
+);
 ```
-متغيرات بيئة `api` الجديدة: `SNDR_FROM_EMAIL` (بريد على نطاق مُتحقَّق منه في SNDR)، `INTERNAL_CRON_SECRET` (قيمة عشوائية طويلة، نفس القيمة المضبوطة في الإعداد أعلاه).
+متغيرات بيئة `api` الجديدة: `SNDR_FROM_EMAIL` (بريد على نطاق مُتحقَّق منه في SNDR)، `INTERNAL_CRON_SECRET` (قيمة عشوائية طويلة — ولَّدتها فعليًا للمستخدم عبر `openssl rand -base64 32`، نفس القيمة المخزَّنة في Vault أعلاه).
 
 **التالي:** المهمة 42/42 (الأخيرة) — مراجعة أمنية شاملة نهائية + دليل نشر Railway كامل خطوة بخطوة (المسودة الحالية موجودة كـArtifact من وقت سابق في هذه الجلسة، هذه المهمة ستُنهيها/تُنسِّقها رسميًا).
 
