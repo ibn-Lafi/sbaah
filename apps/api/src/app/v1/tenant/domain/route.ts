@@ -1,4 +1,5 @@
 import type { NextRequest } from 'next/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { customDomainInputSchema } from '@sbaah/shared';
 import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
@@ -6,13 +7,25 @@ import { getCallerContext } from '@/lib/auth/get-caller-context';
 import { assertOwner } from '@/lib/auth/assert-owner';
 import { dnsRecordFor } from '@/lib/tenant/dns-record';
 
+async function loadCustomDomainAllowed(supabase: SupabaseClient, tenantId: string): Promise<boolean> {
+  const { data, error } = await supabase
+    .from('tenants')
+    .select('plans(custom_domain_allowed)')
+    .eq('id', tenantId)
+    .single();
+  if (error || !data) {
+    throw new Error(`Failed to load plan for domain check: ${error?.message}`);
+  }
+  return (data.plans as unknown as { custom_domain_allowed: boolean } | null)?.custom_domain_allowed ?? false;
+}
+
 export const GET = withErrorHandling(async (request: NextRequest) => {
   const { supabase } = getAuthenticatedClient(request);
   const caller = await getCallerContext(supabase);
 
   const { data, error } = await supabase
     .from('tenants')
-    .select('custom_domain, custom_domain_status')
+    .select('custom_domain, custom_domain_status, plans(custom_domain_allowed)')
     .eq('id', caller.tenantId)
     .single();
   if (error) {
@@ -23,6 +36,7 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     custom_domain: data.custom_domain,
     custom_domain_status: data.custom_domain_status,
     dns_record: data.custom_domain ? dnsRecordFor(data.custom_domain) : null,
+    custom_domain_allowed: (data.plans as unknown as { custom_domain_allowed: boolean } | null)?.custom_domain_allowed ?? false,
   });
 });
 
@@ -32,6 +46,16 @@ export const PATCH = withErrorHandling(async (request: NextRequest) => {
   assertOwner(caller.role);
 
   const { custom_domain } = customDomainInputSchema.parse(await request.json());
+
+  // PRODUCT_SPEC.md section 2/9 — custom_domain_allowed is a real plan
+  // feature-gate (`plans.custom_domain_allowed`, editable by the founder
+  // via console), not just informational: the Basic plan explicitly
+  // excludes it. Re-checked here, not just hidden in the UI, since this
+  // endpoint is the actual enforcement point.
+  const allowed = await loadCustomDomainAllowed(supabase, caller.tenantId);
+  if (!allowed) {
+    throw new ApiError(403, 'plan_does_not_allow_custom_domain', 'باقتك الحالية لا تشمل ربط دومين مخصص — يلزم الترقية لباقة أعلى');
+  }
 
   const { data, error } = await supabase
     .from('tenants')
@@ -52,6 +76,7 @@ export const PATCH = withErrorHandling(async (request: NextRequest) => {
     custom_domain: data.custom_domain,
     custom_domain_status: data.custom_domain_status,
     dns_record: dnsRecordFor(data.custom_domain as string),
+    custom_domain_allowed: true,
   });
 });
 

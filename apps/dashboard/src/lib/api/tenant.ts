@@ -11,6 +11,7 @@ export interface DomainInfo {
   custom_domain: string | null;
   custom_domain_status: CustomDomainStatus | null;
   dns_record: DnsRecord | null;
+  custom_domain_allowed: boolean;
 }
 
 export function getDomain(accessToken: string) {
