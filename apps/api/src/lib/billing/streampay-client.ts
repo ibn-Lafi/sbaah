@@ -115,6 +115,9 @@ export async function createPaymentLink(
  * carries — the exact header name isn't confirmed (see file header
  * comment), so the route handler is responsible for locating it.
  */
+/** Reject a webhook whose `t=` timestamp is older/newer than this — closes the replay window (a captured valid request replayed later still has a matching HMAC, since the signature only proves the body+timestamp pair was signed once, not that it's fresh). */
+const WEBHOOK_TOLERANCE_SECONDS = 5 * 60;
+
 export function verifyWebhookSignature(rawBody: string, signatureHeader: string | null): boolean {
   if (!signatureHeader) return false;
 
@@ -127,6 +130,11 @@ export function verifyWebhookSignature(rawBody: string, signatureHeader: string 
   const timestamp = parts.t;
   const signature = parts.v1;
   if (!timestamp || !signature) return false;
+
+  const timestampSeconds = Number(timestamp);
+  if (!Number.isFinite(timestampSeconds)) return false;
+  const ageSeconds = Math.abs(Date.now() / 1000 - timestampSeconds);
+  if (ageSeconds > WEBHOOK_TOLERANCE_SECONDS) return false;
 
   const secret = requireEnv('STREAMPAY_WEBHOOK_SECRET');
   const expected = createHmac('sha256', secret).update(`${timestamp}.${rawBody}`).digest('hex');
