@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { getMe, type MeResponse } from '@/lib/api/auth';
 import { getAccessToken } from '@/lib/auth/session';
 import { CurrentUserProvider } from '@/lib/auth/current-user-context';
-import { PageLoading } from '@/components/ui/page-loading';
+import { DashboardShellSkeleton } from '@/components/layout/dashboard-shell-skeleton';
 
 /**
  * Guard for every authenticated screen (task 24/42 built this for the
@@ -44,7 +44,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }, [router]);
 
   if (!state) {
-    return <PageLoading />;
+    return <DashboardShellSkeleton />;
   }
 
   return <CurrentUserProvider value={state}>{children}</CurrentUserProvider>;

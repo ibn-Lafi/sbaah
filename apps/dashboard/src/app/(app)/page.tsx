@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { AppShell } from '@/components/layout/app-shell';
 import { Badge } from '@/components/ui/badge';
-import { LoadingState } from '@/components/ui/loading-state';
+import { DashboardHomeSkeleton } from '@/components/dashboard/dashboard-home-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { ROLE_LABELS } from '@/lib/auth/role-labels';
 import { getDashboardSummary, type DashboardSummary } from '@/lib/api/dashboard';
@@ -45,7 +45,7 @@ export default function DashboardHomePage() {
   return (
     <AppShell title="لوحة القيادة" orgName={me.tenant.name_ar} accountType={me.tenant.account_type} roleLabel={ROLE_LABELS[me.user.role]}>
       {summary === null ? (
-        <LoadingState />
+        <DashboardHomeSkeleton />
       ) : (
         <div className="flex flex-col gap-5">
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
