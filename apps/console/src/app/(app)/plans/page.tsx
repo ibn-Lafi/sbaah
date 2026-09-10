@@ -85,8 +85,8 @@ export default function PlansPage() {
                   <td className="px-5 py-3 text-text-secondary">{plan.custom_domain_allowed ? '✓' : '—'}</td>
                   <td className="px-5 py-3">
                     <span
-                      className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${
-                        plan.is_active ? 'bg-green-50 text-green-700' : 'bg-black/5 text-text-muted'
+                      className={`inline-flex items-center rounded-full px-[11px] py-[5px] text-[11px] font-medium ${
+                        plan.is_active ? 'bg-success-surface text-success' : 'bg-surface-subtle-3 text-text-secondary'
                       }`}
                     >
                       {plan.is_active ? 'نشطة' : 'متوقفة'}
