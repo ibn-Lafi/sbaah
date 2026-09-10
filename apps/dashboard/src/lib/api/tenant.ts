@@ -9,10 +9,6 @@ export interface SocialLinks {
   social_phone: string | null;
 }
 
-export function getSocialLinks(accessToken: string) {
-  return apiGet<SocialLinks>('/tenant/social-links', accessToken);
-}
-
 export function updateSocialLinks(accessToken: string, input: SocialLinksUpdateInput) {
   return apiPatch<SocialLinks>('/tenant/social-links', input, accessToken);
 }

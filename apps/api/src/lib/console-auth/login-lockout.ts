@@ -10,7 +10,7 @@
  * features that happen to agree on the same numbers today, not one
  * coupled to the other.
  */
-export const LOGIN_LOCKOUT_CONFIG = {
+const LOGIN_LOCKOUT_CONFIG = {
   maxAttempts: 5,
   lockoutDurationMs: 15 * 60 * 1000,
 } as const;

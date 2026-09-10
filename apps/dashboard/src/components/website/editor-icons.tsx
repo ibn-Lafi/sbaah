@@ -31,15 +31,6 @@ export function AdjustmentsIcon({ className }: IconProps) {
   );
 }
 
-export function SettingsGearIcon({ className }: IconProps) {
-  return (
-    <Svg className={className}>
-      <circle cx="12" cy="12" r="3" />
-      <path d="M19.4 13.5c.1-.5.1-1 0-1.5l1.6-1.2-1.5-2.6-1.9.5a7 7 0 0 0-1.3-.8L16 5.5h-3l-.3 2.4c-.5.2-.9.5-1.3.8l-1.9-.5L8 11.2l1.6 1.2c-.1.5-.1 1 0 1.5L8 15.1l1.5 2.6 1.9-.5c.4.3.8.6 1.3.8L13 20.5h3l.3-2.5c.5-.2.9-.5 1.3-.8l1.9.5 1.5-2.6-1.6-1.1z" />
-    </Svg>
-  );
-}
-
 export function CloseIcon({ className }: IconProps) {
   return (
     <Svg className={className}>
