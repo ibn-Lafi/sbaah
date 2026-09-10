@@ -15,12 +15,15 @@ import { createHmac, timingSafeEqual } from 'node:crypto';
  *
  * Confirmed by multiple independent search results (higher confidence):
  * - Base URL: https://stream-app-service.streampay.sa/api/v2
- * - Auth: header `x-api-key`, value = the API key itself — StreamPay's
- *   own dashboard only issues a single key (no paired "secret"; an
- *   earlier version of this file assumed a base64("key:secret") pairing
- *   per a search-result summary that turned out to not match what the
- *   dashboard actually shows — corrected once the founder checked
- *   directly, so trust this over search results going forward).
+ * - Auth: header `x-api-key`, value = `STREAMPAY_API_KEY` sent as-is,
+ *   no encoding done by this codebase. Confirmed directly from the
+ *   founder's StreamPay dashboard screenshot: the "إنشاء مفتاح API"
+ *   screen shows three fields — "مفتاح API" (a UUID), "المفتاح السري"
+ *   (a second UUID), and a third "x-api-key" field that is already
+ *   base64("<مفتاح API>:<المفتاح السري>") — StreamPay pre-computes the
+ *   Basic-Auth-style pairing for you. `STREAMPAY_API_KEY` must be set to
+ *   that THIRD field's value verbatim, not the raw first field and not
+ *   something this codebase derives itself.
  * - POST /payment_links returns an object with a `url` field to redirect
  *   the payer to; payment links reference a pre-created Product by
  *   `product_id` (no bare "amount" field appears to exist) — so each
