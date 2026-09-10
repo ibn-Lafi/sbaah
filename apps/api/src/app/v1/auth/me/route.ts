@@ -26,7 +26,9 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
 
   const { data: tenant, error: tenantError } = await supabase
     .from('tenants')
-    .select('id, name_ar, name_en, account_type, subdomain, custom_domain, status')
+    .select(
+      'id, name_ar, name_en, account_type, subdomain, custom_domain, status, cr_number, tax_number, fal_license_number, social_instagram, social_tiktok, social_whatsapp, social_snapchat, social_phone',
+    )
     .eq('id', caller.tenantId)
     .single();
   if (tenantError || !tenant) {

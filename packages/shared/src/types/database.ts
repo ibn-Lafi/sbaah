@@ -50,6 +50,12 @@ export interface Tenant {
   fal_license_number: string;
   cr_number: string | null;
   tax_number: string | null;
+  /** الحساب's social links (حسابي) — نطاقًا اختياريًا؛ يظهر في تذييل الموقع فقط ما تم تعبئته. */
+  social_instagram: string | null;
+  social_tiktok: string | null;
+  social_whatsapp: string | null;
+  social_snapchat: string | null;
+  social_phone: string | null;
   subdomain: string;
   custom_domain: string | null;
   /** PRODUCT_SPEC section 4.3 — always paired with custom_domain (both null or both set), enforced by a DB check constraint. */
@@ -90,6 +96,22 @@ export interface Website {
   font_family: string;
   logo_url: string | null;
   banner_image_url: string | null;
+  /** أعلى الصفحة — نص شريط ترويجي اختياري فوق الهيدر، يظهر في كل صفحات الموقع. */
+  announcement_bar_text: string | null;
+  /** أسفل الصفحة — نص تعريفي في الفوتر (منفصل عن الشعار/الألوان). */
+  footer_description: string | null;
+}
+
+/** الصفحات — صفحة يكتبها المالك/المسؤول (عنوان + محتوى)، تُعرض عبر رابط في تذييل الموقع (مثل سياسة الخصوصية). */
+export interface WebsiteCustomPage {
+  id: string;
+  website_id: string;
+  title: string;
+  slug: string;
+  content: string;
+  order_index: number;
+  created_at: string;
+  updated_at: string;
 }
 
 /** One of a website's 6 fixed pages (migration 0024) — see WEBSITE_PAGE_KEYS. */

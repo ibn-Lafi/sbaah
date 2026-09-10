@@ -17,6 +17,10 @@ const dictionaries = {
     projects: 'المشاريع',
     about: 'من نحن',
     contact: 'تواصل معنا',
+    crNumber: 'السجل التجاري',
+    taxNumber: 'الرقم الضريبي',
+    falLicense: 'رخصة فال',
+    otherPages: 'صفحات أخرى',
   },
   en: {
     languageSwitch: 'العربية',
@@ -25,6 +29,10 @@ const dictionaries = {
     projects: 'Projects',
     about: 'About',
     contact: 'Contact',
+    crNumber: 'CR Number',
+    taxNumber: 'VAT Number',
+    falLicense: 'Fal License',
+    otherPages: 'Other Pages',
   },
 } satisfies Record<Locale, Record<string, string>>;
 

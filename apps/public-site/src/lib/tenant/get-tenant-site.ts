@@ -4,12 +4,27 @@ import { apiGet, ApiRequestError } from '@/lib/api/client';
 import { getHost } from './get-host';
 
 export interface TenantSite {
-  tenant: { id: string; name_ar: string; name_en: string; account_type: AccountType };
+  tenant: {
+    id: string;
+    name_ar: string;
+    name_en: string;
+    account_type: AccountType;
+    cr_number: string | null;
+    tax_number: string | null;
+    fal_license_number: string | null;
+    social_instagram: string | null;
+    social_tiktok: string | null;
+    social_whatsapp: string | null;
+    social_snapchat: string | null;
+    social_phone: string | null;
+  };
   /** `theme_key` (e.g. 'classic', 'modern') — resolved server-side by `api` from `theme_id`, what the theme registry looks components up by. */
   website: Omit<Website, 'id' | 'tenant_id' | 'theme_id'> & { theme_key: string };
   sections: Pick<WebsiteSection, 'id' | 'type' | 'order_index' | 'config'>[];
   /** The tenant Owner's phone (task 34/42's WhatsApp click-to-chat button) — `users` has no anon SELECT policy, so `api` resolves this server-side, never queried directly from here. */
   whatsapp_phone: string;
+  /** الصفحات (footer links) — title + slug only; a page's content is fetched separately when a visitor opens it (getTenantCustomPage). */
+  custom_pages: { id: string; title: string; slug: string }[];
 }
 
 export type TenantSiteResult =
@@ -73,4 +88,22 @@ export async function getTenantSite(): Promise<TenantSite | null> {
 export async function getTenantSitePage(pageKey: WebsitePageKey): Promise<TenantSite | null> {
   const result = await fetchTenantSiteResult(pageKey);
   return result.status === 'active' ? result.site : null;
+}
+
+/** الصفحات — one owner-authored page's full content, by slug (footer links, `/pages/[slug]`). `null` if the domain or the slug don't resolve. */
+export async function getTenantCustomPage(slug: string): Promise<{ title: string; content: string } | null> {
+  const host = await getHost();
+  if (!host) return null;
+
+  try {
+    const { page } = await apiGet<{ page: { title: string; content: string } }>(
+      `/public/website/pages/${encodeURIComponent(slug)}?domain=${encodeURIComponent(host)}`,
+    );
+    return page;
+  } catch (error) {
+    if (error instanceof ApiRequestError && (error.code === 'site_not_found' || error.code === 'page_not_found')) {
+      return null;
+    }
+    throw error;
+  }
 }

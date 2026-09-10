@@ -36,11 +36,25 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     throw new ApiError(403, 'tenant_suspended', 'الحساب غير متاح حاليًا');
   }
   const tenantId = chrome.id;
-  const tenant = { name_ar: chrome.name_ar, name_en: chrome.name_en, account_type: chrome.account_type };
+  const tenant = {
+    name_ar: chrome.name_ar,
+    name_en: chrome.name_en,
+    account_type: chrome.account_type,
+    cr_number: chrome.cr_number,
+    tax_number: chrome.tax_number,
+    fal_license_number: chrome.fal_license_number,
+    social_instagram: chrome.social_instagram,
+    social_tiktok: chrome.social_tiktok,
+    social_whatsapp: chrome.social_whatsapp,
+    social_snapchat: chrome.social_snapchat,
+    social_phone: chrome.social_phone,
+  };
 
   const { data: website, error: websiteError } = await supabase
     .from('websites')
-    .select('id, theme_id, primary_color, secondary_color, font_family, logo_url, banner_image_url')
+    .select(
+      'id, theme_id, primary_color, secondary_color, font_family, logo_url, banner_image_url, announcement_bar_text, footer_description',
+    )
     .eq('tenant_id', tenantId)
     .single();
   if (websiteError || !website) {
@@ -98,5 +112,17 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     throw new Error(`Failed to load public tenant WhatsApp contact: ${ownerError?.message}`);
   }
 
-  return okResponse({ tenant, website: websiteConfig, sections, whatsapp_phone: owner.phone });
+  // الصفحات (footer links) — title + slug only; a page's full content is
+  // fetched separately (GET /v1/public/website/pages/[slug]) only when a
+  // visitor actually opens it.
+  const { data: customPages, error: customPagesError } = await supabase
+    .from('website_custom_pages')
+    .select('id, title, slug')
+    .eq('website_id', websiteId)
+    .order('order_index', { ascending: true });
+  if (customPagesError) {
+    throw new Error(`Failed to load custom pages: ${customPagesError.message}`);
+  }
+
+  return okResponse({ tenant, website: websiteConfig, sections, whatsapp_phone: owner.phone, custom_pages: customPages });
 });

@@ -1,5 +1,14 @@
-import type { SectionUpdateInput, Website, WebsitePage, WebsiteSection, WebsiteUpdateInput } from '@sbaah/shared';
-import { apiGet, apiPatch, apiUpload } from './client';
+import type {
+  SectionUpdateInput,
+  Website,
+  WebsiteCustomPage,
+  WebsiteCustomPageCreateInput,
+  WebsiteCustomPageUpdateInput,
+  WebsitePage,
+  WebsiteSection,
+  WebsiteUpdateInput,
+} from '@sbaah/shared';
+import { apiDelete, apiGet, apiPatch, apiPost, apiUpload } from './client';
 
 export type WebsitePageWithSections = WebsitePage & { website_sections: WebsiteSection[] };
 
@@ -38,4 +47,24 @@ export function uploadLogo(accessToken: string, file: File): Promise<{ website: 
 
 export function uploadBanner(accessToken: string, file: File): Promise<{ website: Website }> {
   return uploadAsset(accessToken, '/website/banner', file);
+}
+
+export function getCustomPages(accessToken: string): Promise<{ pages: WebsiteCustomPage[] }> {
+  return apiGet<{ pages: WebsiteCustomPage[] }>('/website/custom-pages', accessToken);
+}
+
+export function createCustomPage(accessToken: string, input: WebsiteCustomPageCreateInput): Promise<{ page: WebsiteCustomPage }> {
+  return apiPost<{ page: WebsiteCustomPage }>('/website/custom-pages', input, accessToken);
+}
+
+export function updateCustomPage(
+  accessToken: string,
+  id: string,
+  input: WebsiteCustomPageUpdateInput,
+): Promise<{ page: WebsiteCustomPage }> {
+  return apiPatch<{ page: WebsiteCustomPage }>(`/website/custom-pages/${id}`, input, accessToken);
+}
+
+export function deleteCustomPage(accessToken: string, id: string): Promise<{ status: string }> {
+  return apiDelete<{ status: string }>(`/website/custom-pages/${id}`, accessToken);
 }

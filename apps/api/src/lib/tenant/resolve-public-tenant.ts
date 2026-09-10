@@ -54,6 +54,14 @@ export interface PublicTenantChrome {
   name_ar: string;
   name_en: string;
   account_type: AccountType;
+  cr_number: string | null;
+  tax_number: string | null;
+  fal_license_number: string | null;
+  social_instagram: string | null;
+  social_tiktok: string | null;
+  social_whatsapp: string | null;
+  social_snapchat: string | null;
+  social_phone: string | null;
 }
 
 /**

@@ -2,59 +2,97 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { WEBSITE_PAGE_KEYS, SUPPORTED_WEBSITE_FONTS, type Website, type WebsitePageKey } from '@sbaah/shared';
-import { AppShell } from '@/components/layout/app-shell';
+import {
+  WEBSITE_PAGE_KEYS,
+  SUPPORTED_WEBSITE_FONTS,
+  type Website,
+  type WebsitePageKey,
+  type WebsiteSection,
+} from '@sbaah/shared';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Select } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { FormError } from '@/components/ui/form-error';
 import { AssetUploader } from '@/components/website/asset-uploader';
 import { SectionList } from '@/components/website/section-list';
 import { SitePreview, type Device } from '@/components/website/site-preview';
-import { ExitIcon, SettingsGearIcon, CloseIcon, DesktopIcon, MobileIcon, ChevronIcon } from '@/components/website/editor-icons';
+import {
+  BackArrowIcon,
+  SettingsGearIcon,
+  CloseIcon,
+  DesktopIcon,
+  MobileIcon,
+  ChevronIcon,
+  InstagramIcon,
+  TiktokIcon,
+  WhatsappIcon,
+  SnapchatIcon,
+  CallIcon,
+  CrIcon,
+  TaxIcon,
+  FalIcon,
+} from '@/components/website/editor-icons';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
-import { ROLE_LABELS } from '@/lib/auth/role-labels';
 import { getPlatformRootDomain } from '@/lib/env/platform-root-domain';
 import { WEBSITE_PAGE_LABELS } from '@/lib/website/labels';
-import { getWebsite, updateWebsite, uploadBanner, uploadLogo, type WebsitePageWithSections } from '@/lib/api/website';
+import { getWebsite, updateWebsite, updateSection, uploadBanner, uploadLogo, type WebsitePageWithSections } from '@/lib/api/website';
 import { ApiRequestError } from '@/lib/api/client';
 
 type PanelView = 'sections' | 'settings';
+type ZoneKey = 'top' | 'content' | 'bottom';
 
 const HEX_PATTERN = /^#[0-9A-Fa-f]{6}$/;
 
+const SOCIAL_LINKS: { key: 'social_instagram' | 'social_tiktok' | 'social_whatsapp' | 'social_snapchat' | 'social_phone'; label: string; Icon: typeof InstagramIcon }[] = [
+  { key: 'social_instagram', label: 'إنستغرام', Icon: InstagramIcon },
+  { key: 'social_tiktok', label: 'تيك توك', Icon: TiktokIcon },
+  { key: 'social_whatsapp', label: 'واتساب', Icon: WhatsappIcon },
+  { key: 'social_snapchat', label: 'سناب شات', Icon: SnapchatIcon },
+  { key: 'social_phone', label: 'اتصال', Icon: CallIcon },
+];
+
 /**
- * تخصيص الثيم — toolbar + live preview + a sections/settings panel,
- * matching the founder's reference tool's layout order: exit ← device
- * toggle ← page picker ← settings gear, with the panel switching
- * between "أقسام [الصفحة]" and "إعدادات الصفحة" instead of a 3-way tab
- * row. No "نشر"/history/fullscreen controls — سبعة has no draft-vs-
- * published state for site content (every change saves immediately via
- * PATCH), so a fake publish button would claim a state that doesn't
- * exist; likewise no "ربط المنتجات" section (no product-linking concept
- * in سبعة's data model) — only the parts with something real behind
- * them are here.
+ * تخصيص الثيم — شاشة كاملة (بدون AppShell، الرجوع عبر سهم) مطابقة لأداة
+ * المرجع: شريط أدوات (رجوع ← تبديل جهاز ← اختيار صفحة ← إعدادات) ولوحة
+ * جانبية على يمين المعاينة (RTL) تتبدّل بين "أقسام [الصفحة]" (مقسّمة إلى 3
+ * مناطق: أعلى الصفحة / محتوى الصفحة / أسفل الصفحة) و"إعدادات الصفحة".
+ * لا "نشر"/سجل تعديلات — سبعة تحفظ فور التغيير، لا حالة مسودة/منشور.
  */
 export default function WebsiteEditorPage() {
   const { me, accessToken } = useCurrentUser();
   const [website, setWebsite] = useState<Website | null>(null);
   const [pages, setPages] = useState<WebsitePageWithSections[]>([]);
   const [colorDraft, setColorDraft] = useState({ primary: '', secondary: '' });
+  const [textDraft, setTextDraft] = useState({ announcement: '', footerDescription: '' });
   const [error, setError] = useState<string | null>(null);
   const [panelView, setPanelView] = useState<PanelView>('sections');
   const [activePageKey, setActivePageKey] = useState<WebsitePageKey>('home');
   const [device, setDevice] = useState<Device>('desktop');
   const [colorsOpen, setColorsOpen] = useState(true);
+  const [openZones, setOpenZones] = useState<Record<ZoneKey, boolean>>({ top: true, content: true, bottom: true });
 
   const siteUrl = `https://${me.tenant.subdomain}.${getPlatformRootDomain()}`;
   const activePage = pages.find((p) => p.key === activePageKey);
+  const contentSections = activePage?.website_sections.filter((s) => s.type !== 'footer') ?? [];
+  const footerSection = activePage?.website_sections.find((s) => s.type === 'footer');
+  const configuredSocials = SOCIAL_LINKS.filter(({ key }) => me.tenant[key]);
 
   useEffect(() => {
     void getWebsite(accessToken).then((result) => {
       setWebsite(result.website);
       setPages(result.pages);
       setColorDraft({ primary: result.website.primary_color, secondary: result.website.secondary_color });
+      setTextDraft({
+        announcement: result.website.announcement_bar_text ?? '',
+        footerDescription: result.website.footer_description ?? '',
+      });
     });
   }, [accessToken]);
+
+  function toggleZone(zone: ZoneKey) {
+    setOpenZones((current) => ({ ...current, [zone]: !current[zone] }));
+  }
 
   async function saveColor(field: 'primary_color' | 'secondary_color', value: string) {
     if (!HEX_PATTERN.test(value)) return;
@@ -77,180 +115,150 @@ export default function WebsiteEditorPage() {
     }
   }
 
+  async function saveAnnouncementBar(value: string) {
+    setError(null);
+    try {
+      const { website: updated } = await updateWebsite(accessToken, { announcement_bar_text: value || null });
+      setWebsite((current) => (current ? { ...current, ...updated } : current));
+    } catch (err) {
+      setError(err instanceof ApiRequestError ? err.message : 'تعذّر حفظ شريط الإعلان');
+    }
+  }
+
+  async function saveFooterDescription(value: string) {
+    setError(null);
+    try {
+      const { website: updated } = await updateWebsite(accessToken, { footer_description: value || null });
+      setWebsite((current) => (current ? { ...current, ...updated } : current));
+    } catch (err) {
+      setError(err instanceof ApiRequestError ? err.message : 'تعذّر حفظ نص الفوتر');
+    }
+  }
+
+  function mergeSections(pageId: string, updated: WebsiteSection[]) {
+    setPages((current) =>
+      current.map((p) => {
+        if (p.id !== pageId) return p;
+        const keepFooter = p.website_sections.find((s) => s.type === 'footer');
+        return { ...p, website_sections: keepFooter ? [...updated, keepFooter] : updated };
+      }),
+    );
+  }
+
+  async function toggleFooterVisibility() {
+    if (!activePage || !footerSection) return;
+    const { section: updated } = await updateSection(accessToken, footerSection.id, { is_visible: !footerSection.is_visible });
+    setPages((current) =>
+      current.map((p) =>
+        p.id === activePage.id ? { ...p, website_sections: p.website_sections.map((s) => (s.id === updated.id ? updated : s)) } : p,
+      ),
+    );
+  }
+
   if (!website) {
     return (
-      <AppShell title="تخصيص الثيم" orgName={me.tenant.name_ar} accountType={me.tenant.account_type} roleLabel={ROLE_LABELS[me.user.role]}>
+      <div className="flex h-screen items-center justify-center bg-surface-page">
         <p className="text-text-secondary">جارٍ التحميل...</p>
-      </AppShell>
+      </div>
     );
   }
 
   return (
-    <AppShell title="تخصيص الثيم" orgName={me.tenant.name_ar} accountType={me.tenant.account_type} roleLabel={ROLE_LABELS[me.user.role]}>
-      <div className="-m-7 flex h-[calc(100vh-72px)] flex-col">
-        {/* Toolbar */}
-        <div className="flex h-14 flex-none items-center gap-2 border-b border-border-subtle bg-surface-card px-4">
-          <Link
-            href="/site"
-            aria-label="رجوع لمتجر الثيمات"
-            title="رجوع لمتجر الثيمات"
-            className="flex h-9 w-9 items-center justify-center rounded-control text-text-secondary hover:bg-surface-subtle"
-          >
-            <ExitIcon className="h-[18px] w-[18px]" />
-          </Link>
+    <div className="flex h-screen flex-col bg-surface-page">
+      {/* Toolbar */}
+      <div className="flex h-14 flex-none items-center gap-2 border-b border-border-subtle bg-surface-card px-4">
+        <Link
+          href="/site"
+          aria-label="رجوع لمتجر الثيمات"
+          title="رجوع لمتجر الثيمات"
+          className="flex h-9 w-9 items-center justify-center rounded-control text-text-secondary hover:bg-surface-subtle"
+        >
+          <BackArrowIcon className="h-[18px] w-[18px]" />
+        </Link>
 
-          <div className="h-6 w-px bg-border-subtle" />
+        <div className="h-6 w-px bg-border-subtle" />
 
-          <div className="flex gap-1 rounded-full bg-surface-subtle-3 p-1">
-            <button
-              type="button"
-              onClick={() => setDevice('desktop')}
-              aria-label="عرض كمبيوتر"
-              title="عرض كمبيوتر"
-              className={`flex h-8 w-8 items-center justify-center rounded-full ${device === 'desktop' ? 'bg-surface-card text-brand shadow-sm' : 'text-text-secondary'}`}
-            >
-              <DesktopIcon className="h-[16px] w-[16px]" />
-            </button>
-            <button
-              type="button"
-              onClick={() => setDevice('mobile')}
-              aria-label="عرض جوال"
-              title="عرض جوال"
-              className={`flex h-8 w-8 items-center justify-center rounded-full ${device === 'mobile' ? 'bg-surface-card text-brand shadow-sm' : 'text-text-secondary'}`}
-            >
-              <MobileIcon className="h-[16px] w-[16px]" />
-            </button>
-          </div>
-
-          <div className="flex-1" />
-
-          <Select
-            value={activePageKey}
-            onChange={(e) => {
-              setActivePageKey(e.target.value as WebsitePageKey);
-              setPanelView('sections');
-            }}
-            className="h-9 w-[180px]"
-          >
-            {WEBSITE_PAGE_KEYS.map((key) => (
-              <option key={key} value={key}>
-                {WEBSITE_PAGE_LABELS[key]}
-              </option>
-            ))}
-          </Select>
-
+        <div className="flex gap-1 rounded-full bg-surface-subtle-3 p-1">
           <button
             type="button"
-            onClick={() => setPanelView((v) => (v === 'settings' ? 'sections' : 'settings'))}
-            aria-label="إعدادات الصفحة"
-            title="إعدادات الصفحة"
-            className={`flex h-9 w-9 items-center justify-center rounded-control ${
-              panelView === 'settings' ? 'bg-brand-surface text-brand' : 'text-text-secondary hover:bg-surface-subtle'
-            }`}
+            onClick={() => setDevice('desktop')}
+            aria-label="عرض كمبيوتر"
+            title="عرض كمبيوتر"
+            className={`flex h-8 w-8 items-center justify-center rounded-full ${device === 'desktop' ? 'bg-surface-card text-brand shadow-sm' : 'text-text-secondary'}`}
           >
-            <SettingsGearIcon className="h-[18px] w-[18px]" />
+            <DesktopIcon className="h-[16px] w-[16px]" />
+          </button>
+          <button
+            type="button"
+            onClick={() => setDevice('mobile')}
+            aria-label="عرض جوال"
+            title="عرض جوال"
+            className={`flex h-8 w-8 items-center justify-center rounded-full ${device === 'mobile' ? 'bg-surface-card text-brand shadow-sm' : 'text-text-secondary'}`}
+          >
+            <MobileIcon className="h-[16px] w-[16px]" />
           </button>
         </div>
 
-        {/* Preview + panel */}
-        <div className="flex min-h-0 flex-1">
-          <div className="min-w-0 flex-1">
-            <SitePreview siteUrl={siteUrl} pageKey={activePageKey} device={device} />
-          </div>
+        <div className="flex-1" />
 
-          <div className="flex w-[360px] flex-none flex-col overflow-auto border-s border-border-subtle bg-surface-card">
-            {panelView === 'sections' ? (
-              <>
-                <div className="flex h-14 flex-none items-center justify-between border-b border-border-subtle px-4">
-                  <h2 className="text-sm font-semibold text-text-primary">أقسام {WEBSITE_PAGE_LABELS[activePageKey]}</h2>
-                  <button type="button" onClick={() => setPanelView('settings')} className="text-text-secondary hover:text-brand">
-                    <SettingsGearIcon className="h-[17px] w-[17px]" />
-                  </button>
-                </div>
-                <div className="flex-1 p-4">
+        <Select
+          value={activePageKey}
+          onChange={(e) => {
+            setActivePageKey(e.target.value as WebsitePageKey);
+            setPanelView('sections');
+          }}
+          className="h-9 w-[180px]"
+        >
+          {WEBSITE_PAGE_KEYS.map((key) => (
+            <option key={key} value={key}>
+              {WEBSITE_PAGE_LABELS[key]}
+            </option>
+          ))}
+        </Select>
+
+        <button
+          type="button"
+          onClick={() => setPanelView((v) => (v === 'settings' ? 'sections' : 'settings'))}
+          aria-label="إعدادات الصفحة"
+          title="إعدادات الصفحة"
+          className={`flex h-9 w-9 items-center justify-center rounded-control ${
+            panelView === 'settings' ? 'bg-brand-surface text-brand' : 'text-text-secondary hover:bg-surface-subtle'
+          }`}
+        >
+          <SettingsGearIcon className="h-[18px] w-[18px]" />
+        </button>
+      </div>
+
+      {/* Panel + preview — panel first in DOM so it renders on the right under RTL, matching the reference tool. */}
+      <div className="flex min-h-0 flex-1">
+        <div className="flex w-[360px] flex-none flex-col overflow-auto border-e border-border-subtle bg-surface-card">
+          {panelView === 'sections' ? (
+            <>
+              <div className="flex h-14 flex-none items-center justify-between border-b border-border-subtle px-4">
+                <h2 className="text-sm font-semibold text-text-primary">أقسام {WEBSITE_PAGE_LABELS[activePageKey]}</h2>
+                <button type="button" onClick={() => setPanelView('settings')} className="text-text-secondary hover:text-brand">
+                  <SettingsGearIcon className="h-[17px] w-[17px]" />
+                </button>
+              </div>
+              <div className="flex-1 divide-y divide-border-subtle">
+                <div className="p-4">
                   <FormError message={error} />
-                  {activePage && (
-                    <SectionList
-                      key={activePage.id}
-                      sections={activePage.website_sections}
-                      accessToken={accessToken}
-                      onChange={(sections) =>
-                        setPages((current) => current.map((p) => (p.id === activePage.id ? { ...p, website_sections: sections } : p)))
-                      }
-                    />
-                  )}
                 </div>
-              </>
-            ) : (
-              <>
-                <div className="flex h-14 flex-none items-center justify-between border-b border-border-subtle px-4">
-                  <h2 className="text-sm font-semibold text-text-primary">إعدادات الصفحة</h2>
-                  <button type="button" onClick={() => setPanelView('sections')} className="text-text-secondary hover:text-brand">
-                    <CloseIcon className="h-[17px] w-[17px]" />
-                  </button>
-                </div>
-                <div className="flex-1 p-4">
-                  <FormError message={error} />
+
+                {/* أعلى الصفحة */}
+                <div className="p-4">
                   <button
                     type="button"
-                    onClick={() => setColorsOpen((v) => !v)}
-                    className="flex w-full items-center justify-between py-2 text-sm font-semibold text-text-primary"
+                    onClick={() => toggleZone('top')}
+                    className="flex w-full items-center justify-between text-sm font-semibold text-text-primary"
                   >
-                    الألوان والهوية
-                    <ChevronIcon open={colorsOpen} className="h-[14px] w-[14px] text-text-secondary" />
+                    أعلى الصفحة
+                    <ChevronIcon open={openZones.top} className="h-[14px] w-[14px] text-text-secondary" />
                   </button>
-                  {colorsOpen && (
-                    <div className="flex flex-col gap-4 pb-4">
-                      <div className="flex flex-col gap-2">
-                        <label className="text-xs text-text-secondary">اللون الأساسي</label>
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="color"
-                            value={colorDraft.primary}
-                            onChange={(e) => setColorDraft((c) => ({ ...c, primary: e.target.value }))}
-                            onBlur={() => void saveColor('primary_color', colorDraft.primary)}
-                            className="h-10 w-10 shrink-0 cursor-pointer rounded-input border border-border-default"
-                          />
-                          <Input
-                            value={colorDraft.primary}
-                            onChange={(e) => setColorDraft((c) => ({ ...c, primary: e.target.value }))}
-                            onBlur={() => void saveColor('primary_color', colorDraft.primary)}
-                            dir="ltr"
-                            className="h-10 min-w-0 flex-1"
-                          />
-                        </div>
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <label className="text-xs text-text-secondary">اللون الثانوي</label>
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="color"
-                            value={colorDraft.secondary}
-                            onChange={(e) => setColorDraft((c) => ({ ...c, secondary: e.target.value }))}
-                            onBlur={() => void saveColor('secondary_color', colorDraft.secondary)}
-                            className="h-10 w-10 shrink-0 cursor-pointer rounded-input border border-border-default"
-                          />
-                          <Input
-                            value={colorDraft.secondary}
-                            onChange={(e) => setColorDraft((c) => ({ ...c, secondary: e.target.value }))}
-                            onBlur={() => void saveColor('secondary_color', colorDraft.secondary)}
-                            dir="ltr"
-                            className="h-10 min-w-0 flex-1"
-                          />
-                        </div>
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <label className="text-xs text-text-secondary">الخط</label>
-                        <Select value={website.font_family} onChange={(e) => void saveFont(e.target.value)} className="h-10">
-                          {SUPPORTED_WEBSITE_FONTS.map((font) => (
-                            <option key={font} value={font}>
-                              {font}
-                            </option>
-                          ))}
-                        </Select>
-                      </div>
+                  {openZones.top && (
+                    <div className="mt-4 flex flex-col gap-4">
                       <AssetUploader
-                        label="الشعار"
+                        label="الشعار (مقاس 250×100)"
                         currentUrl={website.logo_url}
                         onUpload={async (file) => {
                           const { website: updated } = await uploadLogo(accessToken, file);
@@ -261,26 +269,227 @@ export default function WebsiteEditorPage() {
                           setWebsite((current) => (current ? { ...current, ...updated } : current));
                         }}
                       />
-                      <AssetUploader
-                        label="صورة البانر (قسم الغلاف الرئيسي)"
-                        currentUrl={website.banner_image_url}
-                        onUpload={async (file) => {
-                          const { website: updated } = await uploadBanner(accessToken, file);
-                          setWebsite((current) => (current ? { ...current, ...updated } : current));
-                        }}
-                        onRemove={async () => {
-                          const { website: updated } = await updateWebsite(accessToken, { banner_image_url: null });
-                          setWebsite((current) => (current ? { ...current, ...updated } : current));
-                        }}
-                      />
+                      <div className="flex flex-col gap-2">
+                        <label className="text-xs text-text-secondary">الشريط (نص إعلاني أعلى الصفحة)</label>
+                        <Input
+                          value={textDraft.announcement}
+                          onChange={(e) => setTextDraft((c) => ({ ...c, announcement: e.target.value }))}
+                          onBlur={() => void saveAnnouncementBar(textDraft.announcement)}
+                          placeholder="مثال: عروض نهاية الأسبوع سارية الآن"
+                          className="h-10"
+                        />
+                      </div>
                     </div>
                   )}
                 </div>
-              </>
-            )}
-          </div>
+
+                {/* محتوى الصفحة */}
+                <div className="p-4">
+                  <button
+                    type="button"
+                    onClick={() => toggleZone('content')}
+                    className="flex w-full items-center justify-between text-sm font-semibold text-text-primary"
+                  >
+                    محتوى الصفحة
+                    <ChevronIcon open={openZones.content} className="h-[14px] w-[14px] text-text-secondary" />
+                  </button>
+                  {openZones.content && (
+                    <div className="mt-4">
+                      {activePage && (
+                        <SectionList
+                          key={activePage.id}
+                          sections={contentSections}
+                          accessToken={accessToken}
+                          onChange={(sections) => mergeSections(activePage.id, sections)}
+                        />
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* أسفل الصفحة */}
+                <div className="p-4">
+                  <button
+                    type="button"
+                    onClick={() => toggleZone('bottom')}
+                    className="flex w-full items-center justify-between text-sm font-semibold text-text-primary"
+                  >
+                    أسفل الصفحة
+                    <ChevronIcon open={openZones.bottom} className="h-[14px] w-[14px] text-text-secondary" />
+                  </button>
+                  {openZones.bottom && (
+                    <div className="mt-4 flex flex-col gap-4">
+                      {footerSection && (
+                        <div className="flex items-center justify-between rounded-input border border-border-default px-4 py-3">
+                          <span className="text-sm text-text-primary">إظهار الفوتر في هذه الصفحة</span>
+                          <Switch checked={footerSection.is_visible} onChange={() => void toggleFooterVisibility()} />
+                        </div>
+                      )}
+
+                      <p className="text-xs text-text-tertiary">يظهر نفس الشعار الموجود أعلى الصفحة (250×100) في الفوتر أيضًا.</p>
+
+                      <div className="flex flex-col gap-2">
+                        <label className="text-xs text-text-secondary">التعريف الذي يظهر في الفوتر</label>
+                        <Textarea
+                          value={textDraft.footerDescription}
+                          onChange={(e) => setTextDraft((c) => ({ ...c, footerDescription: e.target.value }))}
+                          onBlur={() => void saveFooterDescription(textDraft.footerDescription)}
+                          placeholder="نبذة قصيرة عن الحساب تظهر في تذييل الموقع"
+                          className="min-h-[80px]"
+                        />
+                      </div>
+
+                      {(me.tenant.cr_number || me.tenant.tax_number || me.tenant.fal_license_number) && (
+                        <div className="flex flex-col gap-2">
+                          <label className="text-xs text-text-secondary">الأرقام النظامية (تُؤخذ تلقائيًا من بيانات الحساب)</label>
+                          <div className="flex flex-col gap-2 rounded-input border border-border-default px-4 py-3">
+                            {me.tenant.cr_number && (
+                              <div className="flex items-center gap-2 text-sm text-text-primary">
+                                <CrIcon className="h-[16px] w-[16px] flex-none text-text-secondary" />
+                                <span className="text-xs text-text-secondary">السجل التجاري:</span>
+                                <span dir="ltr">{me.tenant.cr_number}</span>
+                              </div>
+                            )}
+                            {me.tenant.tax_number && (
+                              <div className="flex items-center gap-2 text-sm text-text-primary">
+                                <TaxIcon className="h-[16px] w-[16px] flex-none text-text-secondary" />
+                                <span className="text-xs text-text-secondary">الرقم الضريبي:</span>
+                                <span dir="ltr">{me.tenant.tax_number}</span>
+                              </div>
+                            )}
+                            {me.tenant.fal_license_number && (
+                              <div className="flex items-center gap-2 text-sm text-text-primary">
+                                <FalIcon className="h-[16px] w-[16px] flex-none text-text-secondary" />
+                                <span className="text-xs text-text-secondary">رخصة فال:</span>
+                                <span dir="ltr">{me.tenant.fal_license_number}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="flex flex-col gap-2">
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs text-text-secondary">حسابات التواصل الاجتماعي</label>
+                          <Link href="/settings" className="text-xs font-semibold text-brand hover:underline">
+                            تعديل
+                          </Link>
+                        </div>
+                        {configuredSocials.length > 0 ? (
+                          <div className="flex flex-col gap-2 rounded-input border border-border-default px-4 py-3">
+                            {configuredSocials.map(({ key, label, Icon }) => (
+                              <div key={key} className="flex items-center gap-2 text-sm text-text-primary">
+                                <Icon className="h-[16px] w-[16px] flex-none text-text-secondary" />
+                                {label}
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-xs text-text-tertiary">
+                            لم تتم إضافة أي حساب بعد — أضفها من{' '}
+                            <Link href="/settings" className="font-semibold text-brand hover:underline">
+                              حسابي
+                            </Link>{' '}
+                            ليظهر تلقائيًا في تذييل الموقع.
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="flex h-14 flex-none items-center justify-between border-b border-border-subtle px-4">
+                <h2 className="text-sm font-semibold text-text-primary">إعدادات الصفحة</h2>
+                <button type="button" onClick={() => setPanelView('sections')} className="text-text-secondary hover:text-brand">
+                  <CloseIcon className="h-[17px] w-[17px]" />
+                </button>
+              </div>
+              <div className="flex-1 p-4">
+                <FormError message={error} />
+                <button
+                  type="button"
+                  onClick={() => setColorsOpen((v) => !v)}
+                  className="flex w-full items-center justify-between py-2 text-sm font-semibold text-text-primary"
+                >
+                  الألوان والهوية
+                  <ChevronIcon open={colorsOpen} className="h-[14px] w-[14px] text-text-secondary" />
+                </button>
+                {colorsOpen && (
+                  <div className="flex flex-col gap-4 pb-4">
+                    <div className="flex flex-col gap-2">
+                      <label className="text-xs text-text-secondary">اللون الأساسي</label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={colorDraft.primary}
+                          onChange={(e) => setColorDraft((c) => ({ ...c, primary: e.target.value }))}
+                          onBlur={() => void saveColor('primary_color', colorDraft.primary)}
+                          className="h-10 w-10 shrink-0 cursor-pointer rounded-input border border-border-default"
+                        />
+                        <Input
+                          value={colorDraft.primary}
+                          onChange={(e) => setColorDraft((c) => ({ ...c, primary: e.target.value }))}
+                          onBlur={() => void saveColor('primary_color', colorDraft.primary)}
+                          dir="ltr"
+                          className="h-10 min-w-0 flex-1"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <label className="text-xs text-text-secondary">اللون الثانوي</label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={colorDraft.secondary}
+                          onChange={(e) => setColorDraft((c) => ({ ...c, secondary: e.target.value }))}
+                          onBlur={() => void saveColor('secondary_color', colorDraft.secondary)}
+                          className="h-10 w-10 shrink-0 cursor-pointer rounded-input border border-border-default"
+                        />
+                        <Input
+                          value={colorDraft.secondary}
+                          onChange={(e) => setColorDraft((c) => ({ ...c, secondary: e.target.value }))}
+                          onBlur={() => void saveColor('secondary_color', colorDraft.secondary)}
+                          dir="ltr"
+                          className="h-10 min-w-0 flex-1"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <label className="text-xs text-text-secondary">الخط</label>
+                      <Select value={website.font_family} onChange={(e) => void saveFont(e.target.value)} className="h-10">
+                        {SUPPORTED_WEBSITE_FONTS.map((font) => (
+                          <option key={font} value={font}>
+                            {font}
+                          </option>
+                        ))}
+                      </Select>
+                    </div>
+                    <AssetUploader
+                      label="صورة البانر (قسم الغلاف الرئيسي)"
+                      currentUrl={website.banner_image_url}
+                      onUpload={async (file) => {
+                        const { website: updated } = await uploadBanner(accessToken, file);
+                        setWebsite((current) => (current ? { ...current, ...updated } : current));
+                      }}
+                      onRemove={async () => {
+                        const { website: updated } = await updateWebsite(accessToken, { banner_image_url: null });
+                        setWebsite((current) => (current ? { ...current, ...updated } : current));
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <SitePreview siteUrl={siteUrl} pageKey={activePageKey} device={device} />
         </div>
       </div>
-    </AppShell>
+    </div>
   );
 }

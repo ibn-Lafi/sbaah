@@ -26,6 +26,7 @@ import {
   ClientsIcon,
   DashboardIcon,
   DomainIcon,
+  PagesIcon,
   PropertiesIcon,
   StaffIcon,
   ThemeCustomizeIcon,
@@ -71,6 +72,7 @@ export const NAV_ITEMS: NavEntry[] = [
     children: [
       { href: '/site/editor', label: 'تخصيص الثيم', icon: ThemeCustomizeIcon },
       { href: '/site', label: 'متجر الثيمات', icon: ThemeStoreIcon },
+      { href: '/site/pages', label: 'الصفحات', icon: PagesIcon },
       { href: '/domain', label: 'الدومين', icon: DomainIcon },
     ],
   },

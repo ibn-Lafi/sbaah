@@ -101,6 +101,16 @@ export function ThemeStoreIcon({ className }: IconProps) {
   );
 }
 
+export function PagesIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M7 3h7l4 4v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" />
+      <path d="M14 3v4h4" />
+      <path d="M9 12h6M9 16h4" />
+    </Svg>
+  );
+}
+
 export function DomainIcon({ className }: IconProps) {
   return (
     <Svg className={className}>

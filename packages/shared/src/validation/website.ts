@@ -15,8 +15,32 @@ export const websiteUpdateSchema = z.object({
   font_family: z.string().min(1).optional(),
   logo_url: z.string().url().optional().nullable(),
   banner_image_url: z.string().url().optional().nullable(),
+  announcement_bar_text: z.string().max(200).optional().nullable(),
+  footer_description: z.string().max(2000).optional().nullable(),
 });
 export type WebsiteUpdateInput = z.infer<typeof websiteUpdateSchema>;
+
+/** الصفحات — العنوان يولّد slug تلقائيًا في الواجهة، لكن الـ API يتحقق من نفس الصيغة (أحرف/أرقام/شرطات). */
+const websiteCustomPageSlugSchema = z
+  .string()
+  .min(1, 'رابط الصفحة مطلوب')
+  .max(80)
+  .regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, 'الرابط يجب أن يكون أحرفًا إنجليزية صغيرة وأرقامًا وشرطات فقط');
+
+export const websiteCustomPageCreateSchema = z.object({
+  title: z.string().min(1, 'عنوان الصفحة مطلوب').max(120),
+  slug: websiteCustomPageSlugSchema,
+  content: z.string().max(20000).default(''),
+});
+export type WebsiteCustomPageCreateInput = z.infer<typeof websiteCustomPageCreateSchema>;
+
+export const websiteCustomPageUpdateSchema = z.object({
+  title: z.string().min(1).max(120).optional(),
+  slug: websiteCustomPageSlugSchema.optional(),
+  content: z.string().max(20000).optional(),
+  order_index: z.number().int().nonnegative().optional(),
+});
+export type WebsiteCustomPageUpdateInput = z.infer<typeof websiteCustomPageUpdateSchema>;
 
 export const sectionUpdateSchema = z.object({
   is_visible: z.boolean().optional(),

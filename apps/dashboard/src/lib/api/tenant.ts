@@ -1,5 +1,21 @@
-import type { CustomDomainStatus } from '@sbaah/shared';
-import { apiDelete, apiGet, apiPatch } from './client';
+import type { CustomDomainStatus, SocialLinksUpdateInput } from '@sbaah/shared';
+import { apiGet, apiDelete, apiPatch } from './client';
+
+export interface SocialLinks {
+  social_instagram: string | null;
+  social_tiktok: string | null;
+  social_whatsapp: string | null;
+  social_snapchat: string | null;
+  social_phone: string | null;
+}
+
+export function getSocialLinks(accessToken: string) {
+  return apiGet<SocialLinks>('/tenant/social-links', accessToken);
+}
+
+export function updateSocialLinks(accessToken: string, input: SocialLinksUpdateInput) {
+  return apiPatch<SocialLinks>('/tenant/social-links', input, accessToken);
+}
 
 export interface DnsRecord {
   type: string;

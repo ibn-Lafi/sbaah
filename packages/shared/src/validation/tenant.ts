@@ -77,3 +77,25 @@ export const subdomainInputSchema = z.object({
     .refine((value) => !RESERVED_SUBDOMAINS.has(value), 'هذا النطاق الفرعي محجوز، اختر غيره'),
 });
 export type SubdomainInput = z.infer<typeof subdomainInputSchema>;
+
+/**
+ * حسابي (Settings) — حسابات التواصل الاجتماعي. كل حقل رابط/رقم اختياري
+ * ومستقل؛ الموقع العام يعرض فقط ما تمت تعبئته (لا قيمة افتراضية لأي حقل).
+ */
+const optionalTrimmedString = (max: number) =>
+  z
+    .string()
+    .trim()
+    .max(max)
+    .optional()
+    .nullable()
+    .transform((value) => (value === '' ? null : value));
+
+export const socialLinksUpdateSchema = z.object({
+  social_instagram: optionalTrimmedString(200),
+  social_tiktok: optionalTrimmedString(200),
+  social_whatsapp: optionalTrimmedString(30),
+  social_snapchat: optionalTrimmedString(200),
+  social_phone: optionalTrimmedString(30),
+});
+export type SocialLinksUpdateInput = z.infer<typeof socialLinksUpdateSchema>;
