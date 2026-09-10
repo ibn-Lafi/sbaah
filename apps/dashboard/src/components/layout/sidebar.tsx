@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { BrandMark } from '@/components/ui/brand-mark';
 import { AccountAvatar } from '@/components/ui/account-avatar';
-import { NAV_ITEMS } from './nav-items';
+import { NAV_ITEMS, isNavGroup } from './nav-items';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { signOut } from '@/lib/auth/session';
 import type { AccountType } from '@sbaah/shared';
@@ -17,12 +17,13 @@ interface SidebarProps {
   roleLabel: string;
 }
 
-/** Matches the founder's mockup exactly (216px, dot-indicator nav, account switcher with a حسابي/الفوترة/خروج dropdown — settings and billing are NOT regular nav rows). */
+/** Matches the founder's mockup exactly (216px, dot-indicator nav, expandable groups like "تصميم الموقع", account switcher with a حسابي/الفوترة/خروج dropdown). */
 export function Sidebar({ orgName, accountType, roleLabel }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { me } = useCurrentUser();
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
   const visibleItems = NAV_ITEMS.filter((item) => !item.roles || item.roles.includes(me.user.role));
 
   function handleSignOut() {
@@ -37,6 +38,48 @@ export function Sidebar({ orgName, accountType, roleLabel }: SidebarProps) {
 
       <nav className="flex flex-1 flex-col gap-px overflow-auto">
         {visibleItems.map((item) => {
+          if (isNavGroup(item)) {
+            const hasActiveChild = item.children.some((child) => child.href === pathname);
+            const isOpen = openGroups[item.group] ?? hasActiveChild;
+            return (
+              <div key={item.group} className="flex flex-col gap-px">
+                <button
+                  type="button"
+                  onClick={() => setOpenGroups((current) => ({ ...current, [item.group]: !isOpen }))}
+                  className={`flex h-[34px] flex-none items-center gap-2 rounded-[9px] px-[10px] text-[13px] ${
+                    hasActiveChild ? 'font-semibold text-brand' : 'font-normal text-text-tertiary'
+                  }`}
+                >
+                  <span
+                    className="h-[5px] w-[5px] flex-none rounded-full"
+                    style={{ background: hasActiveChild ? 'var(--color-brand)' : 'var(--color-border-secondary)' }}
+                  />
+                  <span className="min-w-0 flex-1 truncate text-start">{item.label}</span>
+                  <span className="text-[10px] text-text-placeholder">{isOpen ? '▲' : '▼'}</span>
+                </button>
+                {isOpen &&
+                  item.children.map((child) => {
+                    const active = pathname === child.href;
+                    return (
+                      <Link
+                        key={child.href}
+                        href={child.href}
+                        className={`flex h-[34px] flex-none items-center gap-2 rounded-[9px] ps-[26px] pe-[10px] text-[13px] ${
+                          active ? 'bg-brand-surface font-semibold text-brand' : 'font-normal text-text-tertiary'
+                        }`}
+                      >
+                        <span
+                          className="h-[5px] w-[5px] flex-none rounded-full"
+                          style={{ background: active ? 'var(--color-brand)' : 'var(--color-border-secondary)' }}
+                        />
+                        <span className="min-w-0 flex-1 truncate">{child.label}</span>
+                      </Link>
+                    );
+                  })}
+              </div>
+            );
+          }
+
           const active = pathname === item.href;
           return (
             <Link

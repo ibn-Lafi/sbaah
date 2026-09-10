@@ -9,6 +9,7 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { OtpInput } from '@/components/ui/otp-input';
 import { FormError } from '@/components/ui/form-error';
+import { PasswordStrengthMeter } from '@/components/auth/password-strength-meter';
 import { resetPassword, sendOtp, verifyResetPasswordOtp } from '@/lib/api/auth';
 import { ApiRequestError } from '@/lib/api/client';
 import { useResendCooldown } from '@/lib/auth/use-resend-cooldown';
@@ -149,6 +150,7 @@ export default function ForgotPasswordPage() {
             value={newPassword}
             onChange={(event) => setNewPassword(event.target.value)}
           />
+          <PasswordStrengthMeter password={newPassword} />
           <FormError message={error} />
           <Button type="submit" disabled={loading}>
             {loading ? 'جارٍ التحديث...' : 'تحديث كلمة المرور'}

@@ -16,12 +16,21 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { OtpInput } from '@/components/ui/otp-input';
 import { FormError } from '@/components/ui/form-error';
+import { PasswordStrengthMeter } from '@/components/auth/password-strength-meter';
 import { register, sendOtp, verifyRegisterOtp } from '@/lib/api/auth';
 import { ApiRequestError } from '@/lib/api/client';
 import { adoptSession } from '@/lib/auth/session';
 import { useResendCooldown } from '@/lib/auth/use-resend-cooldown';
 
-type Step = 'phone' | 'otp' | 'details';
+const STEPS = ['phone', 'otp', 'password', 'details'] as const;
+type Step = (typeof STEPS)[number];
+
+const STEP_TITLES: Record<Step, string> = {
+  phone: 'رقم الجوال',
+  otp: 'رمز التحقق',
+  password: 'تعيين كلمة المرور',
+  details: 'بيانات الحساب',
+};
 
 const ACCOUNT_TYPE_LABELS: Record<AccountType, string> = {
   individual: 'فرد',
@@ -29,7 +38,18 @@ const ACCOUNT_TYPE_LABELS: Record<AccountType, string> = {
   company: 'شركة',
 };
 
-/** docs/OTP_FLOW.md section 5a — three steps: phone, OTP, then account details + password (only step 3 actually creates the account). */
+/**
+ * docs/OTP_FLOW.md section 5a — four steps: phone, OTP, password (its own
+ * step, with a confirm field + strength meter, matching the founder's
+ * mockup's step 3), then account details. Only step 4 actually creates
+ * the account (`register()` still takes password + account together in
+ * one call — the split here is presentational, not a new API round trip).
+ * The mockup's flow goes on to a 5th/6th step (account type, then plan
+ * selection) — not built here; plan selection during signup is separate,
+ * larger scope (every account still starts on the Basic plan and can
+ * change it after registering), so the step count stays honest at 4
+ * rather than claiming "خطوة X من 6" for steps that don't exist yet.
+ */
 export default function RegisterPage() {
   const router = useRouter();
   const [step, setStep] = useState<Step>('phone');
@@ -48,6 +68,7 @@ export default function RegisterPage() {
   const [taxNumber, setTaxNumber] = useState('');
   const [falLicenseNumber, setFalLicenseNumber] = useState('');
   const [password, setPassword] = useState('');
+  const [passwordConfirm, setPasswordConfirm] = useState('');
 
   async function handleSendOtp(event: FormEvent) {
     event.preventDefault();
@@ -98,12 +119,28 @@ export default function RegisterPage() {
     try {
       const { registration_token } = await verifyRegisterOtp(phone, code);
       setRegistrationToken(registration_token);
-      setStep('details');
+      setStep('password');
     } catch (err) {
       setError(err instanceof ApiRequestError ? err.message : 'تعذّر التحقق من الرمز');
     } finally {
       setLoading(false);
     }
+  }
+
+  function handleSubmitPassword(event: FormEvent) {
+    event.preventDefault();
+    setError(null);
+
+    const passwordCheck = passwordSchema.safeParse(password);
+    if (!passwordCheck.success) {
+      setError(passwordCheck.error.issues[0]?.message ?? 'كلمة مرور غير صحيحة');
+      return;
+    }
+    if (password !== passwordConfirm) {
+      setError('كلمتا المرور غير متطابقتين');
+      return;
+    }
+    setStep('details');
   }
 
   async function handleSubmitDetails(event: FormEvent) {
@@ -127,11 +164,6 @@ export default function RegisterPage() {
       setError(accountCheck.error.issues[0]?.message ?? 'يرجى مراجعة بيانات الحساب');
       return;
     }
-    const passwordCheck = passwordSchema.safeParse(password);
-    if (!passwordCheck.success) {
-      setError(passwordCheck.error.issues[0]?.message ?? 'كلمة مرور غير صحيحة');
-      return;
-    }
 
     setLoading(true);
     try {
@@ -149,12 +181,18 @@ export default function RegisterPage() {
     }
   }
 
+  const stepIndex = STEPS.indexOf(step);
+
   return (
     <Card className="p-8">
-      <h1 className="mb-1 text-2xl font-bold text-text-primary">إنشاء حساب جديد</h1>
+      <div className="mb-1 text-xs font-semibold text-brand">
+        الخطوة {stepIndex + 1} من {STEPS.length}
+      </div>
+      <h1 className="mb-1 text-2xl font-bold text-text-primary">{step === 'phone' || step === 'otp' ? 'إنشاء حساب جديد' : STEP_TITLES[step]}</h1>
       <p className="mb-6 text-sm text-text-secondary">
         {step === 'phone' && 'أدخل رقم جوالك لبدء التسجيل'}
         {step === 'otp' && `أدخل الرمز المرسل إلى ${phone}`}
+        {step === 'password' && 'ستستخدمها لاحقًا للدخول بدل رمز التحقق'}
         {step === 'details' && 'أكمل بيانات الحساب'}
       </p>
 
@@ -189,6 +227,29 @@ export default function RegisterPage() {
           >
             {resend.secondsLeft > 0 ? `إعادة الإرسال بعد ${resend.secondsLeft} ثانية` : 'إعادة إرسال الرمز'}
           </button>
+        </form>
+      )}
+
+      {step === 'password' && (
+        <form onSubmit={handleSubmitPassword} className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-medium text-text-primary">كلمة المرور</label>
+            <Input type="password" placeholder="••••••••" value={password} onChange={(event) => setPassword(event.target.value)} />
+            <PasswordStrengthMeter password={password} />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-medium text-text-primary">تأكيد كلمة المرور</label>
+            <Input
+              type="password"
+              placeholder="••••••••"
+              value={passwordConfirm}
+              onChange={(event) => setPasswordConfirm(event.target.value)}
+            />
+          </div>
+          <FormError message={error} />
+          <Button type="submit" disabled={loading}>
+            متابعة
+          </Button>
         </form>
       )}
 
@@ -232,12 +293,6 @@ export default function RegisterPage() {
             placeholder="رقم رخصة فال"
             value={falLicenseNumber}
             onChange={(event) => setFalLicenseNumber(event.target.value)}
-          />
-          <Input
-            type="password"
-            placeholder="كلمة المرور"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
           />
 
           <FormError message={error} />
