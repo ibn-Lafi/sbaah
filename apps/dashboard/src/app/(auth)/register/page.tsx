@@ -53,10 +53,11 @@ function introMonthsLabel(months: number): string {
 }
 
 function planPriceLabel(plan: Plan): string {
+  const cycleLabel = plan.billing_cycle === 'annual' ? 'سنويًا' : 'شهريًا';
   if (plan.intro_price != null && plan.intro_months != null) {
-    return `${plan.intro_price} ر.س/شهريًا لـ${introMonthsLabel(plan.intro_months)}، ثم ${plan.price} ر.س/شهريًا`;
+    return `${plan.intro_price} ر.س/${cycleLabel} لـ${introMonthsLabel(plan.intro_months)}، ثم ${plan.price} ر.س/${cycleLabel}`;
   }
-  return `${plan.price} ر.س/شهريًا`;
+  return `${plan.price} ر.س/${cycleLabel}`;
 }
 
 /** التسجيل متوقف مؤقتًا (packages/shared/src/config.ts) ريثما تُبنى خطوة اختيار الباقة والدفع عبر StreamPay. */
@@ -443,7 +444,7 @@ export default function RegisterPage() {
                       }`}
                     >
                       <span className="text-text-primary text-sm font-semibold">
-                        {plan.name_ar}
+                        {plan.name_ar} — {plan.billing_cycle === 'annual' ? 'سنوي' : 'شهري'}
                       </span>
                       <span className="text-brand text-sm" dir="ltr">
                         {planPriceLabel(plan)}

@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import type { Plan, PlanInput } from '@sbaah/shared';
+import type { BillingCycle, Plan, PlanInput } from '@sbaah/shared';
 import { planInputSchema } from '@sbaah/shared';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
 import { FormError } from '@/components/ui/form-error';
 
 interface PlanFormProps {
@@ -17,6 +18,7 @@ interface PlanFormProps {
 export function PlanForm({ initial, submitLabel, onSubmit }: PlanFormProps) {
   const [nameAr, setNameAr] = useState(initial?.name_ar ?? '');
   const [nameEn, setNameEn] = useState(initial?.name_en ?? '');
+  const [billingCycle, setBillingCycle] = useState<BillingCycle>(initial?.billing_cycle ?? 'monthly');
   const [price, setPrice] = useState(initial ? String(initial.price) : '');
   const [introPrice, setIntroPrice] = useState(
     initial?.intro_price != null ? String(initial.intro_price) : '',
@@ -41,6 +43,7 @@ export function PlanForm({ initial, submitLabel, onSubmit }: PlanFormProps) {
     const parsed = planInputSchema.safeParse({
       name_ar: nameAr,
       name_en: nameEn,
+      billing_cycle: billingCycle,
       price: Number(price),
       intro_price: introPrice === '' ? null : Number(introPrice),
       intro_months: introMonths === '' ? null : Number(introMonths),
@@ -77,7 +80,14 @@ export function PlanForm({ initial, submitLabel, onSubmit }: PlanFormProps) {
           <Input value={nameEn} onChange={(e) => setNameEn(e.target.value)} dir="ltr" />
         </label>
         <label className="flex flex-col gap-1.5 text-sm">
-          السعر الشهري (ريال، شامل الضريبة)
+          دورة الفوترة
+          <Select value={billingCycle} onChange={(e) => setBillingCycle(e.target.value as BillingCycle)}>
+            <option value="monthly">شهري</option>
+            <option value="annual">سنوي</option>
+          </Select>
+        </label>
+        <label className="flex flex-col gap-1.5 text-sm">
+          السعر (ريال، شامل الضريبة، لكل دورة فوترة أعلاه)
           <Input
             type="number"
             min="0"
@@ -88,7 +98,7 @@ export function PlanForm({ initial, submitLabel, onSubmit }: PlanFormProps) {
           />
         </label>
         <label className="flex flex-col gap-1.5 text-sm">
-          السعر التعريفي الشهري (اختياري)
+          السعر التعريفي الشهري (اختياري — للدورة الشهرية فقط)
           <Input
             type="number"
             min="0"

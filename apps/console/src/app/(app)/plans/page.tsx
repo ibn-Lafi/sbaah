@@ -41,6 +41,7 @@ export default function PlansPage() {
             <thead className="bg-black/[0.03] text-right text-black/60">
               <tr>
                 <th className="px-5 py-3 font-medium">الاسم</th>
+                <th className="px-5 py-3 font-medium">الدورة</th>
                 <th className="px-5 py-3 font-medium">السعر</th>
                 <th className="px-5 py-3 font-medium">حد العقارات</th>
                 <th className="px-5 py-3 font-medium">حد الفريق</th>
@@ -56,6 +57,7 @@ export default function PlansPage() {
                       {plan.name_ar}
                     </Link>
                   </td>
+                  <td className="px-5 py-3 text-black/60">{plan.billing_cycle === 'monthly' ? 'شهري' : 'سنوي'}</td>
                   <td className="px-5 py-3 text-black/60" dir="ltr">
                     {plan.price.toLocaleString('en-US')} SAR
                   </td>

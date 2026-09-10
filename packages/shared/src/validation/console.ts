@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { CUSTOM_DOMAIN_STATUSES, TENANT_STATUSES } from '../types/enums';
+import { BILLING_CYCLES, CUSTOM_DOMAIN_STATUSES, TENANT_STATUSES } from '../types/enums';
 
 /**
  * PATCH /v1/console/accounts/[id] — platform-owner-only. Deliberately
@@ -49,6 +49,7 @@ export type ConsoleAccountListQuery = z.infer<typeof consoleAccountListQuerySche
 const planFieldsSchema = z.object({
   name_ar: z.string().min(2, 'اسم الباقة (عربي) مطلوب'),
   name_en: z.string().min(2, 'اسم الباقة (إنجليزي) مطلوب'),
+  billing_cycle: z.enum(BILLING_CYCLES),
   price: z.number().nonnegative('السعر يجب ألا يكون سالبًا'),
   intro_price: z.number().nonnegative('السعر التعريفي يجب ألا يكون سالبًا').nullable().optional(),
   intro_months: z

@@ -13,6 +13,10 @@ export type TenantStatus = (typeof TENANT_STATUSES)[number];
 export const PAYMENT_STATUSES = ['pending', 'paid', 'failed'] as const;
 export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
 
+/** Each plan tier (Basic/Advanced) has one `plans` row per cycle — see migration 0028. */
+export const BILLING_CYCLES = ['monthly', 'annual'] as const;
+export type BillingCycle = (typeof BILLING_CYCLES)[number];
+
 export const USER_ROLES = ['owner', 'admin', 'agent'] as const;
 export type UserRole = (typeof USER_ROLES)[number];
 

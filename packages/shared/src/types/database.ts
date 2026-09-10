@@ -6,6 +6,7 @@
 
 import type {
   AccountType,
+  BillingCycle,
   CustomDomainStatus,
   LeadSource,
   LeadStatus,
@@ -36,9 +37,11 @@ export interface Plan {
   id: string;
   name_ar: string;
   name_en: string;
-  /** Regular monthly price (SAR, VAT-inclusive) — what's charged after `intro_months`, or from day one if there's no intro period. */
+  /** Monthly vs. annual — a tier (Basic/Advanced) has one `plans` row per cycle, not a single row with both prices. */
+  billing_cycle: BillingCycle;
+  /** Regular price (SAR, VAT-inclusive) for this cycle — what's charged after `intro_months`, or from day one if there's no intro period. */
   price: number;
-  /** Discounted monthly price for the plan's first `intro_months` billing cycles — null means no intro period (charged `price` from day one). */
+  /** Discounted price for the plan's first `intro_months` billing cycles (monthly cycle only in practice — annual plans have no intro period) — null means no intro period (charged `price` from day one). */
   intro_price: number | null;
   intro_months: number | null;
   max_properties: number;
