@@ -17,7 +17,7 @@ interface SidebarProps {
   roleLabel: string;
 }
 
-/** Matches the founder's mockup exactly (216px, dot-indicator nav, expandable groups like "تصميم الموقع", account switcher with a حسابي/الفوترة/خروج dropdown). */
+/** Matches the founder's mockup (216px, icon nav, expandable groups like "الموقع الالكتروني", account switcher with a حسابي/الفوترة/خروج dropdown). */
 export function Sidebar({ orgName, accountType, roleLabel }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
@@ -41,6 +41,7 @@ export function Sidebar({ orgName, accountType, roleLabel }: SidebarProps) {
           if (isNavGroup(item)) {
             const hasActiveChild = item.children.some((child) => child.href === pathname);
             const isOpen = openGroups[item.group] ?? hasActiveChild;
+            const GroupIcon = item.icon;
             return (
               <div key={item.group} className="flex flex-col gap-px">
                 <button
@@ -50,16 +51,14 @@ export function Sidebar({ orgName, accountType, roleLabel }: SidebarProps) {
                     hasActiveChild ? 'font-semibold text-brand' : 'font-normal text-text-tertiary'
                   }`}
                 >
-                  <span
-                    className="h-[5px] w-[5px] flex-none rounded-full"
-                    style={{ background: hasActiveChild ? 'var(--color-brand)' : 'var(--color-border-secondary)' }}
-                  />
+                  <GroupIcon className="h-[16px] w-[16px] flex-none" />
                   <span className="min-w-0 flex-1 truncate text-start">{item.label}</span>
                   <span className="text-[10px] text-text-placeholder">{isOpen ? '▲' : '▼'}</span>
                 </button>
                 {isOpen &&
                   item.children.map((child) => {
                     const active = pathname === child.href;
+                    const ChildIcon = child.icon;
                     return (
                       <Link
                         key={child.href}
@@ -68,10 +67,7 @@ export function Sidebar({ orgName, accountType, roleLabel }: SidebarProps) {
                           active ? 'bg-brand-surface font-semibold text-brand' : 'font-normal text-text-tertiary'
                         }`}
                       >
-                        <span
-                          className="h-[5px] w-[5px] flex-none rounded-full"
-                          style={{ background: active ? 'var(--color-brand)' : 'var(--color-border-secondary)' }}
-                        />
+                        <ChildIcon className="h-[16px] w-[16px] flex-none" />
                         <span className="min-w-0 flex-1 truncate">{child.label}</span>
                       </Link>
                     );
@@ -81,6 +77,7 @@ export function Sidebar({ orgName, accountType, roleLabel }: SidebarProps) {
           }
 
           const active = pathname === item.href;
+          const ItemIcon = item.icon;
           return (
             <Link
               key={item.href}
@@ -89,10 +86,7 @@ export function Sidebar({ orgName, accountType, roleLabel }: SidebarProps) {
                 active ? 'bg-brand-surface font-semibold text-brand' : 'font-normal text-text-tertiary'
               }`}
             >
-              <span
-                className="h-[5px] w-[5px] flex-none rounded-full"
-                style={{ background: active ? 'var(--color-brand)' : 'var(--color-border-secondary)' }}
-              />
+              <ItemIcon className="h-[16px] w-[16px] flex-none" />
               <span className="min-w-0 flex-1 truncate">{item.label}</span>
             </Link>
           );

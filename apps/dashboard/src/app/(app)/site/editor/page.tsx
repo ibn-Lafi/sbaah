@@ -27,7 +27,7 @@ type EditorTab = (typeof EDITOR_TABS)[number]['key'];
 
 const HEX_PATTERN = /^#[0-9A-Fa-f]{6}$/;
 
-/** محرر الموقع — reached via "تخصيص الثيم" on متجر الثيمات's selected theme card (/site). Content only (أقسام/صفحات/ألوان); theme choice itself stays on /site. */
+/** تخصيص الثيم — reached via متجر الثيمات's selected theme card (/site), or the الموقع الالكتروني sidebar group. Content only (أقسام/صفحات/ألوان); theme choice itself stays on /site. */
 export default function WebsiteEditorPage() {
   const { me, accessToken } = useCurrentUser();
   const [website, setWebsite] = useState<Website | null>(null);
@@ -72,7 +72,7 @@ export default function WebsiteEditorPage() {
   if (!website) {
     return (
       <AppShell
-        title="محرر الموقع"
+        title="تخصيص الثيم"
         orgName={me.tenant.name_ar}
         accountType={me.tenant.account_type}
         roleLabel={ROLE_LABELS[me.user.role]}
@@ -84,7 +84,7 @@ export default function WebsiteEditorPage() {
 
   return (
     <AppShell
-      title="محرر الموقع"
+      title="تخصيص الثيم"
       orgName={me.tenant.name_ar}
       accountType={me.tenant.account_type}
       roleLabel={ROLE_LABELS[me.user.role]}
