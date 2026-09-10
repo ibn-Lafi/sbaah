@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import type { Building } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
+import { KindTabs } from '@/components/properties/kind-tabs';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
@@ -34,6 +35,10 @@ export default function BuildingsListPage() {
       accountType={me.tenant.account_type}
       roleLabel={ROLE_LABELS[me.user.role]}
     >
+      <div className="mb-5">
+        <KindTabs />
+      </div>
+
       <div className="mb-5 flex items-center justify-end">
         {canManage && (
           <Link href="/buildings/new">

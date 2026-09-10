@@ -58,7 +58,7 @@ export default function LeadsPage() {
 
   return (
     <AppShell
-      title="العملاء المحتملون"
+      title="إدارة العملاء"
       orgName={me.tenant.name_ar}
       accountType={me.tenant.account_type}
       roleLabel={ROLE_LABELS[me.user.role]}
