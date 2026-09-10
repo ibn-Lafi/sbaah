@@ -2,13 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import {
-  WEBSITE_PAGE_KEYS,
-  SUPPORTED_WEBSITE_FONTS,
-  type Website,
-  type WebsitePageKey,
-  type WebsiteSection,
-} from '@sbaah/shared';
+import { SUPPORTED_WEBSITE_FONTS, type Website, type WebsitePageKey, type WebsiteSection } from '@sbaah/shared';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select } from '@/components/ui/select';
@@ -19,7 +13,7 @@ import { SectionList } from '@/components/website/section-list';
 import { SitePreview, type Device } from '@/components/website/site-preview';
 import {
   BackArrowIcon,
-  SettingsGearIcon,
+  AdjustmentsIcon,
   CloseIcon,
   DesktopIcon,
   MobileIcon,
@@ -67,7 +61,7 @@ export default function WebsiteEditorPage() {
   const [textDraft, setTextDraft] = useState({ announcement: '', footerDescription: '' });
   const [error, setError] = useState<string | null>(null);
   const [panelView, setPanelView] = useState<PanelView>('sections');
-  const [activePageKey, setActivePageKey] = useState<WebsitePageKey>('home');
+  const activePageKey: WebsitePageKey = 'home';
   const [device, setDevice] = useState<Device>('desktop');
   const [colorsOpen, setColorsOpen] = useState(true);
   const [openZones, setOpenZones] = useState<Record<ZoneKey, boolean>>({ top: true, content: true, bottom: true });
@@ -166,7 +160,7 @@ export default function WebsiteEditorPage() {
   return (
     <div className="flex h-screen flex-col bg-surface-page">
       {/* Toolbar */}
-      <div className="flex h-14 flex-none items-center gap-2 border-b border-border-subtle bg-surface-card px-4">
+      <div className="relative flex h-14 flex-none items-center gap-2 border-b border-border-subtle bg-surface-card px-4">
         <Link
           href="/site"
           aria-label="رجوع لمتجر الثيمات"
@@ -178,7 +172,7 @@ export default function WebsiteEditorPage() {
 
         <div className="h-6 w-px bg-border-subtle" />
 
-        <div className="flex gap-1 rounded-full bg-surface-subtle-3 p-1">
+        <div className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 gap-1 rounded-full bg-surface-subtle-3 p-1">
           <button
             type="button"
             onClick={() => setDevice('desktop')}
@@ -198,35 +192,6 @@ export default function WebsiteEditorPage() {
             <MobileIcon className="h-[16px] w-[16px]" />
           </button>
         </div>
-
-        <div className="flex-1" />
-
-        <Select
-          value={activePageKey}
-          onChange={(e) => {
-            setActivePageKey(e.target.value as WebsitePageKey);
-            setPanelView('sections');
-          }}
-          className="h-9 w-[180px]"
-        >
-          {WEBSITE_PAGE_KEYS.map((key) => (
-            <option key={key} value={key}>
-              {WEBSITE_PAGE_LABELS[key]}
-            </option>
-          ))}
-        </Select>
-
-        <button
-          type="button"
-          onClick={() => setPanelView((v) => (v === 'settings' ? 'sections' : 'settings'))}
-          aria-label="إعدادات الصفحة"
-          title="إعدادات الصفحة"
-          className={`flex h-9 w-9 items-center justify-center rounded-control ${
-            panelView === 'settings' ? 'bg-brand-surface text-brand' : 'text-text-secondary hover:bg-surface-subtle'
-          }`}
-        >
-          <SettingsGearIcon className="h-[18px] w-[18px]" />
-        </button>
       </div>
 
       {/* Panel + preview — panel first in DOM so it renders on the right under RTL, matching the reference tool. */}
@@ -236,8 +201,14 @@ export default function WebsiteEditorPage() {
             <>
               <div className="flex h-14 flex-none items-center justify-between border-b border-border-subtle px-4">
                 <h2 className="text-sm font-semibold text-text-primary">أقسام {WEBSITE_PAGE_LABELS[activePageKey]}</h2>
-                <button type="button" onClick={() => setPanelView('settings')} className="text-text-secondary hover:text-brand">
-                  <SettingsGearIcon className="h-[17px] w-[17px]" />
+                <button
+                  type="button"
+                  onClick={() => setPanelView('settings')}
+                  aria-label="إعدادات الصفحة"
+                  title="إعدادات الصفحة"
+                  className="text-text-secondary hover:text-brand"
+                >
+                  <AdjustmentsIcon className="h-[17px] w-[17px]" />
                 </button>
               </div>
               <div className="flex-1 divide-y divide-border-subtle">

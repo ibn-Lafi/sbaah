@@ -17,6 +17,20 @@ export function BackArrowIcon({ className }: IconProps) {
   );
 }
 
+/** الأقسام ↔ إعدادات الصفحة — منزلقات ضبط، تمييزًا عن أي ترس إعدادات عام آخر. */
+export function AdjustmentsIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M4 6h10M17 6h3" />
+      <circle cx="14" cy="6" r="2" />
+      <path d="M4 12h3M10 12h10" />
+      <circle cx="7" cy="12" r="2" />
+      <path d="M4 18h10M17 18h3" />
+      <circle cx="14" cy="18" r="2" />
+    </Svg>
+  );
+}
+
 export function SettingsGearIcon({ className }: IconProps) {
   return (
     <Svg className={className}>
