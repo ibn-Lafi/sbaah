@@ -6,13 +6,16 @@ import type { Plan } from '@sbaah/shared';
 import { ConsoleShell } from '@/components/layout/console-shell';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Modal } from '@/components/ui/modal';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
+import { PlanForm } from '@/components/plans/plan-form';
 import { useCurrentAdmin } from '@/lib/auth/current-admin-context';
-import { listPlans } from '@/lib/api/plans';
+import { createPlan, listPlans } from '@/lib/api/plans';
 
 export default function PlansPage() {
   const { accessToken } = useCurrentAdmin();
   const [plans, setPlans] = useState<Plan[] | null>(null);
+  const [showCreate, setShowCreate] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -27,10 +30,21 @@ export default function PlansPage() {
   return (
     <ConsoleShell title="الباقات">
       <div className="mb-4 flex justify-end">
-        <Link href="/plans/new">
-          <Button>+ باقة جديدة</Button>
-        </Link>
+        <Button onClick={() => setShowCreate(true)}>+ باقة جديدة</Button>
       </div>
+
+      {showCreate && (
+        <Modal title="باقة جديدة" onClose={() => setShowCreate(false)}>
+          <PlanForm
+            submitLabel="إنشاء الباقة"
+            onSubmit={async (input) => {
+              const { plan } = await createPlan(accessToken, input);
+              setPlans((prev) => (prev ? [...prev, plan] : [plan]));
+              setShowCreate(false);
+            }}
+          />
+        </Modal>
+      )}
 
       <Card className="overflow-hidden">
         {plans === null ? (

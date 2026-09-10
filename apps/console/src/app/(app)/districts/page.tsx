@@ -8,10 +8,12 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select } from '@/components/ui/select';
 import { FormError } from '@/components/ui/form-error';
+import { Modal } from '@/components/ui/modal';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
+import { DistrictForm } from '@/components/districts/district-form';
 import { useCurrentAdmin } from '@/lib/auth/current-admin-context';
 import { listCities } from '@/lib/api/cities';
-import { deleteDistrict, listDistricts } from '@/lib/api/districts';
+import { createDistrict, deleteDistrict, listDistricts } from '@/lib/api/districts';
 import { ApiRequestError } from '@/lib/api/client';
 
 export default function DistrictsPage() {
@@ -20,6 +22,7 @@ export default function DistrictsPage() {
   const [cityFilter, setCityFilter] = useState('');
   const [districts, setDistricts] = useState<District[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showCreate, setShowCreate] = useState(false);
 
   useEffect(() => {
     void listCities(accessToken).then((res) => setCities(res.cities));
@@ -60,10 +63,29 @@ export default function DistrictsPage() {
             </option>
           ))}
         </Select>
-        <Link href="/districts/new">
-          <Button>+ حي جديد</Button>
-        </Link>
+        <Button onClick={() => setShowCreate(true)}>+ حي جديد</Button>
       </div>
+
+      {showCreate && (
+        <Modal title="حي جديد" onClose={() => setShowCreate(false)}>
+          {cities.length === 0 ? (
+            <p className="text-center text-text-secondary">أضيفوا مدينة أولًا قبل إضافة حي</p>
+          ) : (
+            <DistrictForm
+              cities={cities}
+              defaultCityId={cityFilter || undefined}
+              submitLabel="إنشاء الحي"
+              onSubmit={async (input) => {
+                const { district } = await createDistrict(accessToken, input);
+                if (!cityFilter || district.city_id === cityFilter) {
+                  setDistricts((prev) => (prev ? [...prev, district] : [district]));
+                }
+                setShowCreate(false);
+              }}
+            />
+          )}
+        </Modal>
+      )}
 
       <FormError message={error} />
 
