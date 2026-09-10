@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Select } from '@/components/ui/select';
+import { LoadingState } from '@/components/ui/loading-state';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { ROLE_LABELS } from '@/lib/auth/role-labels';
 import { listLeads } from '@/lib/api/leads';
@@ -106,7 +107,7 @@ export default function LeadsPage() {
 
       <Card className="overflow-hidden">
         {leads === null ? (
-          <p className="p-6 text-center text-text-secondary">جارٍ التحميل...</p>
+          <LoadingState className="p-6" />
         ) : leads.length === 0 ? (
           <p className="p-6 text-center text-text-secondary">لا يوجد عملاء محتملون بعد</p>
         ) : tab === 'pipeline' ? (

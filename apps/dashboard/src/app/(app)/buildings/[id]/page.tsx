@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { FormError } from '@/components/ui/form-error';
 import { BuildingForm } from '@/components/hierarchy/building-form';
+import { LoadingState } from '@/components/ui/loading-state';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { ROLE_LABELS } from '@/lib/auth/role-labels';
 import { deleteBuilding, getBuilding, updateBuilding } from '@/lib/api/hierarchy';
@@ -69,7 +70,7 @@ export default function EditBuildingPage({ params }: { params: Promise<{ id: str
       roleLabel={ROLE_LABELS[me.user.role]}
     >
       {!building ? (
-        <p className="text-text-secondary">جارٍ التحميل...</p>
+        <LoadingState />
       ) : (
         <div className="flex max-w-[720px] flex-col gap-6">
           <Card className="p-8">

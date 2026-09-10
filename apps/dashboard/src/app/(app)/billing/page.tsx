@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { AppShell } from '@/components/layout/app-shell';
 import { Card } from '@/components/ui/card';
+import { LoadingState } from '@/components/ui/loading-state';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { ROLE_LABELS } from '@/lib/auth/role-labels';
 import { getBilling, type BillingInfo } from '@/lib/api/billing';
@@ -44,7 +45,7 @@ export default function BillingPage() {
     >
       <div className="flex max-w-[560px] flex-col gap-5">
         {billing === null ? (
-          <p className="text-sm text-text-secondary">جارٍ التحميل...</p>
+          <LoadingState className="text-sm" />
         ) : (
           <>
             <Card className="p-6">

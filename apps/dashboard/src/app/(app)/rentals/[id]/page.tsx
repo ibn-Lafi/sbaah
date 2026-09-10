@@ -7,6 +7,7 @@ import { AppShell } from '@/components/layout/app-shell';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { FormError } from '@/components/ui/form-error';
+import { LoadingState } from '@/components/ui/loading-state';
 import { RentalForm } from '@/components/rentals/rental-form';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { ROLE_LABELS } from '@/lib/auth/role-labels';
@@ -67,7 +68,7 @@ export default function EditRentalPage({ params }: { params: Promise<{ id: strin
       roleLabel={ROLE_LABELS[me.user.role]}
     >
       {!rental ? (
-        <p className="text-text-secondary">جارٍ التحميل...</p>
+        <LoadingState />
       ) : (
         <div className="flex max-w-[720px] flex-col gap-6">
           <Card className="p-8">

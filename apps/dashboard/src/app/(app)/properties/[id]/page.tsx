@@ -11,6 +11,7 @@ import { Card } from '@/components/ui/card';
 import { FormError } from '@/components/ui/form-error';
 import { PropertyForm } from '@/components/properties/property-form';
 import { PropertyMediaManager } from '@/components/properties/property-media-manager';
+import { LoadingState } from '@/components/ui/loading-state';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { ROLE_LABELS } from '@/lib/auth/role-labels';
 import { deleteProperty, getProperty, updateProperty, type PropertyWithMedia } from '@/lib/api/properties';
@@ -79,7 +80,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
       roleLabel={ROLE_LABELS[me.user.role]}
     >
       {!property ? (
-        <p className="text-text-secondary">جارٍ التحميل...</p>
+        <LoadingState />
       ) : (
         <div className="flex max-w-[720px] flex-col gap-6">
           <Card className="p-8">

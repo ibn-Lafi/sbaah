@@ -174,7 +174,7 @@ export default function LoginPage() {
             onChange={(event) => setPassword(event.target.value)}
           />
           <FormError message={error} />
-          <Button type="submit" disabled={loading}>
+          <Button type="submit" loading={loading}>
             {loading ? 'جارٍ الدخول...' : 'دخول'}
           </Button>
           <Link href="/forgot-password" className="text-center text-sm text-brand hover:underline">
@@ -193,7 +193,7 @@ export default function LoginPage() {
             dir="ltr"
           />
           <FormError message={error} />
-          <Button type="submit" disabled={loading}>
+          <Button type="submit" loading={loading}>
             {loading ? 'جارٍ الإرسال...' : 'إرسال رمز التحقق'}
           </Button>
         </form>
@@ -204,7 +204,7 @@ export default function LoginPage() {
           <p className="text-sm text-text-secondary">أدخل الرمز المرسل إلى {phone}</p>
           <OtpInput value={code} onChange={setCode} disabled={loading} />
           <FormError message={error} />
-          <Button type="submit" disabled={loading}>
+          <Button type="submit" loading={loading}>
             {loading ? 'جارٍ التحقق...' : 'تأكيد'}
           </Button>
           <button

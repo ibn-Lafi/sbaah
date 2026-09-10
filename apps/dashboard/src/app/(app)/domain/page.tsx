@@ -9,6 +9,7 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { FormError } from '@/components/ui/form-error';
+import { LoadingState } from '@/components/ui/loading-state';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { ROLE_LABELS } from '@/lib/auth/role-labels';
 import { getPlatformRootDomain } from '@/lib/env/platform-root-domain';
@@ -188,7 +189,7 @@ export default function DomainPage() {
     <AppShell title="الدومين" orgName={me.tenant.name_ar} accountType={me.tenant.account_type} roleLabel={ROLE_LABELS[me.user.role]}>
       <div className="flex max-w-[560px] flex-col gap-4">
         {domain === null ? (
-          <p className="text-text-secondary">جارٍ التحميل...</p>
+          <LoadingState />
         ) : !canEdit ? (
           <SubdomainCard accessToken={accessToken} currentSubdomain={me.tenant.subdomain} canEdit={false} showUpsell={false} />
         ) : domain.custom_domain_allowed ? (

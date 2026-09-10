@@ -5,6 +5,7 @@ import type { Theme, Website } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
 import { Card } from '@/components/ui/card';
 import { FormError } from '@/components/ui/form-error';
+import { LoadingState } from '@/components/ui/loading-state';
 import { ThemeGallery } from '@/components/website/theme-gallery';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { ROLE_LABELS } from '@/lib/auth/role-labels';
@@ -42,7 +43,7 @@ export default function ThemeStorePage() {
         accountType={me.tenant.account_type}
         roleLabel={ROLE_LABELS[me.user.role]}
       >
-        <p className="text-text-secondary">جارٍ التحميل...</p>
+        <LoadingState />
       </AppShell>
     );
   }

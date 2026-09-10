@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/input';
 import { OtpInput } from '@/components/ui/otp-input';
 import { FormError } from '@/components/ui/form-error';
 import { PasswordStrengthMeter } from '@/components/auth/password-strength-meter';
+import { ProvisioningOverlay } from '@/components/auth/provisioning-overlay';
 import { register, sendOtp, verifyRegisterOtp } from '@/lib/api/auth';
 import { ApiRequestError } from '@/lib/api/client';
 import { adoptSession } from '@/lib/auth/session';
@@ -58,6 +59,8 @@ export default function RegisterPage() {
   const [registrationToken, setRegistrationToken] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [provisioning, setProvisioning] = useState(false);
+  const [provisioningDone, setProvisioningDone] = useState(false);
   const resend = useResendCooldown();
 
   const [accountType, setAccountType] = useState<AccountType>('individual');
@@ -166,6 +169,7 @@ export default function RegisterPage() {
     }
 
     setLoading(true);
+    setProvisioning(true);
     try {
       const { access_token, refresh_token } = await register({
         registration_token: registrationToken,
@@ -173,8 +177,11 @@ export default function RegisterPage() {
         account: accountCheck.data,
       });
       await adoptSession(access_token, refresh_token);
+      setProvisioningDone(true);
+      await new Promise((resolve) => setTimeout(resolve, 500));
       router.push('/');
     } catch (err) {
+      setProvisioning(false);
       setError(err instanceof ApiRequestError ? err.message : 'تعذّر إنشاء الحساب');
     } finally {
       setLoading(false);
@@ -184,130 +191,156 @@ export default function RegisterPage() {
   const stepIndex = STEPS.indexOf(step);
 
   return (
-    <Card className="p-8">
-      <div className="mb-1 text-xs font-semibold text-brand">
-        الخطوة {stepIndex + 1} من {STEPS.length}
-      </div>
-      <h1 className="mb-1 text-2xl font-bold text-text-primary">{step === 'phone' || step === 'otp' ? 'إنشاء حساب جديد' : STEP_TITLES[step]}</h1>
-      <p className="mb-6 text-sm text-text-secondary">
-        {step === 'phone' && 'أدخل رقم جوالك لبدء التسجيل'}
-        {step === 'otp' && `أدخل الرمز المرسل إلى ${phone}`}
-        {step === 'password' && 'ستستخدمها لاحقًا للدخول بدل رمز التحقق'}
-        {step === 'details' && 'أكمل بيانات الحساب'}
-      </p>
+    <>
+      <ProvisioningOverlay active={provisioning} done={provisioningDone} />
+      <Card className="p-8">
+        <div className="text-brand mb-1 text-xs font-semibold">
+          الخطوة {stepIndex + 1} من {STEPS.length}
+        </div>
+        <h1 className="text-text-primary mb-1 text-2xl font-bold">
+          {step === 'phone' || step === 'otp' ? 'إنشاء حساب جديد' : STEP_TITLES[step]}
+        </h1>
+        <p className="text-text-secondary mb-6 text-sm">
+          {step === 'phone' && 'أدخل رقم جوالك لبدء التسجيل'}
+          {step === 'otp' && `أدخل الرمز المرسل إلى ${phone}`}
+          {step === 'password' && 'ستستخدمها لاحقًا للدخول بدل رمز التحقق'}
+          {step === 'details' && 'أكمل بيانات الحساب'}
+        </p>
 
-      {step === 'phone' && (
-        <form onSubmit={handleSendOtp} className="flex flex-col gap-4">
-          <Input
-            type="tel"
-            placeholder="+966501234567"
-            value={phone}
-            onChange={(event) => setPhone(event.target.value)}
-            dir="ltr"
-          />
-          <FormError message={error} />
-          <Button type="submit" disabled={loading}>
-            {loading ? 'جارٍ الإرسال...' : 'إرسال رمز التحقق'}
-          </Button>
-        </form>
-      )}
-
-      {step === 'otp' && (
-        <form onSubmit={handleVerifyOtp} className="flex flex-col gap-4">
-          <OtpInput value={code} onChange={setCode} disabled={loading} />
-          <FormError message={error} />
-          <Button type="submit" disabled={loading}>
-            {loading ? 'جارٍ التحقق...' : 'تأكيد'}
-          </Button>
-          <button
-            type="button"
-            disabled={resend.secondsLeft > 0 || loading}
-            onClick={() => void resendOtp()}
-            className="text-sm text-brand hover:underline disabled:cursor-not-allowed disabled:text-text-placeholder"
-          >
-            {resend.secondsLeft > 0 ? `إعادة الإرسال بعد ${resend.secondsLeft} ثانية` : 'إعادة إرسال الرمز'}
-          </button>
-        </form>
-      )}
-
-      {step === 'password' && (
-        <form onSubmit={handleSubmitPassword} className="flex flex-col gap-4">
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-text-primary">كلمة المرور</label>
-            <Input type="password" placeholder="••••••••" value={password} onChange={(event) => setPassword(event.target.value)} />
-            <PasswordStrengthMeter password={password} />
-          </div>
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-text-primary">تأكيد كلمة المرور</label>
+        {step === 'phone' && (
+          <form onSubmit={handleSendOtp} className="flex flex-col gap-4">
             <Input
-              type="password"
-              placeholder="••••••••"
-              value={passwordConfirm}
-              onChange={(event) => setPasswordConfirm(event.target.value)}
+              type="tel"
+              placeholder="+966501234567"
+              value={phone}
+              onChange={(event) => setPhone(event.target.value)}
+              dir="ltr"
             />
-          </div>
-          <FormError message={error} />
-          <Button type="submit" disabled={loading}>
-            متابعة
-          </Button>
-        </form>
-      )}
+            <FormError message={error} />
+            <Button type="submit" loading={loading}>
+              {loading ? 'جارٍ الإرسال...' : 'إرسال رمز التحقق'}
+            </Button>
+          </form>
+        )}
 
-      {step === 'details' && (
-        <form onSubmit={handleSubmitDetails} className="flex flex-col gap-4">
-          <div className="flex gap-2 rounded-control bg-surface-subtle p-1">
-            {(Object.keys(ACCOUNT_TYPE_LABELS) as AccountType[]).map((type) => (
-              <button
-                key={type}
-                type="button"
-                onClick={() => setAccountType(type)}
-                className={`h-9 flex-1 rounded-control text-sm font-semibold transition-colors ${
-                  accountType === type ? 'bg-surface-card text-text-primary shadow-sm' : 'text-text-secondary'
-                }`}
-              >
-                {ACCOUNT_TYPE_LABELS[type]}
-              </button>
-            ))}
-          </div>
+        {step === 'otp' && (
+          <form onSubmit={handleVerifyOtp} className="flex flex-col gap-4">
+            <OtpInput value={code} onChange={setCode} disabled={loading} />
+            <FormError message={error} />
+            <Button type="submit" loading={loading}>
+              {loading ? 'جارٍ التحقق...' : 'تأكيد'}
+            </Button>
+            <button
+              type="button"
+              disabled={resend.secondsLeft > 0 || loading}
+              onClick={() => void resendOtp()}
+              className="text-brand disabled:text-text-placeholder text-sm hover:underline disabled:cursor-not-allowed"
+            >
+              {resend.secondsLeft > 0
+                ? `إعادة الإرسال بعد ${resend.secondsLeft} ثانية`
+                : 'إعادة إرسال الرمز'}
+            </button>
+          </form>
+        )}
 
-          {accountType === 'individual' ? (
-            <Input placeholder="الاسم الثلاثي" value={fullName} onChange={(event) => setFullName(event.target.value)} />
-          ) : (
-            <>
+        {step === 'password' && (
+          <form onSubmit={handleSubmitPassword} className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2">
+              <label className="text-text-primary text-sm font-medium">كلمة المرور</label>
               <Input
-                placeholder={accountType === 'institution' ? 'اسم المؤسسة' : 'اسم الشركة'}
-                value={nameAr}
-                onChange={(event) => setNameAr(event.target.value)}
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
               />
+              <PasswordStrengthMeter password={password} />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-text-primary text-sm font-medium">تأكيد كلمة المرور</label>
               <Input
-                placeholder="الاسم الثلاثي لمسؤول الحساب"
-                value={ownerFullName}
-                onChange={(event) => setOwnerFullName(event.target.value)}
+                type="password"
+                placeholder="••••••••"
+                value={passwordConfirm}
+                onChange={(event) => setPasswordConfirm(event.target.value)}
               />
-              <Input placeholder="رقم السجل التجاري" value={crNumber} onChange={(event) => setCrNumber(event.target.value)} />
-              <Input placeholder="الرقم الضريبي" value={taxNumber} onChange={(event) => setTaxNumber(event.target.value)} />
-            </>
-          )}
+            </div>
+            <FormError message={error} />
+            <Button type="submit" disabled={loading}>
+              متابعة
+            </Button>
+          </form>
+        )}
 
-          <Input
-            placeholder="رقم رخصة فال"
-            value={falLicenseNumber}
-            onChange={(event) => setFalLicenseNumber(event.target.value)}
-          />
+        {step === 'details' && (
+          <form onSubmit={handleSubmitDetails} className="flex flex-col gap-4">
+            <div className="rounded-control bg-surface-subtle flex gap-2 p-1">
+              {(Object.keys(ACCOUNT_TYPE_LABELS) as AccountType[]).map((type) => (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => setAccountType(type)}
+                  className={`rounded-control h-9 flex-1 text-sm font-semibold transition-colors ${
+                    accountType === type
+                      ? 'bg-surface-card text-text-primary shadow-sm'
+                      : 'text-text-secondary'
+                  }`}
+                >
+                  {ACCOUNT_TYPE_LABELS[type]}
+                </button>
+              ))}
+            </div>
 
-          <FormError message={error} />
-          <Button type="submit" disabled={loading}>
-            {loading ? 'جارٍ إنشاء الحساب...' : 'إنشاء الحساب'}
-          </Button>
-        </form>
-      )}
+            {accountType === 'individual' ? (
+              <Input
+                placeholder="الاسم الثلاثي"
+                value={fullName}
+                onChange={(event) => setFullName(event.target.value)}
+              />
+            ) : (
+              <>
+                <Input
+                  placeholder={accountType === 'institution' ? 'اسم المؤسسة' : 'اسم الشركة'}
+                  value={nameAr}
+                  onChange={(event) => setNameAr(event.target.value)}
+                />
+                <Input
+                  placeholder="الاسم الثلاثي لمسؤول الحساب"
+                  value={ownerFullName}
+                  onChange={(event) => setOwnerFullName(event.target.value)}
+                />
+                <Input
+                  placeholder="رقم السجل التجاري"
+                  value={crNumber}
+                  onChange={(event) => setCrNumber(event.target.value)}
+                />
+                <Input
+                  placeholder="الرقم الضريبي"
+                  value={taxNumber}
+                  onChange={(event) => setTaxNumber(event.target.value)}
+                />
+              </>
+            )}
 
-      <p className="mt-6 text-center text-sm text-text-secondary">
-        لديك حساب بالفعل؟{' '}
-        <Link href="/login" className="font-semibold text-brand hover:underline">
-          تسجيل الدخول
-        </Link>
-      </p>
-    </Card>
+            <Input
+              placeholder="رقم رخصة فال"
+              value={falLicenseNumber}
+              onChange={(event) => setFalLicenseNumber(event.target.value)}
+            />
+
+            <FormError message={error} />
+            <Button type="submit" loading={loading}>
+              {loading ? 'جارٍ إنشاء الحساب...' : 'إنشاء الحساب'}
+            </Button>
+          </form>
+        )}
+
+        <p className="text-text-secondary mt-6 text-center text-sm">
+          لديك حساب بالفعل؟{' '}
+          <Link href="/login" className="text-brand font-semibold hover:underline">
+            تسجيل الدخول
+          </Link>
+        </p>
+      </Card>
+    </>
   );
 }
