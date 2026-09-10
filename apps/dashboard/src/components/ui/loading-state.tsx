@@ -1,11 +1,10 @@
 import { BrandSpinner } from './brand-spinner';
 
-/** Drop-in replacement for a plain "جارٍ التحميل..." text — every page-level loading placeholder in the app uses this, with سبعة's own "٧" badge spinner (BrandSpinner) rather than a generic ring. */
+/** Drop-in replacement for a plain "جارٍ التحميل..." text — every loading placeholder across the dashboard uses this. Icon-only (سبعة's own "7" badge, BrandSpinner) — no caption. */
 export function LoadingState({ className = '' }: { className?: string }) {
   return (
-    <div className={`flex items-center justify-center gap-2 text-text-secondary ${className}`}>
-      <BrandSpinner size={20} />
-      <span>جارٍ التحميل...</span>
+    <div className={`flex items-center justify-center py-10 ${className}`}>
+      <BrandSpinner size={48} />
     </div>
   );
 }

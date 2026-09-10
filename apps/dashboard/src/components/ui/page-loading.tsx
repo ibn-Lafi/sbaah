@@ -4,7 +4,7 @@ import { BrandSpinner } from './brand-spinner';
 export function PageLoading() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-surface-page">
-      <BrandSpinner size={56} />
+      <BrandSpinner size={72} />
     </div>
   );
 }
