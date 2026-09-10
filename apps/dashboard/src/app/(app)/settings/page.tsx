@@ -2,8 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import type { AccountType } from '@sbaah/shared';
-import { socialLinksUpdateSchema } from '@sbaah/shared';
+import { ACCOUNT_TYPE_LABELS, socialLinksUpdateSchema } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -20,12 +19,6 @@ import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { ROLE_LABELS } from '@/lib/auth/role-labels';
 import { updateSocialLinks, type SocialLinks } from '@/lib/api/tenant';
 import { ApiRequestError } from '@/lib/api/client';
-
-const ACCOUNT_TYPE_LABELS: Record<AccountType, string> = {
-  individual: 'فرد',
-  institution: 'مؤسسة',
-  company: 'شركة',
-};
 
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (

@@ -1,5 +1,6 @@
 export * from './config';
 export * from './http/api-client';
+export * from './labels';
 export * from './types/enums';
 export * from './types/database';
 export * from './types/website-section-config';
