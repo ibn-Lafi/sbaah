@@ -63,10 +63,7 @@ export default function BillingPage() {
             </Card>
 
             <Card className="p-6">
-              <p className="text-sm text-text-secondary">
-                لإدارة أو ترقية باقتك، تواصل مباشرة مع فريق سبعة — الدفع الإلكتروني للاشتراكات غير متاح حاليًا في لوحة
-                التحكم.
-              </p>
+              <p className="text-sm text-text-secondary">لترقية باقتك أو تغييرها، تواصل مباشرة مع فريق سبعة.</p>
             </Card>
           </>
         )}

@@ -40,19 +40,47 @@ export const consoleAccountListQuerySchema = z.object({
 });
 export type ConsoleAccountListQuery = z.infer<typeof consoleAccountListQuerySchema>;
 
-/** plans (PRODUCT_SPEC section 2/9) — price and limits are console-managed data, never hardcoded. */
-export const planInputSchema = z.object({
+/**
+ * plans (PRODUCT_SPEC section 2/9) — price and limits are console-managed
+ * data, never hardcoded. `intro_price`/`intro_months` (migration 0027)
+ * are an optional discounted rate for a plan's first N billing cycles —
+ * both null means no intro period (charged `price` from day one).
+ */
+const planFieldsSchema = z.object({
   name_ar: z.string().min(2, 'اسم الباقة (عربي) مطلوب'),
   name_en: z.string().min(2, 'اسم الباقة (إنجليزي) مطلوب'),
   price: z.number().nonnegative('السعر يجب ألا يكون سالبًا'),
+  intro_price: z.number().nonnegative('السعر التعريفي يجب ألا يكون سالبًا').nullable().optional(),
+  intro_months: z
+    .number()
+    .int()
+    .positive('عدد أشهر السعر التعريفي يجب أن يكون أكبر من صفر')
+    .nullable()
+    .optional(),
   max_properties: z.number().int().positive('حد العقارات يجب أن يكون أكبر من صفر'),
   max_users: z.number().int().positive('حد المستخدمين يجب أن يكون أكبر من صفر'),
   custom_domain_allowed: z.boolean().default(false),
   is_active: z.boolean().default(true),
+  /** From StreamPay's own dashboard (Products) — required before this plan can actually be checked out at registration. */
+  streampay_product_id: z.string().trim().min(1).nullable().optional(),
+});
+
+const introPairMatches = (data: { intro_price?: number | null; intro_months?: number | null }) => {
+  const hasIntroPrice = (data.intro_price ?? null) !== null;
+  const hasIntroMonths = (data.intro_months ?? null) !== null;
+  return hasIntroPrice === hasIntroMonths;
+};
+
+export const planInputSchema = planFieldsSchema.refine(introPairMatches, {
+  message: 'السعر التعريفي وعدد أشهره يجب تحديدهما معًا أو تركهما فارغين',
+  path: ['intro_months'],
 });
 export type PlanInput = z.infer<typeof planInputSchema>;
 
-export const planUpdateSchema = planInputSchema.partial();
+export const planUpdateSchema = planFieldsSchema.partial().refine(introPairMatches, {
+  message: 'السعر التعريفي وعدد أشهره يجب تحديدهما معًا أو تركهما فارغين',
+  path: ['intro_months'],
+});
 export type PlanUpdateInput = z.infer<typeof planUpdateSchema>;
 
 export const cityInputSchema = z.object({
@@ -99,7 +127,14 @@ export const themeUpdateSchema = z
 export type ThemeUpdateInput = z.infer<typeof themeUpdateSchema>;
 
 /** روابط حسابات سبعة (المنصة) الظاهرة في لوحة تسجيل الدخول/إنشاء حساب — منصّة فقط، ليست حسابات المستأجرين. */
-const optionalUrl = () => z.string().trim().url().optional().nullable().or(z.literal('').transform(() => null));
+const optionalUrl = () =>
+  z
+    .string()
+    .trim()
+    .url()
+    .optional()
+    .nullable()
+    .or(z.literal('').transform(() => null));
 
 export const platformSettingsUpdateSchema = z.object({
   social_tiktok: optionalUrl(),

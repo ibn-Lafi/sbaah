@@ -18,9 +18,18 @@ export function PlanForm({ initial, submitLabel, onSubmit }: PlanFormProps) {
   const [nameAr, setNameAr] = useState(initial?.name_ar ?? '');
   const [nameEn, setNameEn] = useState(initial?.name_en ?? '');
   const [price, setPrice] = useState(initial ? String(initial.price) : '');
+  const [introPrice, setIntroPrice] = useState(
+    initial?.intro_price != null ? String(initial.intro_price) : '',
+  );
+  const [introMonths, setIntroMonths] = useState(
+    initial?.intro_months != null ? String(initial.intro_months) : '',
+  );
+  const [streampayProductId, setStreampayProductId] = useState(initial?.streampay_product_id ?? '');
   const [maxProperties, setMaxProperties] = useState(initial ? String(initial.max_properties) : '');
   const [maxUsers, setMaxUsers] = useState(initial ? String(initial.max_users) : '');
-  const [customDomainAllowed, setCustomDomainAllowed] = useState(initial?.custom_domain_allowed ?? false);
+  const [customDomainAllowed, setCustomDomainAllowed] = useState(
+    initial?.custom_domain_allowed ?? false,
+  );
   const [isActive, setIsActive] = useState(initial?.is_active ?? true);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -33,6 +42,9 @@ export function PlanForm({ initial, submitLabel, onSubmit }: PlanFormProps) {
       name_ar: nameAr,
       name_en: nameEn,
       price: Number(price),
+      intro_price: introPrice === '' ? null : Number(introPrice),
+      intro_months: introMonths === '' ? null : Number(introMonths),
+      streampay_product_id: streampayProductId === '' ? null : streampayProductId,
       max_properties: Number(maxProperties),
       max_users: Number(maxUsers),
       custom_domain_allowed: customDomainAllowed,
@@ -66,20 +78,76 @@ export function PlanForm({ initial, submitLabel, onSubmit }: PlanFormProps) {
         </label>
         <label className="flex flex-col gap-1.5 text-sm">
           السعر الشهري (ريال، شامل الضريبة)
-          <Input type="number" min="0" step="0.01" value={price} onChange={(e) => setPrice(e.target.value)} dir="ltr" />
+          <Input
+            type="number"
+            min="0"
+            step="0.01"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            dir="ltr"
+          />
+        </label>
+        <label className="flex flex-col gap-1.5 text-sm">
+          السعر التعريفي الشهري (اختياري)
+          <Input
+            type="number"
+            min="0"
+            step="0.01"
+            value={introPrice}
+            onChange={(e) => setIntroPrice(e.target.value)}
+            dir="ltr"
+          />
+        </label>
+        <label className="flex flex-col gap-1.5 text-sm">
+          عدد أشهر السعر التعريفي
+          <Input
+            type="number"
+            min="1"
+            step="1"
+            value={introMonths}
+            onChange={(e) => setIntroMonths(e.target.value)}
+            dir="ltr"
+          />
+        </label>
+        <label className="flex flex-col gap-1.5 text-sm sm:col-span-2">
+          معرّف المنتج في StreamPay (Product ID)
+          <Input
+            value={streampayProductId}
+            onChange={(e) => setStreampayProductId(e.target.value)}
+            dir="ltr"
+            placeholder="أنشئ المنتج أولًا من لوحة StreamPay ثم الصق معرّفه هنا"
+          />
         </label>
         <label className="flex flex-col gap-1.5 text-sm">
           الحد الأقصى للعقارات
-          <Input type="number" min="1" step="1" value={maxProperties} onChange={(e) => setMaxProperties(e.target.value)} dir="ltr" />
+          <Input
+            type="number"
+            min="1"
+            step="1"
+            value={maxProperties}
+            onChange={(e) => setMaxProperties(e.target.value)}
+            dir="ltr"
+          />
         </label>
         <label className="flex flex-col gap-1.5 text-sm">
           الحد الأقصى لأعضاء الفريق
-          <Input type="number" min="1" step="1" value={maxUsers} onChange={(e) => setMaxUsers(e.target.value)} dir="ltr" />
+          <Input
+            type="number"
+            min="1"
+            step="1"
+            value={maxUsers}
+            onChange={(e) => setMaxUsers(e.target.value)}
+            dir="ltr"
+          />
         </label>
       </div>
 
       <label className="flex items-center gap-2 text-sm">
-        <input type="checkbox" checked={customDomainAllowed} onChange={(e) => setCustomDomainAllowed(e.target.checked)} />
+        <input
+          type="checkbox"
+          checked={customDomainAllowed}
+          onChange={(e) => setCustomDomainAllowed(e.target.checked)}
+        />
         يسمح بربط نطاق مخصص
       </label>
       <label className="flex items-center gap-2 text-sm">

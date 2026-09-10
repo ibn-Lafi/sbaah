@@ -33,7 +33,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
     throw new ApiError(503, 'registration_closed', 'التسجيل الجديد متوقف مؤقتًا، سيعاد فتحه قريبًا');
   }
 
-  const { registration_token, password, account } = registerSchema.parse(await request.json());
+  const { registration_token, password, account, plan_id } = registerSchema.parse(await request.json());
 
   let payload;
   try {
@@ -53,13 +53,19 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
     throw new ApiError(409, 'phone_already_registered', 'رقم الجوال مسجّل بالفعل');
   }
 
-  const { data: basicPlan, error: planError } = await supabase
+  // Registration step 6 (اختر باقة وادفع) — the chosen plan must be a
+  // real, currently-active plan; no more silent default-to-Basic.
+  const { data: chosenPlan, error: planError } = await supabase
     .from('plans')
     .select('id')
-    .eq('name_en', 'Basic')
-    .single();
-  if (planError || !basicPlan) {
-    throw new Error(`Failed to load default plan for registration: ${planError?.message}`);
+    .eq('id', plan_id)
+    .eq('is_active', true)
+    .maybeSingle();
+  if (planError) {
+    throw new Error(`Failed to load chosen plan for registration: ${planError.message}`);
+  }
+  if (!chosenPlan) {
+    throw new ApiError(400, 'invalid_plan', 'الباقة المختارة غير متاحة، اختر باقة أخرى');
   }
 
   const displayName = tenantDisplayName(account);
@@ -88,7 +94,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
     p_cr_number: cr_number,
     p_tax_number: tax_number,
     p_subdomain: subdomain,
-    p_plan_id: basicPlan.id,
+    p_plan_id: chosenPlan.id,
     p_auth_user_id: authUserId,
     p_owner_full_name: ownerFullName(account),
     p_owner_phone: phone,

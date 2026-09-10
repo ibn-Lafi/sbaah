@@ -12,6 +12,7 @@ import type {
   ListingType,
   MediaType,
   OtpPurpose,
+  PaymentStatus,
   PropertyAvailability,
   PropertyStatus,
   PropertyType,
@@ -35,11 +36,17 @@ export interface Plan {
   id: string;
   name_ar: string;
   name_en: string;
+  /** Regular monthly price (SAR, VAT-inclusive) — what's charged after `intro_months`, or from day one if there's no intro period. */
   price: number;
+  /** Discounted monthly price for the plan's first `intro_months` billing cycles — null means no intro period (charged `price` from day one). */
+  intro_price: number | null;
+  intro_months: number | null;
   max_properties: number;
   max_users: number;
   custom_domain_allowed: boolean;
   is_active: boolean;
+  /** The matching recurring Product's id in StreamPay's own dashboard (set up manually there first) — null until console fills it in. */
+  streampay_product_id: string | null;
 }
 
 /** جدول من صف واحد (id ثابت = true) — روابط حسابات سبعة نفسها (المنصة)، تُدار من console فقط. تظهر في لوحة تسجيل الدخول/إنشاء حساب بدل شريط "عقار←موقع←زائر←Lead←متابعة". */
@@ -72,7 +79,23 @@ export interface Tenant {
   custom_domain_status: CustomDomainStatus | null;
   plan_id: string;
   status: TenantStatus;
+  /** Whether the first StreamPay charge for the chosen plan (registration step 6) cleared — see migration 0027. */
+  payment_status: PaymentStatus;
   created_at: string;
+}
+
+/** One StreamPay checkout attempt (migration 0027) — service-role written only; the tenant Owner can read their own billing history. */
+export interface Payment {
+  id: string;
+  tenant_id: string;
+  plan_id: string;
+  amount: number;
+  currency: string;
+  provider: string;
+  provider_reference: string | null;
+  status: PaymentStatus;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface AppUser {

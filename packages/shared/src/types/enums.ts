@@ -9,6 +9,10 @@ export type AccountType = (typeof ACCOUNT_TYPES)[number];
 export const TENANT_STATUSES = ['active', 'suspended', 'cancelled'] as const;
 export type TenantStatus = (typeof TENANT_STATUSES)[number];
 
+/** Whether a tenant's first StreamPay charge (chosen plan, registration step 6) cleared — see migration 0027. */
+export const PAYMENT_STATUSES = ['pending', 'paid', 'failed'] as const;
+export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
+
 export const USER_ROLES = ['owner', 'admin', 'agent'] as const;
 export type UserRole = (typeof USER_ROLES)[number];
 

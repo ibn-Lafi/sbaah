@@ -61,5 +61,7 @@ export const registerSchema = z.object({
   registration_token: z.string().min(1),
   password: passwordSchema,
   account: tenantRegistrationSchema,
+  /** Chosen at registration step 6 (اختر باقة وادفع) — no more silent default-to-Basic. */
+  plan_id: z.string().uuid('يجب اختيار باقة'),
 });
 export type RegisterInput = z.infer<typeof registerSchema>;
