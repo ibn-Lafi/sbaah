@@ -55,7 +55,16 @@ export default function LoginPage() {
         password,
       });
       if (signInError) {
-        setError('رقم الجوال أو كلمة المرور غير صحيحة');
+        // "Invalid login credentials" (genuinely wrong phone/password) gets
+        // the friendly Arabic message; anything else (e.g. Supabase's
+        // phone auth provider not enabled on the project, a distinct error)
+        // is shown as-is — collapsing every failure into "wrong password"
+        // makes a real config problem indistinguishable from a typo.
+        setError(
+          signInError.message === 'Invalid login credentials'
+            ? 'رقم الجوال أو كلمة المرور غير صحيحة'
+            : `تعذّر تسجيل الدخول: ${signInError.message}`,
+        );
         return;
       }
       router.push('/');
