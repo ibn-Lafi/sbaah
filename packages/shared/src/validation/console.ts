@@ -97,3 +97,20 @@ export const themeUpdateSchema = z
     message: 'يجب تحديد حقل واحد على الأقل للتحديث',
   });
 export type ThemeUpdateInput = z.infer<typeof themeUpdateSchema>;
+
+/** روابط حسابات سبعة (المنصة) الظاهرة في لوحة تسجيل الدخول/إنشاء حساب — منصّة فقط، ليست حسابات المستأجرين. */
+const optionalUrl = () => z.string().trim().url().optional().nullable().or(z.literal('').transform(() => null));
+
+export const platformSettingsUpdateSchema = z.object({
+  social_tiktok: optionalUrl(),
+  social_instagram: optionalUrl(),
+  social_x: optionalUrl(),
+  contact_email: z
+    .string()
+    .trim()
+    .email('صيغة البريد الإلكتروني غير صحيحة')
+    .optional()
+    .nullable()
+    .or(z.literal('').transform(() => null)),
+});
+export type PlatformSettingsUpdateInput = z.infer<typeof platformSettingsUpdateSchema>;

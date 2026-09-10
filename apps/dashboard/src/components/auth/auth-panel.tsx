@@ -1,6 +1,30 @@
 import { BrandMark } from '@/components/ui/brand-mark';
+import { InstagramIcon, TiktokIcon, XIcon, MailIcon } from '@/components/website/editor-icons';
+import { apiGet } from '@/lib/api/client';
 
-const PIPELINE_STEPS = ['عقار', 'موقع', 'زائر', 'Lead', 'متابعة'];
+interface PublicPlatformSettings {
+  social_tiktok: string | null;
+  social_instagram: string | null;
+  social_x: string | null;
+  contact_email: string | null;
+}
+
+async function loadSocialLinks() {
+  try {
+    const settings = await apiGet<PublicPlatformSettings>('/public/platform-settings');
+    return [
+      settings.social_tiktok && { key: 'tiktok', href: settings.social_tiktok, Icon: TiktokIcon, label: 'تيك توك' },
+      settings.social_instagram && { key: 'instagram', href: settings.social_instagram, Icon: InstagramIcon, label: 'إنستغرام' },
+      settings.social_x && { key: 'x', href: settings.social_x, Icon: XIcon, label: 'إكس' },
+      settings.contact_email && { key: 'email', href: `mailto:${settings.contact_email}`, Icon: MailIcon, label: 'البريد الإلكتروني' },
+    ].filter((entry): entry is { key: string; href: string; Icon: typeof TiktokIcon; label: string } => Boolean(entry));
+  } catch {
+    // Auth panel is decorative chrome on the login/register/forgot-password
+    // pages — never let a platform-settings fetch failure break the ability
+    // to sign in.
+    return [];
+  }
+}
 
 /**
  * The branded purple side panel from the founder's mockup — the only
@@ -8,8 +32,14 @@ const PIPELINE_STEPS = ['عقار', 'موقع', 'زائر', 'Lead', 'متابع�
  * section 2 names them explicitly for "لوحة الدخول"). Shared by
  * login/register/forgot-password via (auth)/layout.tsx; hidden on small
  * screens where the form alone fills the page.
+ *
+ * The social row links to سبعة's OWN accounts (the platform owner's, set
+ * via console's "إعدادات المنصة") — not any tenant's — replacing the
+ * earlier decorative "عقار←موقع←زائر←Lead←متابعة" pipeline row.
  */
-export function AuthPanel() {
+export async function AuthPanel() {
+  const socialLinks = await loadSocialLinks();
+
   return (
     <div className="hidden flex-col justify-between bg-brand p-10 text-white lg:flex lg:w-[420px] lg:shrink-0">
       <BrandMark invert width={110} height={28} />
@@ -23,14 +53,23 @@ export function AuthPanel() {
         </p>
       </div>
 
-      <ol className="flex flex-wrap items-center gap-x-2 gap-y-3 text-sm text-brand-surface-2">
-        {PIPELINE_STEPS.map((step, index) => (
-          <li key={step} className="flex items-center gap-2">
-            <span className="rounded-full bg-brand-hover px-3 py-1 text-white">{step}</span>
-            {index < PIPELINE_STEPS.length - 1 && <span aria-hidden="true">←</span>}
-          </li>
-        ))}
-      </ol>
+      {socialLinks.length > 0 && (
+        <div className="flex items-center gap-3">
+          {socialLinks.map(({ key, href, Icon, label }) => (
+            <a
+              key={key}
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={label}
+              title={label}
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-hover text-white hover:bg-brand-surface-2 hover:text-brand"
+            >
+              <Icon className="h-[17px] w-[17px]" />
+            </a>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

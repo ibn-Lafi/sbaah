@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { href: '/themes', label: 'الثيمات' },
   { href: '/cities', label: 'المدن' },
   { href: '/districts', label: 'الأحياء' },
+  { href: '/settings', label: 'إعدادات المنصة' },
 ];
 
 /** Every authenticated console screen wraps its content in this — small top nav, no sidebar (console has far fewer sections than dashboard). */

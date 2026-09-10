@@ -42,6 +42,16 @@ export interface Plan {
   is_active: boolean;
 }
 
+/** جدول من صف واحد (id ثابت = true) — روابط حسابات سبعة نفسها (المنصة)، تُدار من console فقط. تظهر في لوحة تسجيل الدخول/إنشاء حساب بدل شريط "عقار←موقع←زائر←Lead←متابعة". */
+export interface PlatformSettings {
+  id: true;
+  social_tiktok: string | null;
+  social_instagram: string | null;
+  social_x: string | null;
+  contact_email: string | null;
+  updated_at: string;
+}
+
 export interface Tenant {
   id: string;
   name_ar: string;

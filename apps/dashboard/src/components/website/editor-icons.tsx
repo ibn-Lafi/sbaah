@@ -104,6 +104,23 @@ export function CallIcon({ className }: IconProps) {
   );
 }
 
+export function XIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M4 4l16 16M20 4L4 20" />
+    </Svg>
+  );
+}
+
+export function MailIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <rect x="3" y="5" width="18" height="14" rx="2" />
+      <path d="M3.5 6.5l8.5 6.5 8.5-6.5" />
+    </Svg>
+  );
+}
+
 /** Saudi commercial-registration (CR / السجل التجاري) badge — document-with-seal, not a copied government logo. */
 export function CrIcon({ className }: IconProps) {
   return (
