@@ -2,11 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import type { Lead, LeadStatus, Property } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
+import { CreateLeadForm } from '@/components/leads/create-lead-form';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Modal } from '@/components/ui/modal';
 import { Select } from '@/components/ui/select';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
@@ -27,11 +30,13 @@ type Tab = 'pipeline' | 'all';
  * cosmetic duplicate.
  */
 export default function LeadsPage() {
+  const router = useRouter();
   const { me, accessToken } = useCurrentUser();
   const [tab, setTab] = useState<Tab>('pipeline');
   const [leads, setLeads] = useState<Lead[] | null>(null);
   const [properties, setProperties] = useState<Record<string, Property>>({});
   const [statusFilter, setStatusFilter] = useState<LeadStatus | ''>('');
+  const [showCreate, setShowCreate] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -97,13 +102,18 @@ export default function LeadsPage() {
               ))}
             </Select>
           )}
-          {canManage && (
-            <Link href="/leads/new">
-              <Button>+ إضافة عميل محتمل</Button>
-            </Link>
-          )}
+          {canManage && <Button onClick={() => setShowCreate(true)}>+ إضافة عميل محتمل</Button>}
         </div>
       </div>
+
+      {showCreate && (
+        <Modal title="إضافة عميل محتمل" onClose={() => setShowCreate(false)}>
+          <CreateLeadForm
+            accessToken={accessToken}
+            onCreated={(lead) => router.push(`/leads/${lead.id}`)}
+          />
+        </Modal>
+      )}
 
       <Card className="overflow-hidden">
         {leads === null ? (

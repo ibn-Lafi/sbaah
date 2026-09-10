@@ -2,28 +2,47 @@
 
 import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
-import type { Building, Project, Property, PropertyStatus, Rental, RentalStatus } from '@sbaah/shared';
+import { useRouter, useSearchParams } from 'next/navigation';
+import type {
+  Building,
+  BuildingInput,
+  Project,
+  ProjectInput,
+  Property,
+  PropertyInput,
+  PropertyStatus,
+  Rental,
+  RentalInput,
+  RentalStatus,
+} from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
 import { KindTabs, type PropertyKind } from '@/components/properties/kind-tabs';
+import { PropertyForm } from '@/components/properties/property-form';
+import { BuildingForm } from '@/components/hierarchy/building-form';
+import { ProjectForm } from '@/components/hierarchy/project-form';
+import { RentalForm } from '@/components/rentals/rental-form';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Modal } from '@/components/ui/modal';
 import { Select } from '@/components/ui/select';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { ROLE_LABELS } from '@/lib/auth/role-labels';
-import { listProperties } from '@/lib/api/properties';
-import { listBuildings, listProjects } from '@/lib/api/hierarchy';
-import { listRentals } from '@/lib/api/rentals';
+import type { UserRole } from '@sbaah/shared';
+import { listProperties, createProperty } from '@/lib/api/properties';
+import { listBuildings, listProjects, createBuilding, createProject } from '@/lib/api/hierarchy';
+import { listRentals, createRental } from '@/lib/api/rentals';
 import { LISTING_TYPE_LABELS, PROPERTY_STATUS_LABELS, PROPERTY_TYPE_LABELS } from '@/lib/property/labels';
 import { RENTAL_STATUS_LABELS } from '@/lib/rental/labels';
 
 const KIND_TITLES: Record<PropertyKind, string> = { units: 'العقارات', buildings: 'العمارات', projects: 'المشاريع', rentals: 'الإيجارات' };
 
-function UnitsPanel({ accessToken, canManage }: { accessToken: string; canManage: boolean }) {
+function UnitsPanel({ accessToken, role, canManage }: { accessToken: string; role: UserRole; canManage: boolean }) {
+  const router = useRouter();
   const [properties, setProperties] = useState<Property[] | null>(null);
   const [statusFilter, setStatusFilter] = useState<PropertyStatus | ''>('');
+  const [showCreate, setShowCreate] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -46,12 +65,22 @@ function UnitsPanel({ accessToken, canManage }: { accessToken: string; canManage
             </option>
           ))}
         </Select>
-        {canManage && (
-          <Link href="/properties/new">
-            <Button>+ إضافة عقار</Button>
-          </Link>
-        )}
+        {canManage && <Button onClick={() => setShowCreate(true)}>+ إضافة عقار</Button>}
       </div>
+      {showCreate && (
+        <Modal title="إضافة عقار" onClose={() => setShowCreate(false)}>
+          <PropertyForm
+            mode="create"
+            accessToken={accessToken}
+            role={role}
+            submitLabel="إضافة العقار"
+            onSubmit={async (input) => {
+              const { property } = await createProperty(accessToken, input as PropertyInput);
+              router.push(`/properties/${property.id}`);
+            }}
+          />
+        </Modal>
+      )}
       <Card className="overflow-hidden">
         {properties === null ? (
           <TableSkeleton columns={4} />
@@ -95,7 +124,9 @@ function UnitsPanel({ accessToken, canManage }: { accessToken: string; canManage
 }
 
 function BuildingsPanel({ accessToken, canManage }: { accessToken: string; canManage: boolean }) {
+  const router = useRouter();
   const [buildings, setBuildings] = useState<Building[] | null>(null);
+  const [showCreate, setShowCreate] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -110,12 +141,21 @@ function BuildingsPanel({ accessToken, canManage }: { accessToken: string; canMa
   return (
     <>
       <div className="mb-5 flex items-center justify-end">
-        {canManage && (
-          <Link href="/buildings/new">
-            <Button>+ إضافة عمارة</Button>
-          </Link>
-        )}
+        {canManage && <Button onClick={() => setShowCreate(true)}>+ إضافة عمارة</Button>}
       </div>
+      {showCreate && (
+        <Modal title="إضافة عمارة" onClose={() => setShowCreate(false)}>
+          <BuildingForm
+            mode="create"
+            accessToken={accessToken}
+            submitLabel="إضافة العمارة"
+            onSubmit={async (input) => {
+              const { building } = await createBuilding(accessToken, input as BuildingInput);
+              router.push(`/buildings/${building.id}`);
+            }}
+          />
+        </Modal>
+      )}
       <Card className="overflow-hidden">
         {buildings === null ? (
           <TableSkeleton columns={2} />
@@ -149,7 +189,9 @@ function BuildingsPanel({ accessToken, canManage }: { accessToken: string; canMa
 }
 
 function ProjectsPanel({ accessToken, canManage }: { accessToken: string; canManage: boolean }) {
+  const router = useRouter();
   const [projects, setProjects] = useState<Project[] | null>(null);
+  const [showCreate, setShowCreate] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -164,12 +206,20 @@ function ProjectsPanel({ accessToken, canManage }: { accessToken: string; canMan
   return (
     <>
       <div className="mb-5 flex items-center justify-end">
-        {canManage && (
-          <Link href="/projects/new">
-            <Button>+ إضافة مشروع</Button>
-          </Link>
-        )}
+        {canManage && <Button onClick={() => setShowCreate(true)}>+ إضافة مشروع</Button>}
       </div>
+      {showCreate && (
+        <Modal title="إضافة مشروع" onClose={() => setShowCreate(false)}>
+          <ProjectForm
+            mode="create"
+            submitLabel="إضافة المشروع"
+            onSubmit={async (input) => {
+              const { project } = await createProject(accessToken, input as ProjectInput);
+              router.push(`/projects/${project.id}`);
+            }}
+          />
+        </Modal>
+      )}
       <Card className="overflow-hidden">
         {projects === null ? (
           <TableSkeleton columns={2} />
@@ -207,9 +257,11 @@ function ProjectsPanel({ accessToken, canManage }: { accessToken: string; canMan
 }
 
 function RentalsPanel({ accessToken }: { accessToken: string }) {
+  const router = useRouter();
   const [rentals, setRentals] = useState<Rental[] | null>(null);
   const [properties, setProperties] = useState<Record<string, Property>>({});
   const [statusFilter, setStatusFilter] = useState<RentalStatus | ''>('');
+  const [showCreate, setShowCreate] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -243,10 +295,21 @@ function RentalsPanel({ accessToken }: { accessToken: string }) {
             </option>
           ))}
         </Select>
-        <Link href="/rentals/new">
-          <Button>+ إضافة إيجار</Button>
-        </Link>
+        <Button onClick={() => setShowCreate(true)}>+ إضافة إيجار</Button>
       </div>
+      {showCreate && (
+        <Modal title="إضافة إيجار" onClose={() => setShowCreate(false)}>
+          <RentalForm
+            mode="create"
+            accessToken={accessToken}
+            submitLabel="إضافة الإيجار"
+            onSubmit={async (input) => {
+              const { rental } = await createRental(accessToken, input as RentalInput);
+              router.push(`/rentals/${rental.id}`);
+            }}
+          />
+        </Modal>
+      )}
       <Card className="overflow-hidden">
         {rentals === null ? (
           <TableSkeleton columns={5} />
@@ -306,7 +369,7 @@ function PropertiesPageContent() {
       <div className="mb-5">
         <KindTabs active={kind} />
       </div>
-      {kind === 'units' && <UnitsPanel accessToken={accessToken} canManage={canManage} />}
+      {kind === 'units' && <UnitsPanel accessToken={accessToken} role={me.user.role} canManage={canManage} />}
       {kind === 'buildings' && <BuildingsPanel accessToken={accessToken} canManage={canManage} />}
       {kind === 'projects' && <ProjectsPanel accessToken={accessToken} canManage={canManage} />}
       {kind === 'rentals' && <RentalsPanel accessToken={accessToken} />}

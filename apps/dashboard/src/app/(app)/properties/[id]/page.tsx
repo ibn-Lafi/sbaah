@@ -3,19 +3,21 @@
 import { use, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import type { PropertyUpdateInput, Rental } from '@sbaah/shared';
+import type { PropertyUpdateInput, Rental, RentalInput } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { FormError } from '@/components/ui/form-error';
+import { Modal } from '@/components/ui/modal';
 import { PropertyForm } from '@/components/properties/property-form';
 import { PropertyMediaManager } from '@/components/properties/property-media-manager';
+import { RentalForm } from '@/components/rentals/rental-form';
 import { FormPageSkeleton } from '@/components/ui/form-page-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { ROLE_LABELS } from '@/lib/auth/role-labels';
 import { deleteProperty, getProperty, updateProperty, type PropertyWithMedia } from '@/lib/api/properties';
-import { listRentals } from '@/lib/api/rentals';
+import { createRental, listRentals } from '@/lib/api/rentals';
 import { RENTAL_STATUS_LABELS } from '@/lib/rental/labels';
 import { ApiRequestError } from '@/lib/api/client';
 
@@ -27,6 +29,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
   const [rentals, setRentals] = useState<Rental[]>([]);
   const [notFound, setNotFound] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [showCreateRental, setShowCreateRental] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -110,10 +113,29 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
           <Card className="p-8">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-base font-semibold text-text-primary">عقود الإيجار على هذا العقار</h2>
-              <Link href={`/rentals/new?property_id=${id}`} className="text-sm font-semibold text-brand hover:underline">
+              <button
+                type="button"
+                onClick={() => setShowCreateRental(true)}
+                className="text-sm font-semibold text-brand hover:underline"
+              >
                 + إضافة إيجار
-              </Link>
+              </button>
             </div>
+            {showCreateRental && (
+              <Modal title="إضافة إيجار" onClose={() => setShowCreateRental(false)}>
+                <RentalForm
+                  mode="create"
+                  accessToken={accessToken}
+                  defaultPropertyId={id}
+                  submitLabel="إضافة الإيجار"
+                  onSubmit={async (input) => {
+                    const { rental } = await createRental(accessToken, input as RentalInput);
+                    setRentals((prev) => [...prev, rental]);
+                    setShowCreateRental(false);
+                  }}
+                />
+              </Modal>
+            )}
             {rentals.length === 0 ? (
               <p className="text-sm text-text-secondary">لا عقود إيجار مسجّلة بعد.</p>
             ) : (

@@ -104,7 +104,7 @@ interface PropertyFormProps {
   submitLabel: string;
 }
 
-/** Shared by /properties/new and /properties/[id] — the only difference is whether status/availability show and what onSubmit does with the payload. */
+/** Shared by the "+ إضافة عقار" create modal and /properties/[id] — the only difference is whether status/availability show and what onSubmit does with the payload. */
 export function PropertyForm({ mode, initialValues, accessToken, role, onSubmit, submitLabel }: PropertyFormProps) {
   const [form, setForm] = useState<FormState>(initialValues ? toFormState(initialValues) : EMPTY_STATE);
   const [cities, setCities] = useState<City[]>([]);

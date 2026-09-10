@@ -3,16 +3,18 @@
 import { use, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import type { Building, Project, ProjectUpdateInput } from '@sbaah/shared';
+import type { Building, BuildingInput, Project, ProjectUpdateInput } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { FormError } from '@/components/ui/form-error';
+import { Modal } from '@/components/ui/modal';
+import { BuildingForm } from '@/components/hierarchy/building-form';
 import { ProjectForm } from '@/components/hierarchy/project-form';
 import { FormPageSkeleton } from '@/components/ui/form-page-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { ROLE_LABELS } from '@/lib/auth/role-labels';
-import { deleteProject, getProject, listBuildings, updateProject } from '@/lib/api/hierarchy';
+import { createBuilding, deleteProject, getProject, listBuildings, updateProject } from '@/lib/api/hierarchy';
 import { ApiRequestError } from '@/lib/api/client';
 
 export default function EditProjectPage({ params }: { params: Promise<{ id: string }> }) {
@@ -23,6 +25,7 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [notFound, setNotFound] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [showCreateBuilding, setShowCreateBuilding] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -95,11 +98,30 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-base font-semibold text-text-primary">العمارات التابعة لهذا المشروع</h2>
               {canManage && (
-                <Link href={`/buildings/new?project_id=${id}`} className="text-sm font-semibold text-brand hover:underline">
+                <button
+                  type="button"
+                  onClick={() => setShowCreateBuilding(true)}
+                  className="text-sm font-semibold text-brand hover:underline"
+                >
                   + إضافة عمارة
-                </Link>
+                </button>
               )}
             </div>
+            {showCreateBuilding && (
+              <Modal title="إضافة عمارة" onClose={() => setShowCreateBuilding(false)}>
+                <BuildingForm
+                  mode="create"
+                  accessToken={accessToken}
+                  defaultProjectId={id}
+                  submitLabel="إضافة العمارة"
+                  onSubmit={async (input) => {
+                    const { building } = await createBuilding(accessToken, input as BuildingInput);
+                    setBuildings((prev) => [...prev, building]);
+                    setShowCreateBuilding(false);
+                  }}
+                />
+              </Modal>
+            )}
             {buildings.length === 0 ? (
               <p className="text-sm text-text-secondary">لا عمارات مرتبطة بعد.</p>
             ) : (

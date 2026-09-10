@@ -1,11 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { AppShell } from '@/components/layout/app-shell';
+import { TeamInviteForm } from '@/components/team/team-invite-form';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Modal } from '@/components/ui/modal';
 import { Select } from '@/components/ui/select';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
@@ -16,6 +17,7 @@ import { listTeam, updateTeamMember, type TeamMember } from '@/lib/api/team';
 export default function TeamPage() {
   const { me, accessToken } = useCurrentUser();
   const [members, setMembers] = useState<TeamMember[] | null>(null);
+  const [showInvite, setShowInvite] = useState(false);
 
   function reload() {
     void listTeam(accessToken).then((result) => setMembers(result.members));
@@ -44,10 +46,20 @@ export default function TeamPage() {
       roleLabel={ROLE_LABELS[me.user.role]}
     >
       <div className="mb-5 flex items-center justify-end">
-        <Link href="/team/invite">
-          <Button>+ دعوة عضو</Button>
-        </Link>
+        <Button onClick={() => setShowInvite(true)}>+ دعوة عضو</Button>
       </div>
+
+      {showInvite && (
+        <Modal title="دعوة عضو" onClose={() => setShowInvite(false)}>
+          <TeamInviteForm
+            accessToken={accessToken}
+            onInvited={() => {
+              setShowInvite(false);
+              reload();
+            }}
+          />
+        </Modal>
+      )}
 
       <Card className="overflow-hidden">
         {members === null ? (
