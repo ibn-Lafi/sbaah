@@ -1,18 +1,63 @@
 @import 'tailwindcss';
 
 /**
- * `console` has no design mockup (unlike `dashboard`'s
- * DASHBOARD_DESIGN_SYSTEM.md) — a small, deliberately minimal token set
- * using سبعة's own brand purple, since this app has no per-tenant
- * theming concept at all (task 37/42).
+ * Same token set as apps/dashboard/src/app/globals.css (UI/UX audit
+ * finding — console had only 3 tokens and fell back to raw utility
+ * classes everywhere, causing visible drift from dashboard's design).
+ * console has no per-tenant theming concept, so it can just mirror
+ * dashboard's tokens directly rather than needing its own palette.
  */
 @theme {
+  --font-sans: var(--font-ibm-plex-arabic), system-ui, sans-serif;
+
   --color-brand: #68458a;
   --color-brand-hover: #4f3269;
-  --color-surface-page: #f4f2f6;
+  --color-brand-surface: #f3eef7;
+  --color-brand-surface-2: #e0d3ea;
+  --color-brand-surface-3: #c4abd6;
+
+  --color-text-primary: #1f1d22;
+  --color-text-secondary: #6f6b74;
+  --color-text-tertiary: #4a454f;
+  --color-text-muted: #8b8792;
+  --color-text-placeholder: #a5a1ab;
+
+  --color-border-default: #dddbe1;
+  --color-border-subtle: #eae8ed;
+  --color-border-secondary: #dad7de;
+  --color-border-disabled: #c9c5cf;
+
+  --color-surface-page: #efedf1;
+  --color-surface-card: #ffffff;
+  --color-surface-subtle: #f4f2f6;
+  --color-surface-subtle-2: #f7f6f8;
+  --color-surface-subtle-3: #f1eff3;
+  --color-surface-header: #faf9fb;
+
+  --color-success: #0e7a4d;
+  --color-success-surface: #e6f4ec;
+  --color-warning: #8a5200;
+  --color-warning-surface: #fdf2e3;
+  --color-danger: #b3261e;
+  --color-danger-strong: #8c1d17;
+  --color-danger-surface: #fbebe9;
+
+  --radius-control: 12px;
+  --radius-input: 14px;
+  --radius-card: 20px;
 }
 
 body {
   margin: 0;
   background: var(--color-surface-page);
+  font-family: var(--font-sans);
+  color: var(--color-text-primary);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::placeholder {
+  color: var(--color-text-placeholder);
 }
