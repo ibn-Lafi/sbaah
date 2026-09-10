@@ -5,6 +5,9 @@ import { listPublicProperties } from '@/lib/api/public-properties';
 import { listCities, listDistricts } from '@/lib/api/reference-data';
 import { PropertyCard } from '@/components/properties/property-card';
 import { PropertyFilters, type PropertyFiltersValue } from '@/components/properties/property-filters';
+import { getTenantSitePage } from '@/lib/tenant/get-tenant-site';
+import { getThemeComponents } from '@/components/themes/registry';
+import { renderThemedSection } from '@/lib/website/render-section';
 
 const PAGE_LABELS = {
   ar: { title: 'العقارات', noResults: 'لا توجد عقارات مطابقة', prev: 'السابق', next: 'التالي', page: 'صفحة' },
@@ -20,6 +23,16 @@ function first(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
 }
 
+/**
+ * The "العقارات" page (متجر الثيمات follow-up, migration 0024) — this
+ * page's `website_pages`/`website_sections` rows let a tenant add/reorder
+ * themed sections (a hero banner, an about blurb, contact) around the
+ * actual listing. The listing itself (filters + grid + pagination) is
+ * the `property_grid`-type section's fixed anchor: it is NOT theme-
+ * branched (unlike home's featured grid) and keeps its existing,
+ * unchanged behavior — a tenant can toggle it and move it up/down among
+ * the other sections, but not restyle it per-theme in this version.
+ */
 export default async function PropertiesPage({ params, searchParams }: PageProps) {
   const { locale: rawLocale } = await params;
   const locale = isLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
@@ -37,7 +50,8 @@ export default async function PropertiesPage({ params, searchParams }: PageProps
   };
   const page = Number(first(sp.page)) || 1;
 
-  const [cities, districts, listResult] = await Promise.all([
+  const [site, cities, districts, listResult] = await Promise.all([
+    getTenantSitePage('properties'),
     listCities(),
     filters.city_id ? listDistricts(filters.city_id) : Promise.resolve([]),
     listPublicProperties({
@@ -51,9 +65,17 @@ export default async function PropertiesPage({ params, searchParams }: PageProps
       page,
     }),
   ]);
+  if (!site) return null; // layout.tsx already calls notFound()/renders suspended in this case
 
   const citiesById = new Map(cities.map((city) => [city.id, city]));
   const totalPages = Math.max(1, Math.ceil(listResult.total / listResult.page_size));
+  const tenantName = locale === 'ar' ? site.tenant.name_ar : site.tenant.name_en;
+  const theme = getThemeComponents(site.website.theme_key);
+
+  const gridSection = site.sections.find((s) => s.type === 'property_grid');
+  const themedCtx = { locale, bannerUrl: site.website.banner_image_url, tenantName, whatsappPhone: site.whatsapp_phone, tenantId: site.tenant.id };
+  const before = site.sections.filter((s) => s.type !== 'property_grid' && (!gridSection || s.order_index < gridSection.order_index));
+  const after = site.sections.filter((s) => s.type !== 'property_grid' && gridSection && s.order_index > gridSection.order_index);
 
   function pageHref(targetPage: number): string {
     const query = new URLSearchParams();
@@ -65,32 +87,40 @@ export default async function PropertiesPage({ params, searchParams }: PageProps
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-8">
-      <h1 className="mb-6 text-2xl font-bold">{t.title}</h1>
+    <div>
+      {before.map((s) => renderThemedSection(s, theme, themedCtx))}
 
-      <div className="mb-8">
-        <PropertyFilters locale={locale} cities={cities} districts={districts} value={filters} />
-      </div>
+      {gridSection && (
+        <div className="mx-auto max-w-6xl px-6 py-8">
+          <h1 className="mb-6 text-2xl font-bold">{t.title}</h1>
 
-      {listResult.properties.length === 0 ? (
-        <p className="text-black/60">{t.noResults}</p>
-      ) : (
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {listResult.properties.map((property) => (
-            <PropertyCard key={property.id} property={property} city={citiesById.get(property.city_id)} locale={locale} />
-          ))}
+          <div className="mb-8">
+            <PropertyFilters locale={locale} cities={cities} districts={districts} value={filters} />
+          </div>
+
+          {listResult.properties.length === 0 ? (
+            <p className="text-black/60">{t.noResults}</p>
+          ) : (
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {listResult.properties.map((property) => (
+                <PropertyCard key={property.id} property={property} city={citiesById.get(property.city_id)} locale={locale} />
+              ))}
+            </div>
+          )}
+
+          {totalPages > 1 && (
+            <nav className="mt-8 flex items-center justify-center gap-4 text-sm">
+              {page > 1 && <Link href={pageHref(page - 1)}>{t.prev}</Link>}
+              <span className="text-black/60">
+                {t.page} {page} / {totalPages}
+              </span>
+              {page < totalPages && <Link href={pageHref(page + 1)}>{t.next}</Link>}
+            </nav>
+          )}
         </div>
       )}
 
-      {totalPages > 1 && (
-        <nav className="mt-8 flex items-center justify-center gap-4 text-sm">
-          {page > 1 && <Link href={pageHref(page - 1)}>{t.prev}</Link>}
-          <span className="text-black/60">
-            {t.page} {page} / {totalPages}
-          </span>
-          {page < totalPages && <Link href={pageHref(page + 1)}>{t.next}</Link>}
-        </nav>
-      )}
+      {after.map((s) => renderThemedSection(s, theme, themedCtx))}
     </div>
   );
 }

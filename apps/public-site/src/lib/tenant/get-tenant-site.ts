@@ -1,5 +1,5 @@
 import { cache } from 'react';
-import type { AccountType, Website, WebsiteSection } from '@sbaah/shared';
+import type { AccountType, Website, WebsitePageKey, WebsiteSection } from '@sbaah/shared';
 import { apiGet, ApiRequestError } from '@/lib/api/client';
 import { getHost } from './get-host';
 
@@ -23,19 +23,22 @@ export type TenantSiteResult =
  * the incoming `Host` header (how a visitor's browser identifies "whose
  * site is this", PRODUCT_SPEC section 7) and resolves it via `api`.
  * Wrapped in React's `cache()` (request-scoped memoization) so calling
- * this from multiple places in the same request (root layout, a page)
- * hits the network exactly once — `getTenantSite()` below and
- * `getTenantSiteResult()` both go through this same cached call, so
- * neither duplicates the other's fetch.
+ * this with the SAME `pageKey` from multiple places in the same request
+ * (root layout, the home page) hits the network exactly once — both go
+ * through this same cached call keyed on 'home', so neither duplicates
+ * the other's fetch. A non-home page (e.g. `/projects`) necessarily costs
+ * one extra request beyond the layout's own 'home' chrome fetch — a
+ * deliberate, small tradeoff for keeping the layout's chrome fetch (which
+ * every page needs) independent of which page is actually being visited.
  */
-const fetchTenantSiteResult = cache(async (): Promise<TenantSiteResult> => {
+const fetchTenantSiteResult = cache(async (pageKey: WebsitePageKey): Promise<TenantSiteResult> => {
   const host = await getHost();
   if (!host) {
     return { status: 'not_found' };
   }
 
   try {
-    const site = await apiGet<TenantSite>(`/public/website?domain=${encodeURIComponent(host)}`);
+    const site = await apiGet<TenantSite>(`/public/website?domain=${encodeURIComponent(host)}&page=${pageKey}`);
     return { status: 'active', site };
   } catch (error) {
     if (error instanceof ApiRequestError && error.code === 'site_not_found') {
@@ -48,19 +51,26 @@ const fetchTenantSiteResult = cache(async (): Promise<TenantSiteResult> => {
   }
 });
 
-/** For the root layout only (task 36/42) — the one place that must branch on "suspended" vs "not found" to render a different page for each. */
+/** For the root layout only (task 36/42) — the one place that must branch on "suspended" vs "not found" to render a different page for each. Always resolves 'home' — layout only ever needs tenant/theme chrome, never a specific page's sections. */
 export async function getTenantSiteResult(): Promise<TenantSiteResult> {
-  return fetchTenantSiteResult();
+  return fetchTenantSiteResult('home');
 }
 
 /**
- * For every other caller (property pages, sections) — collapses
- * "suspended" into `null` alongside "not found", same as before task
- * 36/42: the root layout already renders the suspended page and never
- * reaches these callers' `children` in that case, so they never
- * actually need to distinguish the two.
+ * The homepage's own fetch — collapses "suspended" into `null` alongside
+ * "not found", same as before task 36/42: the root layout already
+ * renders the suspended page and never reaches `children` in that case.
+ * Shares the exact same cached call as `getTenantSiteResult()` above
+ * (both pass 'home'), so a home-page visit still costs one network call
+ * total, unchanged from before this file supported other pages.
  */
 export async function getTenantSite(): Promise<TenantSite | null> {
-  const result = await fetchTenantSiteResult();
+  const result = await fetchTenantSiteResult('home');
+  return result.status === 'active' ? result.site : null;
+}
+
+/** Same as `getTenantSite()`, for any of the site's other fixed pages (متجر الثيمات follow-up, migration 0024). */
+export async function getTenantSitePage(pageKey: WebsitePageKey): Promise<TenantSite | null> {
+  const result = await fetchTenantSiteResult(pageKey);
   return result.status === 'active' ? result.site : null;
 }

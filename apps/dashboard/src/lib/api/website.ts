@@ -1,10 +1,10 @@
-import type { SectionUpdateInput, Website, WebsiteSection, WebsiteUpdateInput } from '@sbaah/shared';
+import type { SectionUpdateInput, Website, WebsitePage, WebsiteSection, WebsiteUpdateInput } from '@sbaah/shared';
 import { apiGet, apiPatch, apiUpload } from './client';
 
-export type WebsiteWithSections = Website & { website_sections: WebsiteSection[] };
+export type WebsitePageWithSections = WebsitePage & { website_sections: WebsiteSection[] };
 
-export function getWebsite(accessToken: string): Promise<{ website: WebsiteWithSections }> {
-  return apiGet<{ website: WebsiteWithSections }>('/website', accessToken);
+export function getWebsite(accessToken: string): Promise<{ website: Website; pages: WebsitePageWithSections[] }> {
+  return apiGet<{ website: Website; pages: WebsitePageWithSections[] }>('/website', accessToken);
 }
 
 export function updateWebsite(accessToken: string, input: WebsiteUpdateInput): Promise<{ website: Website }> {

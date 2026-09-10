@@ -20,6 +20,7 @@ import type {
   UserRole,
   UserStatus,
   WebsiteSectionType,
+  WebsitePageKey,
 } from './enums';
 
 export interface PlatformAdmin {
@@ -91,9 +92,18 @@ export interface Website {
   banner_image_url: string | null;
 }
 
+/** One of a website's 6 fixed pages (migration 0024) — see WEBSITE_PAGE_KEYS. */
+export interface WebsitePage {
+  id: string;
+  website_id: string;
+  key: WebsitePageKey;
+}
+
 export interface WebsiteSection {
   id: string;
   website_id: string;
+  /** Which of the website's 6 pages this section belongs to (migration 0024). */
+  page_id: string;
   type: WebsiteSectionType;
   order_index: number;
   is_visible: boolean;

@@ -1,11 +1,13 @@
 import type { NextRequest } from 'next/server';
 import { z } from 'zod';
-import { createAnonClient, createServiceRoleClient } from '@sbaah/shared';
+import { createAnonClient, createServiceRoleClient, WEBSITE_PAGE_KEYS } from '@sbaah/shared';
 import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { resolvePublicTenantChrome } from '@/lib/tenant/resolve-public-tenant';
 
 const publicWebsiteQuerySchema = z.object({
   domain: z.string().min(1, 'الدومين مطلوب'),
+  /** Which of the tenant's 6 fixed pages (migration 0024) to return sections for — defaults to the homepage. */
+  page: z.enum(WEBSITE_PAGE_KEYS).default('home'),
 });
 
 /**
@@ -23,7 +25,7 @@ const publicWebsiteQuerySchema = z.object({
  * active tenants.
  */
 export const GET = withErrorHandling(async (request: NextRequest) => {
-  const { domain } = publicWebsiteQuerySchema.parse(Object.fromEntries(request.nextUrl.searchParams));
+  const { domain, page: pageKey } = publicWebsiteQuerySchema.parse(Object.fromEntries(request.nextUrl.searchParams));
 
   const supabase = createAnonClient();
   const chrome = await resolvePublicTenantChrome(domain, supabase);
@@ -59,10 +61,21 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
   // ("فلترة صريحة داخل api قبل أي استعلام"), same as every other public
   // endpoint, not relied on as the only guard.
   const { id: websiteId, theme_id: _themeId, ...websiteConfig } = { ...website, theme_key: theme.key };
+
+  const { data: page, error: pageError } = await supabase
+    .from('website_pages')
+    .select('id')
+    .eq('website_id', websiteId)
+    .eq('key', pageKey)
+    .single();
+  if (pageError || !page) {
+    throw new Error(`Failed to load website page '${pageKey}': ${pageError?.message}`);
+  }
+
   const { data: sections, error: sectionsError } = await supabase
     .from('website_sections')
     .select('id, type, order_index, config')
-    .eq('website_id', websiteId)
+    .eq('page_id', page.id)
     .eq('is_visible', true)
     .order('order_index', { ascending: true });
   if (sectionsError) {

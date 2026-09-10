@@ -22,6 +22,15 @@ export interface PropertyGridSectionConfig {
   title_en?: string;
 }
 
+/** Same shape as PropertyGridSectionConfig, for the /projects page's listing anchor. */
+export interface ProjectGridSectionConfig {
+  title_ar?: string;
+  title_en?: string;
+}
+
+/** No editable fields — the property detail page's content (gallery/price/specs/contact) is entirely data-driven, not authorable. This type only exists so a tenant can toggle/reposition it among that page's other sections (a hero banner above it, for example). */
+export type PropertyDetailSectionConfig = Record<string, never>;
+
 /** Also used for `why_us` — same shape (title + one body of text), not a separate multi-item feature-list editor (kept deliberately simple). */
 export interface AboutSectionConfig {
   title_ar?: string;
@@ -41,6 +50,8 @@ export type FooterSectionConfig = Record<string, never>;
 export type WebsiteSectionConfigByType = {
   hero: HeroSectionConfig;
   property_grid: PropertyGridSectionConfig;
+  project_grid: ProjectGridSectionConfig;
+  property_detail: PropertyDetailSectionConfig;
   about: AboutSectionConfig;
   why_us: AboutSectionConfig;
   contact: ContactSectionConfig;

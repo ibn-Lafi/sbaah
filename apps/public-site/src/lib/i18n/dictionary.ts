@@ -14,11 +14,17 @@ const dictionaries = {
     languageSwitch: 'English',
     comingSoon: 'قريبًا',
     properties: 'العقارات',
+    projects: 'المشاريع',
+    about: 'من نحن',
+    contact: 'تواصل معنا',
   },
   en: {
     languageSwitch: 'العربية',
     comingSoon: 'Coming soon',
     properties: 'Properties',
+    projects: 'Projects',
+    about: 'About',
+    contact: 'Contact',
   },
 } satisfies Record<Locale, Record<string, string>>;
 

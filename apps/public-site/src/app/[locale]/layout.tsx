@@ -116,6 +116,15 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
             <Link href={locale === 'ar' ? '/properties' : '/en/properties'} className="text-sm hover:text-tenant-primary">
               {dict.properties}
             </Link>
+            <Link href={locale === 'ar' ? '/projects' : '/en/projects'} className="text-sm hover:text-tenant-primary">
+              {dict.projects}
+            </Link>
+            <Link href={locale === 'ar' ? '/about' : '/en/about'} className="text-sm hover:text-tenant-primary">
+              {dict.about}
+            </Link>
+            <Link href={locale === 'ar' ? '/contact' : '/en/contact'} className="text-sm hover:text-tenant-primary">
+              {dict.contact}
+            </Link>
             <Link href={otherLocaleHref} className="text-sm text-tenant-primary hover:underline">
               {dict.languageSwitch}
             </Link>

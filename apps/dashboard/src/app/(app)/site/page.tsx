@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, type FormEvent } from 'react';
-import { customDomainInputSchema, SUPPORTED_WEBSITE_FONTS, type Theme } from '@sbaah/shared';
+import { customDomainInputSchema, SUPPORTED_WEBSITE_FONTS, type Theme, type Website, type WebsitePageKey } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
@@ -12,18 +12,28 @@ import { FormError } from '@/components/ui/form-error';
 import { AssetUploader } from '@/components/website/asset-uploader';
 import { SectionList } from '@/components/website/section-list';
 import { ThemeGallery } from '@/components/website/theme-gallery';
+import { PageTabs } from '@/components/website/page-tabs';
+import { SitePreview } from '@/components/website/site-preview';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { ROLE_LABELS } from '@/lib/auth/role-labels';
+import { getPlatformRootDomain } from '@/lib/env/platform-root-domain';
 import {
   getWebsite,
   updateWebsite,
   uploadBanner,
   uploadLogo,
-  type WebsiteWithSections,
+  type WebsitePageWithSections,
 } from '@/lib/api/website';
 import { listThemes } from '@/lib/api/reference-data';
 import { getDomain, setDomain, removeDomain, type DomainInfo } from '@/lib/api/tenant';
 import { ApiRequestError } from '@/lib/api/client';
+
+const EDITOR_TABS = [
+  { key: 'sections', label: 'الأقسام' },
+  { key: 'pages', label: 'الصفحات' },
+  { key: 'colors', label: 'الألوان' },
+] as const;
+type EditorTab = (typeof EDITOR_TABS)[number]['key'];
 
 const HEX_PATTERN = /^#[0-9A-Fa-f]{6}$/;
 
@@ -132,14 +142,21 @@ function DomainSection({ accessToken, ownerOnly }: { accessToken: string; ownerO
 
 export default function WebsiteEditorPage() {
   const { me, accessToken } = useCurrentUser();
-  const [website, setWebsite] = useState<WebsiteWithSections | null>(null);
+  const [website, setWebsite] = useState<Website | null>(null);
+  const [pages, setPages] = useState<WebsitePageWithSections[]>([]);
   const [themes, setThemes] = useState<Theme[]>([]);
   const [colorDraft, setColorDraft] = useState({ primary: '', secondary: '' });
   const [error, setError] = useState<string | null>(null);
+  const [editorTab, setEditorTab] = useState<EditorTab>('sections');
+  const [activePageKey, setActivePageKey] = useState<WebsitePageKey>('home');
+
+  const siteUrl = `https://${me.tenant.subdomain}.${getPlatformRootDomain()}`;
+  const activePage = pages.find((p) => p.key === activePageKey);
 
   useEffect(() => {
     void getWebsite(accessToken).then((result) => {
       setWebsite(result.website);
+      setPages(result.pages);
       setColorDraft({ primary: result.website.primary_color, secondary: result.website.secondary_color });
     });
     void listThemes().then(setThemes);
@@ -196,7 +213,7 @@ export default function WebsiteEditorPage() {
       accountType={me.tenant.account_type}
       roleLabel={ROLE_LABELS[me.user.role]}
     >
-      <div className="flex max-w-[720px] flex-col gap-6">
+      <div className="flex max-w-[1100px] flex-col gap-6">
         <FormError message={error} />
 
         <Card className="p-8">
@@ -205,96 +222,139 @@ export default function WebsiteEditorPage() {
           <ThemeGallery themes={themes} selectedThemeId={website.theme_id} primaryColor={website.primary_color} onSelect={(themeId) => void saveTheme(themeId)} />
         </Card>
 
-        <Card className="p-8">
-          <h2 className="mb-4 text-base font-semibold text-text-primary">الألوان والخط</h2>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-1">
-              <label className="text-xs text-text-secondary">اللون الأساسي</label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="color"
-                  value={colorDraft.primary}
-                  onChange={(e) => setColorDraft((c) => ({ ...c, primary: e.target.value }))}
-                  onBlur={() => void saveColor('primary_color', colorDraft.primary)}
-                  className="h-[54px] w-[54px] shrink-0 cursor-pointer rounded-input border border-border-default"
-                />
-                <Input
-                  value={colorDraft.primary}
-                  onChange={(e) => setColorDraft((c) => ({ ...c, primary: e.target.value }))}
-                  onBlur={() => void saveColor('primary_color', colorDraft.primary)}
-                  dir="ltr"
-                  className="min-w-0 flex-1"
-                />
-              </div>
-            </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-xs text-text-secondary">اللون الثانوي</label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="color"
-                  value={colorDraft.secondary}
-                  onChange={(e) => setColorDraft((c) => ({ ...c, secondary: e.target.value }))}
-                  onBlur={() => void saveColor('secondary_color', colorDraft.secondary)}
-                  className="h-[54px] w-[54px] shrink-0 cursor-pointer rounded-input border border-border-default"
-                />
-                <Input
-                  value={colorDraft.secondary}
-                  onChange={(e) => setColorDraft((c) => ({ ...c, secondary: e.target.value }))}
-                  onBlur={() => void saveColor('secondary_color', colorDraft.secondary)}
-                  dir="ltr"
-                  className="min-w-0 flex-1"
-                />
-              </div>
-            </div>
+        <Card className="p-6">
+          <div className="mb-5 flex gap-2 border-b border-border-subtle pb-4">
+            {EDITOR_TABS.map((tab) => (
+              <button
+                key={tab.key}
+                type="button"
+                onClick={() => setEditorTab(tab.key)}
+                className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                  editorTab === tab.key ? 'bg-brand-surface text-brand' : 'text-text-secondary hover:text-text-primary'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
 
-          <div className="mt-4 flex flex-col gap-1">
-            <label className="text-xs text-text-secondary">الخط</label>
-            <Select value={website.font_family} onChange={(e) => void saveFont(e.target.value)}>
-              {SUPPORTED_WEBSITE_FONTS.map((font) => (
-                <option key={font} value={font}>
-                  {font}
-                </option>
-              ))}
-            </Select>
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_360px]">
+            <div>
+              {editorTab === 'pages' && (
+                <div className="flex flex-col gap-3">
+                  <p className="text-sm text-text-secondary">اختر صفحة لتعديل أقسامها — كل صفحة من صفحات موقعك الست الثابتة لها أقسامها الخاصة.</p>
+                  <PageTabs
+                    pages={pages}
+                    activeKey={activePageKey}
+                    onSelect={(key) => {
+                      setActivePageKey(key);
+                      setEditorTab('sections');
+                    }}
+                  />
+                </div>
+              )}
+
+              {editorTab === 'sections' && (
+                <div className="flex flex-col gap-3">
+                  <PageTabs pages={pages} activeKey={activePageKey} onSelect={setActivePageKey} />
+                  <p className="text-sm text-text-secondary">اسحب لإعادة الترتيب، وفعّل/عطّل أي قسم</p>
+                  {activePage && (
+                    <SectionList
+                      key={activePage.id}
+                      sections={activePage.website_sections}
+                      accessToken={accessToken}
+                      onChange={(sections) =>
+                        setPages((current) => current.map((p) => (p.id === activePage.id ? { ...p, website_sections: sections } : p)))
+                      }
+                    />
+                  )}
+                </div>
+              )}
+
+              {editorTab === 'colors' && (
+                <div className="flex flex-col gap-6">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs text-text-secondary">اللون الأساسي</label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={colorDraft.primary}
+                          onChange={(e) => setColorDraft((c) => ({ ...c, primary: e.target.value }))}
+                          onBlur={() => void saveColor('primary_color', colorDraft.primary)}
+                          className="h-[54px] w-[54px] shrink-0 cursor-pointer rounded-input border border-border-default"
+                        />
+                        <Input
+                          value={colorDraft.primary}
+                          onChange={(e) => setColorDraft((c) => ({ ...c, primary: e.target.value }))}
+                          onBlur={() => void saveColor('primary_color', colorDraft.primary)}
+                          dir="ltr"
+                          className="min-w-0 flex-1"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs text-text-secondary">اللون الثانوي</label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={colorDraft.secondary}
+                          onChange={(e) => setColorDraft((c) => ({ ...c, secondary: e.target.value }))}
+                          onBlur={() => void saveColor('secondary_color', colorDraft.secondary)}
+                          className="h-[54px] w-[54px] shrink-0 cursor-pointer rounded-input border border-border-default"
+                        />
+                        <Input
+                          value={colorDraft.secondary}
+                          onChange={(e) => setColorDraft((c) => ({ ...c, secondary: e.target.value }))}
+                          onBlur={() => void saveColor('secondary_color', colorDraft.secondary)}
+                          dir="ltr"
+                          className="min-w-0 flex-1"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs text-text-secondary">الخط</label>
+                    <Select value={website.font_family} onChange={(e) => void saveFont(e.target.value)}>
+                      {SUPPORTED_WEBSITE_FONTS.map((font) => (
+                        <option key={font} value={font}>
+                          {font}
+                        </option>
+                      ))}
+                    </Select>
+                  </div>
+
+                  <AssetUploader
+                    label="الشعار"
+                    currentUrl={website.logo_url}
+                    onUpload={async (file) => {
+                      const { website: updated } = await uploadLogo(accessToken, file);
+                      setWebsite((current) => (current ? { ...current, ...updated } : current));
+                    }}
+                    onRemove={async () => {
+                      const { website: updated } = await updateWebsite(accessToken, { logo_url: null });
+                      setWebsite((current) => (current ? { ...current, ...updated } : current));
+                    }}
+                  />
+                  <AssetUploader
+                    label="صورة البانر (قسم الغلاف الرئيسي)"
+                    currentUrl={website.banner_image_url}
+                    onUpload={async (file) => {
+                      const { website: updated } = await uploadBanner(accessToken, file);
+                      setWebsite((current) => (current ? { ...current, ...updated } : current));
+                    }}
+                    onRemove={async () => {
+                      const { website: updated } = await updateWebsite(accessToken, { banner_image_url: null });
+                      setWebsite((current) => (current ? { ...current, ...updated } : current));
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+
+            <SitePreview siteUrl={siteUrl} pageKey={activePageKey} />
           </div>
-        </Card>
-
-        <Card className="flex flex-col gap-6 p-8">
-          <AssetUploader
-            label="الشعار"
-            currentUrl={website.logo_url}
-            onUpload={async (file) => {
-              const { website: updated } = await uploadLogo(accessToken, file);
-              setWebsite((current) => (current ? { ...current, ...updated } : current));
-            }}
-            onRemove={async () => {
-              const { website: updated } = await updateWebsite(accessToken, { logo_url: null });
-              setWebsite((current) => (current ? { ...current, ...updated } : current));
-            }}
-          />
-          <AssetUploader
-            label="صورة البانر (قسم الغلاف الرئيسي)"
-            currentUrl={website.banner_image_url}
-            onUpload={async (file) => {
-              const { website: updated } = await uploadBanner(accessToken, file);
-              setWebsite((current) => (current ? { ...current, ...updated } : current));
-            }}
-            onRemove={async () => {
-              const { website: updated } = await updateWebsite(accessToken, { banner_image_url: null });
-              setWebsite((current) => (current ? { ...current, ...updated } : current));
-            }}
-          />
-        </Card>
-
-        <Card className="p-8">
-          <h2 className="mb-1 text-base font-semibold text-text-primary">أقسام الصفحة</h2>
-          <p className="mb-4 text-sm text-text-secondary">اسحب لإعادة الترتيب، وفعّل/عطّل أي قسم</p>
-          <SectionList
-            sections={website.website_sections}
-            accessToken={accessToken}
-            onChange={(sections) => setWebsite((current) => (current ? { ...current, website_sections: sections } : current))}
-          />
         </Card>
 
         <DomainSection accessToken={accessToken} ownerOnly={me.user.role === 'owner'} />

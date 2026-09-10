@@ -54,12 +54,23 @@ export type LeadStatus = (typeof LEAD_STATUSES)[number];
 export const WEBSITE_SECTION_TYPES = [
   'hero',
   'property_grid',
+  'project_grid',
+  'property_detail',
   'about',
   'why_us',
   'contact',
   'footer',
 ] as const;
 export type WebsiteSectionType = (typeof WEBSITE_SECTION_TYPES)[number];
+
+/**
+ * A website's fixed, non-user-creatable page set (متجر الثيمات follow-up:
+ * multi-page sites). Each tenant gets exactly these 6 pages (migration
+ * 0024) — there is deliberately no "add a page" flow, matching the same
+ * "curated, not a free canvas" philosophy as the section library itself.
+ */
+export const WEBSITE_PAGE_KEYS = ['home', 'properties', 'property_detail', 'projects', 'about', 'contact'] as const;
+export type WebsitePageKey = (typeof WEBSITE_PAGE_KEYS)[number];
 
 /** Not part of PRODUCT_SPEC's original data model — see docs/OTP_FLOW.md. */
 export const OTP_PURPOSES = ['register', 'login', 'reset_password'] as const;
