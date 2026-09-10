@@ -7,6 +7,7 @@ import { ConsoleShell } from '@/components/layout/console-shell';
 import { Card } from '@/components/ui/card';
 import { CityForm } from '@/components/cities/city-form';
 import { FormError } from '@/components/ui/form-error';
+import { LoadingState } from '@/components/ui/loading-state';
 import { useCurrentAdmin } from '@/lib/auth/current-admin-context';
 import { deleteCity, listCities, updateCity } from '@/lib/api/cities';
 import { ApiRequestError } from '@/lib/api/client';
@@ -38,7 +39,7 @@ export default function EditCityPage() {
     <ConsoleShell title="تعديل المدينة">
       <Card className="max-w-md p-6">
         {city === undefined ? (
-          <p className="text-center text-text-secondary">جارٍ التحميل...</p>
+          <LoadingState />
         ) : city === null ? (
           <p className="text-center text-text-secondary">المدينة غير موجودة</p>
         ) : (
@@ -53,7 +54,7 @@ export default function EditCityPage() {
             />
             <div className="mt-6 border-t border-border-subtle pt-4">
               <FormError message={deleteError} />
-              <button type="button" onClick={() => void handleDelete()} className="text-sm text-red-600 hover:underline">
+              <button type="button" onClick={() => void handleDelete()} className="text-sm text-danger hover:underline">
                 حذف هذه المدينة
               </button>
             </div>

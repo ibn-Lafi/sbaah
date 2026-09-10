@@ -6,6 +6,7 @@ import type { Tenant, TenantStatus } from '@sbaah/shared';
 import { ConsoleShell } from '@/components/layout/console-shell';
 import { Card } from '@/components/ui/card';
 import { Select } from '@/components/ui/select';
+import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { TenantStatusBadge } from '@/components/ui/status-badge';
 import { useCurrentAdmin } from '@/lib/auth/current-admin-context';
 import { listAccounts, type AccountListResponse } from '@/lib/api/accounts';
@@ -55,7 +56,7 @@ export default function AccountsPage() {
 
       <Card className="overflow-hidden">
         {result === null ? (
-          <p className="p-6 text-center text-text-secondary">جارٍ التحميل...</p>
+          <TableSkeleton columns={5} />
         ) : result.accounts.length === 0 ? (
           <p className="p-6 text-center text-text-secondary">لا توجد حسابات</p>
         ) : (

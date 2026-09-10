@@ -7,6 +7,7 @@ import { ConsoleShell } from '@/components/layout/console-shell';
 import { Card } from '@/components/ui/card';
 import { DistrictForm } from '@/components/districts/district-form';
 import { FormError } from '@/components/ui/form-error';
+import { LoadingState } from '@/components/ui/loading-state';
 import { useCurrentAdmin } from '@/lib/auth/current-admin-context';
 import { listCities } from '@/lib/api/cities';
 import { deleteDistrict, listDistricts, updateDistrict } from '@/lib/api/districts';
@@ -42,7 +43,7 @@ export default function EditDistrictPage() {
     <ConsoleShell title="تعديل الحي">
       <Card className="max-w-md p-6">
         {district === undefined || cities === null ? (
-          <p className="text-center text-text-secondary">جارٍ التحميل...</p>
+          <LoadingState />
         ) : district === null ? (
           <p className="text-center text-text-secondary">الحي غير موجود</p>
         ) : (
@@ -58,7 +59,7 @@ export default function EditDistrictPage() {
             />
             <div className="mt-6 border-t border-border-subtle pt-4">
               <FormError message={deleteError} />
-              <button type="button" onClick={() => void handleDelete()} className="text-sm text-red-600 hover:underline">
+              <button type="button" onClick={() => void handleDelete()} className="text-sm text-danger hover:underline">
                 حذف هذا الحي
               </button>
             </div>

@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { FormError } from '@/components/ui/form-error';
+import { LoadingState } from '@/components/ui/loading-state';
 import { useCurrentAdmin } from '@/lib/auth/current-admin-context';
 import { getPlatformSettings, updatePlatformSettings } from '@/lib/api/platform-settings';
 import { ApiRequestError } from '@/lib/api/client';
@@ -62,7 +63,7 @@ export default function PlatformSettingsPage() {
         </p>
 
         {draft === null ? (
-          <p className="text-text-secondary">جارٍ التحميل...</p>
+          <LoadingState />
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col gap-3">
             <div className="flex flex-col gap-2">

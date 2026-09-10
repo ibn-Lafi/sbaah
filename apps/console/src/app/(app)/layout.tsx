@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { getMe, type MeResponse } from '@/lib/api/console-auth';
 import { getAccessToken } from '@/lib/auth/session';
 import { CurrentAdminProvider } from '@/lib/auth/current-admin-context';
+import { ConsoleShellSkeleton } from '@/components/layout/console-shell-skeleton';
 
 /**
  * Guard for every authenticated `console` screen — same pattern as
@@ -43,7 +44,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }, [router]);
 
   if (!state) {
-    return <main className="flex min-h-screen items-center justify-center text-black/60">جارٍ التحميل...</main>;
+    return <ConsoleShellSkeleton />;
   }
 
   return (

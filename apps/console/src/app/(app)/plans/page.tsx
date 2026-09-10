@@ -6,6 +6,7 @@ import type { Plan } from '@sbaah/shared';
 import { ConsoleShell } from '@/components/layout/console-shell';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { useCurrentAdmin } from '@/lib/auth/current-admin-context';
 import { listPlans } from '@/lib/api/plans';
 
@@ -33,7 +34,7 @@ export default function PlansPage() {
 
       <Card className="overflow-hidden">
         {plans === null ? (
-          <p className="p-6 text-center text-text-secondary">جارٍ التحميل...</p>
+          <TableSkeleton columns={7} />
         ) : plans.length === 0 ? (
           <p className="p-6 text-center text-text-secondary">لا توجد باقات بعد</p>
         ) : (

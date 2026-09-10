@@ -6,6 +6,7 @@ import { ConsoleShell } from '@/components/layout/console-shell';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { useCurrentAdmin } from '@/lib/auth/current-admin-context';
 import { listThemes, updateTheme } from '@/lib/api/themes';
 
@@ -53,7 +54,7 @@ export default function ThemesPage() {
     <ConsoleShell title="الثيمات">
       <Card className="overflow-hidden">
         {themes === null ? (
-          <p className="p-6 text-center text-text-secondary">جارٍ التحميل...</p>
+          <TableSkeleton columns={6} />
         ) : themes.length === 0 ? (
           <p className="p-6 text-center text-text-secondary">لا توجد ثيمات بعد</p>
         ) : (

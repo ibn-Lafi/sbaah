@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/card';
 import { Select } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { FormError } from '@/components/ui/form-error';
+import { LoadingState } from '@/components/ui/loading-state';
 import { TenantStatusBadge } from '@/components/ui/status-badge';
 import { useCurrentAdmin } from '@/lib/auth/current-admin-context';
 import { getAccount, updateAccount, type DnsRecord } from '@/lib/api/accounts';
@@ -106,7 +107,7 @@ export default function AccountDetailPage() {
   return (
     <ConsoleShell title="تفاصيل الحساب">
       {account === null ? (
-        <p className="text-center text-text-secondary">جارٍ التحميل...</p>
+        <LoadingState />
       ) : (
         <div className="flex flex-col gap-5">
           <Card className="flex items-center justify-between p-6">
@@ -225,7 +226,7 @@ export default function AccountDetailPage() {
                     type="button"
                     disabled={busy}
                     onClick={() => void handleRejectDomain()}
-                    className="text-sm font-medium text-red-600 hover:underline disabled:opacity-50"
+                    className="text-sm font-medium text-danger hover:underline disabled:opacity-50"
                   >
                     رفض الطلب
                   </button>

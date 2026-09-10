@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select } from '@/components/ui/select';
 import { FormError } from '@/components/ui/form-error';
+import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { useCurrentAdmin } from '@/lib/auth/current-admin-context';
 import { listCities } from '@/lib/api/cities';
 import { deleteDistrict, listDistricts } from '@/lib/api/districts';
@@ -68,7 +69,7 @@ export default function DistrictsPage() {
 
       <Card className="mt-4 overflow-hidden">
         {districts === null ? (
-          <p className="p-6 text-center text-text-secondary">جارٍ التحميل...</p>
+          <TableSkeleton columns={4} />
         ) : districts.length === 0 ? (
           <p className="p-6 text-center text-text-secondary">لا توجد أحياء بعد</p>
         ) : (
@@ -94,7 +95,7 @@ export default function DistrictsPage() {
                   </td>
                   <td className="px-5 py-3 text-text-secondary">{cityNameById[district.city_id] ?? '—'}</td>
                   <td className="px-5 py-3 text-left">
-                    <button type="button" onClick={() => void handleDelete(district)} className="text-red-600 hover:underline">
+                    <button type="button" onClick={() => void handleDelete(district)} className="text-danger hover:underline">
                       حذف
                     </button>
                   </td>

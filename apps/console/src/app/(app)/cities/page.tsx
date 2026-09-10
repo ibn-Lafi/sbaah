@@ -7,6 +7,7 @@ import { ConsoleShell } from '@/components/layout/console-shell';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { FormError } from '@/components/ui/form-error';
+import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { useCurrentAdmin } from '@/lib/auth/current-admin-context';
 import { deleteCity, listCities } from '@/lib/api/cities';
 import { ApiRequestError } from '@/lib/api/client';
@@ -43,7 +44,7 @@ export default function CitiesPage() {
 
       <Card className="mt-4 overflow-hidden">
         {cities === null ? (
-          <p className="p-6 text-center text-text-secondary">جارٍ التحميل...</p>
+          <TableSkeleton columns={3} />
         ) : cities.length === 0 ? (
           <p className="p-6 text-center text-text-secondary">لا توجد مدن بعد</p>
         ) : (
@@ -67,7 +68,7 @@ export default function CitiesPage() {
                     {city.name_en}
                   </td>
                   <td className="px-5 py-3 text-left">
-                    <button type="button" onClick={() => void handleDelete(city)} className="text-red-600 hover:underline">
+                    <button type="button" onClick={() => void handleDelete(city)} className="text-danger hover:underline">
                       حذف
                     </button>
                   </td>

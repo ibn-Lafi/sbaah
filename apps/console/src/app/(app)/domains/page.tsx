@@ -5,6 +5,7 @@ import Link from 'next/link';
 import type { Tenant } from '@sbaah/shared';
 import { ConsoleShell } from '@/components/layout/console-shell';
 import { Card } from '@/components/ui/card';
+import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { useCurrentAdmin } from '@/lib/auth/current-admin-context';
 import { listAccounts } from '@/lib/api/accounts';
 
@@ -31,7 +32,7 @@ export default function DomainRequestsPage() {
       </p>
       <Card className="overflow-hidden">
         {accounts === null ? (
-          <p className="p-6 text-center text-text-secondary">جارٍ التحميل...</p>
+          <TableSkeleton columns={2} />
         ) : accounts.length === 0 ? (
           <p className="p-6 text-center text-text-secondary">لا توجد طلبات دومين بانتظار المراجعة</p>
         ) : (

@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import type { Plan } from '@sbaah/shared';
 import { ConsoleShell } from '@/components/layout/console-shell';
 import { Card } from '@/components/ui/card';
+import { LoadingState } from '@/components/ui/loading-state';
 import { PlanForm } from '@/components/plans/plan-form';
 import { useCurrentAdmin } from '@/lib/auth/current-admin-context';
 import { listPlans, updatePlan } from '@/lib/api/plans';
@@ -30,7 +31,7 @@ export default function EditPlanPage() {
     <ConsoleShell title="تعديل الباقة">
       <Card className="max-w-xl p-6">
         {plan === undefined ? (
-          <p className="text-center text-text-secondary">جارٍ التحميل...</p>
+          <LoadingState />
         ) : plan === null ? (
           <p className="text-center text-text-secondary">الباقة غير موجودة</p>
         ) : (
