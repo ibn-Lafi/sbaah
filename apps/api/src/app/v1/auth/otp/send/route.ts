@@ -1,5 +1,5 @@
 import type { NextRequest } from 'next/server';
-import { createServiceRoleClient, requestOtpSchema } from '@sbaah/shared';
+import { createServiceRoleClient, requestOtpSchema, REGISTRATION_OPEN } from '@sbaah/shared';
 import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { sendOtpSms } from '@/lib/authentica/client';
 import { generateOtpCode } from '@/lib/otp/generate-code';
@@ -8,6 +8,15 @@ import { computeExpiresAt, hasExceededSendLimit } from '@/lib/otp/otp-policy';
 
 export const POST = withErrorHandling(async (request: NextRequest) => {
   const { phone, purpose } = requestOtpSchema.parse(await request.json());
+
+  // Registration is paused (packages/shared/src/config.ts) while the paid
+  // plan-selection step is being built — stop new signups at the very
+  // first step, not just at the final POST /v1/auth/register, so nobody
+  // burns an OTP send on a flow they can't finish anyway.
+  if (purpose === 'register' && !REGISTRATION_OPEN) {
+    throw new ApiError(503, 'registration_closed', 'التسجيل الجديد متوقف مؤقتًا، سيعاد فتحه قريبًا');
+  }
+
   const supabase = createServiceRoleClient();
 
   // Independent reads — no reason to make the customer wait through them

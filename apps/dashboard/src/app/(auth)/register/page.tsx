@@ -8,6 +8,7 @@ import {
   passwordSchema,
   saudiPhoneSchema,
   tenantRegistrationSchema,
+  REGISTRATION_OPEN,
   type AccountType,
   type TenantRegistrationInput,
 } from '@sbaah/shared';
@@ -51,6 +52,22 @@ const ACCOUNT_TYPE_LABELS: Record<AccountType, string> = {
  * change it after registering), so the step count stays honest at 4
  * rather than claiming "خطوة X من 6" for steps that don't exist yet.
  */
+/** التسجيل متوقف مؤقتًا (packages/shared/src/config.ts) ريثما تُبنى خطوة اختيار الباقة والدفع عبر StreamPay. */
+function RegistrationClosedNotice() {
+  return (
+    <Card className="p-8">
+      <h1 className="mb-2 text-2xl font-bold text-text-primary">التسجيل متوقف مؤقتًا</h1>
+      <p className="text-sm text-text-secondary">
+        نعمل حاليًا على تحديث خطوات إنشاء الحساب، وسنعيد فتح التسجيل قريبًا. لديك حساب بالفعل؟{' '}
+        <Link href="/login" className="font-semibold text-brand hover:underline">
+          تسجيل الدخول
+        </Link>
+        .
+      </p>
+    </Card>
+  );
+}
+
 export default function RegisterPage() {
   const router = useRouter();
   const [step, setStep] = useState<Step>('phone');
@@ -189,6 +206,10 @@ export default function RegisterPage() {
   }
 
   const stepIndex = STEPS.indexOf(step);
+
+  if (!REGISTRATION_OPEN) {
+    return <RegistrationClosedNotice />;
+  }
 
   return (
     <>

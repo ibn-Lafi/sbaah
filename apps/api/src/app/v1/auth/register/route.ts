@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { randomUUID } from 'node:crypto';
-import { createServiceRoleClient, registerSchema, type TenantRegistrationInput } from '@sbaah/shared';
+import { createServiceRoleClient, registerSchema, REGISTRATION_OPEN, type TenantRegistrationInput } from '@sbaah/shared';
 import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { verifyTempToken } from '@/lib/auth/temp-token';
 import { mintSessionForUser } from '@/lib/auth/mint-session';
@@ -29,6 +29,10 @@ function orgFields(account: TenantRegistrationInput): { cr_number: string | null
 }
 
 export const POST = withErrorHandling(async (request: NextRequest) => {
+  if (!REGISTRATION_OPEN) {
+    throw new ApiError(503, 'registration_closed', 'التسجيل الجديد متوقف مؤقتًا، سيعاد فتحه قريبًا');
+  }
+
   const { registration_token, password, account } = registerSchema.parse(await request.json());
 
   let payload;
