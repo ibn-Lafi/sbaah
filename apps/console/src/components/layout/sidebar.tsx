@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { BrandMark } from '@/components/ui/brand-mark';
@@ -9,9 +9,13 @@ import { NAV_ITEMS } from './nav-items';
 import { useCurrentAdmin } from '@/lib/auth/current-admin-context';
 import { signOut } from '@/lib/auth/session';
 
-/** Matches apps/dashboard/src/components/layout/sidebar.tsx's structure (216px, icon nav, account switcher) — flat nav (no groups) and just a sign-out action (no "حسابي"/"الفوترة" — console has neither concept, "إعدادات المنصة" is its own top-level nav item instead). */
-export function Sidebar() {
-  const pathname = usePathname();
+interface SidebarContentProps {
+  pathname: string;
+  onNavigate?: () => void;
+}
+
+/** The nav list + account switcher, shared between the desktop-fixed and mobile-drawer renderings below so they never drift apart. */
+function SidebarContent({ pathname, onNavigate }: SidebarContentProps) {
   const router = useRouter();
   const { admin } = useCurrentAdmin();
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
@@ -21,7 +25,7 @@ export function Sidebar() {
   }
 
   return (
-    <div className="flex w-[216px] flex-none flex-col border-e border-border-subtle bg-surface-card p-[10px_10px_18px]">
+    <>
       <div className="px-2 pb-[18px]">
         <BrandMark />
       </div>
@@ -34,6 +38,7 @@ export function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
+              onClick={onNavigate}
               className={`flex h-[34px] flex-none items-center gap-2 rounded-[9px] px-[10px] text-[13px] ${
                 active ? 'bg-brand-surface font-semibold text-brand' : 'font-normal text-text-tertiary'
               }`}
@@ -70,6 +75,45 @@ export function Sidebar() {
           </div>
         )}
       </div>
-    </div>
+    </>
+  );
+}
+
+interface SidebarProps {
+  /** Mobile drawer visibility (< md) — the fixed desktop sidebar (≥ md) always renders regardless of this. */
+  mobileOpen: boolean;
+  onMobileClose: () => void;
+}
+
+/** Matches apps/dashboard/src/components/layout/sidebar.tsx's structure (216px, icon nav, account switcher), plus a slide-in drawer below the `md` breakpoint (UI/UX audit finding — console had no responsive handling at all below ~4 scattered breakpoint classes app-wide). */
+export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (!mobileOpen) return;
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') onMobileClose();
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [mobileOpen, onMobileClose]);
+
+  return (
+    <>
+      {/* Desktop: always visible, static */}
+      <div className="hidden w-[216px] flex-none flex-col border-e border-border-subtle bg-surface-card p-[10px_10px_18px] md:flex">
+        <SidebarContent pathname={pathname} />
+      </div>
+
+      {/* Mobile: slide-in drawer, only mounted while open */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-40 flex md:hidden">
+          <div className="absolute inset-0 bg-black/40" onClick={onMobileClose} />
+          <div className="relative flex w-[240px] flex-none flex-col bg-surface-card p-[10px_10px_18px] shadow-[0_0_30px_rgba(31,29,34,.25)]">
+            <SidebarContent pathname={pathname} onNavigate={onMobileClose} />
+          </div>
+        </div>
+      )}
+    </>
   );
 }
