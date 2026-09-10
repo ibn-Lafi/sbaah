@@ -26,18 +26,23 @@
 -- founder has now explicitly asked for these specific three numbers on
 -- the public site footer, matching real KSA business-transparency norms
 -- (a CR number in an e-commerce footer is standard, expected practice).
+--
+-- Every statement below is written to be safely re-runnable (if not
+-- exists / drop-if-exists-then-create) — this migration was run partway
+-- once already in one project, so a plain re-run must not fail on
+-- already-applied pieces.
 -- =============================================================================
 
-alter table websites add column announcement_bar_text text;
-alter table websites add column footer_description text;
+alter table websites add column if not exists announcement_bar_text text;
+alter table websites add column if not exists footer_description text;
 
-alter table tenants add column social_instagram text;
-alter table tenants add column social_tiktok text;
-alter table tenants add column social_whatsapp text;
-alter table tenants add column social_snapchat text;
-alter table tenants add column social_phone text;
+alter table tenants add column if not exists social_instagram text;
+alter table tenants add column if not exists social_tiktok text;
+alter table tenants add column if not exists social_whatsapp text;
+alter table tenants add column if not exists social_snapchat text;
+alter table tenants add column if not exists social_phone text;
 
-drop function resolve_public_tenant_chrome(text, text);
+drop function if exists resolve_public_tenant_chrome(text, text);
 
 create function resolve_public_tenant_chrome(p_subdomain text, p_custom_domain text)
 returns table(
@@ -76,7 +81,7 @@ grant execute on function resolve_public_tenant_chrome(text, text) to anon, auth
 -- ---------------------------------------------------------------------------
 -- website_custom_pages
 -- ---------------------------------------------------------------------------
-create table website_custom_pages (
+create table if not exists website_custom_pages (
   id uuid primary key default gen_random_uuid(),
   website_id uuid not null references websites (id) on delete cascade,
   title text not null,
@@ -88,8 +93,9 @@ create table website_custom_pages (
   unique (website_id, slug)
 );
 
-create index website_custom_pages_website_id_idx on website_custom_pages (website_id);
+create index if not exists website_custom_pages_website_id_idx on website_custom_pages (website_id);
 
+drop trigger if exists website_custom_pages_set_updated_at on website_custom_pages;
 create trigger website_custom_pages_set_updated_at
   before update on website_custom_pages
   for each row
@@ -97,6 +103,7 @@ create trigger website_custom_pages_set_updated_at
 
 alter table website_custom_pages enable row level security;
 
+drop policy if exists website_custom_pages_tenant_manage on website_custom_pages;
 create policy website_custom_pages_tenant_manage on website_custom_pages
   for all to authenticated
   using (
@@ -116,6 +123,7 @@ create policy website_custom_pages_tenant_manage on website_custom_pages
     )
   );
 
+drop policy if exists website_custom_pages_public_select on website_custom_pages;
 create policy website_custom_pages_public_select on website_custom_pages
   for select to anon
   using (
