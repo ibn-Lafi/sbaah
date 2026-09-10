@@ -1,16 +1,9 @@
 import Link from 'next/link';
-import type { HeroSectionConfig } from '@sbaah/shared';
 import type { Locale } from '@/lib/i18n/locales';
 import { pickLocalized } from '@/lib/i18n/localized-field';
+import type { HeroSectionProps } from '../types';
 
 const CTA_LABEL: Record<Locale, string> = { ar: 'تصفّح العقارات', en: 'Browse properties' };
-
-interface HeroSectionProps {
-  locale: Locale;
-  config: HeroSectionConfig;
-  bannerUrl: string | null;
-  tenantName: string;
-}
 
 /** No `config.title_*` fallback text baked in (unlike property_grid/about's fallback titles) — a hero with no authored title just falls back to the tenant's own name, always meaningful with zero editor input. */
 export function HeroSection({ locale, config, bannerUrl, tenantName }: HeroSectionProps) {

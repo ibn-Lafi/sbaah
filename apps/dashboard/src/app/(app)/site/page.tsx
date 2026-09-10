@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { FormError } from '@/components/ui/form-error';
 import { AssetUploader } from '@/components/website/asset-uploader';
 import { SectionList } from '@/components/website/section-list';
+import { ThemeGallery } from '@/components/website/theme-gallery';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { ROLE_LABELS } from '@/lib/auth/role-labels';
 import {
@@ -199,17 +200,9 @@ export default function WebsiteEditorPage() {
         <FormError message={error} />
 
         <Card className="p-8">
-          <h2 className="mb-1 text-base font-semibold text-text-primary">الثيم</h2>
-          <p className="mb-4 text-sm text-text-secondary">
-            نقطة الانطلاق قبل تخصيص الألوان والخط أدناه — ثيم واحد متاح حاليًا، وستضاف ثيمات أخرى لاحقًا لنفس القائمة
-          </p>
-          <Select value={website.theme_id} onChange={(e) => void saveTheme(e.target.value)}>
-            {themes.map((theme) => (
-              <option key={theme.id} value={theme.id}>
-                {theme.name_ar}
-              </option>
-            ))}
-          </Select>
+          <h2 className="mb-1 text-base font-semibold text-text-primary">متجر الثيمات</h2>
+          <p className="mb-4 text-sm text-text-secondary">اختر شكل موقعك — التخصيص أدناه (الألوان والخط والشعار) ينطبق على أي ثيم تختاره</p>
+          <ThemeGallery themes={themes} selectedThemeId={website.theme_id} primaryColor={website.primary_color} onSelect={(themeId) => void saveTheme(themeId)} />
         </Card>
 
         <Card className="p-8">

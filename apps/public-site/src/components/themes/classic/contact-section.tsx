@@ -1,15 +1,7 @@
-import type { ContactSectionConfig } from '@sbaah/shared';
-import type { Locale } from '@/lib/i18n/locales';
 import { pickLocalized } from '@/lib/i18n/localized-field';
 import { DEFAULT_SECTION_TITLE } from '@/lib/website/section-labels';
 import { WhatsappButton } from '@/components/properties/whatsapp-button';
-
-interface ContactSectionProps {
-  locale: Locale;
-  config: ContactSectionConfig;
-  whatsappPhone: string;
-  tenantId: string;
-}
+import type { ContactSectionProps } from '../types';
 
 export function ContactSection({ locale, config, whatsappPhone, tenantId }: ContactSectionProps) {
   const title = pickLocalized(locale, config.title_ar || DEFAULT_SECTION_TITLE.contact.ar, config.title_en ?? null) || DEFAULT_SECTION_TITLE.contact[locale];

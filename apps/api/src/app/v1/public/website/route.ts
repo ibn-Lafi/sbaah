@@ -38,11 +38,19 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
 
   const { data: website, error: websiteError } = await supabase
     .from('websites')
-    .select('id, primary_color, secondary_color, font_family, logo_url, banner_image_url')
+    .select('id, theme_id, primary_color, secondary_color, font_family, logo_url, banner_image_url')
     .eq('tenant_id', tenantId)
     .single();
   if (websiteError || !website) {
     throw new Error(`Failed to load public website config: ${websiteError?.message}`);
+  }
+
+  // Resolves the theme's stable code-reference `key` (e.g. 'classic') from
+  // its uuid — public-site's theme registry (apps/public-site/src/components/themes)
+  // looks components up by `key`, never by the row's `id`.
+  const { data: theme, error: themeError } = await supabase.from('themes').select('key').eq('id', website.theme_id).single();
+  if (themeError || !theme) {
+    throw new Error(`Failed to load website theme: ${themeError?.message}`);
   }
 
   // websites_public_select/website_sections_public_select (RLS,
@@ -50,7 +58,7 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
   // sections — re-stated explicitly per PRODUCT_SPEC section 10
   // ("فلترة صريحة داخل api قبل أي استعلام"), same as every other public
   // endpoint, not relied on as the only guard.
-  const { id: websiteId, ...websiteConfig } = website;
+  const { id: websiteId, theme_id: _themeId, ...websiteConfig } = { ...website, theme_key: theme.key };
   const { data: sections, error: sectionsError } = await supabase
     .from('website_sections')
     .select('id, type, order_index, config')

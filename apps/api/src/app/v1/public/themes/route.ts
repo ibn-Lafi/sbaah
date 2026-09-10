@@ -11,7 +11,7 @@ import { okResponse, withErrorHandling } from '@/lib/http';
  */
 export const GET = withErrorHandling(async () => {
   const supabase = createAnonClient();
-  const { data, error } = await supabase.from('themes').select('*').eq('is_active', true);
+  const { data, error } = await supabase.from('themes').select('*').eq('is_active', true).order('order_index', { ascending: true });
   if (error) {
     throw new Error(`Failed to list themes: ${error.message}`);
   }

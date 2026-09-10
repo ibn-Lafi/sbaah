@@ -1,13 +1,6 @@
-import type { AboutSectionConfig } from '@sbaah/shared';
-import type { Locale } from '@/lib/i18n/locales';
 import { pickLocalized } from '@/lib/i18n/localized-field';
 import { DEFAULT_SECTION_TITLE } from '@/lib/website/section-labels';
-
-interface TextSectionProps {
-  type: 'about' | 'why_us';
-  locale: Locale;
-  config: AboutSectionConfig;
-}
+import type { TextSectionProps } from '../types';
 
 /**
  * Used for both `about` and `why_us` (same config shape). Unlike Hero's

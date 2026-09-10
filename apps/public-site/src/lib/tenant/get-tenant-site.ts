@@ -5,7 +5,8 @@ import { getHost } from './get-host';
 
 export interface TenantSite {
   tenant: { id: string; name_ar: string; name_en: string; account_type: AccountType };
-  website: Omit<Website, 'id' | 'tenant_id' | 'theme_id'>;
+  /** `theme_key` (e.g. 'classic', 'modern') — resolved server-side by `api` from `theme_id`, what the theme registry looks components up by. */
+  website: Omit<Website, 'id' | 'tenant_id' | 'theme_id'> & { theme_key: string };
   sections: Pick<WebsiteSection, 'id' | 'type' | 'order_index' | 'config'>[];
   /** The tenant Owner's phone (task 34/42's WhatsApp click-to-chat button) — `users` has no anon SELECT policy, so `api` resolves this server-side, never queried directly from here. */
   whatsapp_phone: string;

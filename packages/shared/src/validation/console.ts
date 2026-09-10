@@ -78,3 +78,22 @@ export const districtListQuerySchema = z.object({
   city_id: z.string().uuid().optional(),
 });
 export type DistrictListQuery = z.infer<typeof districtListQuerySchema>;
+
+/**
+ * themes (متجر الثيمات) — console manages only metadata for existing,
+ * code-defined themes: display name, active/inactive, and gallery order.
+ * No `key` here and deliberately no create/delete endpoint — a theme's
+ * `key` and its component set are defined in code (public-site's theme
+ * registry) and shipped via migration, never created from this form.
+ */
+export const themeUpdateSchema = z
+  .object({
+    name_ar: z.string().min(2, 'اسم الثيم (عربي) مطلوب').optional(),
+    name_en: z.string().min(2, 'اسم الثيم (إنجليزي) مطلوب').optional(),
+    is_active: z.boolean().optional(),
+    order_index: z.number().int().nonnegative().optional(),
+  })
+  .refine((data) => Object.values(data).some((value) => value !== undefined), {
+    message: 'يجب تحديد حقل واحد على الأقل للتحديث',
+  });
+export type ThemeUpdateInput = z.infer<typeof themeUpdateSchema>;

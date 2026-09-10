@@ -72,9 +72,12 @@ export interface AppUser {
 
 export interface Theme {
   id: string;
+  /** Stable code-reference slug (e.g. 'classic', 'modern') — public-site's theme registry looks components up by this, never by `id`. */
+  key: string;
   name_ar: string;
   name_en: string;
   is_active: boolean;
+  order_index: number;
 }
 
 export interface Website {
