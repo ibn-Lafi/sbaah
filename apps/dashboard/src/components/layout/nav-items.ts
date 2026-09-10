@@ -22,7 +22,7 @@ export const NAV_ITEMS: NavItem[] = [
   { href: '/buildings', label: 'العمارات' },
   { href: '/rentals', label: 'الإيجارات' },
   { href: '/leads', label: 'العملاء المحتملون' },
-  { href: '/site', label: 'محرر الموقع', roles: ['owner', 'admin'] },
+  { href: '/site', label: 'متجر الثيمات', roles: ['owner', 'admin'] },
   { href: '/team', label: 'الفريق', roles: ['owner', 'admin'] },
   { href: '/settings', label: 'الإعدادات', roles: ['owner', 'admin'] },
   { href: '/billing', label: 'الفوترة والاشتراك', roles: ['owner'] },
