@@ -1,5 +1,11 @@
 import type { HTMLAttributes } from 'react';
 
+/** Matches apps/dashboard/src/components/ui/card.tsx. */
 export function Card({ className = '', ...props }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={`rounded-2xl bg-white shadow-[0_2px_12px_rgba(31,29,34,.08)] ${className}`} {...props} />;
+  return (
+    <div
+      className={`rounded-card bg-surface-card shadow-[0_2px_12px_rgba(31,29,34,.06)] ${className}`}
+      {...props}
+    />
+  );
 }

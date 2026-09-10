@@ -26,17 +26,17 @@ export default function DomainRequestsPage() {
 
   return (
     <ConsoleShell title="طلبات الدومين المخصص">
-      <p className="mb-4 text-sm text-black/60">
+      <p className="mb-4 text-sm text-text-secondary">
         كل حساب طلب ربط نطاق مخصص ولم تتم مراجعته بعد. راجعوا DNS يدويًا (لا تحقق تلقائي حاليًا) من صفحة الحساب نفسها.
       </p>
       <Card className="overflow-hidden">
         {accounts === null ? (
-          <p className="p-6 text-center text-black/60">جارٍ التحميل...</p>
+          <p className="p-6 text-center text-text-secondary">جارٍ التحميل...</p>
         ) : accounts.length === 0 ? (
-          <p className="p-6 text-center text-black/60">لا توجد طلبات دومين بانتظار المراجعة</p>
+          <p className="p-6 text-center text-text-secondary">لا توجد طلبات دومين بانتظار المراجعة</p>
         ) : (
           <table className="w-full text-sm">
-            <thead className="bg-black/[0.03] text-right text-black/60">
+            <thead className="bg-surface-header text-right text-text-secondary">
               <tr>
                 <th className="px-5 py-3 font-medium">الحساب</th>
                 <th className="px-5 py-3 font-medium">الدومين المطلوب</th>
@@ -44,13 +44,13 @@ export default function DomainRequestsPage() {
             </thead>
             <tbody>
               {accounts.map((account) => (
-                <tr key={account.id} className="border-t border-black/10">
+                <tr key={account.id} className="border-t border-border-subtle">
                   <td className="px-5 py-3">
                     <Link href={`/accounts/${account.id}`} className="font-medium hover:text-brand">
                       {account.name_ar}
                     </Link>
                   </td>
-                  <td className="px-5 py-3 text-black/60" dir="ltr">
+                  <td className="px-5 py-3 text-text-secondary" dir="ltr">
                     {account.custom_domain}
                   </td>
                 </tr>

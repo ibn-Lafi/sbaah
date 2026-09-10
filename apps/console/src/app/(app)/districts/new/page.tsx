@@ -23,9 +23,9 @@ export default function NewDistrictPage() {
     <ConsoleShell title="حي جديد">
       <Card className="max-w-md p-6">
         {cities === null ? (
-          <p className="text-center text-black/60">جارٍ التحميل...</p>
+          <p className="text-center text-text-secondary">جارٍ التحميل...</p>
         ) : cities.length === 0 ? (
-          <p className="text-center text-black/60">أضيفوا مدينة أولًا قبل إضافة حي</p>
+          <p className="text-center text-text-secondary">أضيفوا مدينة أولًا قبل إضافة حي</p>
         ) : (
           <DistrictForm
             cities={cities}

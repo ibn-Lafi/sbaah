@@ -50,17 +50,17 @@ export default function AccountsPage() {
             </option>
           ))}
         </Select>
-        {result && <span className="text-sm text-black/60">{result.total} حساب</span>}
+        {result && <span className="text-sm text-text-secondary">{result.total} حساب</span>}
       </div>
 
       <Card className="overflow-hidden">
         {result === null ? (
-          <p className="p-6 text-center text-black/60">جارٍ التحميل...</p>
+          <p className="p-6 text-center text-text-secondary">جارٍ التحميل...</p>
         ) : result.accounts.length === 0 ? (
-          <p className="p-6 text-center text-black/60">لا توجد حسابات</p>
+          <p className="p-6 text-center text-text-secondary">لا توجد حسابات</p>
         ) : (
           <table className="w-full text-sm">
-            <thead className="bg-black/[0.03] text-right text-black/60">
+            <thead className="bg-surface-header text-right text-text-secondary">
               <tr>
                 <th className="px-5 py-3 font-medium">الاسم</th>
                 <th className="px-5 py-3 font-medium">النوع</th>
@@ -71,20 +71,20 @@ export default function AccountsPage() {
             </thead>
             <tbody>
               {result.accounts.map((account: Tenant) => (
-                <tr key={account.id} className="border-t border-black/10">
+                <tr key={account.id} className="border-t border-border-subtle">
                   <td className="px-5 py-3">
                     <Link href={`/accounts/${account.id}`} className="font-medium hover:text-brand">
                       {account.name_ar}
                     </Link>
                   </td>
-                  <td className="px-5 py-3 text-black/60">{ACCOUNT_TYPE_LABELS[account.account_type]}</td>
-                  <td className="px-5 py-3 text-black/60" dir="ltr">
+                  <td className="px-5 py-3 text-text-secondary">{ACCOUNT_TYPE_LABELS[account.account_type]}</td>
+                  <td className="px-5 py-3 text-text-secondary" dir="ltr">
                     {account.subdomain}
                   </td>
                   <td className="px-5 py-3">
                     <TenantStatusBadge status={account.status} />
                   </td>
-                  <td className="px-5 py-3 text-black/60" dir="ltr">
+                  <td className="px-5 py-3 text-text-secondary" dir="ltr">
                     {new Date(account.created_at).toLocaleDateString('en-GB')}
                   </td>
                 </tr>
@@ -100,18 +100,18 @@ export default function AccountsPage() {
             type="button"
             disabled={page <= 1}
             onClick={() => setPage((p) => p - 1)}
-            className="rounded-lg border border-black/15 px-3 py-1.5 disabled:opacity-40"
+            className="rounded-lg border border-border-default px-3 py-1.5 disabled:opacity-40"
           >
             السابق
           </button>
-          <span className="text-black/60">
+          <span className="text-text-secondary">
             صفحة {page} من {totalPages}
           </span>
           <button
             type="button"
             disabled={page >= totalPages}
             onClick={() => setPage((p) => p + 1)}
-            className="rounded-lg border border-black/15 px-3 py-1.5 disabled:opacity-40"
+            className="rounded-lg border border-border-default px-3 py-1.5 disabled:opacity-40"
           >
             التالي
           </button>

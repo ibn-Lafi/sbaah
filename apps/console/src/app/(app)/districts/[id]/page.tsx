@@ -42,9 +42,9 @@ export default function EditDistrictPage() {
     <ConsoleShell title="تعديل الحي">
       <Card className="max-w-md p-6">
         {district === undefined || cities === null ? (
-          <p className="text-center text-black/60">جارٍ التحميل...</p>
+          <p className="text-center text-text-secondary">جارٍ التحميل...</p>
         ) : district === null ? (
-          <p className="text-center text-black/60">الحي غير موجود</p>
+          <p className="text-center text-text-secondary">الحي غير موجود</p>
         ) : (
           <>
             <DistrictForm
@@ -56,7 +56,7 @@ export default function EditDistrictPage() {
                 router.push('/districts');
               }}
             />
-            <div className="mt-6 border-t border-black/10 pt-4">
+            <div className="mt-6 border-t border-border-subtle pt-4">
               <FormError message={deleteError} />
               <button type="button" onClick={() => void handleDelete()} className="text-sm text-red-600 hover:underline">
                 حذف هذا الحي

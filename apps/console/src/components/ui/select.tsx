@@ -1,9 +1,10 @@
 import type { SelectHTMLAttributes } from 'react';
 
+/** Matches apps/dashboard/src/components/ui/select.tsx. */
 export function Select({ className = '', ...props }: SelectHTMLAttributes<HTMLSelectElement>) {
   return (
     <select
-      className={`h-11 rounded-lg border border-black/15 bg-white px-3 text-sm outline-none focus:border-brand ${className}`}
+      className={`h-[54px] rounded-input border border-border-default px-4 text-base text-text-primary outline-none focus:border-text-primary focus:shadow-[0_0_0_2px_rgba(31,29,34,.08)] ${className}`}
       {...props}
     />
   );

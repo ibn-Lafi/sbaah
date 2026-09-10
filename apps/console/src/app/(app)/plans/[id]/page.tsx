@@ -30,9 +30,9 @@ export default function EditPlanPage() {
     <ConsoleShell title="تعديل الباقة">
       <Card className="max-w-xl p-6">
         {plan === undefined ? (
-          <p className="text-center text-black/60">جارٍ التحميل...</p>
+          <p className="text-center text-text-secondary">جارٍ التحميل...</p>
         ) : plan === null ? (
-          <p className="text-center text-black/60">الباقة غير موجودة</p>
+          <p className="text-center text-text-secondary">الباقة غير موجودة</p>
         ) : (
           <PlanForm
             initial={plan}

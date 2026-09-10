@@ -53,12 +53,12 @@ export default function ThemesPage() {
     <ConsoleShell title="الثيمات">
       <Card className="overflow-hidden">
         {themes === null ? (
-          <p className="p-6 text-center text-black/60">جارٍ التحميل...</p>
+          <p className="p-6 text-center text-text-secondary">جارٍ التحميل...</p>
         ) : themes.length === 0 ? (
-          <p className="p-6 text-center text-black/60">لا توجد ثيمات بعد</p>
+          <p className="p-6 text-center text-text-secondary">لا توجد ثيمات بعد</p>
         ) : (
           <table className="w-full text-sm">
-            <thead className="bg-black/[0.03] text-right text-black/60">
+            <thead className="bg-surface-header text-right text-text-secondary">
               <tr>
                 <th className="px-5 py-3 font-medium">المعرّف البرمجي</th>
                 <th className="px-5 py-3 font-medium">الاسم (عربي)</th>
@@ -70,8 +70,8 @@ export default function ThemesPage() {
             </thead>
             <tbody>
               {themes.map((theme) => (
-                <tr key={theme.id} className="border-t border-black/10">
-                  <td className="px-5 py-3 text-black/50" dir="ltr">
+                <tr key={theme.id} className="border-t border-border-subtle">
+                  <td className="px-5 py-3 text-text-muted" dir="ltr">
                     {theme.key}
                   </td>
                   <td className="px-5 py-3">

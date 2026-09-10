@@ -9,31 +9,31 @@ export default function ConsoleHomePage() {
         <Link href="/accounts">
           <Card className="p-6 hover:shadow-[0_2px_16px_rgba(31,29,34,.14)]">
             <h2 className="mb-1 font-semibold text-brand">الحسابات</h2>
-            <p className="text-sm text-black/60">قائمة حسابات المنصة — تفعيل، تعليق، وتغيير الباقة.</p>
+            <p className="text-sm text-text-secondary">قائمة حسابات المنصة — تفعيل، تعليق، وتغيير الباقة.</p>
           </Card>
         </Link>
         <Link href="/domains">
           <Card className="p-6 hover:shadow-[0_2px_16px_rgba(31,29,34,.14)]">
             <h2 className="mb-1 font-semibold text-brand">طلبات الدومين</h2>
-            <p className="text-sm text-black/60">مراجعة طلبات ربط نطاق مخصص وتفعيلها يدويًا.</p>
+            <p className="text-sm text-text-secondary">مراجعة طلبات ربط نطاق مخصص وتفعيلها يدويًا.</p>
           </Card>
         </Link>
         <Link href="/plans">
           <Card className="p-6 hover:shadow-[0_2px_16px_rgba(31,29,34,.14)]">
             <h2 className="mb-1 font-semibold text-brand">الباقات</h2>
-            <p className="text-sm text-black/60">أسعار وحدود الباقات المعروضة للعملاء.</p>
+            <p className="text-sm text-text-secondary">أسعار وحدود الباقات المعروضة للعملاء.</p>
           </Card>
         </Link>
         <Link href="/cities">
           <Card className="p-6 hover:shadow-[0_2px_16px_rgba(31,29,34,.14)]">
             <h2 className="mb-1 font-semibold text-brand">المدن</h2>
-            <p className="text-sm text-black/60">المدن المتاحة عند إضافة عقار أو موقع.</p>
+            <p className="text-sm text-text-secondary">المدن المتاحة عند إضافة عقار أو موقع.</p>
           </Card>
         </Link>
         <Link href="/districts">
           <Card className="p-6 hover:shadow-[0_2px_16px_rgba(31,29,34,.14)]">
             <h2 className="mb-1 font-semibold text-brand">الأحياء</h2>
-            <p className="text-sm text-black/60">أحياء كل مدينة — تُدار مرتبطة بمدينتها.</p>
+            <p className="text-sm text-text-secondary">أحياء كل مدينة — تُدار مرتبطة بمدينتها.</p>
           </Card>
         </Link>
       </div>

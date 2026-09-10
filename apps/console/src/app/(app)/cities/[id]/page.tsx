@@ -38,9 +38,9 @@ export default function EditCityPage() {
     <ConsoleShell title="تعديل المدينة">
       <Card className="max-w-md p-6">
         {city === undefined ? (
-          <p className="text-center text-black/60">جارٍ التحميل...</p>
+          <p className="text-center text-text-secondary">جارٍ التحميل...</p>
         ) : city === null ? (
-          <p className="text-center text-black/60">المدينة غير موجودة</p>
+          <p className="text-center text-text-secondary">المدينة غير موجودة</p>
         ) : (
           <>
             <CityForm
@@ -51,7 +51,7 @@ export default function EditCityPage() {
                 router.push('/cities');
               }}
             />
-            <div className="mt-6 border-t border-black/10 pt-4">
+            <div className="mt-6 border-t border-border-subtle pt-4">
               <FormError message={deleteError} />
               <button type="button" onClick={() => void handleDelete()} className="text-sm text-red-600 hover:underline">
                 حذف هذه المدينة

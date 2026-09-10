@@ -43,12 +43,12 @@ export default function CitiesPage() {
 
       <Card className="mt-4 overflow-hidden">
         {cities === null ? (
-          <p className="p-6 text-center text-black/60">جارٍ التحميل...</p>
+          <p className="p-6 text-center text-text-secondary">جارٍ التحميل...</p>
         ) : cities.length === 0 ? (
-          <p className="p-6 text-center text-black/60">لا توجد مدن بعد</p>
+          <p className="p-6 text-center text-text-secondary">لا توجد مدن بعد</p>
         ) : (
           <table className="w-full text-sm">
-            <thead className="bg-black/[0.03] text-right text-black/60">
+            <thead className="bg-surface-header text-right text-text-secondary">
               <tr>
                 <th className="px-5 py-3 font-medium">الاسم (عربي)</th>
                 <th className="px-5 py-3 font-medium">الاسم (إنجليزي)</th>
@@ -57,13 +57,13 @@ export default function CitiesPage() {
             </thead>
             <tbody>
               {cities.map((city) => (
-                <tr key={city.id} className="border-t border-black/10">
+                <tr key={city.id} className="border-t border-border-subtle">
                   <td className="px-5 py-3">
                     <Link href={`/cities/${city.id}`} className="font-medium hover:text-brand">
                       {city.name_ar}
                     </Link>
                   </td>
-                  <td className="px-5 py-3 text-black/60" dir="ltr">
+                  <td className="px-5 py-3 text-text-secondary" dir="ltr">
                     {city.name_en}
                   </td>
                   <td className="px-5 py-3 text-left">

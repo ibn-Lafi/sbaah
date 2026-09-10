@@ -68,12 +68,12 @@ export default function DistrictsPage() {
 
       <Card className="mt-4 overflow-hidden">
         {districts === null ? (
-          <p className="p-6 text-center text-black/60">جارٍ التحميل...</p>
+          <p className="p-6 text-center text-text-secondary">جارٍ التحميل...</p>
         ) : districts.length === 0 ? (
-          <p className="p-6 text-center text-black/60">لا توجد أحياء بعد</p>
+          <p className="p-6 text-center text-text-secondary">لا توجد أحياء بعد</p>
         ) : (
           <table className="w-full text-sm">
-            <thead className="bg-black/[0.03] text-right text-black/60">
+            <thead className="bg-surface-header text-right text-text-secondary">
               <tr>
                 <th className="px-5 py-3 font-medium">الاسم (عربي)</th>
                 <th className="px-5 py-3 font-medium">الاسم (إنجليزي)</th>
@@ -83,16 +83,16 @@ export default function DistrictsPage() {
             </thead>
             <tbody>
               {districts.map((district) => (
-                <tr key={district.id} className="border-t border-black/10">
+                <tr key={district.id} className="border-t border-border-subtle">
                   <td className="px-5 py-3">
                     <Link href={`/districts/${district.id}`} className="font-medium hover:text-brand">
                       {district.name_ar}
                     </Link>
                   </td>
-                  <td className="px-5 py-3 text-black/60" dir="ltr">
+                  <td className="px-5 py-3 text-text-secondary" dir="ltr">
                     {district.name_en}
                   </td>
-                  <td className="px-5 py-3 text-black/60">{cityNameById[district.city_id] ?? '—'}</td>
+                  <td className="px-5 py-3 text-text-secondary">{cityNameById[district.city_id] ?? '—'}</td>
                   <td className="px-5 py-3 text-left">
                     <button type="button" onClick={() => void handleDelete(district)} className="text-red-600 hover:underline">
                       حذف

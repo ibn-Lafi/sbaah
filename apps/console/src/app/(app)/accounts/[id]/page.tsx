@@ -106,13 +106,13 @@ export default function AccountDetailPage() {
   return (
     <ConsoleShell title="تفاصيل الحساب">
       {account === null ? (
-        <p className="text-center text-black/60">جارٍ التحميل...</p>
+        <p className="text-center text-text-secondary">جارٍ التحميل...</p>
       ) : (
         <div className="flex flex-col gap-5">
           <Card className="flex items-center justify-between p-6">
             <div>
               <h2 className="text-lg font-bold">{account.name_ar}</h2>
-              <p className="text-sm text-black/60" dir="ltr">
+              <p className="text-sm text-text-secondary" dir="ltr">
                 {account.name_en}
               </p>
             </div>
@@ -123,42 +123,42 @@ export default function AccountDetailPage() {
             <h3 className="mb-4 font-semibold">بيانات الحساب</h3>
             <dl className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
               <div>
-                <dt className="text-black/50">نوع الحساب</dt>
+                <dt className="text-text-muted">نوع الحساب</dt>
                 <dd className="mt-0.5 font-medium">{ACCOUNT_TYPE_LABELS[account.account_type]}</dd>
               </div>
               <div>
-                <dt className="text-black/50">رخصة فال</dt>
+                <dt className="text-text-muted">رخصة فال</dt>
                 <dd className="mt-0.5 font-medium" dir="ltr">
                   {account.fal_license_number}
                 </dd>
               </div>
               <div>
-                <dt className="text-black/50">السجل التجاري</dt>
+                <dt className="text-text-muted">السجل التجاري</dt>
                 <dd className="mt-0.5 font-medium" dir="ltr">
                   {account.cr_number ?? '—'}
                 </dd>
               </div>
               <div>
-                <dt className="text-black/50">الرقم الضريبي</dt>
+                <dt className="text-text-muted">الرقم الضريبي</dt>
                 <dd className="mt-0.5 font-medium" dir="ltr">
                   {account.tax_number ?? '—'}
                 </dd>
               </div>
               <div>
-                <dt className="text-black/50">النطاق الفرعي</dt>
+                <dt className="text-text-muted">النطاق الفرعي</dt>
                 <dd className="mt-0.5 font-medium" dir="ltr">
                   {account.subdomain}
                 </dd>
               </div>
               <div>
-                <dt className="text-black/50">النطاق المخصص</dt>
+                <dt className="text-text-muted">النطاق المخصص</dt>
                 <dd className="mt-0.5 font-medium" dir="ltr">
                   {account.custom_domain ?? '—'}
                   {account.custom_domain_status && ` (${account.custom_domain_status})`}
                 </dd>
               </div>
               <div>
-                <dt className="text-black/50">تاريخ الإنشاء</dt>
+                <dt className="text-text-muted">تاريخ الإنشاء</dt>
                 <dd className="mt-0.5 font-medium" dir="ltr">
                   {new Date(account.created_at).toLocaleDateString('en-GB')}
                 </dd>
@@ -168,15 +168,15 @@ export default function AccountDetailPage() {
 
           <Card className="p-6">
             <h3 className="mb-1 font-semibold">حالة الحساب</h3>
-            <p className="mb-4 text-sm text-black/60">الحالة الحالية: {TENANT_STATUS_LABELS[account.status]}</p>
+            <p className="mb-4 text-sm text-text-secondary">الحالة الحالية: {TENANT_STATUS_LABELS[account.status]}</p>
             <div className="flex flex-wrap gap-3">
               {STATUS_ACTIONS.filter((action) => action.status !== account.status).map((action) => (
                 <Button
                   key={action.status}
                   type="button"
+                  variant={action.status === 'active' ? 'primary' : 'danger'}
                   disabled={busy}
                   onClick={() => void handleStatusChange(action.status, action.confirm)}
-                  className={action.status === 'active' ? '' : 'bg-black/80 hover:bg-black'}
                 >
                   {action.label}
                 </Button>
@@ -198,14 +198,14 @@ export default function AccountDetailPage() {
           {account.custom_domain && (
             <Card className="p-6">
               <h3 className="mb-1 font-semibold">طلب الدومين المخصص</h3>
-              <p className="mb-4 text-sm text-black/60">
+              <p className="mb-4 text-sm text-text-secondary">
                 الدومين المطلوب: <span dir="ltr">{account.custom_domain}</span> — الحالة:{' '}
                 {account.custom_domain_status === 'verified' ? 'مفعَّل' : 'بانتظار المراجعة'}
               </p>
 
               {dnsRecord && (
-                <div className="mb-4 rounded-lg bg-black/[0.03] p-4 text-sm">
-                  <p className="mb-2 text-black/60">
+                <div className="mb-4 rounded-lg bg-surface-subtle p-4 text-sm">
+                  <p className="mb-2 text-text-secondary">
                     تحققوا يدويًا (عبر أي أداة DNS lookup) أن هذا النطاق يشير فعليًا إلى العنوان التالي قبل التفعيل:
                   </p>
                   <div dir="ltr" className="flex flex-col gap-1 font-mono text-xs">

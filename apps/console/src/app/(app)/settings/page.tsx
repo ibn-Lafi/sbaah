@@ -57,12 +57,12 @@ export default function PlatformSettingsPage() {
     <ConsoleShell title="إعدادات المنصة">
       <Card className="max-w-[560px] p-6">
         <h2 className="mb-1 text-base font-semibold">حسابات سبعة على التواصل الاجتماعي</h2>
-        <p className="mb-4 text-sm text-black/60">
+        <p className="mb-4 text-sm text-text-secondary">
           تظهر هذه الروابط كأيقونات في لوحة تسجيل الدخول وإنشاء حساب جديد — حسابات المنصة نفسها، وليست حسابات المستأجرين.
         </p>
 
         {draft === null ? (
-          <p className="text-black/60">جارٍ التحميل...</p>
+          <p className="text-text-secondary">جارٍ التحميل...</p>
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col gap-3">
             <div className="flex flex-col gap-2">
