@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { getMe, type MeResponse } from '@/lib/api/auth';
 import { getAccessToken } from '@/lib/auth/session';
 import { CurrentUserProvider } from '@/lib/auth/current-user-context';
-import { LoadingState } from '@/components/ui/loading-state';
+import { PageLoading } from '@/components/ui/page-loading';
 
 /**
  * Guard for every authenticated screen (task 24/42 built this for the
@@ -44,11 +44,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }, [router]);
 
   if (!state) {
-    return (
-      <main className="flex min-h-screen items-center justify-center">
-        <LoadingState />
-      </main>
-    );
+    return <PageLoading />;
   }
 
   return <CurrentUserProvider value={state}>{children}</CurrentUserProvider>;

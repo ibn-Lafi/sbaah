@@ -1,10 +1,10 @@
-import { Spinner } from './spinner';
+import { BrandSpinner } from './brand-spinner';
 
-/** Drop-in replacement for a plain "جارٍ التحميل..." text — every page-level loading placeholder in the app uses this. Spinner is brand-purple (the page itself is plain, unlike a filled Button where the spinner stays white via currentColor). */
+/** Drop-in replacement for a plain "جارٍ التحميل..." text — every page-level loading placeholder in the app uses this, with سبعة's own "٧" badge spinner (BrandSpinner) rather than a generic ring. */
 export function LoadingState({ className = '' }: { className?: string }) {
   return (
     <div className={`flex items-center justify-center gap-2 text-text-secondary ${className}`}>
-      <Spinner className="h-4 w-4 text-brand" />
+      <BrandSpinner size={20} />
       <span>جارٍ التحميل...</span>
     </div>
   );
