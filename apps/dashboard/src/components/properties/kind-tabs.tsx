@@ -1,33 +1,28 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 
-const KIND_TABS = [
-  { href: '/properties', label: 'الوحدات' },
-  { href: '/buildings', label: 'العمارات' },
-  { href: '/projects', label: 'المشاريع' },
-  { href: '/rentals', label: 'الإيجارات' },
-] as const;
+export type PropertyKind = 'units' | 'buildings' | 'projects' | 'rentals';
 
-/**
- * "العقارات" في تصميم المؤسس صفحة واحدة بتبويبات داخلية (kindTabs) بدل 4
- * عناصر منفصلة بالقائمة الجانبية — هذا تقريب أولي (روابط بين 4 صفحات
- * منفصلة كما هي فعليًا) وليس الدمج الكامل بعد؛ الدمج الحقيقي في صفحة
- * واحدة بحالة/بيانات مشتركة مرحلة لاحقة أكبر.
- */
-export function KindTabs() {
-  const pathname = usePathname();
+const KIND_TABS: { kind: PropertyKind; label: string }[] = [
+  { kind: 'units', label: 'الوحدات' },
+  { kind: 'buildings', label: 'العمارات' },
+  { kind: 'projects', label: 'المشاريع' },
+  { kind: 'rentals', label: 'الإيجارات' },
+];
+
+/** "العقارات" في تصميم المؤسس صفحة واحدة بتبويبات داخلية — /properties?kind=... يبدّل المحتوى دون تنقّل صفحة كاملة. */
+export function KindTabs({ active }: { active: PropertyKind }) {
   return (
     <div className="mx-auto flex max-w-[640px] items-center justify-center gap-0.5 rounded-full bg-surface-card p-[5px] shadow-[0_1px_6px_rgba(31,29,34,.08)]">
       {KIND_TABS.map((tab) => {
-        const active = pathname === tab.href;
+        const isActive = active === tab.kind;
         return (
           <Link
-            key={tab.href}
-            href={tab.href}
+            key={tab.kind}
+            href={tab.kind === 'units' ? '/properties' : `/properties?kind=${tab.kind}`}
             className={`flex h-[34px] flex-1 items-center justify-center rounded-full px-[18px] text-[13px] ${
-              active ? 'bg-brand-surface font-semibold text-brand' : 'font-normal text-text-secondary'
+              isActive ? 'bg-brand-surface font-semibold text-brand' : 'font-normal text-text-secondary'
             }`}
           >
             {tab.label}
