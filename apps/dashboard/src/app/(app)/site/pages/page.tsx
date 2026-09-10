@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { FormError } from '@/components/ui/form-error';
-import { LoadingState } from '@/components/ui/loading-state';
+import { CardListSkeleton } from '@/components/ui/card-list-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { ROLE_LABELS } from '@/lib/auth/role-labels';
 import { getCustomPages, createCustomPage, updateCustomPage, deleteCustomPage } from '@/lib/api/website';
@@ -138,7 +138,7 @@ export default function CustomPagesPage() {
         </p>
 
         {pages === null ? (
-          <LoadingState />
+          <CardListSkeleton rows={3} />
         ) : (
           <>
             {pages.map((page) =>

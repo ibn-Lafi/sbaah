@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Select } from '@/components/ui/select';
-import { LoadingState } from '@/components/ui/loading-state';
+import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { ROLE_LABELS } from '@/lib/auth/role-labels';
 import { USER_STATUS_LABELS } from '@/lib/team/labels';
@@ -51,7 +51,7 @@ export default function TeamPage() {
 
       <Card className="overflow-hidden">
         {members === null ? (
-          <LoadingState className="p-6" />
+          <TableSkeleton columns={4} />
         ) : (
           <table className="w-full text-sm">
             <thead className="bg-surface-header text-right text-text-secondary">

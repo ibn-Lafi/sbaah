@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Select } from '@/components/ui/select';
-import { LoadingState } from '@/components/ui/loading-state';
+import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { ROLE_LABELS } from '@/lib/auth/role-labels';
 import { listProperties } from '@/lib/api/properties';
@@ -54,7 +54,7 @@ function UnitsPanel({ accessToken, canManage }: { accessToken: string; canManage
       </div>
       <Card className="overflow-hidden">
         {properties === null ? (
-          <LoadingState className="p-6" />
+          <TableSkeleton columns={4} />
         ) : properties.length === 0 ? (
           <p className="p-6 text-center text-text-secondary">لا توجد عقارات بعد</p>
         ) : (
@@ -118,7 +118,7 @@ function BuildingsPanel({ accessToken, canManage }: { accessToken: string; canMa
       </div>
       <Card className="overflow-hidden">
         {buildings === null ? (
-          <LoadingState className="p-6" />
+          <TableSkeleton columns={2} />
         ) : buildings.length === 0 ? (
           <p className="p-6 text-center text-text-secondary">لا توجد عمارات بعد</p>
         ) : (
@@ -172,7 +172,7 @@ function ProjectsPanel({ accessToken, canManage }: { accessToken: string; canMan
       </div>
       <Card className="overflow-hidden">
         {projects === null ? (
-          <LoadingState className="p-6" />
+          <TableSkeleton columns={2} />
         ) : projects.length === 0 ? (
           <p className="p-6 text-center text-text-secondary">
             لا توجد مشاريع بعد — تجميع اختياري لعقاراتك تحت مشروع واحد (مثل مشروع سكني متعدد العمارات)
@@ -249,7 +249,7 @@ function RentalsPanel({ accessToken }: { accessToken: string }) {
       </div>
       <Card className="overflow-hidden">
         {rentals === null ? (
-          <LoadingState className="p-6" />
+          <TableSkeleton columns={5} />
         ) : rentals.length === 0 ? (
           <p className="p-6 text-center text-text-secondary">لا توجد عقود إيجار بعد</p>
         ) : (

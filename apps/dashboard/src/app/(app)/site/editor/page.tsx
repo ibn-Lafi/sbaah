@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { FormError } from '@/components/ui/form-error';
-import { LoadingState } from '@/components/ui/loading-state';
+import { EditorSkeleton } from '@/components/website/editor-skeleton';
 import { AssetUploader } from '@/components/website/asset-uploader';
 import { SectionList } from '@/components/website/section-list';
 import { SitePreview, type Device } from '@/components/website/site-preview';
@@ -151,11 +151,7 @@ export default function WebsiteEditorPage() {
   }
 
   if (!website) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-surface-page">
-        <LoadingState />
-      </div>
-    );
+    return <EditorSkeleton />;
   }
 
   return (

@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { FormError } from '@/components/ui/form-error';
 import { ProjectForm } from '@/components/hierarchy/project-form';
-import { LoadingState } from '@/components/ui/loading-state';
+import { FormPageSkeleton } from '@/components/ui/form-page-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { ROLE_LABELS } from '@/lib/auth/role-labels';
 import { deleteProject, getProject, listBuildings, updateProject } from '@/lib/api/hierarchy';
@@ -76,7 +76,7 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
       roleLabel={ROLE_LABELS[me.user.role]}
     >
       {!project ? (
-        <LoadingState />
+        <FormPageSkeleton fields={4} />
       ) : (
         <div className="flex max-w-[720px] flex-col gap-6">
           <Card className="p-8">
