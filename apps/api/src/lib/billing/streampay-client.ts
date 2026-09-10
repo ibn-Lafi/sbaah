@@ -15,7 +15,12 @@ import { createHmac, timingSafeEqual } from 'node:crypto';
  *
  * Confirmed by multiple independent search results (higher confidence):
  * - Base URL: https://stream-app-service.streampay.sa/api/v2
- * - Auth: header `x-api-key`, value = base64("<api-key>:<api-secret>")
+ * - Auth: header `x-api-key`, value = the API key itself — StreamPay's
+ *   own dashboard only issues a single key (no paired "secret"; an
+ *   earlier version of this file assumed a base64("key:secret") pairing
+ *   per a search-result summary that turned out to not match what the
+ *   dashboard actually shows — corrected once the founder checked
+ *   directly, so trust this over search results going forward).
  * - POST /payment_links returns an object with a `url` field to redirect
  *   the payer to; payment links reference a pre-created Product by
  *   `product_id` (no bare "amount" field appears to exist) — so each
@@ -46,9 +51,7 @@ function requireEnv(name: string): string {
 }
 
 function authHeaderValue(): string {
-  const apiKey = requireEnv('STREAMPAY_API_KEY');
-  const apiSecret = requireEnv('STREAMPAY_API_SECRET');
-  return Buffer.from(`${apiKey}:${apiSecret}`).toString('base64');
+  return requireEnv('STREAMPAY_API_KEY');
 }
 
 export interface CreatePaymentLinkParams {
