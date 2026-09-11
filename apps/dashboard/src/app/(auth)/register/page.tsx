@@ -9,7 +9,7 @@ import {
   tenantRegistrationSchema,
   REGISTRATION_OPEN,
   type AccountType,
-  type Plan,
+  type BillingCycle,
   type TenantRegistrationInput,
 } from '@sbaah/shared';
 import { Button } from '@/components/ui/button';
@@ -21,9 +21,12 @@ import { VerifiedBadge } from '@/components/ui/verified-badge';
 import { LoadingState } from '@/components/ui/loading-state';
 import { PasswordStrengthMeter } from '@/components/auth/password-strength-meter';
 import { ProvisioningOverlay } from '@/components/auth/provisioning-overlay';
+import { PlanCycleToggle } from '@/components/billing/plan-cycle-toggle';
+import { PlanCard } from '@/components/billing/plan-card';
 import { register, sendOtp, verifyRegisterOtp } from '@/lib/api/auth';
 import { startCheckout } from '@/lib/api/billing';
 import { listPlans } from '@/lib/api/reference-data';
+import { groupPlansByTier, planForCycle, type PlanTier } from '@/lib/billing/plan-tiers';
 import { ApiRequestError } from '@/lib/api/client';
 import { adoptSession } from '@/lib/auth/session';
 import { useResendCooldown } from '@/lib/auth/use-resend-cooldown';
@@ -45,20 +48,6 @@ const ACCOUNT_TYPE_OPTIONS: { type: AccountType; label: string; description: str
   { type: 'institution', label: 'مؤسسة', description: 'مؤسسة فردية لها سجل تجاري ورقم ضريبي' },
   { type: 'company', label: 'شركة', description: 'شركة عقارية بفريق ووسطاء متعددين' },
 ];
-
-function introMonthsLabel(months: number): string {
-  if (months === 1) return 'أول شهر';
-  if (months === 2) return 'أول شهرين';
-  return `أول ${months} أشهر`;
-}
-
-function planPriceLabel(plan: Plan): string {
-  const cycleLabel = plan.billing_cycle === 'annual' ? 'سنويًا' : 'شهريًا';
-  if (plan.intro_price != null && plan.intro_months != null) {
-    return `${plan.intro_price} ر.س/${cycleLabel} لـ${introMonthsLabel(plan.intro_months)}، ثم ${plan.price} ر.س/${cycleLabel}`;
-  }
-  return `${plan.price} ر.س/${cycleLabel}`;
-}
 
 /** التسجيل متوقف مؤقتًا (packages/shared/src/config.ts) ريثما تُبنى خطوة اختيار الباقة والدفع عبر StreamPay. */
 function RegistrationClosedNotice() {
@@ -106,16 +95,31 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
 
-  const [plans, setPlans] = useState<Plan[] | null>(null);
+  const [tiers, setTiers] = useState<PlanTier[] | null>(null);
+  const [cycle, setCycle] = useState<BillingCycle>('annual');
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (step !== 'plan' || plans !== null) return;
+    if (step !== 'plan' || tiers !== null) return;
     void listPlans().then((loaded) => {
-      setPlans(loaded);
-      setSelectedPlanId((current) => current ?? loaded[0]?.id ?? null);
+      const grouped = groupPlansByTier(loaded);
+      setTiers(grouped);
+      setSelectedPlanId((current) => current ?? (grouped[0] ? planForCycle(grouped[0], cycle).id : null));
     });
-  }, [step, plans]);
+    // Intentionally excludes `cycle` — this only sets the *initial*
+    // selection once tiers are fetched, it shouldn't re-run every time
+    // the toggle changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, tiers]);
+
+  /** Keeps the same tier selected across a cycle switch (rather than leaving `selectedPlanId` pointing at a now-hidden card, which would submit a plan no longer shown as chosen). */
+  function handleCycleChange(newCycle: BillingCycle) {
+    setCycle(newCycle);
+    const currentTier = tiers?.find((tier) => tier.monthly?.id === selectedPlanId || tier.annual?.id === selectedPlanId);
+    if (currentTier) {
+      setSelectedPlanId(planForCycle(currentTier, newCycle).id);
+    }
+  }
 
   async function handleSendOtp(event: FormEvent) {
     event.preventDefault();
@@ -426,37 +430,30 @@ export default function RegisterPage() {
 
         {step === 'plan' && (
           <form onSubmit={handleSubmitPlan} className="flex flex-col gap-4">
-            {plans === null ? (
+            {tiers === null ? (
               <LoadingState className="py-6" />
             ) : (
-              <div className="flex flex-col gap-3">
-                {plans.map((plan) => {
-                  const selected = selectedPlanId === plan.id;
-                  return (
-                    <button
-                      key={plan.id}
-                      type="button"
-                      onClick={() => setSelectedPlanId(plan.id)}
-                      className={`rounded-input flex flex-col gap-1 border p-4 text-start transition-colors ${
-                        selected
-                          ? 'border-brand ring-brand ring-1'
-                          : 'border-border-default hover:border-text-placeholder'
-                      }`}
-                    >
-                      <span className="text-text-primary text-sm font-semibold">
-                        {plan.name_ar} — {plan.billing_cycle === 'annual' ? 'سنوي' : 'شهري'}
-                      </span>
-                      <span className="text-brand text-sm" dir="ltr">
-                        {planPriceLabel(plan)}
-                      </span>
-                      <span className="text-text-secondary text-xs">
-                        حتى {plan.max_properties} عقار · {plan.max_users} مستخدم
-                        {plan.custom_domain_allowed ? ' · دومين مخصص' : ''}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
+              <>
+                <PlanCycleToggle value={cycle} onChange={handleCycleChange} />
+                <div className="flex flex-col gap-3">
+                  {tiers.map((tier) => {
+                    const plan = planForCycle(tier, cycle);
+                    return (
+                      <PlanCard
+                        key={tier.key}
+                        plan={plan}
+                        monthlyEquivalent={tier.monthly}
+                        isCurrent={false}
+                        selected={selectedPlanId === plan.id}
+                        selecting={false}
+                        selectDisabled={loading}
+                        showIntroPricing
+                        onSelect={() => setSelectedPlanId(plan.id)}
+                      />
+                    );
+                  })}
+                </div>
+              </>
             )}
             <FormError message={error} />
             <Button type="submit" loading={loading}>

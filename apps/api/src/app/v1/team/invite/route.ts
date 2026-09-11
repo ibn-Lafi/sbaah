@@ -40,25 +40,28 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   if (tenant.status !== 'active') {
     throw new ApiError(403, 'tenant_not_active', 'الحساب معلَّق حاليًا، لا يمكن دعوة أعضاء جدد');
   }
-  const maxUsers = (tenant.plans as unknown as { max_users: number } | null)?.max_users;
-  if (typeof maxUsers !== 'number') {
+  const planRow = tenant.plans as unknown as { max_users: number | null } | null;
+  if (!planRow) {
     throw new Error('Failed to load plan max_users for team invite');
   }
-
-  const { count: currentUserCount, error: countError } = await supabase
-    .from('users')
-    .select('id', { count: 'exact', head: true })
-    .eq('tenant_id', caller.tenantId)
-    .neq('status', 'disabled');
-  if (countError) {
-    throw new Error(`Failed to count current team members: ${countError.message}`);
-  }
-  if ((currentUserCount ?? 0) >= maxUsers) {
-    throw new ApiError(
-      403,
-      'plan_user_limit_reached',
-      'وصل عدد أعضاء الفريق للحد الأقصى المسموح به في باقتك الحالية',
-    );
+  // null max_users means the plan is unlimited — skip the count check
+  // entirely rather than reading it as "0 allowed".
+  if (planRow.max_users !== null) {
+    const { count: currentUserCount, error: countError } = await supabase
+      .from('users')
+      .select('id', { count: 'exact', head: true })
+      .eq('tenant_id', caller.tenantId)
+      .neq('status', 'disabled');
+    if (countError) {
+      throw new Error(`Failed to count current team members: ${countError.message}`);
+    }
+    if ((currentUserCount ?? 0) >= planRow.max_users) {
+      throw new ApiError(
+        403,
+        'plan_user_limit_reached',
+        'وصل عدد أعضاء الفريق للحد الأقصى المسموح به في باقتك الحالية',
+      );
+    }
   }
 
   const internalEmail = `u_${randomUUID()}@internal.sbaah.app`;

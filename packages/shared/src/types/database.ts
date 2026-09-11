@@ -44,8 +44,11 @@ export interface Plan {
   /** Discounted price for the plan's first `intro_months` billing cycles (monthly cycle only in practice — annual plans have no intro period) — null means no intro period (charged `price` from day one). */
   intro_price: number | null;
   intro_months: number | null;
-  max_properties: number;
-  max_users: number;
+  /** Short marketing line shown under the plan name on pricing cards (register step 6, /billing/plans) — null renders no description. */
+  description_ar: string | null;
+  /** Null means unlimited ("بلا حدود") — not enforced anywhere yet, display-only like the rest of these limits. */
+  max_properties: number | null;
+  max_users: number | null;
   custom_domain_allowed: boolean;
   is_active: boolean;
   /** The matching recurring Product's id in StreamPay's own dashboard (set up manually there first) — null until console fills it in. */

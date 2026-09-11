@@ -36,7 +36,7 @@ export function Sidebar({ orgName, accountType, roleLabel }: SidebarProps) {
         <BrandMark />
       </div>
 
-      <nav className="flex flex-1 flex-col gap-px overflow-auto">
+      <nav className="flex flex-col gap-px overflow-auto">
         {visibleItems.map((item) => {
           if (isNavGroup(item)) {
             const hasActiveChild = item.children.some((child) => child.href === pathname);
@@ -47,7 +47,7 @@ export function Sidebar({ orgName, accountType, roleLabel }: SidebarProps) {
                 <button
                   type="button"
                   onClick={() => setOpenGroups((current) => ({ ...current, [item.group]: !isOpen }))}
-                  className={`flex h-[34px] flex-none items-center gap-2 rounded-[9px] px-[10px] text-[13px] ${
+                  className={`flex h-[38px] flex-none items-center gap-2 rounded-[9px] px-[10px] text-[15px] ${
                     hasActiveChild ? 'font-semibold text-brand' : 'font-normal text-text-tertiary'
                   }`}
                 >
@@ -63,7 +63,7 @@ export function Sidebar({ orgName, accountType, roleLabel }: SidebarProps) {
                       <Link
                         key={child.href}
                         href={child.href}
-                        className={`flex h-[34px] flex-none items-center gap-2 rounded-[9px] ps-[26px] pe-[10px] text-[13px] ${
+                        className={`flex h-[38px] flex-none items-center gap-2 rounded-[9px] ps-[26px] pe-[10px] text-[15px] ${
                           active ? 'bg-brand-surface font-semibold text-brand' : 'font-normal text-text-tertiary'
                         }`}
                       >
@@ -82,7 +82,7 @@ export function Sidebar({ orgName, accountType, roleLabel }: SidebarProps) {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex h-[34px] flex-none items-center gap-2 rounded-[9px] px-[10px] text-[13px] ${
+              className={`flex h-[38px] flex-none items-center gap-2 rounded-[9px] px-[10px] text-[15px] ${
                 active ? 'bg-brand-surface font-semibold text-brand' : 'font-normal text-text-tertiary'
               }`}
             >
@@ -93,7 +93,7 @@ export function Sidebar({ orgName, accountType, roleLabel }: SidebarProps) {
         })}
       </nav>
 
-      <div className="relative border-t border-border-subtle pt-[10px]">
+      <div className="relative mt-4 border-t border-border-subtle pt-[10px]">
         <button
           type="button"
           onClick={() => setAccountMenuOpen((open) => !open)}

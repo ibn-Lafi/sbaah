@@ -62,14 +62,14 @@ export async function MarketingHome({ locale }: { locale: Locale }) {
                 <ul className="mt-6 flex flex-col gap-2 text-sm text-black/70">
                   <li className="flex items-center justify-between">
                     <span>{t.pricing.propertiesLimit}</span>
-                    <span className="font-medium text-black" dir="ltr">
-                      {plan.max_properties.toLocaleString('en-US')}
+                    <span className="font-medium text-black" dir={plan.max_properties != null ? 'ltr' : undefined}>
+                      {plan.max_properties != null ? plan.max_properties.toLocaleString('en-US') : t.pricing.unlimited}
                     </span>
                   </li>
                   <li className="flex items-center justify-between">
                     <span>{t.pricing.usersLimit}</span>
-                    <span className="font-medium text-black" dir="ltr">
-                      {plan.max_users.toLocaleString('en-US')}
+                    <span className="font-medium text-black" dir={plan.max_users != null ? 'ltr' : undefined}>
+                      {plan.max_users != null ? plan.max_users.toLocaleString('en-US') : t.pricing.unlimited}
                     </span>
                   </li>
                   <li className="flex items-center justify-between">

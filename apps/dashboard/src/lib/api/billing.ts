@@ -4,6 +4,8 @@ import { apiGet, apiPost } from './client';
 export interface BillingInfo {
   plan: Plan;
   payment_status: PaymentStatus;
+  /** ISO timestamp, one billing-cycle interval after the last successful payment — null if the tenant has never had one (e.g. checkout still pending). A computed display value, not a real recurring-billing schedule. */
+  next_renewal_at: string | null;
   usage: {
     properties: number;
     users: number;

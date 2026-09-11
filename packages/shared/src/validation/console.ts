@@ -48,12 +48,15 @@ const planFieldsSchema = z.object({
     .positive('عدد أشهر السعر التعريفي يجب أن يكون أكبر من صفر')
     .nullable()
     .optional(),
-  max_properties: z.number().int().positive('حد العقارات يجب أن يكون أكبر من صفر'),
-  max_users: z.number().int().positive('حد المستخدمين يجب أن يكون أكبر من صفر'),
+  /** Null = unlimited ("بلا حدود") — leave the field empty in console to mean no limit. */
+  max_properties: z.number().int().positive('حد العقارات يجب أن يكون أكبر من صفر').nullable().optional(),
+  max_users: z.number().int().positive('حد المستخدمين يجب أن يكون أكبر من صفر').nullable().optional(),
   custom_domain_allowed: z.boolean().default(false),
   is_active: z.boolean().default(true),
   /** From StreamPay's own dashboard (Products) — required before this plan can actually be checked out at registration. */
   streampay_product_id: z.string().trim().min(1).nullable().optional(),
+  /** Short marketing line under the plan name on pricing cards — optional. */
+  description_ar: z.string().trim().min(1).nullable().optional(),
 });
 
 const introPairMatches = (data: { intro_price?: number | null; intro_months?: number | null }) => {

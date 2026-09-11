@@ -77,10 +77,10 @@ export default function PlansPage() {
                     {plan.price.toLocaleString('en-US')} SAR
                   </td>
                   <td className="px-5 py-3 text-text-secondary" dir="ltr">
-                    {plan.max_properties.toLocaleString('en-US')}
+                    {plan.max_properties != null ? plan.max_properties.toLocaleString('en-US') : 'بلا حدود'}
                   </td>
                   <td className="px-5 py-3 text-text-secondary" dir="ltr">
-                    {plan.max_users.toLocaleString('en-US')}
+                    {plan.max_users != null ? plan.max_users.toLocaleString('en-US') : 'بلا حدود'}
                   </td>
                   <td className="px-5 py-3 text-text-secondary">{plan.custom_domain_allowed ? '✓' : '—'}</td>
                   <td className="px-5 py-3">

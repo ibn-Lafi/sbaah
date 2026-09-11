@@ -27,8 +27,11 @@ export function PlanForm({ initial, submitLabel, onSubmit }: PlanFormProps) {
     initial?.intro_months != null ? String(initial.intro_months) : '',
   );
   const [streampayProductId, setStreampayProductId] = useState(initial?.streampay_product_id ?? '');
-  const [maxProperties, setMaxProperties] = useState(initial ? String(initial.max_properties) : '');
-  const [maxUsers, setMaxUsers] = useState(initial ? String(initial.max_users) : '');
+  const [descriptionAr, setDescriptionAr] = useState(initial?.description_ar ?? '');
+  const [maxProperties, setMaxProperties] = useState(
+    initial?.max_properties != null ? String(initial.max_properties) : '',
+  );
+  const [maxUsers, setMaxUsers] = useState(initial?.max_users != null ? String(initial.max_users) : '');
   const [customDomainAllowed, setCustomDomainAllowed] = useState(
     initial?.custom_domain_allowed ?? false,
   );
@@ -48,8 +51,9 @@ export function PlanForm({ initial, submitLabel, onSubmit }: PlanFormProps) {
       intro_price: introPrice === '' ? null : Number(introPrice),
       intro_months: introMonths === '' ? null : Number(introMonths),
       streampay_product_id: streampayProductId === '' ? null : streampayProductId,
-      max_properties: Number(maxProperties),
-      max_users: Number(maxUsers),
+      description_ar: descriptionAr === '' ? null : descriptionAr,
+      max_properties: maxProperties === '' ? null : Number(maxProperties),
+      max_users: maxUsers === '' ? null : Number(maxUsers),
       custom_domain_allowed: customDomainAllowed,
       is_active: isActive,
     });
@@ -128,8 +132,16 @@ export function PlanForm({ initial, submitLabel, onSubmit }: PlanFormProps) {
             placeholder="أنشئ المنتج أولًا من لوحة StreamPay ثم الصق معرّفه هنا"
           />
         </label>
+        <label className="flex flex-col gap-1.5 text-sm sm:col-span-2">
+          وصف تسويقي قصير (اختياري)
+          <Input
+            value={descriptionAr}
+            onChange={(e) => setDescriptionAr(e.target.value)}
+            placeholder="يظهر تحت اسم الباقة في بطاقات الأسعار"
+          />
+        </label>
         <label className="flex flex-col gap-1.5 text-sm">
-          الحد الأقصى للعقارات
+          الحد الأقصى للعقارات (اتركه فارغًا لعدد بلا حدود)
           <Input
             type="number"
             min="1"
@@ -140,7 +152,7 @@ export function PlanForm({ initial, submitLabel, onSubmit }: PlanFormProps) {
           />
         </label>
         <label className="flex flex-col gap-1.5 text-sm">
-          الحد الأقصى لأعضاء الفريق
+          الحد الأقصى لأعضاء الفريق (اتركه فارغًا لعدد بلا حدود)
           <Input
             type="number"
             min="1"
