@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { SUPPORTED_WEBSITE_FONTS, type Website, type WebsitePageKey, type WebsiteSection } from '@sbaah/shared';
+import { SUPPORTED_WEBSITE_FONTS, WEBSITE_PAGE_KEYS, type Website, type WebsitePageKey, type WebsiteSection } from '@sbaah/shared';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select } from '@/components/ui/select';
@@ -62,7 +62,7 @@ export default function WebsiteEditorPage() {
   const [textDraft, setTextDraft] = useState({ announcement: '', footerDescription: '' });
   const [error, setError] = useState<string | null>(null);
   const [panelView, setPanelView] = useState<PanelView>('sections');
-  const activePageKey: WebsitePageKey = 'home';
+  const [activePageKey, setActivePageKey] = useState<WebsitePageKey>('home');
   const [device, setDevice] = useState<Device>('desktop');
   const [colorsOpen, setColorsOpen] = useState(true);
   const [openZones, setOpenZones] = useState<Record<ZoneKey, boolean>>({ top: true, content: true, bottom: true });
@@ -168,6 +168,21 @@ export default function WebsiteEditorPage() {
         </Link>
 
         <div className="h-6 w-px bg-border-subtle" />
+
+        <Select
+          value={activePageKey}
+          onChange={(e) => {
+            setActivePageKey(e.target.value as WebsitePageKey);
+            setPanelView('sections');
+          }}
+          className="h-9 w-[170px] text-sm"
+        >
+          {WEBSITE_PAGE_KEYS.map((key) => (
+            <option key={key} value={key}>
+              {WEBSITE_PAGE_LABELS[key]}
+            </option>
+          ))}
+        </Select>
 
         <div className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 gap-1 rounded-full bg-surface-subtle-3 p-1">
           <button
