@@ -35,6 +35,7 @@ import { listBuildings, listProjects, createBuilding, createProject } from '@/li
 import { listRentals, createRental } from '@/lib/api/rentals';
 import { LISTING_TYPE_LABELS, PROPERTY_STATUS_LABELS, PROPERTY_TYPE_LABELS } from '@/lib/property/labels';
 import { RENTAL_STATUS_LABELS } from '@/lib/rental/labels';
+import { formatDate } from '@/lib/format/date';
 
 const KIND_TITLES: Record<PropertyKind, string> = { units: 'العقارات', buildings: 'العمارات', projects: 'المشاريع', rentals: 'الإيجارات' };
 
@@ -339,7 +340,7 @@ function RentalsPanel({ accessToken }: { accessToken: string }) {
                     {rental.rent_amount.toLocaleString('en-US')} ر.س
                   </td>
                   <td className="px-5 py-3 text-text-secondary" dir="ltr">
-                    {rental.contract_end_date}
+                    {formatDate(rental.contract_end_date)}
                   </td>
                   <td className="px-5 py-3">
                     <Badge status={rental.status} label={RENTAL_STATUS_LABELS[rental.status]} />

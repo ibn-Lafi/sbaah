@@ -9,15 +9,12 @@ import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { ROLE_LABELS } from '@/lib/auth/role-labels';
 import { listBrokerMarketerApplications, type BrokerMarketerApplicationWithRelations } from '@/lib/api/broker-applications';
+import { formatDate } from '@/lib/format/date';
 
 const TABS: { type: BrokerMarketerApplicantType; label: string }[] = [
   { type: 'broker', label: 'وسيط' },
   { type: 'marketer', label: 'مسوّق' },
 ];
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('en-GB');
-}
 
 /**
  * "الوسطاء والمسوقين" — طلبات نموذج website_sections' broker_marketer_form
@@ -63,25 +60,15 @@ export default function ApplicantsPage() {
         {applications === null ? (
           <TableSkeleton columns={4} />
         ) : applications.length === 0 ? (
-          <div className="flex flex-col items-center gap-[18px] px-10 py-[72px] text-center">
-            <div
-              className="h-[88px] w-[120px] rounded-[16px] border border-dashed border-border-secondary"
-              style={{ background: 'repeating-linear-gradient(135deg, #FBFAFC 0 8px, #F2F0F4 8px 16px)' }}
-            />
-            <div className="flex max-w-[420px] flex-col gap-2">
-              <h2 className="text-xl font-semibold text-text-primary">
-                لا يوجد {tab === 'broker' ? 'وسطاء' : 'مسوّقون'} بعد
-              </h2>
-              <p className="text-sm leading-[1.75] text-text-secondary">
-                فعّل قسم &quot;نموذج الوسطاء والمسوقين&quot; من محرر الموقع ليتمكن المهتمون من التقديم، وستظهر طلباتهم هنا.
-              </p>
-            </div>
-            <Link
-              href="/site/editor"
-              className="rounded-input border border-border-default bg-surface-card px-6 py-3 text-sm font-medium text-text-primary hover:bg-surface-subtle"
-            >
-              محرر الموقع
-            </Link>
+          <div className="flex flex-col items-center gap-2 p-10 text-center">
+            <p className="text-text-secondary">لا يوجد {tab === 'broker' ? 'وسطاء' : 'مسوّقون'} بعد</p>
+            <p className="text-xs text-text-placeholder">
+              فعّل قسم &quot;نموذج الوسطاء والمسوقين&quot; من{' '}
+              <Link href="/site/editor" className="text-brand hover:underline">
+                محرر الموقع
+              </Link>{' '}
+              ليتمكن المهتمون من التقديم.
+            </p>
           </div>
         ) : (
           <table className="w-full text-sm">

@@ -17,6 +17,7 @@ import { ROLE_LABELS } from '@/lib/auth/role-labels';
 import { listLeads } from '@/lib/api/leads';
 import { listProperties } from '@/lib/api/properties';
 import { LEAD_SOURCE_LABELS, LEAD_STATUS_LABELS } from '@/lib/lead/labels';
+import { formatDateTime } from '@/lib/format/date';
 
 type Tab = 'pipeline' | 'all';
 
@@ -146,7 +147,7 @@ export default function LeadsPage() {
                   </td>
                   <td className="px-5 py-3 text-text-secondary">{LEAD_SOURCE_LABELS[lead.source]}</td>
                   <td className="px-5 py-3 text-text-secondary" dir="ltr">
-                    {lead.follow_up_at ? new Date(lead.follow_up_at).toLocaleString('en-GB') : '—'}
+                    {lead.follow_up_at ? formatDateTime(lead.follow_up_at) : '—'}
                   </td>
                   <td className="px-5 py-3">
                     <Badge status={lead.status} label={LEAD_STATUS_LABELS[lead.status]} />

@@ -21,6 +21,7 @@ import { listTeam, type TeamMember } from '@/lib/api/team';
 import { ApiRequestError } from '@/lib/api/client';
 import { LEAD_STATUS_LABELS, LEAD_SOURCE_LABELS } from '@/lib/lead/labels';
 import { datetimeLocalToIso, isoToDatetimeLocal } from '@/lib/lead/datetime';
+import { formatDateTime } from '@/lib/format/date';
 
 export default function LeadDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -239,7 +240,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
                   <li key={note.id} className="rounded-input bg-surface-subtle p-3 text-sm">
                     <p className="text-text-primary">{note.note_text}</p>
                     <p className="mt-1 text-xs text-text-secondary" dir="ltr">
-                      {new Date(note.created_at).toLocaleString('en-GB')}
+                      {formatDateTime(note.created_at)}
                     </p>
                   </li>
                 ))}

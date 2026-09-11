@@ -198,7 +198,6 @@ export default function CustomPagesPage() {
             ) : (
               <Button
                 type="button"
-                variant="secondary"
                 onClick={() => {
                   setCreating(true);
                   setNewDraft(EMPTY_DRAFT);
