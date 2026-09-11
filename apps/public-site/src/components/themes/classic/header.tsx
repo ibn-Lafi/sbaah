@@ -36,7 +36,6 @@ export function Header({ locale, dict, website, tenantName, otherLocaleHref }: H
   const navLinks = [
     { href: locale === 'ar' ? '/properties' : '/en/properties', label: dict.properties },
     { href: locale === 'ar' ? '/projects' : '/en/projects', label: dict.projects },
-    { href: locale === 'ar' ? '/about' : '/en/about', label: dict.about },
   ];
 
   return (
@@ -65,7 +64,7 @@ export function Header({ locale, dict, website, tenantName, otherLocaleHref }: H
                 {label}
               </Link>
             ))}
-            <Link href={otherLocaleHref} className="rounded-full border border-white/40 px-3 py-1.5 text-xs font-semibold hover:bg-white/10">
+            <Link href={otherLocaleHref} className="rounded-full bg-white/15 px-3 py-1.5 text-xs font-semibold hover:bg-white/25">
               {dict.languageSwitch}
             </Link>
           </nav>
