@@ -14,7 +14,7 @@ import { SuspendedPage } from '@/components/suspended-page';
 import { MarketingChrome } from '@/components/marketing-chrome';
 import { MARKETING_CONTENT } from '@/lib/marketing/content';
 import { ServiceWorkerRegister } from '@/components/pwa/service-worker-register';
-import { CallIcon, CrIcon, FalIcon, InstagramIcon, SnapchatIcon, TaxIcon, TiktokIcon, WhatsappIcon } from '@/components/footer-icons';
+import { BUSINESS_BADGE_COLOR, CallIcon, CrIcon, FalIcon, InstagramIcon, SnapchatIcon, TaxIcon, TiktokIcon, WhatsappIcon } from '@/components/footer-icons';
 
 interface LocaleLayoutProps {
   children: React.ReactNode;
@@ -96,10 +96,10 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   ].filter((entry): entry is { key: string; href: string; Icon: typeof InstagramIcon } => Boolean(entry));
 
   const businessNumbers = [
-    site.tenant.cr_number && { key: 'cr', label: dict.crNumber, Icon: CrIcon },
-    site.tenant.tax_number && { key: 'tax', label: dict.taxNumber, Icon: TaxIcon },
-    site.tenant.fal_license_number && { key: 'fal', label: dict.falLicense, Icon: FalIcon },
-  ].filter((entry): entry is { key: string; label: string; Icon: typeof CrIcon } => Boolean(entry));
+    site.tenant.cr_number && { key: 'cr' as const, label: dict.crNumber, Icon: CrIcon },
+    site.tenant.tax_number && { key: 'tax' as const, label: dict.taxNumber, Icon: TaxIcon },
+    site.tenant.fal_license_number && { key: 'fal' as const, label: dict.falLicense, Icon: FalIcon },
+  ].filter((entry): entry is { key: 'cr' | 'tax' | 'fal'; label: string; Icon: typeof CrIcon } => Boolean(entry));
 
   // "This same page, other language" — middleware.ts forwards the
   // locale-stripped path (+ query) as a header since Server Components
@@ -198,7 +198,8 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
                 <span
                   key={key}
                   title={label}
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-black/5 text-black/60"
+                  className="flex h-10 w-10 items-center justify-center rounded-full"
+                  style={{ backgroundColor: `${BUSINESS_BADGE_COLOR[key]}1A`, color: BUSINESS_BADGE_COLOR[key] }}
                 >
                   <Icon className="h-[18px] w-[18px]" />
                 </span>

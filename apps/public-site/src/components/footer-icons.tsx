@@ -54,38 +54,60 @@ export function CallIcon({ className }: IconProps) {
   );
 }
 
-/** Saudi commercial-registration (CR / السجل التجاري) badge — document-with-seal, not a copied government logo. */
+/**
+ * Business-number badges (footer, حسابي) — three deliberately DIFFERENT
+ * shapes (registration certificate / regulatory shield / license medal),
+ * each with its own accent color (BUSINESS_BADGE_COLOR below), so they
+ * read as three distinct official marks rather than one grey icon
+ * reused three times. Still original line art, not copied government
+ * artwork — the real ZATCA/REGA/Ministry of Commerce emblems are
+ * protected marks, and this badge shows for any tenant who merely typed
+ * a number into a field (self-reported, unverified), so embedding the
+ * literal government logo here would misleadingly imply an official
+ * verification that never happened.
+ */
+
+/** المركز السعودي للأعمال (Saudi Business Center) — السجل التجاري: registration certificate with a seal/ribbon. */
 export function CrIcon({ className }: IconProps) {
   return (
     <Svg className={className}>
-      <path d="M6 3h9l4 4v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" />
-      <path d="M15 3v4h4" />
-      <circle cx="10.5" cy="14" r="2.3" />
-      <path d="M9.2 18.5l1.3-1.6 1.3 1.6" />
+      <path d="M5.5 2.5h7.5l4 4v9.3" />
+      <path d="M13 2.5v4h4" />
+      <path d="M5.5 2.5v11.8" />
+      <circle cx="8.5" cy="15.7" r="3.1" />
+      <path d="M7.1 15.6l1 1 1.9-1.9" />
+      <path d="M6.9 18.4v3l1.6-1 1.6 1v-3" />
     </Svg>
   );
 }
 
-/** VAT / الرقم الضريبي badge — percent-in-document, not a copied government logo. */
+/** هيئة الزكاة والضريبة والجمارك (ZATCA) — الرقم الضريبي: regulatory shield with a percent mark. */
 export function TaxIcon({ className }: IconProps) {
   return (
     <Svg className={className}>
-      <path d="M6 3h9l4 4v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" />
-      <path d="M15 3v4h4" />
-      <path d="M9 17l5-6" />
-      <circle cx="9.3" cy="11.3" r=".9" fill="currentColor" stroke="none" />
-      <circle cx="13.7" cy="15.7" r=".9" fill="currentColor" stroke="none" />
+      <path d="M12 2.7l6.5 2.6v5.2c0 4.3-2.7 7.4-6.5 8.8-3.8-1.4-6.5-4.5-6.5-8.8V5.3L12 2.7z" />
+      <circle cx="9.6" cy="9.8" r="1.1" fill="currentColor" stroke="none" />
+      <circle cx="14.4" cy="14.2" r="1.1" fill="currentColor" stroke="none" />
+      <path d="M9.9 14.5l4.5-5.2" />
     </Svg>
   );
 }
 
-/** Fal (فال) real-estate broker license badge — house-with-check, not a copied REGA logo. */
+/** الهيئة العامة للعقار — رخصة فال للوساطة والتسويق العقاري: house-in-medal license badge. */
 export function FalIcon({ className }: IconProps) {
   return (
     <Svg className={className}>
-      <path d="M4 11l8-7 8 7" />
-      <path d="M6 10v9a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-9" />
-      <path d="M9.5 15l1.8 1.8L15 13" />
+      <circle cx="12" cy="9.3" r="6.8" />
+      <path d="M8.6 9.6l3.4-2.9 3.4 2.9" />
+      <path d="M9.2 9.1v3.3c0 .3.3.6.6.6h4.4c.3 0 .6-.3.6-.6V9.1" />
+      <path d="M9.7 17.3v4.2l2.3-1.4 2.3 1.4v-4.2" />
     </Svg>
   );
 }
+
+/** Per-badge accent color (footer's business-number badges) — matches each icon above 1:1. */
+export const BUSINESS_BADGE_COLOR = {
+  cr: '#0C6B58',
+  tax: '#0B4F6C',
+  fal: '#B8860B',
+} as const;
