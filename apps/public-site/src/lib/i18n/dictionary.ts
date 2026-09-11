@@ -20,7 +20,9 @@ const dictionaries = {
     crNumber: 'السجل التجاري',
     taxNumber: 'الرقم الضريبي',
     falLicense: 'رخصة فال',
-    otherPages: 'صفحات أخرى',
+    otherPages: 'أخرى',
+    phoneNumber: 'رقم الهاتف',
+    whatsappNumber: 'واتساب',
   },
   en: {
     languageSwitch: 'العربية',
@@ -32,7 +34,9 @@ const dictionaries = {
     crNumber: 'CR Number',
     taxNumber: 'VAT Number',
     falLicense: 'Fal License',
-    otherPages: 'Other Pages',
+    otherPages: 'Other',
+    phoneNumber: 'Phone',
+    whatsappNumber: 'WhatsApp',
   },
 } satisfies Record<Locale, Record<string, string>>;
 

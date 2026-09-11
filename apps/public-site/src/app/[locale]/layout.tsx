@@ -14,7 +14,7 @@ import { SuspendedPage } from '@/components/suspended-page';
 import { MarketingChrome } from '@/components/marketing-chrome';
 import { MARKETING_CONTENT } from '@/lib/marketing/content';
 import { ServiceWorkerRegister } from '@/components/pwa/service-worker-register';
-import { BUSINESS_BADGE_COLOR, CallIcon, CrIcon, FalIcon, InstagramIcon, SnapchatIcon, TaxIcon, TiktokIcon, WhatsappIcon } from '@/components/footer-icons';
+import { BUSINESS_BADGE_COLOR, CallIcon, CrIcon, FalIcon, InstagramIcon, LocationIcon, SnapchatIcon, TaxIcon, TiktokIcon, WhatsappIcon } from '@/components/footer-icons';
 
 interface LocaleLayoutProps {
   children: React.ReactNode;
@@ -86,13 +86,14 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   const font = resolveWebsiteFont(site.website.font_family);
   const tenantName = locale === 'ar' ? site.tenant.name_ar : site.tenant.name_en;
 
+  // "تواصل معنا" (الاتصال/واتساب) rendered as their own labeled rows in
+  // the footer's middle column, not lumped into this row — this list is
+  // purely the social-media accounts (right column, plain icon row).
   const digitsOnly = (value: string) => value.replace(/[^0-9]/g, '');
   const socialLinks = [
     site.tenant.social_instagram && { key: 'instagram', href: site.tenant.social_instagram, Icon: InstagramIcon },
     site.tenant.social_tiktok && { key: 'tiktok', href: site.tenant.social_tiktok, Icon: TiktokIcon },
-    site.tenant.social_whatsapp && { key: 'whatsapp', href: `https://wa.me/${digitsOnly(site.tenant.social_whatsapp)}`, Icon: WhatsappIcon },
     site.tenant.social_snapchat && { key: 'snapchat', href: site.tenant.social_snapchat, Icon: SnapchatIcon },
-    site.tenant.social_phone && { key: 'phone', href: `tel:${digitsOnly(site.tenant.social_phone)}`, Icon: CallIcon },
   ].filter((entry): entry is { key: string; href: string; Icon: typeof InstagramIcon } => Boolean(entry));
 
   const businessNumbers = [
@@ -154,36 +155,81 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
 
         <main>{children}</main>
 
-        <footer className="flex flex-col gap-6 border-t border-black/10 px-6 py-8 text-sm text-black/70">
-          <div className="flex flex-wrap items-start justify-between gap-8">
-            <div className="flex max-w-[280px] flex-col gap-3">
+        <footer className="flex flex-col gap-8 bg-[#13151f] px-6 py-10 text-sm text-white/60">
+          <div className="flex flex-wrap items-start justify-between gap-10">
+            {/* الشعار — جميع الحقوق محفوظة @سبعة — حسابات التواصل الاجتماعي */}
+            <div className="flex min-w-[220px] max-w-[280px] flex-col items-start gap-4">
               {site.website.logo_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={site.website.logo_url} alt={tenantName} style={{ maxWidth: 250, maxHeight: 100 }} className="w-auto" />
+                <img src={site.website.logo_url} alt={tenantName} style={{ maxWidth: 200, maxHeight: 80 }} className="w-auto" />
               ) : (
-                <span className="text-base font-semibold text-black/80">{tenantName}</span>
+                <span className="text-lg font-semibold text-white">{tenantName}</span>
               )}
-              {site.website.footer_description && <p className="text-black/60">{site.website.footer_description}</p>}
+              <SiteBadge accountType={site.tenant.account_type} locale={locale} />
+              {socialLinks.length > 0 && (
+                <div className="flex items-center gap-4">
+                  {socialLinks.map(({ key, href, Icon }) => (
+                    <a key={key} href={href} target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-tenant-primary">
+                      <Icon className="h-[18px] w-[18px]" />
+                    </a>
+                  ))}
+                </div>
+              )}
             </div>
 
-            {socialLinks.length > 0 && (
-              <div className="flex flex-col gap-2.5">
-                {socialLinks.map(({ key, href, Icon }) => (
-                  <a key={key} href={href} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-tenant-primary">
-                    <Icon className="h-[18px] w-[18px]" />
-                  </a>
-                ))}
-              </div>
-            )}
+            {/* تواصل معنا — الاتصال، واتساب، العنوان */}
+            <div className="flex min-w-[220px] flex-col items-start gap-4">
+              <h3 className="text-base font-semibold text-white">{dict.contact}</h3>
+              {site.tenant.social_phone && (
+                <a href={`tel:${digitsOnly(site.tenant.social_phone)}`} className="flex items-center gap-3 hover:text-tenant-primary">
+                  <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-white/10 text-tenant-primary">
+                    <CallIcon className="h-[16px] w-[16px]" />
+                  </span>
+                  <span className="flex flex-col">
+                    <span className="text-xs text-white/40">{dict.phoneNumber}</span>
+                    <span className="font-medium text-white" dir="ltr">
+                      {site.tenant.social_phone}
+                    </span>
+                  </span>
+                </a>
+              )}
+              {site.tenant.social_whatsapp && (
+                <a
+                  href={`https://wa.me/${digitsOnly(site.tenant.social_whatsapp)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 hover:text-tenant-primary"
+                >
+                  <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-white/10 text-tenant-primary">
+                    <WhatsappIcon className="h-[16px] w-[16px]" />
+                  </span>
+                  <span className="flex flex-col">
+                    <span className="text-xs text-white/40">{dict.whatsappNumber}</span>
+                    <span className="font-medium text-white" dir="ltr">
+                      {site.tenant.social_whatsapp}
+                    </span>
+                  </span>
+                </a>
+              )}
+              {site.website.footer_description && (
+                <div className="flex items-start gap-3">
+                  <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-white/10 text-tenant-primary">
+                    <LocationIcon className="h-[16px] w-[16px]" />
+                  </span>
+                  <p className="pt-1.5 text-white/70">{site.website.footer_description}</p>
+                </div>
+              )}
+            </div>
 
+            {/* أخرى — روابط الصفحات */}
             {site.custom_pages.length > 0 && (
-              <div className="flex flex-col gap-2">
-                <span className="text-xs font-semibold text-black/40">{dict.otherPages}</span>
+              <div className="flex min-w-[160px] flex-col items-start gap-3">
+                <h3 className="text-base font-semibold text-white">{dict.otherPages}</h3>
                 {site.custom_pages.map((page) => (
                   <Link
                     key={page.id}
                     href={locale === 'ar' ? `/pages/${page.slug}` : `/en/pages/${page.slug}`}
-                    className="hover:text-tenant-primary"
+                    className="text-white/60 hover:text-tenant-primary"
                   >
                     {page.title}
                   </Link>
@@ -193,24 +239,19 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
           </div>
 
           {businessNumbers.length > 0 && (
-            <div className="flex flex-wrap items-center gap-3 border-t border-black/10 pt-4">
+            <div className="flex flex-wrap items-center gap-3 border-t border-white/10 pt-6">
               {businessNumbers.map(({ key, label, Icon }) => (
                 <span
                   key={key}
                   title={label}
-                  className="flex h-10 w-10 items-center justify-center rounded-full"
-                  style={{ backgroundColor: `${BUSINESS_BADGE_COLOR[key]}1A`, color: BUSINESS_BADGE_COLOR[key] }}
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10"
+                  style={{ color: BUSINESS_BADGE_COLOR[key] }}
                 >
                   <Icon className="h-[18px] w-[18px]" />
                 </span>
               ))}
             </div>
           )}
-
-          <div className="flex flex-col items-center gap-3 border-t border-black/10 pt-6">
-            <span>{tenantName}</span>
-            <SiteBadge accountType={site.tenant.account_type} locale={locale} />
-          </div>
         </footer>
         <ServiceWorkerRegister />
       </body>

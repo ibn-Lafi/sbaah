@@ -54,6 +54,16 @@ export function CallIcon({ className }: IconProps) {
   );
 }
 
+/** الفوتر — عنوان الحساب (footer_description). دبوس خريطة عام، لا علاقة له بأي خدمة خرائط بعينها. */
+export function LocationIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M12 21s7-6.3 7-12a7 7 0 1 0-14 0c0 5.7 7 12 7 12z" />
+      <circle cx="12" cy="9" r="2.4" />
+    </Svg>
+  );
+}
+
 /**
  * Business-number badges (footer, حسابي) — three deliberately DIFFERENT
  * shapes (registration certificate / regulatory shield / license medal),
@@ -105,9 +115,9 @@ export function FalIcon({ className }: IconProps) {
   );
 }
 
-/** Per-badge accent color (footer's business-number badges) — matches each icon above 1:1. */
+/** Per-badge accent color (footer's business-number badges, dark background) — matches each icon above 1:1. */
 export const BUSINESS_BADGE_COLOR = {
-  cr: '#0C6B58',
-  tax: '#0B4F6C',
-  fal: '#B8860B',
+  cr: '#2DD4BF',
+  tax: '#38BDF8',
+  fal: '#E0A82E',
 } as const;
