@@ -6,6 +6,7 @@ import { ACCOUNT_TYPE_LABELS, socialLinksUpdateSchema } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { PhoneInput } from '@/components/ui/phone-input';
 import { Button } from '@/components/ui/button';
 import { FormError } from '@/components/ui/form-error';
 import {
@@ -34,9 +35,13 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 const SOCIAL_FIELDS: { key: keyof SocialLinks; label: string; placeholder: string; Icon: typeof InstagramIcon }[] = [
   { key: 'social_instagram', label: 'إنستغرام', placeholder: 'رابط حساب إنستغرام', Icon: InstagramIcon },
   { key: 'social_tiktok', label: 'تيك توك', placeholder: 'رابط حساب تيك توك', Icon: TiktokIcon },
-  { key: 'social_whatsapp', label: 'واتساب', placeholder: '9665xxxxxxxx', Icon: WhatsappIcon },
   { key: 'social_snapchat', label: 'سناب شات', placeholder: 'رابط حساب سناب شات', Icon: SnapchatIcon },
-  { key: 'social_phone', label: 'اتصال', placeholder: '9665xxxxxxxx', Icon: CallIcon },
+];
+
+/** حقلا واتساب/اتصال يُخزَّنان كأرقام بلا + (966 متبوعة بتسعة أرقام) لتوافق digitsOnly() بالموقع العام — يُعرضان دائمًا برمز +966 ثابت مثل بقية حقول الجوال. */
+const PHONE_SOCIAL_FIELDS: { key: 'social_whatsapp' | 'social_phone'; label: string; Icon: typeof WhatsappIcon }[] = [
+  { key: 'social_whatsapp', label: 'واتساب', Icon: WhatsappIcon },
+  { key: 'social_phone', label: 'اتصال', Icon: CallIcon },
 ];
 
 /** حسابات التواصل الاجتماعي — تُعرض تلقائيًا (فقط ما تمت تعبئته) في تذييل الموقع العام (site/editor's أسفل الصفحة). */
@@ -74,6 +79,20 @@ function SocialLinksCard({ accessToken, initial }: { accessToken: string; initia
         يظهر في تذييل موقعك الإلكتروني فقط ما تمت تعبئته هنا.
       </p>
       <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-3">
+        {PHONE_SOCIAL_FIELDS.map(({ key, label, Icon }) => (
+          <div key={key} className="flex flex-col gap-2">
+            <label className="flex items-center gap-2 text-sm font-medium text-text-primary">
+              <Icon className="h-[16px] w-[16px] text-text-secondary" />
+              {label}
+            </label>
+            <PhoneInput
+              storagePrefix="966"
+              placeholder="5xxxxxxxx"
+              value={draft[key] ?? ''}
+              onChange={(value) => setDraft((c) => ({ ...c, [key]: value }))}
+            />
+          </div>
+        ))}
         {SOCIAL_FIELDS.map(({ key, label, placeholder, Icon }) => (
           <div key={key} className="flex flex-col gap-2">
             <label className="flex items-center gap-2 text-sm font-medium text-text-primary">

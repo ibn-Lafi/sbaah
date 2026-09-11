@@ -7,6 +7,7 @@ import { otpCodeSchema, passwordSchema, saudiPhoneSchema } from '@sbaah/shared';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { PhoneInput } from '@/components/ui/phone-input';
 import { OtpInput } from '@/components/ui/otp-input';
 import { FormError } from '@/components/ui/form-error';
 import { PasswordStrengthMeter } from '@/components/auth/password-strength-meter';
@@ -110,13 +111,7 @@ export default function ForgotPasswordPage() {
 
       {step === 'phone' && (
         <form onSubmit={handleSendOtp} className="flex flex-col gap-4">
-          <Input
-            type="tel"
-            placeholder="+966501234567"
-            value={phone}
-            onChange={(event) => setPhone(event.target.value)}
-            dir="ltr"
-          />
+          <PhoneInput placeholder="5xxxxxxxx" value={phone} onChange={setPhone} />
           <FormError message={error} />
           <Button type="submit" disabled={loading}>
             {loading ? 'جارٍ الإرسال...' : 'إرسال رمز التحقق'}

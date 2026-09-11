@@ -12,6 +12,7 @@ import {
 } from '@sbaah/shared';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { PhoneInput } from '@/components/ui/phone-input';
 import { Select } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { FormError } from '@/components/ui/form-error';
@@ -141,13 +142,7 @@ export function RentalForm({ mode, initialValues, accessToken, defaultPropertyId
           value={form.tenant_name}
           onChange={(e) => set('tenant_name', e.target.value)}
         />
-        <Input
-          type="tel"
-          placeholder="+966501234567"
-          value={form.tenant_phone}
-          onChange={(e) => set('tenant_phone', e.target.value)}
-          dir="ltr"
-        />
+        <PhoneInput placeholder="5xxxxxxxx" value={form.tenant_phone} onChange={(value) => set('tenant_phone', value)} />
       </div>
 
       <Input

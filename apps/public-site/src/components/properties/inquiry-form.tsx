@@ -11,7 +11,6 @@ const LABELS = {
   ar: {
     title: 'استفسار عن هذا العقار',
     name: 'الاسم',
-    phone: 'رقم الجوال',
     email: 'البريد الإلكتروني (اختياري)',
     submit: 'إرسال الاستفسار',
     sending: 'جارٍ الإرسال...',
@@ -21,7 +20,6 @@ const LABELS = {
   en: {
     title: 'Inquire about this property',
     name: 'Name',
-    phone: 'Phone number',
     email: 'Email (optional)',
     submit: 'Send inquiry',
     sending: 'Sending...',
@@ -112,14 +110,23 @@ export function InquiryForm({ locale, tenantId, propertyId }: InquiryFormProps) 
         onChange={(e) => setFullName(e.target.value)}
         className="rounded-lg border border-black/15 p-2 text-sm"
       />
-      <input
-        type="tel"
-        placeholder={t.phone}
-        value={phone}
-        onChange={(e) => setPhone(e.target.value)}
-        dir="ltr"
-        className="rounded-lg border border-black/15 p-2 text-sm"
-      />
+      <div dir="ltr" className="flex items-center rounded-lg border border-black/15 p-2 text-sm">
+        <span className="flex items-center gap-1 border-r border-black/15 pr-2 text-black/60">
+          <span aria-hidden="true">🇸🇦</span>
+          <span>+966</span>
+        </span>
+        <input
+          type="tel"
+          inputMode="numeric"
+          placeholder="5xxxxxxxx"
+          value={phone.startsWith('+966') ? phone.slice(4) : phone}
+          onChange={(e) => {
+            const digits = e.target.value.replace(/\D/g, '').slice(0, 9);
+            setPhone(digits ? `+966${digits}` : '');
+          }}
+          className="flex-1 bg-transparent pl-2 outline-none"
+        />
+      </div>
       <input
         type="email"
         placeholder={t.email}

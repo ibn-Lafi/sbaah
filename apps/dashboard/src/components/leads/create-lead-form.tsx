@@ -4,6 +4,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { manualLeadInputSchema, type Lead, type Property } from '@sbaah/shared';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { PhoneInput } from '@/components/ui/phone-input';
 import { Select } from '@/components/ui/select';
 import { FormError } from '@/components/ui/form-error';
 import { createLead } from '@/lib/api/leads';
@@ -66,7 +67,7 @@ export function CreateLeadForm({ accessToken, onCreated }: CreateLeadFormProps) 
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <Input placeholder="الاسم" value={fullName} onChange={(e) => setFullName(e.target.value)} />
       <div className="grid grid-cols-2 gap-4">
-        <Input type="tel" placeholder="+966501234567" value={phone} onChange={(e) => setPhone(e.target.value)} dir="ltr" />
+        <PhoneInput placeholder="5xxxxxxxx" value={phone} onChange={setPhone} />
         <Input
           type="email"
           placeholder="البريد الإلكتروني (اختياري)"

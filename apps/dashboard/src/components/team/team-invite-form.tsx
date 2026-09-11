@@ -4,6 +4,7 @@ import { useState, type FormEvent } from 'react';
 import { inviteTeamMemberSchema } from '@sbaah/shared';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { PhoneInput } from '@/components/ui/phone-input';
 import { Select } from '@/components/ui/select';
 import { FormError } from '@/components/ui/form-error';
 import { ROLE_LABELS } from '@/lib/auth/role-labels';
@@ -45,7 +46,7 @@ export function TeamInviteForm({ accessToken, onInvited }: TeamInviteFormProps) 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <Input placeholder="الاسم الثلاثي" value={fullName} onChange={(e) => setFullName(e.target.value)} />
-      <Input type="tel" placeholder="+966501234567" value={phone} onChange={(e) => setPhone(e.target.value)} dir="ltr" />
+      <PhoneInput placeholder="5xxxxxxxx" value={phone} onChange={setPhone} />
       <Select value={role} onChange={(e) => setRole(e.target.value as 'admin' | 'agent')}>
         <option value="agent">{ROLE_LABELS.agent}</option>
         <option value="admin">{ROLE_LABELS.admin}</option>
