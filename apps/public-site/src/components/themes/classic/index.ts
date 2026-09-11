@@ -3,6 +3,7 @@ import { HeroSection } from './hero-section';
 import { PropertyGridSection } from './property-grid-section';
 import { TextSection } from './text-section';
 import { ContactSection } from './contact-section';
+import { Header } from './header';
 import { Footer } from './footer';
 
-export const classicTheme: ThemeSectionComponents = { HeroSection, PropertyGridSection, TextSection, ContactSection, Footer };
+export const classicTheme: ThemeSectionComponents = { HeroSection, PropertyGridSection, TextSection, ContactSection, Header, Footer };

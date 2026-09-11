@@ -38,10 +38,19 @@ export interface ContactSectionProps {
 
 /**
  * Site-wide chrome, not a `website_sections` row — every page gets
- * exactly one, rendered by the root layout. Still theme-owned (not
- * hardcoded in the layout) so a future theme can give it a completely
+ * exactly one of each, rendered by the root layout. Still fully
+ * theme-owned (not hardcoded in the layout) so a future theme can give
+ * the whole shell — announcement bar, nav header, footer — a completely
  * different look without touching shared code; see docs/THEMES.md.
  */
+export interface HeaderProps {
+  locale: Locale;
+  dict: ReturnType<typeof getDictionary>;
+  website: TenantSite['website'];
+  tenantName: string;
+  otherLocaleHref: string;
+}
+
 export interface FooterProps {
   locale: Locale;
   dict: ReturnType<typeof getDictionary>;
@@ -58,5 +67,6 @@ export interface ThemeSectionComponents {
   PropertyGridSection: SectionComponent<PropertyGridSectionProps>;
   TextSection: SectionComponent<TextSectionProps>;
   ContactSection: SectionComponent<ContactSectionProps>;
+  Header: SectionComponent<HeaderProps>;
   Footer: SectionComponent<FooterProps>;
 }
