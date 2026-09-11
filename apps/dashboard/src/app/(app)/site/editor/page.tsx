@@ -369,7 +369,7 @@ export default function WebsiteEditorPage() {
                 setActivePageKey(e.target.value as WebsitePageKey);
                 setPanelView('sections');
               }}
-              className="h-9 w-[170px] text-sm"
+              className="h-10 w-[170px] !rounded-full border-0 bg-surface-subtle-3 px-4 text-sm"
             >
               {WEBSITE_PAGE_KEYS.map((key) => (
                 <option key={key} value={key}>
