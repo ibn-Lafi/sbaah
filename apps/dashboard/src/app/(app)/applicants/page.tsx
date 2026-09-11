@@ -4,8 +4,11 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import type { BrokerMarketerApplicantType } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
+import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Modal } from '@/components/ui/modal';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
+import { CreateBrokerMarketerForm } from '@/components/applicants/create-broker-marketer-form';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { ROLE_LABELS } from '@/lib/auth/role-labels';
 import { listBrokerMarketerApplications, type BrokerMarketerApplicationWithRelations } from '@/lib/api/broker-applications';
@@ -25,6 +28,10 @@ export default function ApplicantsPage() {
   const { me, accessToken } = useCurrentUser();
   const [tab, setTab] = useState<BrokerMarketerApplicantType>('broker');
   const [applications, setApplications] = useState<BrokerMarketerApplicationWithRelations[] | null>(null);
+  const [showCreate, setShowCreate] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const canManage = me.user.role !== 'agent';
 
   useEffect(() => {
     let cancelled = false;
@@ -35,7 +42,16 @@ export default function ApplicantsPage() {
     return () => {
       cancelled = true;
     };
-  }, [accessToken, tab]);
+  }, [accessToken, tab, refreshKey]);
+
+  function handleCreated(application: BrokerMarketerApplicationWithRelations) {
+    setShowCreate(false);
+    if (application.applicant_type === tab) {
+      setRefreshKey((key) => key + 1);
+    } else {
+      setTab(application.applicant_type);
+    }
+  }
 
   return (
     <AppShell title="الوسطاء والمسوقين" orgName={me.tenant.name_ar} accountType={me.tenant.account_type} roleLabel={ROLE_LABELS[me.user.role]}>
@@ -55,6 +71,18 @@ export default function ApplicantsPage() {
           ))}
         </div>
       </div>
+
+      {canManage && (
+        <div className="mb-5 flex justify-end">
+          <Button onClick={() => setShowCreate(true)}>+ إضافة</Button>
+        </div>
+      )}
+
+      {showCreate && (
+        <Modal title="إضافة وسيط أو مسوّق" onClose={() => setShowCreate(false)}>
+          <CreateBrokerMarketerForm accessToken={accessToken} onCreated={handleCreated} />
+        </Modal>
+      )}
 
       <Card className="overflow-hidden">
         {applications === null ? (

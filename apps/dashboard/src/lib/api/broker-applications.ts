@@ -1,5 +1,5 @@
-import type { BrokerMarketerApplicantType, BrokerMarketerApplication } from '@sbaah/shared';
-import { apiGet } from './client';
+import type { BrokerMarketerApplicantType, BrokerMarketerApplication, ManualBrokerMarketerApplicationInput } from '@sbaah/shared';
+import { apiGet, apiPost } from './client';
 
 export type BrokerMarketerApplicationWithRelations = BrokerMarketerApplication & {
   cities: { name_ar: string; name_en: string } | null;
@@ -23,4 +23,11 @@ export function listBrokerMarketerApplications(
   if (params.page) query.set('page', String(params.page));
   const qs = query.toString();
   return apiGet<BrokerMarketerApplicationListResponse>(`/broker-applications${qs ? `?${qs}` : ''}`, accessToken);
+}
+
+export function createBrokerMarketerApplication(
+  accessToken: string,
+  input: ManualBrokerMarketerApplicationInput,
+): Promise<{ application: BrokerMarketerApplicationWithRelations }> {
+  return apiPost<{ application: BrokerMarketerApplicationWithRelations }>('/broker-applications', input, accessToken);
 }

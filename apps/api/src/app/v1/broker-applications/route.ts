@@ -1,8 +1,9 @@
 import type { NextRequest } from 'next/server';
 import { z } from 'zod';
-import { BROKER_MARKETER_APPLICANT_TYPES } from '@sbaah/shared';
-import { okResponse, withErrorHandling } from '@/lib/http';
+import { BROKER_MARKETER_APPLICANT_TYPES, manualBrokerMarketerApplicationInputSchema } from '@sbaah/shared';
+import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
+import { getCallerContext } from '@/lib/auth/get-caller-context';
 
 const listQuerySchema = z.object({
   applicant_type: z.enum(BROKER_MARKETER_APPLICANT_TYPES).optional(),
@@ -39,4 +40,31 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
   }
 
   return okResponse({ applications: data, page, page_size, total: count ?? 0 });
+});
+
+/**
+ * Manual "+ إضافة" from /applicants (migration 0033). No agent INSERT
+ * policy on broker_marketer_applications, same reasoning as POST
+ * /v1/leads: this is an Owner/Admin action, not something an Agent does.
+ */
+export const POST = withErrorHandling(async (request: NextRequest) => {
+  const { supabase } = getAuthenticatedClient(request);
+  const caller = await getCallerContext(supabase);
+
+  if (caller.role === 'agent') {
+    throw new ApiError(403, 'forbidden', 'لا يملك الوسيط صلاحية إضافة وسطاء أو مسوّقين يدويًا');
+  }
+
+  const input = manualBrokerMarketerApplicationInputSchema.parse(await request.json());
+
+  const { data, error } = await supabase
+    .from('broker_marketer_applications')
+    .insert({ ...input, tenant_id: caller.tenantId })
+    .select('*, cities(name_ar, name_en), properties(id, title_ar, title_en)')
+    .single();
+  if (error) {
+    throw new Error(`Failed to create broker/marketer application: ${error.message}`);
+  }
+
+  return okResponse({ application: data }, 201);
 });

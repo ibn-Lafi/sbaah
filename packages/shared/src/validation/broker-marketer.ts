@@ -19,3 +19,18 @@ export const publicBrokerMarketerApplicationInputSchema = z.object({
   captcha_token: z.string().min(1, 'التحقق الأمني مطلوب'),
 });
 export type PublicBrokerMarketerApplicationInput = z.infer<typeof publicBrokerMarketerApplicationInputSchema>;
+
+/**
+ * POST /v1/broker-applications — Owner/Admin manually adding a broker/
+ * marketer from the dashboard (migration 0033), same shape as the public
+ * form minus tenant_id (taken from the caller's auth context) and
+ * captcha_token (authenticated request, not a public one).
+ */
+export const manualBrokerMarketerApplicationInputSchema = z.object({
+  property_id: z.string().uuid().optional().nullable(),
+  full_name: z.string().min(2, 'الاسم مطلوب'),
+  city_id: z.string().uuid('المدينة مطلوبة'),
+  fal_license_number: z.string().min(1, 'رقم رخصة فال مطلوب'),
+  applicant_type: z.enum(BROKER_MARKETER_APPLICANT_TYPES),
+});
+export type ManualBrokerMarketerApplicationInput = z.infer<typeof manualBrokerMarketerApplicationInputSchema>;
