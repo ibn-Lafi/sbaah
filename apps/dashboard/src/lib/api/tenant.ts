@@ -1,5 +1,5 @@
 import type { CustomDomainStatus, SocialLinksUpdateInput } from '@sbaah/shared';
-import { apiGet, apiDelete, apiPatch } from './client';
+import { apiGet, apiDelete, apiPatch, apiPost } from './client';
 
 export interface SocialLinks {
   social_instagram: string | null;
@@ -28,6 +28,11 @@ export interface DomainInfo {
 
 export function getDomain(accessToken: string) {
   return apiGet<DomainInfo>('/tenant/domain', accessToken);
+}
+
+/** Self-service DNS check ("اختبار الربط") — a real CNAME lookup, no admin review involved. */
+export function verifyDomain(accessToken: string) {
+  return apiPost<{ custom_domain_status: CustomDomainStatus; verified: boolean }>('/tenant/domain/verify', undefined, accessToken);
 }
 
 export function setDomain(accessToken: string, custom_domain: string) {

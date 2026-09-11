@@ -13,7 +13,7 @@ import { DomainSkeleton } from '@/components/domain/domain-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { ROLE_LABELS } from '@/lib/auth/role-labels';
 import { getPlatformRootDomain } from '@/lib/env/platform-root-domain';
-import { getDomain, setDomain, removeDomain, updateSubdomain, type DomainInfo } from '@/lib/api/tenant';
+import { getDomain, setDomain, removeDomain, updateSubdomain, verifyDomain, type DomainInfo } from '@/lib/api/tenant';
 import { ApiRequestError } from '@/lib/api/client';
 
 type DomainMode = 'custom' | 'subdomain';
@@ -22,6 +22,8 @@ function CustomDomainCard({ accessToken, domain, onChanged }: { accessToken: str
   const [input, setInput] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+  const [notVerifiedYet, setNotVerifiedYet] = useState(false);
 
   async function handleSet(event: FormEvent) {
     event.preventDefault();
@@ -53,6 +55,24 @@ function CustomDomainCard({ accessToken, domain, onChanged }: { accessToken: str
     }
   }
 
+  async function handleVerify() {
+    setError(null);
+    setNotVerifiedYet(false);
+    setVerifying(true);
+    try {
+      const result = await verifyDomain(accessToken);
+      if (result.verified) {
+        onChanged();
+      } else {
+        setNotVerifiedYet(true);
+      }
+    } catch (err) {
+      setError(err instanceof ApiRequestError ? err.message : 'تعذّر التحقق من الربط');
+    } finally {
+      setVerifying(false);
+    }
+  }
+
   return (
     <Card className="p-6">
       <h2 className="mb-1 text-base font-semibold text-text-primary">الدومين المخصص</h2>
@@ -75,19 +95,29 @@ function CustomDomainCard({ accessToken, domain, onChanged }: { accessToken: str
             />
           </div>
           {domain.custom_domain_status === 'pending' && domain.dns_record && (
-            <div className="flex flex-col gap-2 rounded-input bg-surface-header p-4 text-sm" dir="ltr">
-              <div className="flex justify-between text-xs text-text-secondary">
-                <span>Type</span>
-                <span>Name</span>
-                <span>Value</span>
+            <>
+              <div className="flex flex-col gap-2 rounded-input bg-surface-header p-4 text-sm" dir="ltr">
+                <div className="flex justify-between text-xs text-text-secondary">
+                  <span>Type</span>
+                  <span>Name</span>
+                  <span>Value</span>
+                </div>
+                <div className="h-px bg-border-subtle" />
+                <div className="flex justify-between font-semibold text-text-primary">
+                  <span>{domain.dns_record.type}</span>
+                  <span>{domain.dns_record.name}</span>
+                  <span>{domain.dns_record.value}</span>
+                </div>
               </div>
-              <div className="h-px bg-border-subtle" />
-              <div className="flex justify-between font-semibold text-text-primary">
-                <span>{domain.dns_record.type}</span>
-                <span>{domain.dns_record.name}</span>
-                <span>{domain.dns_record.value}</span>
-              </div>
-            </div>
+              <Button type="button" variant="secondary" loading={verifying} onClick={() => void handleVerify()} className="w-fit">
+                اختبار الربط
+              </Button>
+              {notVerifiedYet && (
+                <p className="text-sm text-warning">
+                  لم يتم رصد الربط بعد — تأكد من إضافة سجل DNS أعلاه بالضبط لدى مزوّد الدومين، وقد يستغرق انتشاره حتى ساعات قليلة قبل إعادة المحاولة.
+                </p>
+              )}
+            </>
           )}
           <button type="button" onClick={handleRemove} disabled={loading} className="w-fit text-sm font-medium text-danger">
             إلغاء ربط الدومين

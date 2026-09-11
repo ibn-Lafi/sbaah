@@ -11,7 +11,7 @@ import { FormError } from '@/components/ui/form-error';
 import { LoadingState } from '@/components/ui/loading-state';
 import { TenantStatusBadge } from '@/components/ui/status-badge';
 import { useCurrentAdmin } from '@/lib/auth/current-admin-context';
-import { getAccount, updateAccount, type DnsRecord } from '@/lib/api/accounts';
+import { getAccount, updateAccount } from '@/lib/api/accounts';
 import { listPlans } from '@/lib/api/plans';
 import { ApiRequestError } from '@/lib/api/client';
 import { ACCOUNT_TYPE_LABELS, TENANT_STATUS_LABELS } from '@/lib/tenant/labels';
@@ -26,7 +26,6 @@ export default function AccountDetailPage() {
   const params = useParams<{ id: string }>();
   const { accessToken } = useCurrentAdmin();
   const [account, setAccount] = useState<Tenant | null>(null);
-  const [dnsRecord, setDnsRecord] = useState<DnsRecord | null>(null);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -36,7 +35,6 @@ export default function AccountDetailPage() {
     void Promise.all([getAccount(accessToken, params.id), listPlans(accessToken)]).then(([accountRes, plansRes]) => {
       if (cancelled) return;
       setAccount(accountRes.account);
-      setDnsRecord(accountRes.dns_record);
       setPlans(plansRes.plans);
     });
     return () => {
@@ -68,37 +66,6 @@ export default function AccountDetailPage() {
       setAccount(updated);
     } catch (err) {
       setError(err instanceof ApiRequestError ? err.message : 'تعذّر تحديث الباقة');
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function handleApproveDomain() {
-    if (!account) return;
-    if (!window.confirm(`تأكيد أن ${account.custom_domain} يشير فعليًا إلى العنوان أعلاه، وتفعيله؟`)) return;
-    setError(null);
-    setBusy(true);
-    try {
-      const { account: updated } = await updateAccount(accessToken, account.id, { custom_domain_status: 'verified' });
-      setAccount(updated);
-    } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : 'تعذّر تفعيل الدومين');
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function handleRejectDomain() {
-    if (!account) return;
-    if (!window.confirm(`رفض طلب ${account.custom_domain}؟ سيُطلَب من صاحب الحساب تصحيح إعدادات DNS وإعادة الطلب.`)) return;
-    setError(null);
-    setBusy(true);
-    try {
-      const { account: updated } = await updateAccount(accessToken, account.id, { clear_custom_domain: true });
-      setAccount(updated);
-      setDnsRecord(null);
-    } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : 'تعذّر رفض طلب الدومين');
     } finally {
       setBusy(false);
     }
@@ -155,7 +122,7 @@ export default function AccountDetailPage() {
                 <dt className="text-text-muted">النطاق المخصص</dt>
                 <dd className="mt-0.5 font-medium" dir="ltr">
                   {account.custom_domain ?? '—'}
-                  {account.custom_domain_status && ` (${account.custom_domain_status})`}
+                  {account.custom_domain_status && ` (${account.custom_domain_status === 'verified' ? 'مفعَّل' : 'بانتظار ربط DNS من العميل'})`}
                 </dd>
               </div>
               <div>
@@ -195,45 +162,6 @@ export default function AccountDetailPage() {
               ))}
             </Select>
           </Card>
-
-          {account.custom_domain && (
-            <Card className="p-6">
-              <h3 className="mb-1 font-semibold">طلب الدومين المخصص</h3>
-              <p className="mb-4 text-sm text-text-secondary">
-                الدومين المطلوب: <span dir="ltr">{account.custom_domain}</span> — الحالة:{' '}
-                {account.custom_domain_status === 'verified' ? 'مفعَّل' : 'بانتظار المراجعة'}
-              </p>
-
-              {dnsRecord && (
-                <div className="mb-4 rounded-lg bg-surface-subtle p-4 text-sm">
-                  <p className="mb-2 text-text-secondary">
-                    تحققوا يدويًا (عبر أي أداة DNS lookup) أن هذا النطاق يشير فعليًا إلى العنوان التالي قبل التفعيل:
-                  </p>
-                  <div dir="ltr" className="flex flex-col gap-1 font-mono text-xs">
-                    <span>Type: {dnsRecord.type}</span>
-                    <span>Name: {dnsRecord.name}</span>
-                    <span>Value: {dnsRecord.value}</span>
-                  </div>
-                </div>
-              )}
-
-              {account.custom_domain_status === 'pending' && (
-                <div className="flex flex-wrap gap-3">
-                  <Button type="button" disabled={busy} onClick={() => void handleApproveDomain()}>
-                    تفعيل الدومين
-                  </Button>
-                  <button
-                    type="button"
-                    disabled={busy}
-                    onClick={() => void handleRejectDomain()}
-                    className="text-sm font-medium text-danger hover:underline disabled:opacity-50"
-                  >
-                    رفض الطلب
-                  </button>
-                </div>
-              )}
-            </Card>
-          )}
 
           <FormError message={error} />
         </div>

@@ -21,16 +21,6 @@ export function AccountsIcon({ className }: IconProps) {
   );
 }
 
-export function DomainsIcon({ className }: IconProps) {
-  return (
-    <Svg className={className}>
-      <path d="M9.5 14.5l5-5" />
-      <path d="M11 6.3l.8-.8a4 4 0 0 1 5.7 5.7l-.8.8" />
-      <path d="M13 17.7l-.8.8a4 4 0 0 1-5.7-5.7l.8-.8" />
-    </Svg>
-  );
-}
-
 export function PlansIcon({ className }: IconProps) {
   return (
     <Svg className={className}>

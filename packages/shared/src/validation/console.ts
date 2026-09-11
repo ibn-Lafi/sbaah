@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { BILLING_CYCLES, CUSTOM_DOMAIN_STATUSES, TENANT_STATUSES } from '../types/enums';
+import { BILLING_CYCLES, TENANT_STATUSES } from '../types/enums';
 
 /**
  * PATCH /v1/console/accounts/[id] — platform-owner-only. Deliberately
@@ -8,33 +8,23 @@ import { BILLING_CYCLES, CUSTOM_DOMAIN_STATUSES, TENANT_STATUSES } from '../type
  * plan assignment (billing), not the tenant's own identity fields
  * (name/CR/tax number) — those stay the account owner's to manage.
  *
- * `custom_domain_status`/`clear_custom_domain` (task 40/42, PRODUCT_SPEC
- * section 4.3/15) — reviewing a pending custom-domain request: `'verified'`
- * approves it, `clear_custom_domain: true` rejects it. Rejection clears
- * both `custom_domain` and `custom_domain_status` together (never just the
- * status) because the DB check constraint requires them both-null or
- * both-set — the route handler builds that paired update, not the client.
+ * No `custom_domain_status` lever here — custom-domain verification is
+ * fully self-service (founder's explicit decision, superseding the
+ * earlier console-review design): POST /v1/tenant/domain/verify does a
+ * real DNS check and flips the status itself, console never touches it.
  */
 export const consoleAccountUpdateSchema = z
   .object({
     status: z.enum(TENANT_STATUSES).optional(),
     plan_id: z.string().uuid().optional(),
-    custom_domain_status: z.enum(CUSTOM_DOMAIN_STATUSES).optional(),
-    clear_custom_domain: z.literal(true).optional(),
   })
-  .refine(
-    (data) =>
-      data.status !== undefined ||
-      data.plan_id !== undefined ||
-      data.custom_domain_status !== undefined ||
-      data.clear_custom_domain !== undefined,
-    { message: 'يجب تحديد حقل واحد على الأقل للتحديث' },
-  );
+  .refine((data) => data.status !== undefined || data.plan_id !== undefined, {
+    message: 'يجب تحديد حقل واحد على الأقل للتحديث',
+  });
 export type ConsoleAccountUpdateInput = z.infer<typeof consoleAccountUpdateSchema>;
 
 export const consoleAccountListQuerySchema = z.object({
   status: z.enum(TENANT_STATUSES).optional(),
-  custom_domain_status: z.enum(CUSTOM_DOMAIN_STATUSES).optional(),
   page: z.coerce.number().int().positive().default(1),
   page_size: z.coerce.number().int().positive().max(50).default(20),
 });
