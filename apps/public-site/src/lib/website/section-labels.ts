@@ -10,5 +10,6 @@ export const DEFAULT_SECTION_TITLE: Record<WebsiteSectionType, Record<Locale, st
   about: { ar: 'من نحن', en: 'About Us' },
   why_us: { ar: 'لماذا نحن', en: 'Why Choose Us' },
   contact: { ar: 'تواصل معنا', en: 'Contact Us' },
+  broker_marketer_form: { ar: '', en: '' },
   footer: { ar: '', en: '' },
 };

@@ -47,6 +47,9 @@ export interface ContactSectionConfig {
 /** No editable fields — the footer's only content is the tenant name (auto) and the mandatory سبعة badge (fixed, never from config). */
 export type FooterSectionConfig = Record<string, never>;
 
+/** No editable fields — the form's 4 fields (name, city, Fal license, broker/marketer) are fixed, not authorable (migration 0032). Toggle/reposition only, same as property_detail/footer. */
+export type BrokerMarketerFormSectionConfig = Record<string, never>;
+
 export type WebsiteSectionConfigByType = {
   hero: HeroSectionConfig;
   property_grid: PropertyGridSectionConfig;
@@ -55,6 +58,7 @@ export type WebsiteSectionConfigByType = {
   about: AboutSectionConfig;
   why_us: AboutSectionConfig;
   contact: ContactSectionConfig;
+  broker_marketer_form: BrokerMarketerFormSectionConfig;
   footer: FooterSectionConfig;
 };
 

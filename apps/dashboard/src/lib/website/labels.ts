@@ -9,6 +9,7 @@ export const SECTION_TYPE_LABELS: Record<WebsiteSectionType, string> = {
   about: 'من نحن',
   why_us: 'لماذا نحن',
   contact: 'تواصل',
+  broker_marketer_form: 'نموذج الوسطاء والمسوقين',
   footer: 'التذييل (Footer)',
 };
 

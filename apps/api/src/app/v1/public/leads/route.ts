@@ -2,7 +2,7 @@ import type { NextRequest } from 'next/server';
 import { createAnonClient, createServiceRoleClient, publicLeadInputSchema } from '@sbaah/shared';
 import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { extractClientIp, verifyCaptcha } from '@/lib/captcha/verify-captcha';
-import { validatePublicLeadTarget } from '@/lib/lead/validate-public-lead-target';
+import { validatePublicTenantTarget } from '@/lib/tenant/validate-public-target';
 import { LEAD_RATE_LIMIT_CONFIG, hasExceededLeadRateLimit } from '@/lib/lead/lead-rate-limit-policy';
 
 /**
@@ -43,7 +43,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   await verifyCaptcha(input.captcha_token, ip === 'unknown' ? null : ip);
 
   const anon = createAnonClient();
-  await validatePublicLeadTarget(anon, input.tenant_id, input.property_id);
+  await validatePublicTenantTarget(anon, input.tenant_id, input.property_id);
 
   const { error: insertError } = await serviceRole.from('leads').insert({
     tenant_id: input.tenant_id,

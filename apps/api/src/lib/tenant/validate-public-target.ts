@@ -3,11 +3,14 @@ import { ApiError } from '@/lib/http';
 
 /**
  * Shared by every public write that references a tenant/property without
- * a JWT to trust (inquiry form, WhatsApp click) — re-validates the
- * client-supplied `tenant_id`/`property_id` server-side before any
- * insert, never trusting them as sent (PRODUCT_SPEC section 10).
+ * a JWT to trust (inquiry form, WhatsApp click, broker/marketer
+ * application) — re-validates the client-supplied `tenant_id`/`property_id`
+ * server-side before any insert, never trusting them as sent (PRODUCT_SPEC
+ * section 10). Was lib/lead/validate-public-lead-target.ts — moved here
+ * once a second domain (broker/marketer applications) started using it,
+ * since its logic was never actually lead-specific.
  */
-export async function validatePublicLeadTarget(
+export async function validatePublicTenantTarget(
   anon: SupabaseClient,
   tenantId: string,
   propertyId: string | null | undefined,
@@ -21,7 +24,7 @@ export async function validatePublicLeadTarget(
       .eq('status', 'published')
       .maybeSingle();
     if (error) {
-      throw new Error(`Failed to validate lead property: ${error.message}`);
+      throw new Error(`Failed to validate property target: ${error.message}`);
     }
     if (!property) {
       throw new ApiError(404, 'property_not_found', 'العقار غير موجود');
@@ -29,10 +32,10 @@ export async function validatePublicLeadTarget(
     return;
   }
 
-  // General inquiry with no specific property — still must be a real, active tenant.
+  // No specific property — still must be a real, active tenant.
   const { data: isActive, error } = await anon.rpc('is_tenant_active', { check_tenant_id: tenantId });
   if (error) {
-    throw new Error(`Failed to validate lead tenant: ${error.message}`);
+    throw new Error(`Failed to validate tenant target: ${error.message}`);
   }
   if (!isActive) {
     throw new ApiError(404, 'tenant_not_found', 'الحساب غير موجود');

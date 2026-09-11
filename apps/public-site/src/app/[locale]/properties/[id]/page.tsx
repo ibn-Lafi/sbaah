@@ -51,7 +51,15 @@ export default async function PropertyDetailPage({ params }: PageProps) {
   const description = pickLocalized(locale, property.description_ar, property.description_en);
   const tenantName = locale === 'ar' ? site.tenant.name_ar : site.tenant.name_en;
   const theme = getThemeComponents(site.website.theme_key);
-  const themedCtx = { locale, bannerUrl: site.website.banner_image_url, tenantName, whatsappPhone: site.whatsapp_phone, tenantId: site.tenant.id };
+  const themedCtx = {
+    locale,
+    bannerUrl: site.website.banner_image_url,
+    tenantName,
+    whatsappPhone: site.whatsapp_phone,
+    tenantId: site.tenant.id,
+    propertyId: property.id,
+    cities,
+  };
 
   const detailSection = site.sections.find((s) => s.type === 'property_detail');
   const before = site.sections.filter((s) => s.type !== 'property_detail' && (!detailSection || s.order_index < detailSection.order_index));

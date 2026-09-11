@@ -7,6 +7,7 @@
 import type {
   AccountType,
   BillingCycle,
+  BrokerMarketerApplicantType,
   CustomDomainStatus,
   LeadSource,
   LeadStatus,
@@ -271,6 +272,18 @@ export interface Lead {
   status: LeadStatus;
   assigned_agent_id: string | null;
   follow_up_at: string | null;
+  created_at: string;
+}
+
+/** Submitted from the public site's "broker_marketer_form" section (migration 0032) — null `property_id` means it was submitted from the home page (site-wide), not a specific property. */
+export interface BrokerMarketerApplication {
+  id: string;
+  tenant_id: string;
+  property_id: string | null;
+  full_name: string;
+  city_id: string;
+  fal_license_number: string;
+  applicant_type: BrokerMarketerApplicantType;
   created_at: string;
 }
 

@@ -67,9 +67,13 @@ export const WEBSITE_SECTION_TYPES = [
   'about',
   'why_us',
   'contact',
+  'broker_marketer_form',
   'footer',
 ] as const;
 export type WebsiteSectionType = (typeof WEBSITE_SECTION_TYPES)[number];
+
+export const BROKER_MARKETER_APPLICANT_TYPES = ['broker', 'marketer'] as const;
+export type BrokerMarketerApplicantType = (typeof BROKER_MARKETER_APPLICANT_TYPES)[number];
 
 /**
  * A website's fixed, non-user-creatable page set (متجر الثيمات follow-up:

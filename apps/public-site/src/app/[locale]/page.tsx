@@ -3,6 +3,8 @@ import { getTenantSite } from '@/lib/tenant/get-tenant-site';
 import { isMarketingHost } from '@/lib/tenant/get-host';
 import { MarketingHome } from '@/components/marketing-home';
 import { getThemeComponents } from '@/components/themes/registry';
+import { listCities } from '@/lib/api/reference-data';
+import { BrokerMarketerForm } from '@/components/broker-marketer/broker-marketer-form';
 
 /**
  * Renders `website_sections` in order (task 35/42) — replaces the
@@ -33,6 +35,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
   const tenantName = locale === 'ar' ? site.tenant.name_ar : site.tenant.name_en;
   const { HeroSection, PropertyGridSection, TextSection, ContactSection } = getThemeComponents(site.website.theme_key);
+  const hasBrokerMarketerForm = site.sections.some((s) => s.type === 'broker_marketer_form');
+  const cities = hasBrokerMarketerForm ? await listCities() : [];
 
   return (
     <div>
@@ -63,6 +67,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 tenantId={site.tenant.id}
               />
             );
+          case 'broker_marketer_form':
+            return <BrokerMarketerForm key={section.id} locale={locale} tenantId={site.tenant.id} cities={cities} />;
           case 'footer':
           default:
             return null;

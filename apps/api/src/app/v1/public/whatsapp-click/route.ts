@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { createAnonClient, createServiceRoleClient, publicWhatsappClickInputSchema } from '@sbaah/shared';
 import { okResponse, withErrorHandling } from '@/lib/http';
-import { validatePublicLeadTarget } from '@/lib/lead/validate-public-lead-target';
+import { validatePublicTenantTarget } from '@/lib/tenant/validate-public-target';
 
 /**
  * Unauthenticated — public-site's WhatsApp click-to-chat button fires
@@ -20,7 +20,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   const input = publicWhatsappClickInputSchema.parse(await request.json());
 
   const anon = createAnonClient();
-  await validatePublicLeadTarget(anon, input.tenant_id, input.property_id);
+  await validatePublicTenantTarget(anon, input.tenant_id, input.property_id);
 
   const serviceRole = createServiceRoleClient();
   const { error } = await serviceRole.from('leads').insert({
