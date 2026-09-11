@@ -69,7 +69,16 @@ export default function WebsiteEditorPage() {
 
   const siteUrl = `https://${me.tenant.subdomain}.${getPlatformRootDomain()}`;
   const activePage = pages.find((p) => p.key === activePageKey);
-  const contentSections = activePage?.website_sections.filter((s) => s.type !== 'footer') ?? [];
+  // قسم "تواصل" لم يعد يُعرض إطلاقًا في الموقع العام على الرئيسية/تفاصيل
+  // العقار (الفوتر يحمل نفس المعلومات) — يُستبعد هنا أيضًا حتى لا يبقى
+  // مفتاح توسيط/تحرير ميت بلا أي أثر فعلي، حتى قبل تشغيل migration 0037
+  // التي تحذف الصف نفسه من قاعدة البيانات لكل مستأجر.
+  const contentSections =
+    activePage?.website_sections.filter((s) => {
+      if (s.type === 'footer') return false;
+      if (s.type === 'contact' && (activePageKey === 'home' || activePageKey === 'property_detail')) return false;
+      return true;
+    }) ?? [];
   const footerSection = activePage?.website_sections.find((s) => s.type === 'footer');
   const configuredSocials = SOCIAL_LINKS.filter(({ key }) => me.tenant[key]);
 
