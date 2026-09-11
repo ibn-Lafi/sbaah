@@ -29,8 +29,11 @@
 ## كيف تُضيف ثيمًا جديدًا (للمطوّرين)
 
 1. **صمّم الشكل** — كيف يبدو كل قسم (hero, property_grid, about/why_us,
-   contact) في هذا الثيم. لا حاجة لتصميم قسم `footer`: شارة سبعة السفلية
-   ثابتة في كل الثيمات ولا تُخصَّص.
+   contact)، وكيف يبدو الفوتر (تذييل الموقع، مشترك بين كل صفحات الموقع)
+   في هذا الثيم. الفوتر مكوّن ثيم مثل بقية الأقسام تمامًا — كل ثيم يملف
+   `footer.tsx` خاص به بتصميمه الخاص؛ الثابت الوحيد داخله هو سطر "جميع
+   الحقوق محفوظة @سبعة" (`SiteBadge`)، الذي كل ثيم يستدعيه بنفسه (غير
+   قابل للحذف)، وليس شكل الفوتر ككل.
 
 2. **ابنِ مجموعة المكوّنات** في مجلد جديد، مثال `modern`:
    ```
@@ -39,14 +42,18 @@
      property-grid-section.tsx
      text-section.tsx
      contact-section.tsx
-     index.ts   ← يصدّر { HeroSection, PropertyGridSection, TextSection, ContactSection }
+     footer.tsx
+     index.ts   ← يصدّر { HeroSection, PropertyGridSection, TextSection, ContactSection, Footer }
    ```
    كل مكوّن يستقبل نفس الـ props بالضبط المعرّفة في
    `apps/public-site/src/components/themes/types.ts` (لا تُغيّر هذه الأنواع
    لثيم واحد — هي العقد المشترك بين كل الثيمات). يمكنك الاستعانة بثيم
    `classic` كمرجع، ويمكنك أيضًا بناء مكوّنات فرعية خاصة بالثيم (مثل
    `modern/modern-property-card.tsx`) إن أردت بطاقة عقار مختلفة الشكل —
-   المهم أن الأربعة مكوّنات المُصدَّرة من `index.ts` تطابق التوقيع المطلوب.
+   المهم أن المكوّنات الخمسة المُصدَّرة من `index.ts` تطابق التوقيع المطلوب.
+   ألوان الفوتر (كباقي الثيم) تُبنى على `bg-tenant-primary`/`bg-tenant-secondary`
+   (اللونان اللذان يخصّصهما العميل من محرر الموقع) — لا تضِف إعداد لون
+   مخصّص للفوتر وحده.
 
 3. **سجّله** في `apps/public-site/src/components/themes/registry.ts`:
    ```ts

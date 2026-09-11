@@ -1,6 +1,8 @@
 import type { ComponentType, ReactNode } from 'react';
 import type { AboutSectionConfig, ContactSectionConfig, HeroSectionConfig, PropertyGridSectionConfig } from '@sbaah/shared';
 import type { Locale } from '@/lib/i18n/locales';
+import type { getDictionary } from '@/lib/i18n/dictionary';
+import type { TenantSite } from '@/lib/tenant/get-tenant-site';
 
 /**
  * The per-section prop shapes every theme's component set must implement.
@@ -34,6 +36,20 @@ export interface ContactSectionProps {
   tenantId: string;
 }
 
+/**
+ * Site-wide chrome, not a `website_sections` row — every page gets
+ * exactly one, rendered by the root layout. Still theme-owned (not
+ * hardcoded in the layout) so a future theme can give it a completely
+ * different look without touching shared code; see docs/THEMES.md.
+ */
+export interface FooterProps {
+  locale: Locale;
+  dict: ReturnType<typeof getDictionary>;
+  tenant: TenantSite['tenant'];
+  website: TenantSite['website'];
+  customPages: TenantSite['custom_pages'];
+}
+
 /** `PropertyGridSection` fetches data server-side, so it's an async component — the others are plain sync components. */
 type SectionComponent<P> = ComponentType<P> | ((props: P) => Promise<ReactNode>);
 
@@ -42,4 +58,5 @@ export interface ThemeSectionComponents {
   PropertyGridSection: SectionComponent<PropertyGridSectionProps>;
   TextSection: SectionComponent<TextSectionProps>;
   ContactSection: SectionComponent<ContactSectionProps>;
+  Footer: SectionComponent<FooterProps>;
 }
