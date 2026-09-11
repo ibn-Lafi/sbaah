@@ -96,10 +96,10 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   ].filter((entry): entry is { key: string; href: string; Icon: typeof InstagramIcon } => Boolean(entry));
 
   const businessNumbers = [
-    site.tenant.cr_number && { key: 'cr', label: dict.crNumber, value: site.tenant.cr_number, Icon: CrIcon },
-    site.tenant.tax_number && { key: 'tax', label: dict.taxNumber, value: site.tenant.tax_number, Icon: TaxIcon },
-    site.tenant.fal_license_number && { key: 'fal', label: dict.falLicense, value: site.tenant.fal_license_number, Icon: FalIcon },
-  ].filter((entry): entry is { key: string; label: string; value: string; Icon: typeof CrIcon } => Boolean(entry));
+    site.tenant.cr_number && { key: 'cr', label: dict.crNumber, Icon: CrIcon },
+    site.tenant.tax_number && { key: 'tax', label: dict.taxNumber, Icon: TaxIcon },
+    site.tenant.fal_license_number && { key: 'fal', label: dict.falLicense, Icon: FalIcon },
+  ].filter((entry): entry is { key: string; label: string; Icon: typeof CrIcon } => Boolean(entry));
 
   // "This same page, other language" — middleware.ts forwards the
   // locale-stripped path (+ query) as a header since Server Components
@@ -193,11 +193,14 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
           </div>
 
           {businessNumbers.length > 0 && (
-            <div className="flex flex-wrap gap-x-6 gap-y-2 border-t border-black/10 pt-4 text-xs text-black/50" dir="ltr">
-              {businessNumbers.map(({ key, label, value, Icon }) => (
-                <span key={key} className="flex items-center gap-1.5">
-                  <Icon className="h-[15px] w-[15px]" />
-                  {label}: {value}
+            <div className="flex flex-wrap items-center gap-3 border-t border-black/10 pt-4">
+              {businessNumbers.map(({ key, label, Icon }) => (
+                <span
+                  key={key}
+                  title={label}
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-black/5 text-black/60"
+                >
+                  <Icon className="h-[18px] w-[18px]" />
                 </span>
               ))}
             </div>
