@@ -1,4 +1,4 @@
-import type { CustomDomainStatus, SocialLinksUpdateInput } from '@sbaah/shared';
+import type { AccountType, AccountTypeUpdateInput, CustomDomainStatus, SocialLinksUpdateInput } from '@sbaah/shared';
 import { apiGet, apiDelete, apiPatch, apiPost } from './client';
 
 export interface SocialLinks {
@@ -11,6 +11,20 @@ export interface SocialLinks {
 
 export function updateSocialLinks(accessToken: string, input: SocialLinksUpdateInput) {
   return apiPatch<SocialLinks>('/tenant/social-links', input, accessToken);
+}
+
+export interface AccountTypeInfo {
+  id: string;
+  name_ar: string;
+  name_en: string;
+  account_type: AccountType;
+  cr_number: string | null;
+  tax_number: string | null;
+  fal_license_number: string;
+}
+
+export function updateAccountType(accessToken: string, input: AccountTypeUpdateInput) {
+  return apiPatch<AccountTypeInfo>('/tenant/account-type', input, accessToken);
 }
 
 export interface DnsRecord {

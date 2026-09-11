@@ -43,6 +43,41 @@ export const tenantRegistrationSchema = z.discriminatedUnion('account_type', [
 
 export type TenantRegistrationInput = z.infer<typeof tenantRegistrationSchema>;
 
+/**
+ * حسابي (Settings) — تبديل نوع الحساب بعد التسجيل. لا يعيد طلب رخصة فال
+ * (ثابتة بلا علاقة بالنوع) ولا اسم مسؤول الحساب (ذلك اسم المستخدم نفسه،
+ * لا يتغيّر بتبديل نوع الحساب) — فقط الحقول التي يحدّدها النوع فعليًا:
+ * الاسم المعروض للحساب (فرد) أو اسم الجهة+السجل+الضريبي (مؤسسة/شركة).
+ */
+const organizationAccountTypeFields = {
+  name_ar: z.string().min(2, 'اسم الجهة مطلوب'),
+  cr_number: z.string().min(1, 'رقم السجل التجاري مطلوب'),
+  tax_number: z.string().min(1, 'الرقم الضريبي مطلوب'),
+};
+
+export const individualAccountTypeUpdateSchema = z.object({
+  account_type: z.literal('individual'),
+  full_name: z.string().min(3, 'الاسم الثلاثي مطلوب'),
+});
+
+export const institutionAccountTypeUpdateSchema = z.object({
+  account_type: z.literal('institution'),
+  ...organizationAccountTypeFields,
+});
+
+export const companyAccountTypeUpdateSchema = z.object({
+  account_type: z.literal('company'),
+  ...organizationAccountTypeFields,
+});
+
+export const accountTypeUpdateSchema = z.discriminatedUnion('account_type', [
+  individualAccountTypeUpdateSchema,
+  institutionAccountTypeUpdateSchema,
+  companyAccountTypeUpdateSchema,
+]);
+
+export type AccountTypeUpdateInput = z.infer<typeof accountTypeUpdateSchema>;
+
 /** PRODUCT_SPEC section 4.3 — partially self-service custom domain. Bare hostname, no protocol/path. */
 export const customDomainInputSchema = z.object({
   custom_domain: z

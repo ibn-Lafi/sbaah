@@ -2,13 +2,15 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { ACCOUNT_TYPE_LABELS, socialLinksUpdateSchema } from '@sbaah/shared';
+import type { AccountType } from '@sbaah/shared';
+import { ACCOUNT_TYPE_LABELS, accountTypeUpdateSchema, socialLinksUpdateSchema } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { Button } from '@/components/ui/button';
 import { FormError } from '@/components/ui/form-error';
+import { VerifiedBadge } from '@/components/ui/verified-badge';
 import {
   InstagramIcon,
   TiktokIcon,
@@ -18,7 +20,7 @@ import {
 } from '@/components/website/editor-icons';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { ROLE_LABELS } from '@/lib/auth/role-labels';
-import { updateSocialLinks, type SocialLinks } from '@/lib/api/tenant';
+import { updateSocialLinks, updateAccountType, type SocialLinks } from '@/lib/api/tenant';
 import { ApiRequestError } from '@/lib/api/client';
 
 function InfoRow({ label, value }: { label: string; value: string }) {
@@ -29,6 +31,143 @@ function InfoRow({ label, value }: { label: string; value: string }) {
         {value}
       </span>
     </div>
+  );
+}
+
+const ACCOUNT_TYPE_OPTIONS: { type: AccountType; label: string; description: string }[] = [
+  { type: 'individual', label: 'فرد', description: 'وسيط مستقل يعمل باسمه برخصة فال' },
+  { type: 'institution', label: 'مؤسسة', description: 'مؤسسة فردية لها سجل تجاري ورقم ضريبي' },
+  { type: 'company', label: 'شركة', description: 'شركة عقارية بفريق ووسطاء متعددين' },
+];
+
+interface AccountTypeInitial {
+  account_type: AccountType;
+  name_ar: string;
+  cr_number: string | null;
+  tax_number: string | null;
+}
+
+/**
+ * نوع الحساب — قابل للتبديل بأي اتجاه (فرد↔مؤسسة↔شركة) من داخل حسابي،
+ * Owner فقط (assertOwner بنفس تقييد الدومين). يعيد تحميل الصفحة بعد
+ * الحفظ لتحديث شارة النوع/الاسم المعروض في AppShell بلا حاجة لآلية
+ * refresh مخصصة لـ me (نفس نمط صفحة الدومين).
+ */
+function AccountTypeCard({ accessToken, initial, canEdit }: { accessToken: string; initial: AccountTypeInitial; canEdit: boolean }) {
+  const [editing, setEditing] = useState(false);
+  const [accountType, setAccountType] = useState<AccountType>(initial.account_type);
+  const [fullName, setFullName] = useState(initial.name_ar);
+  const [nameAr, setNameAr] = useState(initial.name_ar);
+  const [crNumber, setCrNumber] = useState(initial.cr_number ?? '');
+  const [taxNumber, setTaxNumber] = useState(initial.tax_number ?? '');
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  function cancel() {
+    setEditing(false);
+    setError(null);
+    setAccountType(initial.account_type);
+    setFullName(initial.name_ar);
+    setNameAr(initial.name_ar);
+    setCrNumber(initial.cr_number ?? '');
+    setTaxNumber(initial.tax_number ?? '');
+  }
+
+  async function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    setError(null);
+
+    const payload =
+      accountType === 'individual'
+        ? { account_type: 'individual' as const, full_name: fullName }
+        : { account_type: accountType, name_ar: nameAr, cr_number: crNumber, tax_number: taxNumber };
+
+    const result = accountTypeUpdateSchema.safeParse(payload);
+    if (!result.success) {
+      setError(result.error.issues[0]?.message ?? 'تحقق من البيانات المدخلة');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await updateAccountType(accessToken, result.data);
+      window.location.reload();
+    } catch (err) {
+      setError(err instanceof ApiRequestError ? err.message : 'تعذّر تبديل نوع الحساب');
+      setLoading(false);
+    }
+  }
+
+  if (!editing) {
+    return (
+      <Card className="p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="mb-1 text-base font-semibold text-text-primary">نوع الحساب</h2>
+            <p className="text-sm text-text-secondary">{ACCOUNT_TYPE_LABELS[initial.account_type]}</p>
+          </div>
+          {canEdit && (
+            <Button type="button" variant="secondary" onClick={() => setEditing(true)}>
+              تبديل النوع
+            </Button>
+          )}
+        </div>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="p-6">
+      <h2 className="mb-1 text-base font-semibold text-text-primary">تبديل نوع الحساب</h2>
+      <p className="mb-4 text-sm text-text-secondary">يحدّد النوع الحقول المطلوبة وشكل صفحة &quot;من نحن&quot; في موقعك.</p>
+      <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3">
+          {ACCOUNT_TYPE_OPTIONS.map(({ type, label, description }) => {
+            const selected = accountType === type;
+            return (
+              <button
+                key={type}
+                type="button"
+                onClick={() => setAccountType(type)}
+                className={`rounded-input flex items-center gap-4 border p-4 text-start transition-colors ${
+                  selected ? 'border-brand ring-brand ring-1' : 'border-border-default hover:border-text-placeholder'
+                }`}
+              >
+                <VerifiedBadge accountType={type} size={36} />
+                <div className="flex flex-1 flex-col gap-0.5">
+                  <span className="text-sm font-semibold text-text-primary">{label}</span>
+                  <span className="text-xs text-text-secondary">{description}</span>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {accountType === 'individual' ? (
+          <Input placeholder="الاسم الثلاثي" value={fullName} onChange={(e) => setFullName(e.target.value)} />
+        ) : (
+          <>
+            <Input
+              placeholder={accountType === 'institution' ? 'اسم المؤسسة' : 'اسم الشركة'}
+              value={nameAr}
+              onChange={(e) => setNameAr(e.target.value)}
+            />
+            <Input placeholder="رقم السجل التجاري" value={crNumber} onChange={(e) => setCrNumber(e.target.value)} dir="ltr" />
+            <Input placeholder="الرقم الضريبي" value={taxNumber} onChange={(e) => setTaxNumber(e.target.value)} dir="ltr" />
+          </>
+        )}
+
+        <FormError message={error} />
+        <div className="flex gap-2">
+          <Button type="submit" disabled={loading}>
+            {loading ? 'جارٍ الحفظ...' : 'حفظ'}
+          </Button>
+          <Button type="button" variant="secondary" onClick={cancel} disabled={loading}>
+            إلغاء
+          </Button>
+        </div>
+      </form>
+    </Card>
   );
 }
 
@@ -131,11 +270,21 @@ export default function SettingsPage() {
         <Card className="p-6">
           <h2 className="mb-2 text-base font-semibold text-text-primary">بيانات الحساب</h2>
           <InfoRow label="اسم الحساب" value={me.tenant.name_ar} />
-          <InfoRow label="نوع الحساب" value={ACCOUNT_TYPE_LABELS[me.tenant.account_type]} />
           <InfoRow label="اسمك" value={me.user.full_name} />
           <InfoRow label="جوالك" value={me.user.phone} />
           <InfoRow label="دورك" value={ROLE_LABELS[me.user.role]} />
         </Card>
+
+        <AccountTypeCard
+          accessToken={accessToken}
+          canEdit={me.user.role === 'owner'}
+          initial={{
+            account_type: me.tenant.account_type,
+            name_ar: me.tenant.name_ar,
+            cr_number: me.tenant.cr_number,
+            tax_number: me.tenant.tax_number,
+          }}
+        />
 
         <SocialLinksCard
           accessToken={accessToken}
