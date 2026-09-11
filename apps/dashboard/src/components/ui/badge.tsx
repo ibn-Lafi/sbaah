@@ -8,9 +8,14 @@ type BadgeStatus = PropertyStatus | LeadStatus | RentalStatus | UserStatus;
  * `ended` (rentals, PRODUCT_SPEC section 4.2) postdate the mockup, so
  * they're mapped onto the closest existing semantic pair instead
  * (active -> success, like published/won; ended -> the same neutral
- * treatment as archived).
+ * treatment as archived). `expired` (leads, migration 0034) gets the same
+ * neutral treatment as `ended`/`archived` — a stale lead, not a rejection.
+ *
+ * Exported so the leads list's inline status switcher (a colored `<select>`
+ * pill, not a static `<Badge>`) can reuse these exact classes instead of a
+ * second copy.
  */
-const STATUS_CLASSES: Record<BadgeStatus, string> = {
+export const STATUS_CLASSES: Record<BadgeStatus, string> = {
   published: 'bg-success-surface text-success',
   draft: 'bg-warning-surface text-warning',
   archived: 'bg-surface-subtle-3 text-text-secondary',
@@ -19,6 +24,7 @@ const STATUS_CLASSES: Record<BadgeStatus, string> = {
   qualified: 'bg-success-surface text-success',
   won: 'bg-success-surface text-success',
   lost: 'bg-danger-surface text-danger',
+  expired: 'bg-surface-subtle-3 text-text-secondary',
   active: 'bg-success-surface text-success',
   ended: 'bg-surface-subtle-3 text-text-secondary',
   invited: 'bg-warning-surface text-warning',

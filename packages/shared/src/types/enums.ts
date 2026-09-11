@@ -56,7 +56,7 @@ export type MediaType = (typeof MEDIA_TYPES)[number];
 export const LEAD_SOURCES = ['website_form', 'whatsapp_click', 'manual'] as const;
 export type LeadSource = (typeof LEAD_SOURCES)[number];
 
-export const LEAD_STATUSES = ['new', 'contacted', 'qualified', 'won', 'lost'] as const;
+export const LEAD_STATUSES = ['new', 'contacted', 'qualified', 'won', 'lost', 'expired'] as const;
 export type LeadStatus = (typeof LEAD_STATUSES)[number];
 
 export const WEBSITE_SECTION_TYPES = [

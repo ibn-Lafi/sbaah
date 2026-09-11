@@ -6,6 +6,7 @@ export const LEAD_STATUS_LABELS: Record<LeadStatus, string> = {
   qualified: 'مؤهل',
   won: 'صفقة',
   lost: 'مرفوض',
+  expired: 'منتهية',
 };
 
 export const LEAD_SOURCE_LABELS: Record<LeadSource, string> = {
