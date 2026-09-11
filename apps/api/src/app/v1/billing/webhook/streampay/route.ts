@@ -42,7 +42,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   const supabase = createServiceRoleClient();
   const { data: payment, error: paymentError } = await supabase
     .from('payments')
-    .select('id, tenant_id, status')
+    .select('id, tenant_id, plan_id, status')
     .eq('provider_reference', providerReference)
     .maybeSingle();
   if (paymentError) {
@@ -59,9 +59,15 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   const failed = event.event_type === 'PAYMENT_FAILED';
 
   if (succeeded && payment.status !== 'paid') {
+    // `plan_id` is written unconditionally here, not just for a plan
+    // switch — this is the ONE place a checkout's outcome is trusted
+    // (never the browser's redirect back from StreamPay's hosted page),
+    // so applying it is what actually makes "غيّر باقتك" or a renewal
+    // take effect. A no-op when the payment was for the tenant's
+    // already-current plan.
     const [{ error: paymentUpdateError }, { error: tenantUpdateError }] = await Promise.all([
       supabase.from('payments').update({ status: 'paid' }).eq('id', payment.id),
-      supabase.from('tenants').update({ payment_status: 'paid' }).eq('id', payment.tenant_id),
+      supabase.from('tenants').update({ payment_status: 'paid', plan_id: payment.plan_id }).eq('id', payment.tenant_id),
     ]);
     if (paymentUpdateError || tenantUpdateError) {
       throw new Error(

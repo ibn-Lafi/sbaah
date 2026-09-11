@@ -5,10 +5,10 @@ import { getCallerContext } from '@/lib/auth/get-caller-context';
 import { assertOwner } from '@/lib/auth/assert-owner';
 
 /**
- * Read-only: plan + current usage. No subscribe/upgrade action here —
- * PRODUCT_SPEC.md's payment section flags StreamPay's Recurring Billing
- * support as technically unconfirmed by the founder, so no programmatic
- * payment linking exists yet (informational display only).
+ * Read-only: current plan + payment status + usage. Upgrading/renewing
+ * happens via POST /v1/billing/checkout (with or without a target
+ * plan_id) — this endpoint just gives /billing enough to decide what to
+ * show (a "فشل الدفع" banner, which plans can be switched to, …).
  */
 export const GET = withErrorHandling(async (request: NextRequest) => {
   const { supabase } = getAuthenticatedClient(request);
@@ -17,7 +17,7 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
 
   const { data: tenant, error: tenantError } = await supabase
     .from('tenants')
-    .select('plans(id, name_ar, name_en, price, max_properties, max_users, custom_domain_allowed)')
+    .select('payment_status, plans(id, name_ar, name_en, billing_cycle, price, max_properties, max_users, custom_domain_allowed)')
     .eq('id', caller.tenantId)
     .single();
   if (tenantError || !tenant) {
@@ -37,6 +37,7 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
 
   return okResponse({
     plan: tenant.plans,
+    payment_status: tenant.payment_status,
     usage: {
       properties: propertyCount ?? 0,
       users: userCount ?? 0,

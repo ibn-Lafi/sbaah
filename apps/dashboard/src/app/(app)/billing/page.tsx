@@ -1,12 +1,17 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import type { Plan } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { BillingSkeleton } from '@/components/billing/billing-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { ROLE_LABELS } from '@/lib/auth/role-labels';
-import { getBilling, type BillingInfo } from '@/lib/api/billing';
+import { getBilling, startCheckout, type BillingInfo } from '@/lib/api/billing';
+import { listPlans } from '@/lib/api/reference-data';
+import { ApiRequestError } from '@/lib/api/client';
 
 function UsageBar({ label, used, max }: { label: string; used: number; max: number }) {
   const pct = Math.min(100, Math.round((used / max) * 100));
@@ -28,13 +33,46 @@ function UsageBar({ label, used, max }: { label: string; used: number; max: numb
   );
 }
 
-export default function BillingPage() {
-  const { me, accessToken } = useCurrentUser();
-  const [billing, setBilling] = useState<BillingInfo | null>(null);
+function planPriceLabel(plan: Plan): string {
+  const cycleLabel = plan.billing_cycle === 'annual' ? 'سنويًا' : 'شهريًا';
+  return `${plan.price.toLocaleString('en-US')} ر.س/${cycleLabel}`;
+}
 
-  useEffect(() => {
+function BillingPageContent() {
+  const { me, accessToken } = useCurrentUser();
+  const searchParams = useSearchParams();
+  const [billing, setBilling] = useState<BillingInfo | null>(null);
+  const [plans, setPlans] = useState<Plan[] | null>(null);
+  const [switchingPlanId, setSwitchingPlanId] = useState<string | null>(null);
+  const [renewing, setRenewing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  function reload() {
     void getBilling(accessToken).then(setBilling);
-  }, [accessToken]);
+  }
+
+  useEffect(reload, [accessToken]);
+  useEffect(() => {
+    void listPlans().then(setPlans);
+  }, []);
+
+  const checkoutResult = searchParams.get('checkout');
+
+  async function handleCheckout(planId?: string) {
+    setError(null);
+    if (planId) setSwitchingPlanId(planId);
+    else setRenewing(true);
+    try {
+      const { checkout_url } = await startCheckout(accessToken, planId);
+      window.location.href = checkout_url;
+    } catch (err) {
+      setError(err instanceof ApiRequestError ? err.message : 'تعذّر بدء الدفع');
+      setSwitchingPlanId(null);
+      setRenewing(false);
+    }
+  }
+
+  const otherPlans = plans?.filter((p) => p.id !== billing?.plan.id) ?? [];
 
   return (
     <AppShell
@@ -44,14 +82,34 @@ export default function BillingPage() {
       roleLabel={ROLE_LABELS[me.user.role]}
     >
       <div className="flex max-w-[560px] flex-col gap-5">
-        {billing === null ? (
+        {checkoutResult === 'success' && (
+          <div className="rounded-input bg-success-surface px-4 py-3 text-sm font-medium text-success">
+            جارٍ تأكيد الدفعة — قد يستغرق تحديث الباقة أدناه بضع ثوانٍ.
+          </div>
+        )}
+        {checkoutResult === 'cancelled' && (
+          <div className="rounded-input bg-warning-surface px-4 py-3 text-sm font-medium text-warning">
+            أُلغيت عملية الدفع — لم يتم أي تغيير على باقتك.
+          </div>
+        )}
+
+        {billing === null || plans === null ? (
           <BillingSkeleton />
         ) : (
           <>
+            {billing.payment_status === 'failed' && (
+              <div className="flex flex-col gap-3 rounded-input bg-danger-surface p-4">
+                <p className="text-sm font-medium text-danger">فشلت آخر عملية دفع لاشتراكك — جدّد الدفع الآن لتجنّب تعليق حسابك.</p>
+                <Button type="button" variant="danger" loading={renewing} onClick={() => void handleCheckout()} className="w-fit">
+                  جدّد الدفع
+                </Button>
+              </div>
+            )}
+
             <Card className="p-6">
               <h2 className="mb-1 text-base font-semibold text-text-primary">الباقة الحالية</h2>
               <p className="mb-4 text-2xl font-bold text-brand" dir="ltr">
-                {billing.plan.price.toLocaleString('en-US')} ر.س / شهريًا
+                {planPriceLabel(billing.plan)}
               </p>
               <p className="text-sm text-text-secondary">{billing.plan.name_ar}</p>
             </Card>
@@ -62,12 +120,53 @@ export default function BillingPage() {
               <UsageBar label="أعضاء الفريق" used={billing.usage.users} max={billing.plan.max_users} />
             </Card>
 
-            <Card className="p-6">
-              <p className="text-sm text-text-secondary">لترقية باقتك أو تغييرها، تواصل مباشرة مع فريق سبعة.</p>
-            </Card>
+            {otherPlans.length > 0 && (
+              <Card className="flex flex-col gap-3 p-6">
+                <h2 className="text-base font-semibold text-text-primary">غيّر باقتك</h2>
+                {otherPlans.map((plan) => (
+                  <div
+                    key={plan.id}
+                    className="flex items-center justify-between gap-3 rounded-input border border-border-default p-4"
+                  >
+                    <div>
+                      <p className="text-sm font-semibold text-text-primary">{plan.name_ar}</p>
+                      <p className="text-sm text-text-secondary" dir="ltr">
+                        {planPriceLabel(plan)}
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      loading={switchingPlanId === plan.id}
+                      disabled={switchingPlanId !== null || renewing}
+                      onClick={() => void handleCheckout(plan.id)}
+                    >
+                      {plan.price > billing.plan.price ? 'الترقية' : 'التبديل'}
+                    </Button>
+                  </div>
+                ))}
+                <p className="text-xs text-text-secondary">
+                  عند التبديل تُدفع باقتك الجديدة كاملة من تاريخ التبديل — بلا خصم للمدة المتبقية من باقتك الحالية.
+                </p>
+              </Card>
+            )}
+
+            {error && (
+              <p role="alert" className="rounded-control bg-danger-surface px-4 py-3 text-sm text-danger">
+                {error}
+              </p>
+            )}
           </>
         )}
       </div>
     </AppShell>
+  );
+}
+
+export default function BillingPage() {
+  return (
+    <Suspense fallback={null}>
+      <BillingPageContent />
+    </Suspense>
   );
 }

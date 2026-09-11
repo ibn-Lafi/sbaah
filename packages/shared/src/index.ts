@@ -14,5 +14,6 @@ export * from './validation/website';
 export * from './validation/lead';
 export * from './validation/console';
 export * from './validation/team';
+export * from './validation/billing';
 export * from './supabase/client';
 export * from './supabase/bearer-token';

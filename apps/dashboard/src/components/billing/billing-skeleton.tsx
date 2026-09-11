@@ -19,6 +19,12 @@ export function BillingSkeleton() {
           </div>
         ))}
       </Card>
+      <Card className="flex flex-col gap-3 p-6">
+        <Skeleton className="h-4 w-24" />
+        {[0, 1].map((i) => (
+          <Skeleton key={i} className="h-16 w-full rounded-input" />
+        ))}
+      </Card>
     </>
   );
 }

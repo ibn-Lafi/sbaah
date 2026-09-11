@@ -1,5 +1,5 @@
 import type { NextRequest } from 'next/server';
-import { createServiceRoleClient } from '@sbaah/shared';
+import { checkoutInputSchema, createServiceRoleClient } from '@sbaah/shared';
 import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
@@ -13,40 +13,77 @@ function requireEnv(name: string): string {
 }
 
 /**
- * Registration step 6 (اختر باقة وادفع) and any later re-checkout from
- * /billing both land here — creates a `payments` row for the tenant's
- * current plan (its intro price for the first `intro_months`, else its
- * regular price) and a matching StreamPay payment link, and returns the
- * URL to redirect the browser to. `payments` has no authenticated write
- * RLS policy (migration 0027) on purpose — a client could otherwise
- * fabricate a "paid" row — so every write here goes through the service
- * role, gated by the Owner check above it.
+ * Registration step 6 (اختر باقة وادفع), a renewal re-checkout after a
+ * failed payment, and switching plans from /billing all land here —
+ * creates a `payments` row for the target plan (its intro price for the
+ * first `intro_months` OF THE ACCOUNT's LIFETIME, else its regular price)
+ * and a matching StreamPay payment link, and returns the URL to redirect
+ * the browser to. Omitting `plan_id` re-checks-out the tenant's current
+ * plan (renewal); passing a different active plan's id switches to it —
+ * the webhook applies `tenants.plan_id = payments.plan_id` once that
+ * specific payment is confirmed (see billing/webhook/streampay/route.ts),
+ * so nothing here writes `plan_id` directly — a browser redirect back
+ * from StreamPay is never trusted on its own.
+ *
+ * Intro pricing is scoped to the account's age (`tenants.created_at`),
+ * never to "is this the first payment for this plan" — otherwise a
+ * long-lived tenant could keep re-triggering the intro price by
+ * switching plans back and forth.
+ *
+ * `payments` has no authenticated write RLS policy (migration 0027) on
+ * purpose — a client could otherwise fabricate a "paid" row — so every
+ * write here goes through the service role, gated by the Owner check
+ * above it.
  */
 export const POST = withErrorHandling(async (request: NextRequest) => {
   const { supabase: authClient } = getAuthenticatedClient(request);
   const caller = await getCallerContext(authClient);
   assertOwner(caller.role);
 
+  const { plan_id } = checkoutInputSchema.parse(await request.json());
+
   const supabase = createServiceRoleClient();
 
-  const { data: tenant, error: tenantError } = await supabase
+  const { data: tenantRow, error: tenantError } = await supabase
     .from('tenants')
-    .select('plan_id, plans(id, name_ar, price, intro_price, streampay_product_id)')
+    .select('created_at, plans(id, name_ar, price, intro_price, intro_months, streampay_product_id)')
     .eq('id', caller.tenantId)
     .single();
-  if (tenantError || !tenant) {
-    throw new Error(`Failed to load tenant plan for checkout: ${tenantError?.message}`);
+  if (tenantError || !tenantRow) {
+    throw new Error(`Failed to load tenant for checkout: ${tenantError?.message}`);
   }
 
-  const plan = tenant.plans as unknown as {
+  let plan: {
     id: string;
     name_ar: string;
     price: number;
     intro_price: number | null;
+    intro_months: number | null;
     streampay_product_id: string | null;
   } | null;
+
+  if (plan_id) {
+    // Switching plans — must be a real, currently-offered plan, not
+    // whatever the tenant happens to be on already.
+    const { data, error } = await supabase
+      .from('plans')
+      .select('id, name_ar, price, intro_price, intro_months, streampay_product_id')
+      .eq('id', plan_id)
+      .eq('is_active', true)
+      .maybeSingle();
+    if (error) {
+      throw new Error(`Failed to load target plan for checkout: ${error.message}`);
+    }
+    if (!data) {
+      throw new ApiError(404, 'plan_not_found', 'الباقة المطلوبة غير موجودة أو لم تعد متاحة');
+    }
+    plan = data;
+  } else {
+    plan = tenantRow.plans as unknown as typeof plan;
+  }
+
   if (!plan) {
-    throw new Error('Tenant has no plan assigned — cannot start checkout');
+    throw new Error('No plan resolved for checkout');
   }
   if (!plan.streampay_product_id) {
     throw new ApiError(
@@ -56,7 +93,11 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
     );
   }
 
-  const amount = plan.intro_price ?? plan.price;
+  const accountAgeMonths =
+    (Date.now() - new Date(tenantRow.created_at).getTime()) / (1000 * 60 * 60 * 24 * 30);
+  const introEligible =
+    plan.intro_price !== null && plan.intro_months !== null && accountAgeMonths < plan.intro_months;
+  const amount = introEligible ? plan.intro_price! : plan.price;
 
   const { data: payment, error: paymentError } = await supabase
     .from('payments')
