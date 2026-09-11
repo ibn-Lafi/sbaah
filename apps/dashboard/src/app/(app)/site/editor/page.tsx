@@ -12,22 +12,7 @@ import { EditorSkeleton } from '@/components/website/editor-skeleton';
 import { AssetUploader } from '@/components/website/asset-uploader';
 import { SectionList } from '@/components/website/section-list';
 import { SitePreview, type Device } from '@/components/website/site-preview';
-import {
-  BackArrowIcon,
-  AdjustmentsIcon,
-  CloseIcon,
-  DesktopIcon,
-  MobileIcon,
-  ChevronIcon,
-  InstagramIcon,
-  TiktokIcon,
-  WhatsappIcon,
-  SnapchatIcon,
-  CallIcon,
-  CrIcon,
-  TaxIcon,
-  FalIcon,
-} from '@/components/website/editor-icons';
+import { BackArrowIcon, AdjustmentsIcon, CloseIcon, DesktopIcon, MobileIcon, ChevronIcon } from '@/components/website/editor-icons';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { getPlatformRootDomain } from '@/lib/env/platform-root-domain';
 import { WEBSITE_PAGE_LABELS } from '@/lib/website/labels';
@@ -38,14 +23,6 @@ type PanelView = 'sections' | 'settings';
 type ZoneKey = 'top' | 'content' | 'bottom';
 
 const HEX_PATTERN = /^#[0-9A-Fa-f]{6}$/;
-
-const SOCIAL_LINKS: { key: 'social_instagram' | 'social_tiktok' | 'social_whatsapp' | 'social_snapchat' | 'social_phone'; label: string; Icon: typeof InstagramIcon }[] = [
-  { key: 'social_instagram', label: 'إنستغرام', Icon: InstagramIcon },
-  { key: 'social_tiktok', label: 'تيك توك', Icon: TiktokIcon },
-  { key: 'social_whatsapp', label: 'واتساب', Icon: WhatsappIcon },
-  { key: 'social_snapchat', label: 'سناب شات', Icon: SnapchatIcon },
-  { key: 'social_phone', label: 'اتصال', Icon: CallIcon },
-];
 
 /**
  * تخصيص الثيم — شاشة كاملة (بدون AppShell، الرجوع عبر سهم) مطابقة لأداة
@@ -80,7 +57,6 @@ export default function WebsiteEditorPage() {
       return true;
     }) ?? [];
   const footerSection = activePage?.website_sections.find((s) => s.type === 'footer');
-  const configuredSocials = SOCIAL_LINKS.filter(({ key }) => me.tenant[key]);
 
   useEffect(() => {
     void getWebsite(accessToken).then((result) => {
@@ -329,62 +305,6 @@ export default function WebsiteEditorPage() {
                           placeholder="نبذة قصيرة عن الحساب تظهر في تذييل الموقع"
                           className="min-h-[80px]"
                         />
-                      </div>
-
-                      {(me.tenant.cr_number || me.tenant.tax_number || me.tenant.fal_license_number) && (
-                        <div className="flex flex-col gap-2">
-                          <label className="text-xs text-text-secondary">الأرقام النظامية (تُؤخذ تلقائيًا من بيانات الحساب)</label>
-                          <div className="flex flex-col gap-2 rounded-input border border-border-default px-4 py-3">
-                            {me.tenant.cr_number && (
-                              <div className="flex items-center gap-2 text-sm text-text-primary">
-                                <CrIcon className="h-[16px] w-[16px] flex-none text-text-secondary" />
-                                <span className="text-xs text-text-secondary">السجل التجاري:</span>
-                                <span dir="ltr">{me.tenant.cr_number}</span>
-                              </div>
-                            )}
-                            {me.tenant.tax_number && (
-                              <div className="flex items-center gap-2 text-sm text-text-primary">
-                                <TaxIcon className="h-[16px] w-[16px] flex-none text-text-secondary" />
-                                <span className="text-xs text-text-secondary">الرقم الضريبي:</span>
-                                <span dir="ltr">{me.tenant.tax_number}</span>
-                              </div>
-                            )}
-                            {me.tenant.fal_license_number && (
-                              <div className="flex items-center gap-2 text-sm text-text-primary">
-                                <FalIcon className="h-[16px] w-[16px] flex-none text-text-secondary" />
-                                <span className="text-xs text-text-secondary">رخصة فال:</span>
-                                <span dir="ltr">{me.tenant.fal_license_number}</span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="flex flex-col gap-2">
-                        <div className="flex items-center justify-between">
-                          <label className="text-xs text-text-secondary">حسابات التواصل الاجتماعي</label>
-                          <Link href="/settings" className="text-xs font-semibold text-brand hover:underline">
-                            تعديل
-                          </Link>
-                        </div>
-                        {configuredSocials.length > 0 ? (
-                          <div className="flex flex-col gap-2 rounded-input border border-border-default px-4 py-3">
-                            {configuredSocials.map(({ key, label, Icon }) => (
-                              <div key={key} className="flex items-center gap-2 text-sm text-text-primary">
-                                <Icon className="h-[16px] w-[16px] flex-none text-text-secondary" />
-                                {label}
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <p className="text-xs text-text-tertiary">
-                            لم تتم إضافة أي حساب بعد — أضفها من{' '}
-                            <Link href="/settings" className="font-semibold text-brand hover:underline">
-                              حسابي
-                            </Link>{' '}
-                            ليظهر تلقائيًا في تذييل الموقع.
-                          </p>
-                        )}
                       </div>
                     </div>
                   )}
