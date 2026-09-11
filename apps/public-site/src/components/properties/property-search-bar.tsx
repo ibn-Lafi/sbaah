@@ -16,9 +16,8 @@ const SELECT_CLASSES =
  * A real GET form — no JS, no client component — submitting straight to
  * `/properties`, which already reads and applies `property_type`/`city_id`/
  * `listing_type` from the query string (see that page's own `searchParams`
- * handling). Shared by every theme's hero (classic + modern) since the
- * search itself isn't theme-specific, only the surrounding visual chrome
- * each hero wraps it in.
+ * handling). Shared by every theme's hero since the search itself isn't
+ * theme-specific, only the surrounding visual chrome each hero wraps it in.
  */
 export function PropertySearchBar({ locale, cities }: { locale: Locale; cities: City[] }) {
   const t = LABELS[locale];

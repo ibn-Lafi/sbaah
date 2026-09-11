@@ -21,25 +21,6 @@ export function ThemePreview({
     return <img src={previewImageUrl} alt="" className="h-full w-full object-cover" />;
   }
 
-  if (themeKey === 'modern') {
-    return (
-      <div className="flex h-full w-full flex-col gap-1.5 bg-white p-2.5">
-        <div className="grid flex-1 grid-cols-2 gap-1.5">
-          <div className="flex flex-col justify-center gap-1 rounded" style={{ backgroundColor: `${primaryColor}1a` }}>
-            <div className="mx-1.5 h-1.5 w-3/4 rounded-full" style={{ backgroundColor: primaryColor }} />
-            <div className="mx-1.5 h-1 w-1/2 rounded-full bg-black/15" />
-          </div>
-          <div className="rounded" style={{ backgroundColor: primaryColor }} />
-        </div>
-        <div className="grid grid-cols-3 gap-1">
-          <div className="aspect-square rounded bg-black/10" />
-          <div className="aspect-square rounded bg-black/10" />
-          <div className="aspect-square rounded bg-black/10" />
-        </div>
-      </div>
-    );
-  }
-
   if (themeKey === 'classic') {
     return (
       <div className="flex h-full w-full flex-col gap-1.5 bg-white p-2.5">
