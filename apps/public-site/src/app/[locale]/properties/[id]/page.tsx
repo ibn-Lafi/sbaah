@@ -29,9 +29,12 @@ interface PageProps {
 /**
  * "تفاصيل العقار" page (متجر الثيمات follow-up, migration 0024) — same
  * pattern as `/properties`: this page's sections let a tenant add a hero
- * banner or reposition contact around the property's own detail view,
- * but the detail view itself (`property_detail`-type anchor) keeps its
- * existing, unthemed layout — see that page's own comment for why.
+ * banner around the property's own detail view, but the detail view
+ * itself (`property_detail`-type anchor) keeps its existing, unthemed
+ * layout — see that page's own comment for why. `contact`-type sections
+ * are filtered out unconditionally (founder's explicit call — the
+ * inline WhatsApp button below is already property-specific contact,
+ * and the footer covers the tenant's general contact info).
  */
 export default async function PropertyDetailPage({ params }: PageProps) {
   const { locale: rawLocale, id } = await params;
@@ -61,9 +64,19 @@ export default async function PropertyDetailPage({ params }: PageProps) {
     cities,
   };
 
+  // 'contact' excluded outright (founder's explicit call, matching the home
+  // page): the inline WhatsappButton + InquiryForm below already covers
+  // property-specific contact, and the footer carries the tenant's general
+  // phone/WhatsApp/address — a second generic "تواصل معنا" block here was
+  // redundant. A `contact` row may still exist in this page's seeded
+  // sections; it's intentionally never rendered regardless of visibility.
   const detailSection = site.sections.find((s) => s.type === 'property_detail');
-  const before = site.sections.filter((s) => s.type !== 'property_detail' && (!detailSection || s.order_index < detailSection.order_index));
-  const after = site.sections.filter((s) => s.type !== 'property_detail' && detailSection && s.order_index > detailSection.order_index);
+  const before = site.sections.filter(
+    (s) => s.type !== 'property_detail' && s.type !== 'contact' && (!detailSection || s.order_index < detailSection.order_index),
+  );
+  const after = site.sections.filter(
+    (s) => s.type !== 'property_detail' && s.type !== 'contact' && detailSection && s.order_index > detailSection.order_index,
+  );
 
   return (
     <div>

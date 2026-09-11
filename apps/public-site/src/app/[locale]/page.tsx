@@ -14,6 +14,14 @@ import { BrokerMarketerForm } from '@/components/broker-marketer/broker-marketer
  * own `<footer>` (never toggleable), and `footer` currently has no
  * other editable content (see SectionConfigEditor, dashboard).
  *
+ * `contact`-type sections also render nothing here (founder's explicit
+ * call — the footer already carries the phone/WhatsApp/address block,
+ * so a second one on the home page was redundant): a `contact` row may
+ * still exist in this tenant's `website_sections` data (seeded before
+ * this change, or still used on /about and /contact, which DO render
+ * it via `renderThemedSection`), but the home page ignores it
+ * unconditionally regardless of that row's `is_visible` toggle.
+ *
  * Which components render each `section.type` depends on the tenant's
  * theme (متجر الثيمات) — `getThemeComponents` resolves `site.website.theme_key`
  * to a component set via the registry; see components/themes/registry.ts
@@ -34,7 +42,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   if (!site) return null; // layout.tsx already calls notFound() in this case
 
   const tenantName = locale === 'ar' ? site.tenant.name_ar : site.tenant.name_en;
-  const { HeroSection, PropertyGridSection, TextSection, ContactSection } = getThemeComponents(site.website.theme_key);
+  const { HeroSection, PropertyGridSection, TextSection } = getThemeComponents(site.website.theme_key);
   const hasBrokerMarketerForm = site.sections.some((s) => s.type === 'broker_marketer_form');
   const cities = hasBrokerMarketerForm ? await listCities() : [];
 
@@ -57,18 +65,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           case 'about':
           case 'why_us':
             return <TextSection key={section.id} type={section.type} locale={locale} config={section.config} />;
-          case 'contact':
-            return (
-              <ContactSection
-                key={section.id}
-                locale={locale}
-                config={section.config}
-                whatsappPhone={site.whatsapp_phone}
-                tenantId={site.tenant.id}
-              />
-            );
           case 'broker_marketer_form':
             return <BrokerMarketerForm key={section.id} locale={locale} tenantId={site.tenant.id} cities={cities} />;
+          case 'contact':
           case 'footer':
           default:
             return null;
