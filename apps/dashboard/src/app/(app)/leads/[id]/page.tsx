@@ -7,6 +7,7 @@ import { LEAD_STATUSES, type Property } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { DeleteButton } from '@/components/ui/delete-button';
 import { Input } from '@/components/ui/input';
 import { PersonAvatar } from '@/components/ui/person-avatar';
 import { Select } from '@/components/ui/select';
@@ -35,7 +36,6 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
   const [team, setTeam] = useState<TeamMember[]>([]);
   const [notFound, setNotFound] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [noteText, setNoteText] = useState('');
   const [noteLoading, setNoteLoading] = useState(false);
 
@@ -114,13 +114,11 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
   }
 
   async function handleDelete() {
-    if (!window.confirm('هل تريد حذف هذا العميل المحتمل نهائيًا؟')) return;
-    setDeleteError(null);
     try {
       await deleteLead(accessToken, id);
       router.push('/leads');
     } catch (err) {
-      setDeleteError(err instanceof ApiRequestError ? err.message : 'تعذّر حذف العميل المحتمل');
+      throw new Error(err instanceof ApiRequestError ? err.message : 'تعذّر حذف العميل المحتمل');
     }
   }
 
@@ -148,12 +146,22 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
         <FormPageSkeleton fields={4} extraCards={1} />
       ) : (
         <div className="flex flex-col gap-4">
-          <Link href="/leads" className="flex w-fit items-center gap-1 text-sm font-medium text-text-secondary hover:text-brand">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="h-4 w-4">
-              <path d="M15 6l-6 6 6 6" />
-            </svg>
-            رجوع لقائمة الطلبات
-          </Link>
+          <div className="flex items-center justify-between">
+            <Link href="/leads" className="flex w-fit items-center gap-1 text-sm font-medium text-text-secondary hover:text-brand">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="h-4 w-4">
+                <path d="M15 6l-6 6 6 6" />
+              </svg>
+              رجوع لقائمة الطلبات
+            </Link>
+            {canManage && (
+              <DeleteButton
+                label="حذف العميل المحتمل"
+                confirmTitle="حذف العميل المحتمل"
+                confirmMessage="سيتم حذف هذا العميل المحتمل وكل ملاحظاته نهائيًا، ولا يمكن التراجع عن هذا الإجراء."
+                onConfirm={handleDelete}
+              />
+            )}
+          </div>
 
           <FormError message={error} />
 
@@ -272,15 +280,6 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
               </div>
             </Card>
           </div>
-
-          {canManage && (
-            <Card className="p-8">
-              <FormError message={deleteError} />
-              <Button variant="danger" onClick={() => void handleDelete()}>
-                حذف العميل المحتمل نهائيًا
-              </Button>
-            </Card>
-          )}
         </div>
       )}
     </AppShell>

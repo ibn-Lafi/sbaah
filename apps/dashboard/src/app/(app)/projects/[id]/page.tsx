@@ -5,9 +5,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { Building, BuildingInput, Project, ProjectUpdateInput } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
-import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { FormError } from '@/components/ui/form-error';
+import { DeleteButton } from '@/components/ui/delete-button';
 import { Modal } from '@/components/ui/modal';
 import { BuildingForm } from '@/components/hierarchy/building-form';
 import { ProjectForm } from '@/components/hierarchy/project-form';
@@ -24,7 +23,6 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
   const [project, setProject] = useState<Project | null>(null);
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [notFound, setNotFound] = useState(false);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [showCreateBuilding, setShowCreateBuilding] = useState(false);
 
   useEffect(() => {
@@ -48,13 +46,11 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
   const canManage = me.user.role !== 'agent';
 
   async function handleDelete() {
-    if (!window.confirm('هل تريد حذف هذا المشروع نهائيًا؟')) return;
-    setDeleteError(null);
     try {
       await deleteProject(accessToken, id);
       router.push('/projects');
     } catch (err) {
-      setDeleteError(err instanceof ApiRequestError ? err.message : 'تعذّر حذف المشروع');
+      throw new Error(err instanceof ApiRequestError ? err.message : 'تعذّر حذف المشروع');
     }
   }
 
@@ -138,12 +134,12 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
           </Card>
 
           {canManage && (
-            <Card className="p-8">
-              <FormError message={deleteError} />
-              <Button variant="danger" onClick={() => void handleDelete()}>
-                حذف المشروع نهائيًا
-              </Button>
-            </Card>
+            <DeleteButton
+              label="حذف المشروع"
+              confirmTitle="حذف المشروع"
+              confirmMessage="سيتم حذف هذا المشروع نهائيًا، وستبقى العمارات المرتبطة به بلا مشروع محدد. لا يمكن التراجع عن هذا الإجراء."
+              onConfirm={handleDelete}
+            />
           )}
         </div>
       )}

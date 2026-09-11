@@ -6,9 +6,8 @@ import Link from 'next/link';
 import type { PropertyUpdateInput, Rental, RentalInput } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { FormError } from '@/components/ui/form-error';
+import { DeleteButton } from '@/components/ui/delete-button';
 import { Modal } from '@/components/ui/modal';
 import { PropertyForm } from '@/components/properties/property-form';
 import { PropertyMediaManager } from '@/components/properties/property-media-manager';
@@ -32,7 +31,6 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
   const [rentals, setRentals] = useState<Rental[]>([]);
   const [brokerMarketerApplications, setBrokerMarketerApplications] = useState<BrokerMarketerApplicationWithRelations[]>([]);
   const [notFound, setNotFound] = useState(false);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [showCreateRental, setShowCreateRental] = useState(false);
 
   useEffect(() => {
@@ -59,13 +57,11 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
   const canManage = me.user.role !== 'agent';
 
   async function handleDelete() {
-    if (!window.confirm('هل تريد حذف هذا العقار نهائيًا؟')) return;
-    setDeleteError(null);
     try {
       await deleteProperty(accessToken, id);
       router.push('/properties');
     } catch (err) {
-      setDeleteError(err instanceof ApiRequestError ? err.message : 'تعذّر حذف العقار');
+      throw new Error(err instanceof ApiRequestError ? err.message : 'تعذّر حذف العقار');
     }
   }
 
@@ -174,12 +170,12 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
           )}
 
           {canManage && (
-            <Card className="p-8">
-              <FormError message={deleteError} />
-              <Button variant="danger" onClick={() => void handleDelete()}>
-                حذف العقار نهائيًا
-              </Button>
-            </Card>
+            <DeleteButton
+              label="حذف العقار"
+              confirmTitle="حذف العقار"
+              confirmMessage="سيتم حذف هذا العقار وكل بياناته المرتبطة (الصور، عقود الإيجار) نهائيًا، ولا يمكن التراجع عن هذا الإجراء."
+              onConfirm={handleDelete}
+            />
           )}
         </div>
       )}

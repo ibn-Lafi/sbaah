@@ -4,9 +4,8 @@ import { use, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Rental, RentalUpdateInput } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
-import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { FormError } from '@/components/ui/form-error';
+import { DeleteButton } from '@/components/ui/delete-button';
 import { FormPageSkeleton } from '@/components/ui/form-page-skeleton';
 import { RentalForm } from '@/components/rentals/rental-form';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
@@ -20,7 +19,6 @@ export default function EditRentalPage({ params }: { params: Promise<{ id: strin
   const { me, accessToken } = useCurrentUser();
   const [rental, setRental] = useState<Rental | null>(null);
   const [notFound, setNotFound] = useState(false);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -37,13 +35,11 @@ export default function EditRentalPage({ params }: { params: Promise<{ id: strin
   }, [accessToken, id]);
 
   async function handleDelete() {
-    if (!window.confirm('هل تريد حذف عقد الإيجار هذا نهائيًا؟')) return;
-    setDeleteError(null);
     try {
       await deleteRental(accessToken, id);
       router.push('/rentals');
     } catch (err) {
-      setDeleteError(err instanceof ApiRequestError ? err.message : 'تعذّر حذف الإيجار');
+      throw new Error(err instanceof ApiRequestError ? err.message : 'تعذّر حذف الإيجار');
     }
   }
 
@@ -84,12 +80,12 @@ export default function EditRentalPage({ params }: { params: Promise<{ id: strin
             />
           </Card>
 
-          <Card className="p-8">
-            <FormError message={deleteError} />
-            <Button variant="danger" onClick={() => void handleDelete()}>
-              حذف عقد الإيجار نهائيًا
-            </Button>
-          </Card>
+          <DeleteButton
+            label="حذف عقد الإيجار"
+            confirmTitle="حذف عقد الإيجار"
+            confirmMessage="سيتم حذف عقد الإيجار هذا نهائيًا، ولا يمكن التراجع عن هذا الإجراء."
+            onConfirm={handleDelete}
+          />
         </div>
       )}
     </AppShell>

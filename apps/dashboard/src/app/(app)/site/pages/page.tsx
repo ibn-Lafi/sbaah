@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { DeleteButton } from '@/components/ui/delete-button';
 import { FormError } from '@/components/ui/form-error';
 import { CardListSkeleton } from '@/components/ui/card-list-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
@@ -126,8 +127,12 @@ export default function CustomPagesPage() {
   }
 
   async function handleDelete(id: string) {
-    await deleteCustomPage(accessToken, id);
-    reload();
+    try {
+      await deleteCustomPage(accessToken, id);
+      reload();
+    } catch (err) {
+      throw new Error(err instanceof ApiRequestError ? err.message : 'تعذّر حذف الصفحة');
+    }
   }
 
   return (
@@ -173,9 +178,13 @@ export default function CustomPagesPage() {
                   >
                     تعديل
                   </button>
-                  <button type="button" onClick={() => void handleDelete(page.id)} className="text-xs font-semibold text-danger hover:underline">
-                    حذف
-                  </button>
+                  <DeleteButton
+                    compact
+                    label="حذف"
+                    confirmTitle="حذف الصفحة"
+                    confirmMessage={`سيتم حذف صفحة "${page.title}" نهائيًا، وسيختفي رابطها من تذييل موقعك. لا يمكن التراجع عن هذا الإجراء.`}
+                    onConfirm={() => handleDelete(page.id)}
+                  />
                 </Card>
               ),
             )}

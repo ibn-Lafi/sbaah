@@ -4,9 +4,8 @@ import { use, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Building, BuildingUpdateInput } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
-import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { FormError } from '@/components/ui/form-error';
+import { DeleteButton } from '@/components/ui/delete-button';
 import { BuildingForm } from '@/components/hierarchy/building-form';
 import { FormPageSkeleton } from '@/components/ui/form-page-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
@@ -20,7 +19,6 @@ export default function EditBuildingPage({ params }: { params: Promise<{ id: str
   const { me, accessToken } = useCurrentUser();
   const [building, setBuilding] = useState<Building | null>(null);
   const [notFound, setNotFound] = useState(false);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -39,13 +37,11 @@ export default function EditBuildingPage({ params }: { params: Promise<{ id: str
   const canManage = me.user.role !== 'agent';
 
   async function handleDelete() {
-    if (!window.confirm('هل تريد حذف هذه العمارة نهائيًا؟')) return;
-    setDeleteError(null);
     try {
       await deleteBuilding(accessToken, id);
       router.push('/buildings');
     } catch (err) {
-      setDeleteError(err instanceof ApiRequestError ? err.message : 'تعذّر حذف العمارة');
+      throw new Error(err instanceof ApiRequestError ? err.message : 'تعذّر حذف العمارة');
     }
   }
 
@@ -87,12 +83,12 @@ export default function EditBuildingPage({ params }: { params: Promise<{ id: str
           </Card>
 
           {canManage && (
-            <Card className="p-8">
-              <FormError message={deleteError} />
-              <Button variant="danger" onClick={() => void handleDelete()}>
-                حذف العمارة نهائيًا
-              </Button>
-            </Card>
+            <DeleteButton
+              label="حذف العمارة"
+              confirmTitle="حذف العمارة"
+              confirmMessage="سيتم حذف هذه العمارة نهائيًا، وستبقى العقارات المرتبطة بها بلا عمارة محددة. لا يمكن التراجع عن هذا الإجراء."
+              onConfirm={handleDelete}
+            />
           )}
         </div>
       )}
