@@ -4,23 +4,27 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import type { HeaderProps } from '../types';
 
-/** px past the top before the header switches from transparent to its solid "card" look. */
+/** px past the top before the header switches from fully transparent to its solid brand-color look. */
 const SCROLL_THRESHOLD = 24;
 
 /**
- * الثيم الأساسي — هيدر عائم (`position: fixed`) بتصميم مستوحى من الصورة
- * المرجعية للمؤسس: شفاف (بتدرّج غامق خفيف يضمن وضوح النص الأبيض فوق أي
- * خلفية) في أعلى الصفحة، يتحوّل إلى "كرت" أبيض بزوايا دائرية وظل عند
- * التمرير. بما أنه صار خارج تدفّق الصفحة العادي (`fixed`)، يحجز مساحته
- * بنفسه عبر الفاصل (`<div className="h-20" />`) أسفله — كل صفحة تبقى
- * محمية من أي تغطية تلقائيًا. `hero-section.tsx` في هذا الثيم يسحب نفسه
- * للأعلى بهامش سالب مطابق (`-mt-20`) خلف الهيدر الشفاف، لكن فقط عند وجود
- * صورة خلفية (bannerUrl) — نفس تأثير "الهيدر فوق صورة الخلفية" بالصورة
- * المرجعية؛ الارتباط بين الرقمين (h-20 هنا و-mt-20 هناك) مقصود ويجب أن
- * يبقيا متطابقين إذا تغيّر ارتفاع الهيدر مستقبلًا.
+ * الثيم الأساسي — هيدر عائم (`position: fixed`): شفاف بالكامل (بلا أي
+ * خلفية) في أعلى الصفحة، يتحوّل إلى كرت بلون المنصة المخصَّص
+ * (`bg-tenant-primary` — نفس "اللون الأساسي" من تخصيص الثيم، لا لون
+ * ثابت مستقل) عند التمرير. بما أنه `fixed` (خارج تدفّق الصفحة)، يحجز
+ * مساحته بنفسه عبر الفاصل (`<div className="h-20" />`) أسفله — كل صفحة
+ * تبقى محمية من أي تغطية تلقائيًا. `hero-section.tsx` في هذا الثيم يسحب
+ * نفسه للأعلى بهامش سالب مطابق (`-mt-20`) خلف الهيدر الشفاف عند وجود
+ * صورة خلفية؛ الارتباط بين الرقمين (h-20 هنا و-mt-20 هناك) مقصود ويجب
+ * أن يبقيا متطابقين إذا تغيّر ارتفاع الهيدر مستقبلًا.
+ *
+ * قائمة الجوال (`sm:hidden`) تفتح/تغلق روابط التنقل + تبديل اللغة داخل
+ * لوحة منسدلة بيضاء واحدة — لا زر "تواصل معنا" (حُذف بالكامل، حسب طلب
+ * المؤسس)، ولا رابط تنقل ثابت مستقل على الجوال إطلاقًا خارج هذه القائمة.
  */
 export function Header({ locale, dict, website, tenantName, otherLocaleHref }: HeaderProps) {
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > SCROLL_THRESHOLD);
@@ -39,19 +43,14 @@ export function Header({ locale, dict, website, tenantName, otherLocaleHref }: H
     <>
       <div className="fixed inset-x-0 top-0 z-50 px-4 pt-3">
         {website.announcement_bar_text && (
-          <div className={`mb-2 text-center text-xs font-medium transition-colors ${scrolled ? 'text-black/60' : 'text-white/90'}`}>
-            {website.announcement_bar_text}
-          </div>
+          <div className="mb-2 text-center text-xs font-medium text-white">{website.announcement_bar_text}</div>
         )}
         <div
-          className={`mx-auto flex max-w-6xl items-center justify-between gap-4 rounded-2xl px-5 transition-all duration-300 ${
-            scrolled ? 'bg-white py-3 shadow-lg' : 'bg-gradient-to-b from-black/55 to-black/0 py-4'
+          className={`mx-auto flex max-w-6xl items-center justify-between gap-4 rounded-2xl px-5 py-3 text-white transition-colors duration-300 ${
+            scrolled ? 'bg-tenant-primary shadow-lg' : 'bg-transparent'
           }`}
         >
-          <Link
-            href={locale === 'ar' ? '/' : '/en'}
-            className={`flex items-center gap-2 text-lg font-semibold transition-colors ${scrolled ? 'text-tenant-primary' : 'text-white'}`}
-          >
+          <Link href={locale === 'ar' ? '/' : '/en'} className="flex items-center gap-2 text-lg font-semibold">
             {website.logo_url ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={website.logo_url} alt={tenantName} className="h-8 w-auto" />
@@ -60,37 +59,42 @@ export function Header({ locale, dict, website, tenantName, otherLocaleHref }: H
             )}
           </Link>
 
-          <nav className={`hidden items-center gap-6 text-sm font-medium sm:flex ${scrolled ? 'text-black/70' : 'text-white/90'}`}>
+          <nav className="hidden items-center gap-6 text-sm font-medium sm:flex">
             {navLinks.map(({ href, label }) => (
-              <Link key={href} href={href} className="transition-colors hover:text-tenant-primary">
+              <Link key={href} href={href} className="transition-opacity hover:opacity-80">
                 {label}
               </Link>
             ))}
-          </nav>
-
-          <div className="flex items-center gap-3">
-            <Link
-              href={otherLocaleHref}
-              className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
-                scrolled
-                  ? 'border-black/15 text-black/70 hover:border-tenant-primary hover:text-tenant-primary'
-                  : 'border-white/40 text-white hover:bg-white/10'
-              }`}
-            >
+            <Link href={otherLocaleHref} className="rounded-full border border-white/40 px-3 py-1.5 text-xs font-semibold hover:bg-white/10">
               {dict.languageSwitch}
             </Link>
-            <Link
-              href={locale === 'ar' ? '/contact' : '/en/contact'}
-              className={`hidden rounded-full border px-4 py-1.5 text-sm font-semibold transition-colors sm:block ${
-                scrolled
-                  ? 'border-tenant-primary text-tenant-primary hover:bg-tenant-primary hover:text-white'
-                  : 'border-white text-white hover:bg-white hover:text-black'
-              }`}
-            >
-              {dict.contact}
+          </nav>
+
+          <button
+            type="button"
+            onClick={() => setMenuOpen((v) => !v)}
+            aria-label={dict.menu}
+            aria-expanded={menuOpen}
+            className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-white/10 sm:hidden"
+          >
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              {menuOpen ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
+            </svg>
+          </button>
+        </div>
+
+        {menuOpen && (
+          <div className="mx-auto mt-2 flex max-w-6xl flex-col gap-1 rounded-2xl bg-white p-2 text-sm font-medium text-black/80 shadow-lg sm:hidden">
+            {navLinks.map(({ href, label }) => (
+              <Link key={href} href={href} onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-2.5 hover:bg-black/5">
+                {label}
+              </Link>
+            ))}
+            <Link href={otherLocaleHref} onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-2.5 hover:bg-black/5">
+              {dict.languageSwitch}
             </Link>
           </div>
-        </div>
+        )}
       </div>
       <div className="h-20" />
     </>
