@@ -1,12 +1,26 @@
 /**
- * A tiny CSS mockup of each theme's homepage layout — not a real
- * screenshot (no rendering pipeline for that exists), but a genuine,
- * at-a-glance shape difference so "متجر الثيمات" isn't just a list of
- * names. Keyed by `theme.key`; an unknown future key (a theme added to
- * the DB before its registry entry ships) falls back to a generic
- * placeholder rather than breaking the gallery.
+ * `previewImageUrl` (console-uploaded, migration 0035) wins when present —
+ * a real screenshot beats a mockup. Falls back to a tiny CSS approximation
+ * of each theme's homepage layout for a theme not yet screenshotted, so
+ * "متجر الثيمات" still shows *some* shape difference rather than a blank
+ * box. Keyed by `theme.key` for the fallback; an unknown future key (a
+ * theme added to the DB before its registry entry ships) falls back to a
+ * generic placeholder rather than breaking the gallery.
  */
-export function ThemePreview({ themeKey, primaryColor }: { themeKey: string; primaryColor: string }) {
+export function ThemePreview({
+  themeKey,
+  primaryColor,
+  previewImageUrl,
+}: {
+  themeKey: string;
+  primaryColor: string;
+  previewImageUrl?: string | null;
+}) {
+  if (previewImageUrl) {
+    // eslint-disable-next-line @next/next/no-img-element -- Supabase Storage public URL, not a local/optimizable asset
+    return <img src={previewImageUrl} alt="" className="h-full w-full object-cover" />;
+  }
+
   if (themeKey === 'modern') {
     return (
       <div className="flex h-full w-full flex-col gap-1.5 bg-white p-2.5">

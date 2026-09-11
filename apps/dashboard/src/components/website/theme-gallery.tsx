@@ -35,7 +35,7 @@ export function ThemeGallery({
               disabled={selected}
               className={`aspect-[16/10] w-full border-b border-border-subtle text-start ${!selected ? 'hover:opacity-90' : ''}`}
             >
-              <ThemePreview themeKey={theme.key} primaryColor={primaryColor} />
+              <ThemePreview themeKey={theme.key} primaryColor={primaryColor} previewImageUrl={theme.preview_image_url} />
             </button>
             <div className="flex items-center justify-between px-3 py-2">
               <span className="text-sm font-medium text-text-primary">{theme.name_ar}</span>

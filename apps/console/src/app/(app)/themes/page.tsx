@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Theme } from '@sbaah/shared';
 import { ConsoleShell } from '@/components/layout/console-shell';
 import { Card } from '@/components/ui/card';
@@ -8,7 +8,49 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { useCurrentAdmin } from '@/lib/auth/current-admin-context';
-import { listThemes, updateTheme } from '@/lib/api/themes';
+import { listThemes, updateTheme, uploadThemePreviewImage } from '@/lib/api/themes';
+
+/** صورة معاينة صغيرة + زر رفع — تُستخدم داخل صف الجدول لكل ثيم (migration 0035). */
+function ThemePreviewImageCell({ theme, onUploaded }: { theme: Theme; onUploaded: (theme: Theme) => void }) {
+  const { accessToken } = useCurrentAdmin();
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  async function handleFileSelected(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+    setUploading(true);
+    try {
+      const { theme: updated } = await uploadThemePreviewImage(accessToken, theme.id, file);
+      onUploaded(updated);
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      {theme.preview_image_url ? (
+        // eslint-disable-next-line @next/next/no-img-element -- Supabase Storage public URL, not a local/optimizable asset
+        <img src={theme.preview_image_url} alt="" className="h-10 w-16 rounded border border-border-default object-cover" />
+      ) : (
+        <div className="flex h-10 w-16 items-center justify-center rounded border border-dashed border-border-default text-[10px] text-text-placeholder">
+          بلا صورة
+        </div>
+      )}
+      <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => void handleFileSelected(e)} />
+      <button
+        type="button"
+        disabled={uploading}
+        onClick={() => fileInputRef.current?.click()}
+        className="text-xs font-semibold text-brand hover:underline disabled:opacity-50"
+      >
+        {uploading ? 'جارٍ الرفع...' : theme.preview_image_url ? 'استبدال' : 'رفع صورة'}
+      </button>
+    </div>
+  );
+}
 
 /**
  * "متجر الثيمات" — console side (task: theme system). Deliberately no
@@ -61,6 +103,7 @@ export default function ThemesPage() {
           <table className="w-full text-sm">
             <thead className="bg-surface-header text-right text-text-secondary">
               <tr>
+                <th className="px-5 py-3 font-medium">صورة المعاينة</th>
                 <th className="px-5 py-3 font-medium">المعرّف البرمجي</th>
                 <th className="px-5 py-3 font-medium">الاسم (عربي)</th>
                 <th className="px-5 py-3 font-medium">الاسم (إنجليزي)</th>
@@ -72,6 +115,9 @@ export default function ThemesPage() {
             <tbody>
               {themes.map((theme) => (
                 <tr key={theme.id} className="border-t border-border-subtle">
+                  <td className="px-5 py-3">
+                    <ThemePreviewImageCell theme={theme} onUploaded={(updated) => patchLocal(theme.id, updated)} />
+                  </td>
                   <td className="px-5 py-3 text-text-muted" dir="ltr">
                     {theme.key}
                   </td>

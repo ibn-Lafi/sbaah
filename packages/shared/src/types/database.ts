@@ -125,6 +125,8 @@ export interface Theme {
   name_en: string;
   is_active: boolean;
   order_index: number;
+  /** Uploaded screenshot for متجر الثيمات cards (console-managed, migration 0035) — null falls back to the CSS mockup (ThemePreview). */
+  preview_image_url: string | null;
 }
 
 export interface Website {
