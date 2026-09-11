@@ -94,7 +94,7 @@ function CustomDomainCard({ accessToken, domain, onChanged }: { accessToken: str
               label={domain.custom_domain_status === 'verified' ? 'مُفعّل' : 'بانتظار ربط DNS'}
             />
           </div>
-          {domain.custom_domain_status === 'pending' && domain.dns_record && (
+          {domain.custom_domain_status === 'pending' && domain.dns_records.length > 0 && (
             <>
               <div className="flex flex-col gap-2 rounded-input bg-surface-header p-4 text-sm" dir="ltr">
                 <div className="flex justify-between text-xs text-text-secondary">
@@ -103,18 +103,21 @@ function CustomDomainCard({ accessToken, domain, onChanged }: { accessToken: str
                   <span>Value</span>
                 </div>
                 <div className="h-px bg-border-subtle" />
-                <div className="flex justify-between font-semibold text-text-primary">
-                  <span>{domain.dns_record.type}</span>
-                  <span>{domain.dns_record.name}</span>
-                  <span>{domain.dns_record.value}</span>
-                </div>
+                {domain.dns_records.map((record) => (
+                  <div key={record.type} className="flex justify-between gap-3 font-semibold text-text-primary">
+                    <span>{record.type}</span>
+                    <span className="truncate">{record.name}</span>
+                    <span className="truncate">{record.value}</span>
+                  </div>
+                ))}
               </div>
+              <p className="text-xs text-text-secondary">أضِف كلا السجلين لدى مزوّد الدومين — CNAME للربط وTXT لإثبات الملكية، كلاهما مطلوب قبل تفعيل الشهادة.</p>
               <Button type="button" variant="secondary" loading={verifying} onClick={() => void handleVerify()} className="w-fit">
                 اختبار الربط
               </Button>
               {notVerifiedYet && (
                 <p className="text-sm text-warning">
-                  لم يتم رصد الربط بعد — تأكد من إضافة سجل DNS أعلاه بالضبط لدى مزوّد الدومين، وقد يستغرق انتشاره حتى ساعات قليلة قبل إعادة المحاولة.
+                  لم يتم رصد الربط بعد — تأكد من إضافة السجلين أعلاه بالضبط لدى مزوّد الدومين، وقد يستغرق انتشارها حتى ساعات قليلة قبل إعادة المحاولة.
                 </p>
               )}
             </>

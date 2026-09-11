@@ -14,7 +14,7 @@ export function updateSocialLinks(accessToken: string, input: SocialLinksUpdateI
 }
 
 export interface DnsRecord {
-  type: string;
+  type: 'CNAME' | 'TXT';
   name: string;
   value: string;
 }
@@ -22,7 +22,8 @@ export interface DnsRecord {
 export interface DomainInfo {
   custom_domain: string | null;
   custom_domain_status: CustomDomainStatus | null;
-  dns_record: DnsRecord | null;
+  /** One CNAME (routing) + one TXT (Railway ownership verification) record — both required before Railway issues a certificate. */
+  dns_records: DnsRecord[];
   custom_domain_allowed: boolean;
 }
 
@@ -30,7 +31,7 @@ export function getDomain(accessToken: string) {
   return apiGet<DomainInfo>('/tenant/domain', accessToken);
 }
 
-/** Self-service DNS check ("اختبار الربط") — a real CNAME lookup, no admin review involved. */
+/** Self-service DNS check ("اختبار الربط") — a real CNAME + TXT lookup, no admin review involved. */
 export function verifyDomain(accessToken: string) {
   return apiPost<{ custom_domain_status: CustomDomainStatus; verified: boolean }>('/tenant/domain/verify', undefined, accessToken);
 }
