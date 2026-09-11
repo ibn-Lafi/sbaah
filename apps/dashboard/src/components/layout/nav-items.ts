@@ -6,9 +6,10 @@
  * itself). "الموقع الالكتروني" is that one group in this app: تخصيص
  * الثيم (/site/editor), متجر الثيمات (/site), الدومين (/domain).
  *
- * "الإعدادات"/"الفوترة والاشتراك" are NOT in this list — the mockup puts
- * them in the account switcher dropdown at the bottom of the sidebar
- * instead (see sidebar.tsx), not as regular nav rows.
+ * "الإعدادات"/"الفوترة والاشتراك"/"إدارة الموظفين" are NOT in this list —
+ * the founder's later revision moves them into the account switcher
+ * dropdown at the bottom of the sidebar instead (see sidebar.tsx), not
+ * regular nav rows.
  *
  * "العقارات" here still points at /properties only — the mockup
  * consolidates properties/projects/buildings/rentals under this one nav
@@ -28,7 +29,6 @@ import {
   DomainIcon,
   PagesIcon,
   PropertiesIcon,
-  StaffIcon,
   ThemeCustomizeIcon,
   ThemeStoreIcon,
   WebsiteIcon,
@@ -62,8 +62,7 @@ export const NAV_ITEMS: NavEntry[] = [
   { href: '/', label: 'لوحة القيادة', icon: DashboardIcon },
   { href: '/leads', label: 'إدارة العملاء', icon: ClientsIcon },
   { href: '/properties', label: 'العقارات', icon: PropertiesIcon },
-  { href: '/team', label: 'إدارة الموظفين', icon: StaffIcon, roles: ['owner', 'admin'] },
-  { href: '/applicants', label: 'المتقدمون للوظائف', icon: ApplicantsIcon, roles: ['owner', 'admin'] },
+  { href: '/applicants', label: 'الوسطاء والمسوقين', icon: ApplicantsIcon, roles: ['owner', 'admin'] },
   {
     group: 'site',
     label: 'الموقع الالكتروني',

@@ -69,13 +69,13 @@ export default function LeadsPage() {
       accountType={me.tenant.account_type}
       roleLabel={ROLE_LABELS[me.user.role]}
     >
-      <div className="mb-5 flex items-center justify-between">
-        <div className="flex gap-2 rounded-control bg-surface-subtle p-1">
+      <div className="mb-5">
+        <div className="mx-auto flex max-w-[640px] items-center justify-center gap-0.5 rounded-full bg-surface-card p-[5px] shadow-[0_1px_6px_rgba(31,29,34,.08)]">
           <button
             type="button"
             onClick={() => setTab('pipeline')}
-            className={`h-9 rounded-control px-4 text-sm font-semibold transition-colors ${
-              tab === 'pipeline' ? 'bg-surface-card text-text-primary shadow-sm' : 'text-text-secondary'
+            className={`flex h-[34px] flex-1 items-center justify-center rounded-full px-[18px] text-[13px] ${
+              tab === 'pipeline' ? 'bg-brand-surface font-semibold text-brand' : 'font-normal text-text-secondary'
             }`}
           >
             لوحة المتابعة
@@ -83,14 +83,16 @@ export default function LeadsPage() {
           <button
             type="button"
             onClick={() => setTab('all')}
-            className={`h-9 rounded-control px-4 text-sm font-semibold transition-colors ${
-              tab === 'all' ? 'bg-surface-card text-text-primary shadow-sm' : 'text-text-secondary'
+            className={`flex h-[34px] flex-1 items-center justify-center rounded-full px-[18px] text-[13px] ${
+              tab === 'all' ? 'bg-brand-surface font-semibold text-brand' : 'font-normal text-text-secondary'
             }`}
           >
             جميع العملاء
           </button>
         </div>
+      </div>
 
+      <div className="mb-5 flex items-center justify-between">
         <div className="flex items-center gap-3">
           {tab === 'pipeline' && (
             <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as LeadStatus | '')} className="w-[200px]">
@@ -102,8 +104,8 @@ export default function LeadsPage() {
               ))}
             </Select>
           )}
-          {canManage && <Button onClick={() => setShowCreate(true)}>+ إضافة عميل محتمل</Button>}
         </div>
+        {canManage && <Button onClick={() => setShowCreate(true)}>+ إضافة عميل محتمل</Button>}
       </div>
 
       {showCreate && (

@@ -93,7 +93,7 @@ export function Sidebar({ orgName, accountType, roleLabel }: SidebarProps) {
         })}
       </nav>
 
-      <div className="relative mt-4 border-t border-border-subtle pt-[10px]">
+      <div className="relative mt-auto border-t border-border-subtle pt-[10px]">
         <button
           type="button"
           onClick={() => setAccountMenuOpen((open) => !open)}
@@ -115,6 +115,15 @@ export function Sidebar({ orgName, accountType, roleLabel }: SidebarProps) {
                 className="rounded-[10px] px-[14px] py-[11px] text-[13px] font-medium text-text-primary hover:bg-surface-subtle"
               >
                 حسابي
+              </Link>
+            )}
+            {(me.user.role === 'owner' || me.user.role === 'admin') && (
+              <Link
+                href="/team"
+                onClick={() => setAccountMenuOpen(false)}
+                className="rounded-[10px] px-[14px] py-[11px] text-[13px] font-medium text-text-primary hover:bg-surface-subtle"
+              >
+                إدارة الموظفين
               </Link>
             )}
             {me.user.role === 'owner' && (

@@ -42,15 +42,6 @@ export function PropertiesIcon({ className }: IconProps) {
   );
 }
 
-export function StaffIcon({ className }: IconProps) {
-  return (
-    <Svg className={className}>
-      <rect x="5" y="4" width="14" height="17" rx="2" />
-      <circle cx="12" cy="10" r="2.3" />
-      <path d="M8 17c0-2 1.8-3.2 4-3.2s4 1.2 4 3.2" />
-    </Svg>
-  );
-}
 
 export function ApplicantsIcon({ className }: IconProps) {
   return (
