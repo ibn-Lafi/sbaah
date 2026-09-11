@@ -161,3 +161,13 @@ export function FalIcon({ className }: IconProps) {
     </Svg>
   );
 }
+
+/** حسابي — العنوان. نفس دبوس الخريطة المستخدم في تذييل الموقع العام (footer-icons.tsx). */
+export function LocationIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M12 21s7-6.3 7-12a7 7 0 1 0-14 0c0 5.7 7 12 7 12z" />
+      <circle cx="12" cy="9" r="2.4" />
+    </Svg>
+  );
+}

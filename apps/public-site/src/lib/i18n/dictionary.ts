@@ -23,6 +23,7 @@ const dictionaries = {
     otherPages: 'أخرى',
     phoneNumber: 'رقم الهاتف',
     whatsappNumber: 'واتساب',
+    address: 'العنوان',
     menu: 'القائمة',
   },
   en: {
@@ -38,6 +39,7 @@ const dictionaries = {
     otherPages: 'Other',
     phoneNumber: 'Phone',
     whatsappNumber: 'WhatsApp',
+    address: 'Address',
     menu: 'Menu',
   },
 } satisfies Record<Locale, Record<string, string>>;

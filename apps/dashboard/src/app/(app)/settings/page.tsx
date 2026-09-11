@@ -1,12 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { AccountType } from '@sbaah/shared';
 import { ACCOUNT_TYPE_LABELS, accountTypeUpdateSchema, socialLinksUpdateSchema } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { Button } from '@/components/ui/button';
 import { FormError } from '@/components/ui/form-error';
@@ -17,10 +18,12 @@ import {
   WhatsappIcon,
   SnapchatIcon,
   CallIcon,
+  LocationIcon,
 } from '@/components/website/editor-icons';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { ROLE_LABELS } from '@/lib/auth/role-labels';
 import { updateSocialLinks, updateAccountType, type SocialLinks } from '@/lib/api/tenant';
+import { getWebsite, updateWebsite } from '@/lib/api/website';
 import { ApiRequestError } from '@/lib/api/client';
 
 function InfoRow({ label, value }: { label: string; value: string }) {
@@ -255,6 +258,68 @@ function SocialLinksCard({ accessToken, initial }: { accessToken: string; initia
   );
 }
 
+/**
+ * العنوان — نفس `website.footer_description` (كان يُعدَّل من محرر الموقع
+ * فقط) أصبح متاحًا من هنا أيضًا لسهولة الوصول، بنفس أيقونة الموقع
+ * المستخدمة في تذييل الموقع العام؛ يظهر هناك مع "تواصل معنا".
+ */
+function AddressCard({ accessToken }: { accessToken: string }) {
+  const [value, setValue] = useState<string | null>(null);
+  const [draft, setDraft] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    void getWebsite(accessToken).then(({ website }) => {
+      setValue(website.footer_description ?? '');
+      setDraft(website.footer_description ?? '');
+    });
+  }, [accessToken]);
+
+  async function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    setError(null);
+    setSaved(false);
+    setLoading(true);
+    try {
+      const { website: updated } = await updateWebsite(accessToken, { footer_description: draft || null });
+      setValue(updated.footer_description ?? '');
+      setSaved(true);
+    } catch (err) {
+      setError(err instanceof ApiRequestError ? err.message : 'تعذّر حفظ العنوان');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (value === null) {
+    return null;
+  }
+
+  return (
+    <Card className="p-6">
+      <h2 className="mb-1 flex items-center gap-2 text-base font-semibold text-text-primary">
+        <LocationIcon className="h-[18px] w-[18px] text-text-secondary" />
+        العنوان
+      </h2>
+      <p className="mb-4 text-sm text-text-secondary">يظهر مع تواصل معنا في تذييل موقعك الإلكتروني.</p>
+      <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-3">
+        <Textarea
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          placeholder="نبذة قصيرة أو عنوان الحساب يظهر في تذييل الموقع"
+          className="min-h-[80px]"
+        />
+        <FormError message={error} />
+        <Button type="submit" disabled={loading} className="w-fit">
+          {loading ? 'جارٍ الحفظ...' : saved ? 'تم الحفظ ✓' : 'حفظ'}
+        </Button>
+      </form>
+    </Card>
+  );
+}
+
 /** حسابي (من قائمة الحساب المنسدلة أسفل الشريط الجانبي) — بيانات الحساب + حسابات التواصل الاجتماعي؛ النطاق الفرعي/الدومين المخصص انتقلا إلى /domain (عنصر قائمة مستقل، مطابق للتصميم). */
 export default function SettingsPage() {
   const { me, accessToken } = useCurrentUser();
@@ -296,6 +361,8 @@ export default function SettingsPage() {
             social_phone: me.tenant.social_phone,
           }}
         />
+
+        <AddressCard accessToken={accessToken} />
 
         <Card className="p-6">
           <h2 className="mb-1 text-base font-semibold text-text-primary">النطاق الفرعي والدومين المخصص</h2>

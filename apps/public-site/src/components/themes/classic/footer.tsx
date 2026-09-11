@@ -102,7 +102,10 @@ export function Footer({ locale, dict, tenant, website, customPages }: FooterPro
               <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-white/10 text-tenant-primary">
                 <LocationIcon className="h-[16px] w-[16px]" />
               </span>
-              <p className="pt-1.5 text-white/70">{website.footer_description}</p>
+              <span className="flex flex-col">
+                <span className="text-xs text-white/40">{dict.address}</span>
+                <span className="text-white">{website.footer_description}</span>
+              </span>
             </div>
           )}
         </div>
@@ -124,22 +127,21 @@ export function Footer({ locale, dict, tenant, website, customPages }: FooterPro
         )}
       </div>
 
-      {businessNumbers.length > 0 && (
-        <div className="flex flex-wrap items-center gap-3 border-t border-white/10 pt-6">
-          {businessNumbers.map(({ key, label, Icon }) => (
-            <span
-              key={key}
-              title={label}
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10"
-              style={{ color: BUSINESS_BADGE_COLOR[key] }}
-            >
-              <Icon className="h-[18px] w-[18px]" />
-            </span>
-          ))}
-        </div>
-      )}
-
-      <div className="flex justify-center border-t border-white/10 pt-6">
+      <div className="flex flex-col items-center gap-3 border-t border-white/10 pt-6">
+        {businessNumbers.length > 0 && (
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            {businessNumbers.map(({ key, label, Icon }) => (
+              <span
+                key={key}
+                title={label}
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10"
+                style={{ color: BUSINESS_BADGE_COLOR[key] }}
+              >
+                <Icon className="h-[18px] w-[18px]" />
+              </span>
+            ))}
+          </div>
+        )}
         <SiteBadge accountType={tenant.account_type} locale={locale} />
       </div>
     </footer>
