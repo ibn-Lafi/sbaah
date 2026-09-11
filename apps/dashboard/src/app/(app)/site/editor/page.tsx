@@ -142,7 +142,7 @@ export default function WebsiteEditorPage() {
   return (
     <div className="flex h-screen flex-col bg-surface-page">
       {/* Toolbar */}
-      <div className="relative flex h-14 flex-none items-center gap-2 border-b border-border-subtle bg-surface-card px-4">
+      <div className="flex h-14 flex-none items-center gap-2 border-b border-border-subtle bg-surface-card px-4">
         <Link
           href="/site"
           aria-label="رجوع لمتجر الثيمات"
@@ -151,44 +151,6 @@ export default function WebsiteEditorPage() {
         >
           <BackArrowIcon className="h-[18px] w-[18px]" />
         </Link>
-
-        <div className="h-6 w-px bg-border-subtle" />
-
-        <Select
-          value={activePageKey}
-          onChange={(e) => {
-            setActivePageKey(e.target.value as WebsitePageKey);
-            setPanelView('sections');
-          }}
-          className="h-9 w-[170px] text-sm"
-        >
-          {WEBSITE_PAGE_KEYS.map((key) => (
-            <option key={key} value={key}>
-              {WEBSITE_PAGE_LABELS[key]}
-            </option>
-          ))}
-        </Select>
-
-        <div className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 gap-1 rounded-full bg-surface-subtle-3 p-1">
-          <button
-            type="button"
-            onClick={() => setDevice('desktop')}
-            aria-label="عرض كمبيوتر"
-            title="عرض كمبيوتر"
-            className={`flex h-8 w-8 items-center justify-center rounded-full ${device === 'desktop' ? 'bg-surface-card text-brand shadow-sm' : 'text-text-secondary'}`}
-          >
-            <DesktopIcon className="h-[16px] w-[16px]" />
-          </button>
-          <button
-            type="button"
-            onClick={() => setDevice('mobile')}
-            aria-label="عرض جوال"
-            title="عرض جوال"
-            className={`flex h-8 w-8 items-center justify-center rounded-full ${device === 'mobile' ? 'bg-surface-card text-brand shadow-sm' : 'text-text-secondary'}`}
-          >
-            <MobileIcon className="h-[16px] w-[16px]" />
-          </button>
-        </div>
       </div>
 
       {/* Panel + preview — panel first in DOM so it renders on the right under RTL, matching the reference tool. */}
@@ -398,8 +360,49 @@ export default function WebsiteEditorPage() {
           )}
         </div>
 
-        <div className="min-w-0 flex-1">
-          <SitePreview siteUrl={siteUrl} pageKey={activePageKey} device={device} />
+        <div className="flex min-w-0 flex-1 flex-col">
+          {/* اختيار الصفحة + تبديل الجهاز — فوق مربع المعاينة تحديدًا (لا فوق الشريط الجانبي)، بحيث تكون معاينة الموقع الحيّة في المنتصف فعليًا، لا مُزاحة بعرض اللوحة الجانبية. */}
+          <div className="flex h-14 flex-none items-center justify-center gap-3 border-b border-border-subtle bg-surface-card px-4">
+            <Select
+              value={activePageKey}
+              onChange={(e) => {
+                setActivePageKey(e.target.value as WebsitePageKey);
+                setPanelView('sections');
+              }}
+              className="h-9 w-[170px] text-sm"
+            >
+              {WEBSITE_PAGE_KEYS.map((key) => (
+                <option key={key} value={key}>
+                  {WEBSITE_PAGE_LABELS[key]}
+                </option>
+              ))}
+            </Select>
+
+            <div className="flex gap-1 rounded-full bg-surface-subtle-3 p-1">
+              <button
+                type="button"
+                onClick={() => setDevice('desktop')}
+                aria-label="عرض كمبيوتر"
+                title="عرض كمبيوتر"
+                className={`flex h-8 w-8 items-center justify-center rounded-full ${device === 'desktop' ? 'bg-surface-card text-brand shadow-sm' : 'text-text-secondary'}`}
+              >
+                <DesktopIcon className="h-[16px] w-[16px]" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setDevice('mobile')}
+                aria-label="عرض جوال"
+                title="عرض جوال"
+                className={`flex h-8 w-8 items-center justify-center rounded-full ${device === 'mobile' ? 'bg-surface-card text-brand shadow-sm' : 'text-text-secondary'}`}
+              >
+                <MobileIcon className="h-[16px] w-[16px]" />
+              </button>
+            </div>
+          </div>
+
+          <div className="min-h-0 flex-1">
+            <SitePreview siteUrl={siteUrl} pageKey={activePageKey} device={device} />
+          </div>
         </div>
       </div>
     </div>
