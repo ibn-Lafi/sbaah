@@ -197,6 +197,8 @@ export interface Project {
   description_en: string | null;
   city_id: string;
   district_id: string | null;
+  lat: number | null;
+  lng: number | null;
   status: PropertyStatus;
   created_at: string;
 }
@@ -209,6 +211,8 @@ export interface Building {
   name_en: string | null;
   city_id: string;
   district_id: string | null;
+  lat: number | null;
+  lng: number | null;
   floors_count: number | null;
   created_at: string;
 }

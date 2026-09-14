@@ -9,6 +9,8 @@ export const projectInputSchema = z.object({
   description_en: z.string().optional().nullable(),
   city_id: z.string().uuid('المدينة مطلوبة'),
   district_id: z.string().uuid().optional().nullable(),
+  lat: z.number().optional().nullable(),
+  lng: z.number().optional().nullable(),
 });
 export type ProjectInput = z.infer<typeof projectInputSchema>;
 
@@ -23,6 +25,8 @@ export const buildingInputSchema = z.object({
   name_en: z.string().optional().nullable(),
   city_id: z.string().uuid('المدينة مطلوبة'),
   district_id: z.string().uuid().optional().nullable(),
+  lat: z.number().optional().nullable(),
+  lng: z.number().optional().nullable(),
   floors_count: z.number().int().positive().optional().nullable(),
 });
 export type BuildingInput = z.infer<typeof buildingInputSchema>;

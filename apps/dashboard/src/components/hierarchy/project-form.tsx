@@ -16,6 +16,7 @@ import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { FormError } from '@/components/ui/form-error';
+import { LocationPicker, type LocationPickerValue } from '@/components/ui/location-picker';
 import { listCities, listDistricts } from '@/lib/api/reference-data';
 import { PROPERTY_STATUS_LABELS } from '@/lib/property/labels';
 
@@ -26,6 +27,7 @@ type FormState = {
   description_en: string;
   city_id: string;
   district_id: string;
+  location: LocationPickerValue | null;
   status: string;
 };
 
@@ -36,6 +38,7 @@ const EMPTY_STATE: FormState = {
   description_en: '',
   city_id: '',
   district_id: '',
+  location: null,
   status: 'draft',
 };
 
@@ -47,6 +50,7 @@ function toFormState(project: Project): FormState {
     description_en: project.description_en ?? '',
     city_id: project.city_id,
     district_id: project.district_id ?? '',
+    location: project.lat !== null && project.lng !== null ? { lat: project.lat, lng: project.lng } : null,
     status: project.status,
   };
 }
@@ -94,6 +98,8 @@ export function ProjectForm({ mode, initialValues, onSubmit, submitLabel }: Proj
       description_en: form.description_en || null,
       city_id: form.city_id,
       district_id: form.district_id || null,
+      lat: form.location?.lat ?? null,
+      lng: form.location?.lng ?? null,
       ...(mode === 'edit' ? { status: form.status } : {}),
     };
 
@@ -162,6 +168,8 @@ export function ProjectForm({ mode, initialValues, onSubmit, submitLabel }: Proj
           ))}
         </Select>
       </div>
+
+      <LocationPicker value={form.location} onChange={(location) => set('location', location)} />
 
       {mode === 'edit' && (
         <Select value={form.status} onChange={(e) => set('status', e.target.value)}>

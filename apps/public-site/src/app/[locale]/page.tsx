@@ -5,6 +5,7 @@ import { MarketingHome } from '@/components/marketing-home';
 import { getThemeComponents } from '@/components/themes/registry';
 import { listCities } from '@/lib/api/reference-data';
 import { BrokerMarketerForm } from '@/components/broker-marketer/broker-marketer-form';
+import { MapSection } from '@/components/map/map-section';
 
 /**
  * Renders `website_sections` in order (task 35/42) — replaces the
@@ -68,6 +69,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             return <TextSection key={section.id} type={section.type} locale={locale} config={section.config} />;
           case 'broker_marketer_form':
             return <BrokerMarketerForm key={section.id} locale={locale} tenantId={site.tenant.id} cities={cities} />;
+          case 'map':
+            return <MapSection key={section.id} locale={locale} />;
           case 'contact':
           case 'footer':
           default:

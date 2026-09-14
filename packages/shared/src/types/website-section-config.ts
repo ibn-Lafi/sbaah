@@ -48,6 +48,9 @@ export type FooterSectionConfig = Record<string, never>;
 /** No editable fields — the form's 4 fields (name, city, Fal license, broker/marketer) are fixed, not authorable (migration 0032). Toggle/reposition only, same as property_detail/footer. */
 export type BrokerMarketerFormSectionConfig = Record<string, never>;
 
+/** No editable fields — pins are entirely data-driven (every published property/project/building with a location set), same as property_detail/footer. Toggle/reposition only (migration 0044). */
+export type MapSectionConfig = Record<string, never>;
+
 export type WebsiteSectionConfigByType = {
   hero: HeroSectionConfig;
   property_grid: PropertyGridSectionConfig;
@@ -57,5 +60,6 @@ export type WebsiteSectionConfigByType = {
   why_us: AboutSectionConfig;
   contact: ContactSectionConfig;
   broker_marketer_form: BrokerMarketerFormSectionConfig;
+  map: MapSectionConfig;
   footer: FooterSectionConfig;
 };

@@ -3,13 +3,7 @@ import type { City } from '@sbaah/shared';
 import type { Locale } from '@/lib/i18n/locales';
 import type { PublicProperty } from '@/lib/api/public-properties';
 import { pickLocalized } from '@/lib/i18n/localized-field';
-import { getListingTypeLabel, getPropertyTypeLabel } from '@/lib/property/labels';
-
-/** Western digits even on the Arabic page — matches `dashboard`'s own established convention (toLocaleString('en-US') throughout, e.g. properties/page.tsx), not the technically-"correct" ar-SA Arabic-Indic digits. */
-function formatPrice(locale: Locale, price: number): string {
-  const amount = price.toLocaleString('en-US');
-  return locale === 'ar' ? `${amount} ر.س` : `SAR ${amount}`;
-}
+import { formatPrice, getListingTypeLabel, getPropertyTypeLabel } from '@/lib/property/labels';
 
 /** Links to the single-property page (task 34/42) — the /properties/[id] route is now real, closing the "no dead links" gap task 33/42's report flagged explicitly. */
 export function PropertyCard({ property, city, locale }: { property: PublicProperty; city: City | undefined; locale: Locale }) {

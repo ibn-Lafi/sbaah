@@ -4,7 +4,7 @@ import { pickLocalized } from '@/lib/i18n/localized-field';
 import { getPublicProperty } from '@/lib/api/public-properties';
 import { getTenantSitePage } from '@/lib/tenant/get-tenant-site';
 import { listCities, listDistricts } from '@/lib/api/reference-data';
-import { getListingTypeLabel, getPropertyTypeLabel } from '@/lib/property/labels';
+import { formatPrice, getListingTypeLabel, getPropertyTypeLabel } from '@/lib/property/labels';
 import { PropertyGallery } from '@/components/properties/property-gallery';
 import { WhatsappButton } from '@/components/properties/whatsapp-button';
 import { InquiryForm } from '@/components/properties/inquiry-form';
@@ -15,12 +15,6 @@ const LABELS = {
   ar: { area: 'المساحة', bedrooms: 'الغرف', bathrooms: 'دورات المياه', description: 'الوصف' },
   en: { area: 'Area', bedrooms: 'Bedrooms', bathrooms: 'Bathrooms', description: 'Description' },
 };
-
-/** Western digits even on the Arabic page — matches `dashboard`'s established convention, not ar-SA's Arabic-Indic digits. */
-function formatPrice(locale: 'ar' | 'en', price: number): string {
-  const amount = price.toLocaleString('en-US');
-  return locale === 'ar' ? `${amount} ر.س` : `SAR ${amount}`;
-}
 
 interface PageProps {
   params: Promise<{ locale: string; id: string }>;

@@ -21,6 +21,7 @@ import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { FormError } from '@/components/ui/form-error';
+import { LocationPicker, type LocationPickerValue } from '@/components/ui/location-picker';
 import { listCities, listDistricts } from '@/lib/api/reference-data';
 import { listBuildings, listProjects } from '@/lib/api/hierarchy';
 import {
@@ -45,6 +46,7 @@ type FormState = {
   bathrooms: string;
   city_id: string;
   district_id: string;
+  location: LocationPickerValue | null;
   project_id: string;
   building_id: string;
   agent_id: string;
@@ -65,6 +67,7 @@ const EMPTY_STATE: FormState = {
   bathrooms: '',
   city_id: '',
   district_id: '',
+  location: null,
   project_id: '',
   building_id: '',
   agent_id: '',
@@ -86,6 +89,7 @@ function toFormState(property: PropertyWithMedia): FormState {
     bathrooms: property.bathrooms === null ? '' : String(property.bathrooms),
     city_id: property.city_id,
     district_id: property.district_id ?? '',
+    location: property.lat !== null && property.lng !== null ? { lat: property.lat, lng: property.lng } : null,
     project_id: property.project_id ?? '',
     building_id: property.building_id ?? '',
     agent_id: property.agent_id ?? '',
@@ -164,6 +168,8 @@ export function PropertyForm({
       bathrooms: form.bathrooms === '' ? null : Number(form.bathrooms),
       city_id: form.city_id,
       district_id: form.district_id || null,
+      lat: form.location?.lat ?? null,
+      lng: form.location?.lng ?? null,
       project_id: form.project_id || null,
       building_id: form.building_id || null,
       ...(canAssignAgent ? { agent_id: form.agent_id || null } : {}),
@@ -282,6 +288,8 @@ export function PropertyForm({
           ))}
         </Select>
       </div>
+
+      <LocationPicker value={form.location} onChange={(location) => set('location', location)} />
 
       {/* PRODUCT_SPEC.md section 4.1 — optional hierarchy grouping; both independent nullable FKs (a unit can belong to a building without a project, or vice versa). */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

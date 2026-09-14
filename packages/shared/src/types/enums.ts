@@ -68,6 +68,7 @@ export const WEBSITE_SECTION_TYPES = [
   'why_us',
   'contact',
   'broker_marketer_form',
+  'map',
   'footer',
 ] as const;
 export type WebsiteSectionType = (typeof WEBSITE_SECTION_TYPES)[number];

@@ -30,3 +30,20 @@ body {
 * {
   box-sizing: border-box;
 }
+
+/**
+ * The "الخريطة" map section's pin preview card (map-view.tsx) supplies
+ * its own rounded/shadowed card as the popup's content — these overrides
+ * strip maplibre's default white bubble/padding/tip-arrow chrome so only
+ * the custom card shows.
+ */
+.sbaah-map-popup .maplibregl-popup-content {
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+.sbaah-map-popup .maplibregl-popup-tip {
+  display: none;
+}

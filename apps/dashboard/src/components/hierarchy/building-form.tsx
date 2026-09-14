@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { FormError } from '@/components/ui/form-error';
+import { LocationPicker, type LocationPickerValue } from '@/components/ui/location-picker';
 import { listCities, listDistricts } from '@/lib/api/reference-data';
 import { listProjects } from '@/lib/api/hierarchy';
 
@@ -24,6 +25,7 @@ type FormState = {
   name_en: string;
   city_id: string;
   district_id: string;
+  location: LocationPickerValue | null;
   floors_count: string;
 };
 
@@ -33,6 +35,7 @@ const EMPTY_STATE: FormState = {
   name_en: '',
   city_id: '',
   district_id: '',
+  location: null,
   floors_count: '',
 };
 
@@ -43,6 +46,7 @@ function toFormState(building: Building): FormState {
     name_en: building.name_en ?? '',
     city_id: building.city_id,
     district_id: building.district_id ?? '',
+    location: building.lat !== null && building.lng !== null ? { lat: building.lat, lng: building.lng } : null,
     floors_count: building.floors_count === null ? '' : String(building.floors_count),
   };
 }
@@ -103,6 +107,8 @@ export function BuildingForm({
       name_en: form.name_en || null,
       city_id: form.city_id,
       district_id: form.district_id || null,
+      lat: form.location?.lat ?? null,
+      lng: form.location?.lng ?? null,
       floors_count: form.floors_count === '' ? null : Number(form.floors_count),
     };
 
@@ -176,6 +182,8 @@ export function BuildingForm({
         value={form.floors_count}
         onChange={(e) => set('floors_count', e.target.value)}
       />
+
+      <LocationPicker value={form.location} onChange={(location) => set('location', location)} />
 
       <FormError message={error} />
       <Button type="submit" disabled={loading}>
