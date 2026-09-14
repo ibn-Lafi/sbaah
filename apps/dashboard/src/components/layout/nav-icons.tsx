@@ -139,3 +139,20 @@ export function CloseIcon({ className }: IconProps) {
     </Svg>
   );
 }
+
+/** بقية الصفحات (mobile-nav.tsx) — سهم قابل الاتجاه لتوسيع/طي مجموعة "الموقع الالكتروني"، مطابقًا لسلوك ▲/▼ الأكورديون بالشريط الجانبي لسطح المكتب. */
+export function ChevronIcon({ open, className }: IconProps & { open: boolean }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={`${className} transition-transform ${open ? 'rotate-180' : ''}`}
+    >
+      <path d="M6 9l6 6 6-6" />
+    </svg>
+  );
+}

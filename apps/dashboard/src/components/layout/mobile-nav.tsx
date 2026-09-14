@@ -7,7 +7,7 @@ import type { AccountType } from '@sbaah/shared';
 import { AccountAvatar } from '@/components/ui/account-avatar';
 import { BrandMark } from '@/components/ui/brand-mark';
 import { NAV_ITEMS, isNavGroup, type NavEntry, type NavLeaf } from './nav-items';
-import { CloseIcon, MenuIcon } from './nav-icons';
+import { ChevronIcon, CloseIcon, MenuIcon } from './nav-icons';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 
 interface MobileNavProps {
@@ -37,6 +37,7 @@ export function MobileNav({ orgName, accountType, roleLabel }: MobileNavProps) {
   const router = useRouter();
   const { me } = useCurrentUser();
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
   const visibleItems = NAV_ITEMS.filter((item) => !item.roles || item.roles.includes(me.user.role));
   const pinnedItems = visibleItems.filter(isPinnedLeaf);
 
@@ -141,32 +142,45 @@ export function MobileNav({ orgName, accountType, roleLabel }: MobileNavProps) {
           <nav className="mt-2 flex flex-col gap-px">
             {visibleItems.map((item) => {
               if (isNavGroup(item)) {
+                const hasActiveChild = item.children.some((child) => child.href === pathname);
+                const isOpen = openGroups[item.group] ?? hasActiveChild;
                 const GroupIcon = item.icon;
                 return (
                   <div key={item.group} className="mt-3 flex flex-col gap-px">
-                    <div className="text-text-placeholder flex h-9 flex-none items-center gap-2 px-[10px] text-[13px] font-medium">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setOpenGroups((current) => ({ ...current, [item.group]: !isOpen }))
+                      }
+                      className="text-text-placeholder flex h-9 flex-none items-center gap-2 px-[10px] text-[13px] font-medium"
+                    >
                       <GroupIcon className="h-[15px] w-[15px] flex-none" />
-                      {item.label}
-                    </div>
-                    {item.children.map((child) => {
-                      const active = pathname === child.href;
-                      const ChildIcon = child.icon;
-                      return (
-                        <Link
-                          key={child.href}
-                          href={child.href}
-                          onClick={(e) => handleNavigate(e, child.href)}
-                          className={`flex h-11 flex-none items-center gap-2 rounded-[10px] pe-[10px] ps-[26px] text-[15px] ${
-                            active
-                              ? 'bg-brand-surface text-brand font-semibold'
-                              : 'text-text-tertiary font-normal'
-                          }`}
-                        >
-                          <ChildIcon className="h-[17px] w-[17px] flex-none" />
-                          {child.label}
-                        </Link>
-                      );
-                    })}
+                      <span className="min-w-0 flex-1 truncate text-start">{item.label}</span>
+                      <ChevronIcon open={isOpen} className="h-[12px] w-[12px] flex-none" />
+                    </button>
+                    {isOpen && (
+                      <div className="border-border-subtle me-[13px] flex flex-col gap-px border-e ps-[13px]">
+                        {item.children.map((child) => {
+                          const active = pathname === child.href;
+                          const ChildIcon = child.icon;
+                          return (
+                            <Link
+                              key={child.href}
+                              href={child.href}
+                              onClick={(e) => handleNavigate(e, child.href)}
+                              className={`flex h-11 flex-none items-center gap-2 rounded-[10px] px-[13px] text-[15px] ${
+                                active
+                                  ? 'bg-brand-surface text-brand font-semibold'
+                                  : 'text-text-tertiary font-normal'
+                              }`}
+                            >
+                              <ChildIcon className="h-[17px] w-[17px] flex-none" />
+                              {child.label}
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 );
               }
