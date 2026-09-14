@@ -18,21 +18,57 @@ export const passwordSchema = z
   .string()
   .min(8, 'كلمة المرور يجب أن تكون 8 خانات على الأقل');
 
+/** Optional secondary identifier (settings, team invites, email-OTP) — always normalized the same way wherever it's collected. */
+export const emailSchema = z.string().trim().toLowerCase().email('بريد إلكتروني غير صحيح');
+
 /** docs/OTP_FLOW.md: which of the three OTP-driven flows this request belongs to. */
 export const otpPurposeSchema = z.enum(OTP_PURPOSES);
 
-export const requestOtpSchema = z.object({
-  phone: saudiPhoneSchema,
-  purpose: otpPurposeSchema,
-});
+/**
+ * `sms` (default, via Authentica) is the original and only channel for
+ * every purpose including 'register'. `email` is newer, self-verified
+ * (no Authentica involved — see migration 0042), and only valid for
+ * 'login'/'reset_password': there is deliberately no email-based account
+ * creation, phone stays the sole registration identifier.
+ */
+export const otpChannelSchema = z.enum(['sms', 'email']);
+export type OtpChannel = z.infer<typeof otpChannelSchema>;
+
+/** `phone`/`channel` stay optional so every existing `{phone, purpose}` caller keeps working unchanged. */
+export const requestOtpSchema = z
+  .object({
+    channel: otpChannelSchema.default('sms'),
+    phone: saudiPhoneSchema.optional(),
+    email: emailSchema.optional(),
+    purpose: otpPurposeSchema,
+  })
+  .refine((v) => (v.channel === 'sms' ? !!v.phone : !!v.email), {
+    message: 'رقم الجوال أو البريد الإلكتروني مطلوب بحسب قناة الإرسال',
+  });
 export type RequestOtpInput = z.infer<typeof requestOtpSchema>;
 
-export const verifyOtpSchema = z.object({
-  phone: saudiPhoneSchema,
-  code: otpCodeSchema,
-  purpose: otpPurposeSchema,
-});
+export const verifyOtpSchema = z
+  .object({
+    channel: otpChannelSchema.default('sms'),
+    phone: saudiPhoneSchema.optional(),
+    email: emailSchema.optional(),
+    code: otpCodeSchema,
+    purpose: otpPurposeSchema,
+  })
+  .refine((v) => (v.channel === 'sms' ? !!v.phone : !!v.email), {
+    message: 'رقم الجوال أو البريد الإلكتروني مطلوب بحسب قناة الإرسال',
+  });
 export type VerifyOtpInput = z.infer<typeof verifyOtpSchema>;
+
+/**
+ * PATCH /v1/auth/me — "حسابي" own-profile email. Nullable so a user can
+ * clear it back out (email stays optional contact info, not mandatory);
+ * omitting the field entirely leaves the current value untouched.
+ */
+export const updateMyEmailSchema = z.object({
+  email: emailSchema.nullable(),
+});
+export type UpdateMyEmailInput = z.infer<typeof updateMyEmailSchema>;
 
 export const loginWithPasswordSchema = z.object({
   phone: saudiPhoneSchema,

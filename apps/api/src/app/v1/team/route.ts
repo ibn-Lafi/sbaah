@@ -21,7 +21,7 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
 
   const { data, error, count } = await supabase
     .from('users')
-    .select('id, full_name, phone, role, status, created_at', { count: 'exact' })
+    .select('id, full_name, phone, email, role, status, created_at', { count: 'exact' })
     .order('created_at', { ascending: true })
     .range(from, from + page_size - 1);
   if (error) {

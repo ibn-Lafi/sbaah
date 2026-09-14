@@ -3,30 +3,35 @@
 import { useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { otpCodeSchema, passwordSchema, saudiPhoneSchema } from '@sbaah/shared';
+import { emailSchema, otpCodeSchema, passwordSchema, saudiPhoneSchema } from '@sbaah/shared';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { OtpInput } from '@/components/ui/otp-input';
 import { FormError } from '@/components/ui/form-error';
-import { sendOtp, verifyLoginOtp } from '@/lib/api/auth';
+import { sendOtp, sendOtpByEmail, verifyLoginOtp, type OtpIdentifier } from '@/lib/api/auth';
 import { ApiRequestError } from '@/lib/api/client';
 import { adoptSession } from '@/lib/auth/session';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import { useResendCooldown } from '@/lib/auth/use-resend-cooldown';
 
 type LoginMode = 'password' | 'otp';
+type OtpChannel = 'sms' | 'email';
 
 /**
  * Two independent paths, per docs/OTP_FLOW.md sections 5b/5c: password
  * login never touches `api` (straight to Supabase Auth), OTP login goes
  * through `api`'s otp/send + otp/verify and adopts the session it mints.
+ * OTP login has two channels (docs/OTP_FLOW.md section 10): sms (the
+ * original flow, unchanged) or email — both mint the same kind of session.
  */
 export default function LoginPage() {
   const router = useRouter();
   const [mode, setMode] = useState<LoginMode>('password');
+  const [otpChannel, setOtpChannel] = useState<OtpChannel>('sms');
   const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [code, setCode] = useState('');
   const [otpSent, setOtpSent] = useState(false);
@@ -78,18 +83,35 @@ export default function LoginPage() {
     }
   }
 
+  function currentIdentifier(): OtpIdentifier | null {
+    if (otpChannel === 'sms') {
+      const check = saudiPhoneSchema.safeParse(phone);
+      if (!check.success) {
+        setError(check.error.issues[0]?.message ?? 'رقم جوال غير صحيح');
+        return null;
+      }
+      return { phone };
+    }
+    const check = emailSchema.safeParse(email);
+    if (!check.success) {
+      setError(check.error.issues[0]?.message ?? 'بريد إلكتروني غير صحيح');
+      return null;
+    }
+    return { email: check.data };
+  }
+
   async function sendLoginOtp() {
     setError(null);
-
-    const phoneCheck = saudiPhoneSchema.safeParse(phone);
-    if (!phoneCheck.success) {
-      setError(phoneCheck.error.issues[0]?.message ?? 'رقم جوال غير صحيح');
-      return;
-    }
+    const identifier = currentIdentifier();
+    if (!identifier) return;
 
     setLoading(true);
     try {
-      await sendOtp(phone, 'login');
+      if ('phone' in identifier) {
+        await sendOtp(identifier.phone, 'login');
+      } else {
+        await sendOtpByEmail(identifier.email, 'login');
+      }
       setOtpSent(true);
       resend.start();
     } catch (err) {
@@ -113,10 +135,11 @@ export default function LoginPage() {
       setError(codeCheck.error.issues[0]?.message ?? 'رمز غير صحيح');
       return;
     }
+    const identifier = otpChannel === 'sms' ? { phone } : { email };
 
     setLoading(true);
     try {
-      const { access_token, refresh_token } = await verifyLoginOtp(phone, code);
+      const { access_token, refresh_token } = await verifyLoginOtp(identifier, code);
       await adoptSession(access_token, refresh_token);
       router.push('/');
     } catch (err) {
@@ -128,6 +151,13 @@ export default function LoginPage() {
 
   function switchMode(next: LoginMode) {
     setMode(next);
+    setError(null);
+    setOtpSent(false);
+    setCode('');
+  }
+
+  function switchOtpChannel(next: OtpChannel) {
+    setOtpChannel(next);
     setError(null);
     setOtpSent(false);
     setCode('');
@@ -179,18 +209,48 @@ export default function LoginPage() {
       )}
 
       {mode === 'otp' && !otpSent && (
-        <form onSubmit={handleSendOtp} className="flex flex-col gap-4">
-          <PhoneInput placeholder="5xxxxxxxx" value={phone} onChange={setPhone} />
-          <FormError message={error} />
-          <Button type="submit" loading={loading}>
-            {loading ? 'جارٍ الإرسال...' : 'إرسال رمز التحقق'}
-          </Button>
-        </form>
+        <div className="flex flex-col gap-4">
+          <div className="flex gap-4 text-sm">
+            <button
+              type="button"
+              onClick={() => switchOtpChannel('sms')}
+              className={`font-semibold ${otpChannel === 'sms' ? 'text-brand' : 'text-text-secondary'}`}
+            >
+              عبر الجوال
+            </button>
+            <button
+              type="button"
+              onClick={() => switchOtpChannel('email')}
+              className={`font-semibold ${otpChannel === 'email' ? 'text-brand' : 'text-text-secondary'}`}
+            >
+              عبر البريد الإلكتروني
+            </button>
+          </div>
+          <form onSubmit={handleSendOtp} className="flex flex-col gap-4">
+            {otpChannel === 'sms' ? (
+              <PhoneInput placeholder="5xxxxxxxx" value={phone} onChange={setPhone} />
+            ) : (
+              <Input
+                type="email"
+                placeholder="name@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                dir="ltr"
+              />
+            )}
+            <FormError message={error} />
+            <Button type="submit" loading={loading}>
+              {loading ? 'جارٍ الإرسال...' : 'إرسال رمز التحقق'}
+            </Button>
+          </form>
+        </div>
       )}
 
       {mode === 'otp' && otpSent && (
         <form onSubmit={handleVerifyOtp} className="flex flex-col gap-4">
-          <p className="text-sm text-text-secondary">أدخل الرمز المرسل إلى {phone}</p>
+          <p className="text-sm text-text-secondary">
+            أدخل الرمز المرسل إلى {otpChannel === 'sms' ? phone : email}
+          </p>
           <OtpInput value={code} onChange={setCode} disabled={loading} />
           <FormError message={error} />
           <Button type="submit" loading={loading}>

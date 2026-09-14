@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { saudiPhoneSchema } from './auth';
+import { emailSchema, saudiPhoneSchema } from './auth';
 
 /**
  * POST /v1/team/invite — Owner/Admin only (PRODUCT_SPEC section 8).
@@ -10,6 +10,8 @@ export const inviteTeamMemberSchema = z.object({
   full_name: z.string().min(3, 'الاسم الثلاثي مطلوب'),
   phone: saudiPhoneSchema,
   role: z.enum(['admin', 'agent']),
+  /** Optional — used for the invite notification, and later as an email-OTP login/reset identifier. */
+  email: emailSchema.optional(),
 });
 export type InviteTeamMemberInput = z.infer<typeof inviteTeamMemberSchema>;
 

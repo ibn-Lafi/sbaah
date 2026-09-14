@@ -1,7 +1,7 @@
 /**
  * Buckets `property_views` rows into daily counts for the dashboard's
  * views chart (7/30-day toggle) — pure function, no I/O, unit-testable
- * directly (matches lib/digest/group-overdue-leads.ts's convention).
+ * directly.
  *
  * Returns exactly `days` entries, oldest first, `date` as `YYYY-MM-DD`
  * (UTC) — even days with zero views get an entry, so the chart never has

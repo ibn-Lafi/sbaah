@@ -19,11 +19,13 @@ import {
   SnapchatIcon,
   CallIcon,
   LocationIcon,
+  MailIcon,
 } from '@/components/website/editor-icons';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { ROLE_LABELS } from '@/lib/auth/role-labels';
 import { updateSocialLinks, updateAccountType, type SocialLinks } from '@/lib/api/tenant';
 import { getWebsite, updateWebsite } from '@/lib/api/website';
+import { updateMyEmail } from '@/lib/api/auth';
 import { ApiRequestError } from '@/lib/api/client';
 
 function InfoRow({ label, value }: { label: string; value: string }) {
@@ -320,6 +322,58 @@ function AddressCard({ accessToken }: { accessToken: string }) {
   );
 }
 
+/**
+ * البريد الإلكتروني — اختياري، ويُستخدم في: تسجيل الدخول برمز تحقق عبر
+ * البريد، إشعار إضافتك كموظف، رمز تحقق عند تغيير كلمة المرور، وإشعارات
+ * أخرى يحتاجها حسابك (مثل تعيين عميل محتمل لك). يمكن تركه فارغًا.
+ */
+function EmailCard({ accessToken, initialEmail }: { accessToken: string; initialEmail: string | null }) {
+  const [draft, setDraft] = useState(initialEmail ?? '');
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  async function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    setError(null);
+    setSaved(false);
+    setLoading(true);
+    try {
+      await updateMyEmail(accessToken, draft.trim() ? draft.trim() : null);
+      setSaved(true);
+    } catch (err) {
+      setError(err instanceof ApiRequestError ? err.message : 'تعذّر حفظ البريد الإلكتروني');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <Card className="p-6">
+      <h2 className="mb-1 flex items-center gap-2 text-base font-semibold text-text-primary">
+        <MailIcon className="h-[18px] w-[18px] text-text-secondary" />
+        البريد الإلكتروني
+      </h2>
+      <p className="mb-4 text-sm text-text-secondary">
+        يُستخدم لتسجيل الدخول برمز تحقق، تغيير كلمة المرور، وإشعارات حسابك.
+      </p>
+      <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-3">
+        <Input
+          type="email"
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          placeholder="name@example.com"
+          dir="ltr"
+        />
+        <FormError message={error} />
+        <Button type="submit" disabled={loading} className="w-fit">
+          {loading ? 'جارٍ الحفظ...' : saved ? 'تم الحفظ ✓' : 'حفظ'}
+        </Button>
+      </form>
+    </Card>
+  );
+}
+
 /** حسابي (من قائمة الحساب المنسدلة أسفل الشريط الجانبي) — بيانات الحساب + حسابات التواصل الاجتماعي؛ النطاق الفرعي/الدومين المخصص انتقلا إلى /domain (عنصر قائمة مستقل، مطابق للتصميم). */
 export default function SettingsPage() {
   const { me, accessToken } = useCurrentUser();
@@ -350,6 +404,8 @@ export default function SettingsPage() {
             tax_number: me.tenant.tax_number,
           }}
         />
+
+        <EmailCard accessToken={accessToken} initialEmail={me.user.email} />
 
         <SocialLinksCard
           accessToken={accessToken}

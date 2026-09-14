@@ -10,8 +10,9 @@ let client: Sndr | undefined;
  * whatever code actually tries to send an email, not anything that merely
  * imports this module.
  *
- * No call sites exist yet — email sending (team invites, the daily
- * follow-up digest) is future work, not part of this swap.
+ * No call sites exist directly against this module — every email send
+ * goes through `../email/send.ts`'s `sendEmail()`, which wraps this
+ * client so callers never touch the SDK shape directly.
  */
 export function getSndrClient(): Sndr {
   if (!client) {

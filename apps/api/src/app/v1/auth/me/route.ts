@@ -1,5 +1,6 @@
 import type { NextRequest } from 'next/server';
-import { okResponse, withErrorHandling } from '@/lib/http';
+import { updateMyEmailSchema } from '@sbaah/shared';
+import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
 
@@ -36,4 +37,31 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
   }
 
   return okResponse({ user, tenant });
+});
+
+/**
+ * Every user edits their own email from "حسابي" — not an Owner/Admin-only
+ * action like the tenant-level cards on that page, since it identifies
+ * the person, not the account. Also the email this same user will later
+ * use for email-OTP login/reset, so it must stay unique (migration 0040).
+ */
+export const PATCH = withErrorHandling(async (request: NextRequest) => {
+  const { supabase } = getAuthenticatedClient(request);
+  const caller = await getCallerContext(supabase);
+  const { email } = updateMyEmailSchema.parse(await request.json());
+
+  const { data: user, error } = await supabase
+    .from('users')
+    .update({ email })
+    .eq('id', caller.userId)
+    .select('id, full_name, phone, email, role, status')
+    .single();
+  if (error) {
+    if (error.code === '23505') {
+      throw new ApiError(409, 'email_already_used', 'هذا البريد الإلكتروني مستخدم لحساب آخر');
+    }
+    throw new Error(`Failed to update email: ${error.message}`);
+  }
+
+  return okResponse({ user });
 });

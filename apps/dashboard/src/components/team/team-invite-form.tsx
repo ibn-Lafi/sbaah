@@ -18,6 +18,7 @@ interface TeamInviteFormProps {
 export function TeamInviteForm({ accessToken, onInvited }: TeamInviteFormProps) {
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [role, setRole] = useState<'admin' | 'agent'>('agent');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -26,7 +27,12 @@ export function TeamInviteForm({ accessToken, onInvited }: TeamInviteFormProps) 
     event.preventDefault();
     setError(null);
 
-    const result = inviteTeamMemberSchema.safeParse({ full_name: fullName, phone, role });
+    const result = inviteTeamMemberSchema.safeParse({
+      full_name: fullName,
+      phone,
+      role,
+      email: email.trim() || undefined,
+    });
     if (!result.success) {
       setError(result.error.issues[0]?.message ?? 'يرجى مراجعة البيانات');
       return;
@@ -47,6 +53,13 @@ export function TeamInviteForm({ accessToken, onInvited }: TeamInviteFormProps) 
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <Input placeholder="الاسم الثلاثي" value={fullName} onChange={(e) => setFullName(e.target.value)} />
       <PhoneInput placeholder="5xxxxxxxx" value={phone} onChange={setPhone} />
+      <Input
+        type="email"
+        placeholder="البريد الإلكتروني (اختياري)"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        dir="ltr"
+      />
       <Select value={role} onChange={(e) => setRole(e.target.value as 'admin' | 'agent')}>
         <option value="agent">{ROLE_LABELS.agent}</option>
         <option value="admin">{ROLE_LABELS.admin}</option>

@@ -5,6 +5,7 @@ export interface TeamMember {
   id: string;
   full_name: string;
   phone: string;
+  email: string | null;
   role: UserRole;
   status: UserStatus;
   created_at: string;

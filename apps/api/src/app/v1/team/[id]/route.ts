@@ -44,7 +44,7 @@ export const PATCH = withErrorHandling<RouteContext>(async (request, { params })
     .from('users')
     .update(input)
     .eq('id', id)
-    .select('id, full_name, phone, role, status, created_at')
+    .select('id, full_name, phone, email, role, status, created_at')
     .single();
   if (error) {
     throw new Error(`Failed to update team member: ${error.message}`);

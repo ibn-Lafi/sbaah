@@ -2,6 +2,7 @@ import type { NextRequest } from 'next/server';
 import { createServiceRoleClient, verifyOtpSchema } from '@sbaah/shared';
 import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { verifyOtpSms } from '@/lib/authentica/client';
+import { verifyEmailOtpCode } from '@/lib/otp/hash-email-code';
 import {
   computeLockedUntil,
   isExpired,
@@ -12,24 +13,31 @@ import { signTempToken } from '@/lib/auth/temp-token';
 import { mintSessionForUser } from '@/lib/auth/mint-session';
 
 export const POST = withErrorHandling(async (request: NextRequest) => {
-  const { phone, code, purpose } = verifyOtpSchema.parse(await request.json());
+  const input = verifyOtpSchema.parse(await request.json());
+  const { channel, code, purpose } = input;
+
+  if (channel === 'email' && purpose === 'register') {
+    throw new ApiError(400, 'email_otp_unsupported_purpose', 'التسجيل الجديد يتم برقم الجوال فقط');
+  }
+
   const supabase = createServiceRoleClient();
 
-  const { data: row, error: rowError } = await supabase
+  let rowQuery = supabase
     .from('otp_verifications')
-    .select('id, attempt_count, locked_until, expires_at')
-    .eq('phone', phone)
+    .select('id, attempt_count, locked_until, expires_at, code_hash')
     .eq('purpose', purpose)
+    .eq('channel', channel)
     .is('consumed_at', null)
     .order('created_at', { ascending: false })
-    .limit(1)
-    .maybeSingle();
+    .limit(1);
+  rowQuery = channel === 'sms' ? rowQuery.eq('phone', input.phone as string) : rowQuery.eq('email', input.email as string);
+  const { data: row, error: rowError } = await rowQuery.maybeSingle();
 
   if (rowError) {
     throw new Error(`Failed to look up OTP request: ${rowError.message}`);
   }
   if (!row) {
-    throw new ApiError(400, 'otp_not_found', 'لا يوجد رمز تحقق فعّال لهذا الرقم، اطلب رمزًا جديدًا');
+    throw new ApiError(400, 'otp_not_found', 'لا يوجد رمز تحقق فعّال، اطلب رمزًا جديدًا');
   }
   if (isLocked(row.locked_until)) {
     throw new ApiError(429, 'otp_locked', 'محاولات كثيرة خاطئة، حاول لاحقًا');
@@ -38,7 +46,11 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
     throw new ApiError(400, 'otp_expired', 'انتهت صلاحية الرمز، اطلب رمزًا جديدًا');
   }
 
-  const verified = await verifyOtpSms(phone, code);
+  // sms is verified remotely by Authentica; email has no such provider —
+  // the code is checked locally against the hash stored at send time
+  // (migration 0042's header explains why).
+  const verified =
+    channel === 'sms' ? await verifyOtpSms(input.phone as string, code) : verifyEmailOtpCode(code, row.code_hash as string);
 
   if (!verified) {
     const willLock = shouldLockAfterFailedAttempt(row.attempt_count);
@@ -53,6 +65,24 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   }
 
   await supabase.from('otp_verifications').update({ consumed_at: new Date().toISOString() }).eq('id', row.id);
+
+  // Every downstream step (temp token / session) is keyed by phone, since
+  // every account has one regardless of which channel this OTP used —
+  // email is only ever a second way to *find* the same account.
+  let phone: string;
+  if (channel === 'sms') {
+    phone = input.phone as string;
+  } else {
+    const { data: userByEmail, error: userByEmailError } = await supabase
+      .from('users')
+      .select('phone')
+      .eq('email', input.email as string)
+      .single();
+    if (userByEmailError || !userByEmail) {
+      throw new Error(`Failed to resolve user by email during OTP verify: ${userByEmailError?.message}`);
+    }
+    phone = userByEmail.phone;
+  }
 
   if (purpose === 'register') {
     const registration_token = await signTempToken({ phone, purpose: 'register' });

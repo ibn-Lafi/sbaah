@@ -5,6 +5,8 @@ import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
 import { assertOwnerOrAdmin } from '@/lib/auth/assert-owner-or-admin';
+import { sendEmail } from '@/lib/email/send';
+import { teamInviteEmail } from '@/lib/email/templates';
 
 /**
  * Invited members get no password here — they authenticate later via the
@@ -24,6 +26,16 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   const { data: existingUser } = await supabase.from('users').select('id').eq('phone', input.phone).maybeSingle();
   if (existingUser) {
     throw new ApiError(409, 'phone_already_registered', 'رقم الجوال مسجّل بالفعل على المنصة');
+  }
+  if (input.email) {
+    const { data: existingEmail } = await supabase
+      .from('users')
+      .select('id')
+      .eq('email', input.email)
+      .maybeSingle();
+    if (existingEmail) {
+      throw new ApiError(409, 'email_already_used', 'هذا البريد الإلكتروني مستخدم لحساب آخر');
+    }
   }
 
   const { data: tenant, error: tenantError } = await supabase
@@ -83,10 +95,11 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
       auth_user_id: authUserId,
       full_name: input.full_name,
       phone: input.phone,
+      email: input.email ?? null,
       role: input.role,
       status: 'invited',
     })
-    .select('id, full_name, phone, role, status, created_at')
+    .select('id, full_name, phone, email, role, status, created_at')
     .single();
   if (createError || !created) {
     // Compensating rollback — mirrors register/route.ts (no shared
@@ -96,6 +109,21 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
       throw new ApiError(409, 'phone_already_registered', 'رقم الجوال مسجّل بالفعل على المنصة');
     }
     throw new Error(`Failed to create team member during invite: ${createError?.message}`);
+  }
+
+  // Best-effort — the invite itself already succeeded (the row above is
+  // committed); a flaky email provider shouldn't turn a successful invite
+  // into an error response the caller retries into a duplicate-phone 409.
+  if (input.email) {
+    const { data: tenantName } = await supabase.from('tenants').select('name_ar').eq('id', caller.tenantId).single();
+    try {
+      await sendEmail({
+        to: input.email,
+        ...teamInviteEmail({ fullName: input.full_name, tenantName: tenantName?.name_ar ?? 'سبعة' }),
+      });
+    } catch (emailError) {
+      console.error('Failed to send team-invite email', emailError);
+    }
   }
 
   return okResponse({ member: created });

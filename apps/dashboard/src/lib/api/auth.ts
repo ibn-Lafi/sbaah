@@ -1,9 +1,17 @@
 import type { AccountType, OtpPurpose, RegisterInput, ResetPasswordInput, TenantStatus, UserRole, UserStatus } from '@sbaah/shared';
-import { apiGet, apiPost } from './client';
+import { apiGet, apiPatch, apiPost } from './client';
 
 export function sendOtp(phone: string, purpose: OtpPurpose) {
-  return apiPost<{ status: 'sent' }>('/auth/otp/send', { phone, purpose });
+  return apiPost<{ status: 'sent' }>('/auth/otp/send', { channel: 'sms', phone, purpose });
 }
+
+/** Email-OTP only supports 'login'/'reset_password' — never 'register' (phone stays the sole registration identifier). */
+export function sendOtpByEmail(email: string, purpose: Extract<OtpPurpose, 'login' | 'reset_password'>) {
+  return apiPost<{ status: 'sent' }>('/auth/otp/send', { channel: 'email', email, purpose });
+}
+
+/** Either identifies the request by phone (sms channel) or email (email channel) — never both. */
+export type OtpIdentifier = { phone: string } | { email: string };
 
 /** docs/OTP_FLOW.md section 5: verify's response shape depends on `purpose` — callers narrow by the field they expect. */
 export interface RegisterOtpVerified {
@@ -19,15 +27,25 @@ export interface LoginOtpVerified {
 }
 
 export function verifyRegisterOtp(phone: string, code: string) {
-  return apiPost<RegisterOtpVerified>('/auth/otp/verify', { phone, code, purpose: 'register' });
+  return apiPost<RegisterOtpVerified>('/auth/otp/verify', { channel: 'sms', phone, code, purpose: 'register' });
 }
 
-export function verifyResetPasswordOtp(phone: string, code: string) {
-  return apiPost<ResetPasswordOtpVerified>('/auth/otp/verify', { phone, code, purpose: 'reset_password' });
+function otpChannelFields(identifier: OtpIdentifier) {
+  return 'phone' in identifier
+    ? { channel: 'sms' as const, phone: identifier.phone }
+    : { channel: 'email' as const, email: identifier.email };
 }
 
-export function verifyLoginOtp(phone: string, code: string) {
-  return apiPost<LoginOtpVerified>('/auth/otp/verify', { phone, code, purpose: 'login' });
+export function verifyResetPasswordOtp(identifier: OtpIdentifier, code: string) {
+  return apiPost<ResetPasswordOtpVerified>('/auth/otp/verify', {
+    ...otpChannelFields(identifier),
+    code,
+    purpose: 'reset_password',
+  });
+}
+
+export function verifyLoginOtp(identifier: OtpIdentifier, code: string) {
+  return apiPost<LoginOtpVerified>('/auth/otp/verify', { ...otpChannelFields(identifier), code, purpose: 'login' });
 }
 
 export interface RegisterResponse {
@@ -76,4 +94,8 @@ export interface MeResponse {
 
 export function getMe(accessToken: string) {
   return apiGet<MeResponse>('/auth/me', accessToken);
+}
+
+export function updateMyEmail(accessToken: string, email: string | null) {
+  return apiPatch<{ user: MeResponse['user'] }>('/auth/me', { email }, accessToken);
 }
