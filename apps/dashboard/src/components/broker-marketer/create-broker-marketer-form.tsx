@@ -14,7 +14,7 @@ import { FormError } from '@/components/ui/form-error';
 import {
   createBrokerMarketerApplication,
   type BrokerMarketerApplicationWithRelations,
-} from '@/lib/api/broker-applications';
+} from '@/lib/api/broker-marketer';
 import { listCities } from '@/lib/api/reference-data';
 import { listProperties } from '@/lib/api/properties';
 import { ApiRequestError } from '@/lib/api/client';
@@ -24,7 +24,7 @@ interface CreateBrokerMarketerFormProps {
   onCreated: (application: BrokerMarketerApplicationWithRelations) => void;
 }
 
-/** مطابق لبنية CreateLeadForm — طلب وسيط/مسوّق يدوي (بدلًا من النموذج العام بالموقع)، POST /v1/broker-applications (migration 0033). */
+/** مطابق لبنية CreateLeadForm — طلب وسيط/مسوّق يدوي (بدلًا من النموذج العام بالموقع)، POST /v1/broker-marketer-applications (migration 0033). */
 export function CreateBrokerMarketerForm({
   accessToken,
   onCreated,

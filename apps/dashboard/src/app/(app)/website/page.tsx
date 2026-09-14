@@ -13,7 +13,7 @@ import { getWebsite, updateWebsite } from '@/lib/api/website';
 import { listThemes } from '@/lib/api/reference-data';
 import { ApiRequestError } from '@/lib/api/client';
 
-/** متجر الثيمات — theme selection only. Content editing (أقسام/صفحات/ألوان) is a separate screen, reached via the selected theme's "تخصيص الثيم" button — see /site/editor. Domain management moved to its own top-level nav item, /domain. */
+/** متجر الثيمات — theme selection only. Content editing (أقسام/صفحات/ألوان) is a separate screen, reached via the selected theme's "تخصيص الثيم" button — see /website/editor. Domain management moved to its own top-level nav item, /domain. */
 export default function ThemeStorePage() {
   const { me, accessToken } = useCurrentUser();
   const [website, setWebsite] = useState<Website | null>(null);

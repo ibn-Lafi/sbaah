@@ -80,7 +80,7 @@ export function RentalsIcon({ className }: IconProps) {
   );
 }
 
-export function ApplicantsIcon({ className }: IconProps) {
+export function BrokerMarketerIcon({ className }: IconProps) {
   return (
     <Svg className={className}>
       <path d="M7 3h7l4 4v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" />

@@ -186,7 +186,7 @@ export default function WebsiteEditorPage() {
         <p className="text-text-secondary text-sm">
           تخصيص تصميم الموقع يحتاج شاشة أكبر — يُرجى فتح هذه الصفحة من جهاز كمبيوتر أو تابلت.
         </p>
-        <Link href="/site" className="text-brand text-sm font-semibold hover:underline">
+        <Link href="/website" className="text-brand text-sm font-semibold hover:underline">
           رجوع لمتجر الثيمات
         </Link>
       </div>
@@ -194,7 +194,7 @@ export default function WebsiteEditorPage() {
       <div className="bg-surface-page hidden h-screen flex-col md:flex">
         {/* Toolbar */}
         <div className="border-border-subtle bg-surface-card flex h-14 flex-none items-center gap-2 border-b px-4">
-          <BackButton href="/site" label="رجوع لمتجر الثيمات" />
+          <BackButton href="/website" label="رجوع لمتجر الثيمات" />
         </div>
 
         {/* Panel + preview — panel first in DOM so it renders on the right under RTL, matching the reference tool. */}

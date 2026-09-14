@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { BROKER_MARKETER_APPLICANT_TYPES } from '../types/enums';
 
 /**
- * POST /v1/public/broker-applications — the "الوسطاء والمسوقين" section's
+ * POST /v1/public/broker-marketer-applications — the "الوسطاء والمسوقين" section's
  * form (migration 0032). Same shape/validation discipline as
  * publicLeadInputSchema (lead.ts): `property_id` is optional/nullable
  * (home-page submissions have none), `captcha_token` is required, and
@@ -21,7 +21,7 @@ export const publicBrokerMarketerApplicationInputSchema = z.object({
 export type PublicBrokerMarketerApplicationInput = z.infer<typeof publicBrokerMarketerApplicationInputSchema>;
 
 /**
- * POST /v1/broker-applications — Owner/Admin manually adding a broker/
+ * POST /v1/broker-marketer-applications — Owner/Admin manually adding a broker/
  * marketer from the dashboard (migration 0033), same shape as the public
  * form minus tenant_id (taken from the caller's auth context) and
  * captcha_token (authenticated request, not a public one).

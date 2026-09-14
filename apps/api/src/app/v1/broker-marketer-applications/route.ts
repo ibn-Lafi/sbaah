@@ -43,7 +43,7 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
 });
 
 /**
- * Manual "+ إضافة" from /applicants (migration 0033). No agent INSERT
+ * Manual "+ إضافة" from /broker-marketer (migration 0033). No agent INSERT
  * policy on broker_marketer_applications, same reasoning as POST
  * /v1/leads: this is an Owner/Admin action, not something an Agent does.
  */

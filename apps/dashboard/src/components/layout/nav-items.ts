@@ -6,7 +6,7 @@
  * use that pattern: "العقارات" (الوحدات /properties، العمارات /buildings،
  * المشاريع /projects، الإيجارات /rentals — each its own real page/route,
  * not a query-param tab inside one page) and "الموقع الالكتروني" (تخصيص
- * الثيم /site/editor، متجر الثيمات /site، الصفحات /site/pages، الدومين
+ * الثيم /website/editor، متجر الثيمات /website، الصفحات /website/pages، الدومين
  * /domain).
  *
  * "الإعدادات"/"الفوترة والاشتراك"/"إدارة الموظفين" are NOT in this list —
@@ -20,8 +20,8 @@
 import type { ComponentType } from 'react';
 import type { UserRole } from '@sbaah/shared';
 import {
-  ApplicantsIcon,
   AppsIcon,
+  BrokerMarketerIcon,
   BuildingsIcon,
   ClientsIcon,
   DashboardIcon,
@@ -73,16 +73,16 @@ export const NAV_ITEMS: NavEntry[] = [
       { href: '/rentals', label: 'الإيجارات', icon: RentalsIcon },
     ],
   },
-  { href: '/applicants', label: 'الوسطاء والمسوقين', icon: ApplicantsIcon, roles: ['owner', 'admin'] },
+  { href: '/broker-marketer', label: 'الوسطاء والمسوقين', icon: BrokerMarketerIcon, roles: ['owner', 'admin'] },
   {
-    group: 'site',
+    group: 'website',
     label: 'الموقع الالكتروني',
     icon: WebsiteIcon,
     roles: ['owner', 'admin'],
     children: [
-      { href: '/site/editor', label: 'تخصيص الثيم', icon: ThemeCustomizeIcon },
-      { href: '/site', label: 'متجر الثيمات', icon: ThemeStoreIcon },
-      { href: '/site/pages', label: 'الصفحات', icon: PagesIcon },
+      { href: '/website/editor', label: 'تخصيص الثيم', icon: ThemeCustomizeIcon },
+      { href: '/website', label: 'متجر الثيمات', icon: ThemeStoreIcon },
+      { href: '/website/pages', label: 'الصفحات', icon: PagesIcon },
       { href: '/domain', label: 'الدومين', icon: DomainIcon },
     ],
   },

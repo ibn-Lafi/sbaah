@@ -22,12 +22,12 @@ export function listBrokerMarketerApplications(
   if (params.property_id) query.set('property_id', params.property_id);
   if (params.page) query.set('page', String(params.page));
   const qs = query.toString();
-  return apiGet<BrokerMarketerApplicationListResponse>(`/broker-applications${qs ? `?${qs}` : ''}`, accessToken);
+  return apiGet<BrokerMarketerApplicationListResponse>(`/broker-marketer-applications${qs ? `?${qs}` : ''}`, accessToken);
 }
 
 export function createBrokerMarketerApplication(
   accessToken: string,
   input: ManualBrokerMarketerApplicationInput,
 ): Promise<{ application: BrokerMarketerApplicationWithRelations }> {
-  return apiPost<{ application: BrokerMarketerApplicationWithRelations }>('/broker-applications', input, accessToken);
+  return apiPost<{ application: BrokerMarketerApplicationWithRelations }>('/broker-marketer-applications', input, accessToken);
 }

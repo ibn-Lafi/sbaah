@@ -5,7 +5,7 @@ import { ThemePreview } from './theme-preview';
 /**
  * "متجر الثيمات" — one card per theme from `GET /v1/public/themes`
  * (already `is_active`-filtered + ordered server-side). The selected
- * theme's card shows a "تخصيص الثيم" link into `/site/editor` (أقسام/
+ * theme's card shows a "تخصيص الثيم" link into `/website/editor` (أقسام/
  * صفحات/ألوان) instead of a select action — theme picking and content
  * editing are two separate screens now, not one combined page.
  */
@@ -40,7 +40,7 @@ export function ThemeGallery({
             <div className="flex items-center justify-between px-3 py-2">
               <span className="text-sm font-medium text-text-primary">{theme.name_ar}</span>
               {selected ? (
-                <Link href="/site/editor" className="text-xs font-semibold text-brand hover:underline">
+                <Link href="/website/editor" className="text-xs font-semibold text-brand hover:underline">
                   تخصيص الثيم
                 </Link>
               ) : (

@@ -8,13 +8,13 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Modal } from '@/components/ui/modal';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
-import { CreateBrokerMarketerForm } from '@/components/applicants/create-broker-marketer-form';
+import { CreateBrokerMarketerForm } from '@/components/broker-marketer/create-broker-marketer-form';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { ROLE_LABELS } from '@/lib/auth/role-labels';
 import {
   listBrokerMarketerApplications,
   type BrokerMarketerApplicationWithRelations,
-} from '@/lib/api/broker-applications';
+} from '@/lib/api/broker-marketer';
 import { formatDate } from '@/lib/format/date';
 
 const TABS: { type: BrokerMarketerApplicantType; label: string }[] = [
@@ -27,7 +27,7 @@ const TABS: { type: BrokerMarketerApplicantType; label: string }[] = [
  * (migration 0032)، تُقرأ من نفس السجلات بتبويب حسب applicant_type، بلا
  * أي فرق بمصدر البيانات (مطابق لأسلوب لوحة المتابعة/جميع العملاء).
  */
-export default function ApplicantsPage() {
+export default function BrokerMarketerPage() {
   const { me, accessToken } = useCurrentUser();
   const [tab, setTab] = useState<BrokerMarketerApplicantType>('broker');
   const [applications, setApplications] = useState<BrokerMarketerApplicationWithRelations[] | null>(
@@ -106,7 +106,7 @@ export default function ApplicantsPage() {
             </p>
             <p className="text-text-placeholder text-xs">
               فعّل قسم &quot;نموذج الوسطاء والمسوقين&quot; من{' '}
-              <Link href="/site/editor" className="text-brand hover:underline">
+              <Link href="/website/editor" className="text-brand hover:underline">
                 محرر الموقع
               </Link>{' '}
               ليتمكن المهتمون من التقديم.

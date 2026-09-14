@@ -18,7 +18,7 @@ import { ROLE_LABELS } from '@/lib/auth/role-labels';
 import { deleteProperty, getProperty, updateProperty, type PropertyWithMedia } from '@/lib/api/properties';
 import { createRental, listRentals } from '@/lib/api/rentals';
 import { RENTAL_STATUS_LABELS } from '@/lib/rental/labels';
-import { listBrokerMarketerApplications, type BrokerMarketerApplicationWithRelations } from '@/lib/api/broker-applications';
+import { listBrokerMarketerApplications, type BrokerMarketerApplicationWithRelations } from '@/lib/api/broker-marketer';
 import { ApiRequestError } from '@/lib/api/client';
 
 const APPLICANT_TYPE_LABELS = { broker: 'وسيط', marketer: 'مسوّق' } as const;
