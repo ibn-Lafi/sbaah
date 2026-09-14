@@ -12,7 +12,7 @@ const SIDEBAR_ROW_WIDTHS = ['70%', '85%', '60%', '90%', '75%', '65%', '55%'];
  */
 export function DashboardShellSkeleton() {
   return (
-    <div className="flex min-h-screen">
+    <div className="flex h-dvh overflow-hidden">
       <div className="border-border-subtle bg-surface-card hidden w-[216px] flex-none flex-col border-e p-[10px_10px_18px] md:flex">
         <div className="px-2 pb-[18px]">
           <Skeleton className="h-6 w-24" />
@@ -31,22 +31,24 @@ export function DashboardShellSkeleton() {
         </div>
       </div>
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <div className="border-border-subtle bg-surface-card flex h-14 flex-none items-center gap-2 border-b px-4 md:h-[72px] md:gap-4 md:px-7">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+        <div className="bg-brand md:bg-surface-card flex h-16 flex-none items-center gap-2 px-4 md:h-[72px] md:gap-4 md:px-7">
           <Skeleton className="h-5 w-28 md:w-32" />
           <div className="flex-1" />
           <Skeleton className="hidden h-[42px] w-[280px] rounded-full md:block" />
           <Skeleton className="h-9 w-9 flex-none rounded-full md:h-[42px] md:w-[42px]" />
         </div>
-        <div className="flex-1 overflow-auto p-4 pb-28 md:p-7">
-          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            {[0, 1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-[110px] rounded-[18px]" />
-            ))}
-          </div>
-          <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-[1.4fr_1fr]">
-            <Skeleton className="h-[320px] rounded-[18px]" />
-            <Skeleton className="h-[320px] rounded-[18px]" />
+        <div className="bg-surface-page flex min-h-0 flex-1 flex-col rounded-t-[24px] md:rounded-none md:bg-transparent">
+          <div className="flex-1 overflow-auto p-4 pb-28 md:p-7">
+            <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+              {[0, 1, 2, 3].map((i) => (
+                <Skeleton key={i} className="h-[110px] rounded-[18px]" />
+              ))}
+            </div>
+            <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-[1.4fr_1fr]">
+              <Skeleton className="h-[320px] rounded-[18px]" />
+              <Skeleton className="h-[320px] rounded-[18px]" />
+            </div>
           </div>
         </div>
       </div>

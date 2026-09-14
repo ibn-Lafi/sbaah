@@ -38,9 +38,17 @@ export function AppShell({ title, orgName, accountType, roleLabel, children }: A
   const siteUrl = `https://${me.tenant.subdomain}.${getPlatformRootDomain()}`;
 
   return (
-    <div className="flex min-h-screen">
+    // `h-dvh` + `overflow-hidden` (not `min-h-screen`) is load-bearing, not
+    // cosmetic: without a hard height cap the root can grow taller than the
+    // viewport to fit long content, and the browser scrolls the *document*
+    // instead — dragging Topbar along with it. Capping the root + min-h-0 on
+    // every flex-col ancestor down to the actual `overflow-auto` div is what
+    // keeps Topbar genuinely fixed in place while only page content scrolls.
+    // `dvh` (not `vh`) so mobile Safari's collapsing address bar doesn't
+    // leave a gap or clip content at the bottom.
+    <div className="flex h-dvh overflow-hidden">
       <Sidebar orgName={orgName} accountType={accountType} roleLabel={roleLabel} />
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         <Topbar title={title} siteUrl={siteUrl} accountType={accountType} />
         {/* Mobile: the page content is a rounded-top sheet rising into the purple header's straight bottom edge (founder's Zid reference) — the small curved notches this creates at the top corners are just the page's own background showing through the header's square corners. Desktop is untouched (no radius, transparent). */}
         <div className="bg-surface-page flex min-h-0 flex-1 flex-col rounded-t-[24px] md:rounded-none md:bg-transparent">
