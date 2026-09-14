@@ -3,7 +3,13 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { LEAD_STATUSES, type District, type Lead, type LeadStatus, type Property } from '@sbaah/shared';
+import {
+  LEAD_STATUSES,
+  type District,
+  type Lead,
+  type LeadStatus,
+  type Property,
+} from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
 import { CreateLeadForm } from '@/components/leads/create-lead-form';
 import { LeadStatusPillSelect } from '@/components/leads/lead-status-pill-select';
@@ -28,7 +34,10 @@ const FILTERS: { value: StatusFilter; label: string }[] = [
   ...LEAD_STATUSES.map((status) => ({ value: status, label: LEAD_STATUS_LABELS[status] })),
 ];
 
-function propertySubtitle(property: Property | undefined, districts: Record<string, District>): string | null {
+function propertySubtitle(
+  property: Property | undefined,
+  districts: Record<string, District>,
+): string | null {
   if (!property) return null;
   const typeLabel = PROPERTY_TYPE_LABELS[property.property_type];
   const district = property.district_id ? districts[property.district_id] : undefined;
@@ -53,7 +62,9 @@ export default function LeadsPage() {
     let cancelled = false;
     void listProperties(accessToken).then((result) => {
       if (cancelled) return;
-      setProperties(Object.fromEntries(result.properties.map((property) => [property.id, property])));
+      setProperties(
+        Object.fromEntries(result.properties.map((property) => [property.id, property])),
+      );
     });
     void listDistricts().then((result) => {
       if (cancelled) return;
@@ -78,7 +89,10 @@ export default function LeadsPage() {
 
   async function handleStatusChange(leadId: string, status: LeadStatus) {
     const { lead: updated } = await updateLead(accessToken, leadId, { status });
-    setLeads((current) => current?.map((lead) => (lead.id === leadId ? { ...lead, ...updated } : lead)) ?? current);
+    setLeads(
+      (current) =>
+        current?.map((lead) => (lead.id === leadId ? { ...lead, ...updated } : lead)) ?? current,
+    );
   }
 
   const canManage = me.user.role !== 'agent';
@@ -100,7 +114,7 @@ export default function LeadsPage() {
               className={`h-[36px] flex-none rounded-full px-4 text-[13px] font-medium transition-colors ${
                 statusFilter === filter.value
                   ? 'bg-brand text-white'
-                  : 'border border-border-default bg-surface-card text-text-secondary hover:border-text-placeholder'
+                  : 'border-border-default bg-surface-card text-text-secondary hover:border-text-placeholder border'
               }`}
             >
               {filter.label}
@@ -116,7 +130,10 @@ export default function LeadsPage() {
 
       {showCreate && (
         <Modal title="إضافة عميل محتمل" onClose={() => setShowCreate(false)}>
-          <CreateLeadForm accessToken={accessToken} onCreated={(lead) => router.push(`/leads/${lead.id}`)} />
+          <CreateLeadForm
+            accessToken={accessToken}
+            onCreated={(lead) => router.push(`/leads/${lead.id}`)}
+          />
         </Modal>
       )}
 
@@ -124,64 +141,80 @@ export default function LeadsPage() {
         {leads === null ? (
           <TableSkeleton columns={5} />
         ) : leads.length === 0 ? (
-          <p className="p-6 text-center text-text-secondary">لا يوجد عملاء محتملون بعد</p>
+          <p className="text-text-secondary p-6 text-center">لا يوجد عملاء محتملون بعد</p>
         ) : (
-          <table className="w-full text-sm">
-            <thead className="bg-surface-header text-right text-text-secondary">
-              <tr>
-                <th className="px-5 py-3 font-medium">العميل</th>
-                <th className="px-5 py-3 font-medium">الجوال</th>
-                <th className="px-5 py-3 font-medium">المصدر</th>
-                <th className="px-5 py-3 font-medium">الحالة</th>
-                <th className="px-5 py-3 font-medium">المتابعة القادمة</th>
-                <th className="w-10 px-3 py-3" />
-              </tr>
-            </thead>
-            <tbody>
-              {leads.map((lead) => {
-                const property = lead.property_id ? properties[lead.property_id] : undefined;
-                const subtitle = propertySubtitle(property, districts);
-                return (
-                  <tr
-                    key={lead.id}
-                    onClick={() => router.push(`/leads/${lead.id}`)}
-                    className="cursor-pointer border-t border-border-subtle hover:bg-surface-subtle"
-                  >
-                    <td className="px-5 py-3">
-                      <div className="flex items-center gap-3">
-                        <PersonAvatar name={lead.full_name} size={32} />
-                        <div className="min-w-0">
-                          <Link
-                            href={`/leads/${lead.id}`}
-                            onClick={(event) => event.stopPropagation()}
-                            className="block truncate font-medium text-text-primary hover:text-brand"
-                          >
-                            {lead.full_name}
-                          </Link>
-                          {subtitle && <p className="truncate text-xs text-text-secondary">{subtitle}</p>}
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[760px] text-sm">
+              <thead className="bg-surface-header text-text-secondary text-right">
+                <tr>
+                  <th className="px-5 py-3 font-medium">العميل</th>
+                  <th className="px-5 py-3 font-medium">الجوال</th>
+                  <th className="px-5 py-3 font-medium">المصدر</th>
+                  <th className="px-5 py-3 font-medium">الحالة</th>
+                  <th className="px-5 py-3 font-medium">المتابعة القادمة</th>
+                  <th className="w-10 px-3 py-3" />
+                </tr>
+              </thead>
+              <tbody>
+                {leads.map((lead) => {
+                  const property = lead.property_id ? properties[lead.property_id] : undefined;
+                  const subtitle = propertySubtitle(property, districts);
+                  return (
+                    <tr
+                      key={lead.id}
+                      onClick={() => router.push(`/leads/${lead.id}`)}
+                      className="border-border-subtle hover:bg-surface-subtle cursor-pointer border-t"
+                    >
+                      <td className="px-5 py-3">
+                        <div className="flex items-center gap-3">
+                          <PersonAvatar name={lead.full_name} size={32} />
+                          <div className="min-w-0">
+                            <Link
+                              href={`/leads/${lead.id}`}
+                              onClick={(event) => event.stopPropagation()}
+                              className="text-text-primary hover:text-brand block truncate font-medium"
+                            >
+                              {lead.full_name}
+                            </Link>
+                            {subtitle && (
+                              <p className="text-text-secondary truncate text-xs">{subtitle}</p>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-5 py-3 text-text-secondary" dir="ltr">
-                      {lead.phone ?? '—'}
-                    </td>
-                    <td className="px-5 py-3 text-text-secondary">{LEAD_SOURCE_LABELS[lead.source]}</td>
-                    <td className="px-5 py-3">
-                      <LeadStatusPillSelect value={lead.status} onChange={(status) => void handleStatusChange(lead.id, status)} />
-                    </td>
-                    <td className="px-5 py-3 text-text-secondary" dir="ltr">
-                      {lead.follow_up_at ? formatDate(lead.follow_up_at) : '—'}
-                    </td>
-                    <td className="px-3 py-3 text-text-placeholder">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="h-4 w-4">
-                        <path d="M15 6l-6 6 6 6" />
-                      </svg>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                      </td>
+                      <td className="text-text-secondary px-5 py-3" dir="ltr">
+                        {lead.phone ?? '—'}
+                      </td>
+                      <td className="text-text-secondary px-5 py-3">
+                        {LEAD_SOURCE_LABELS[lead.source]}
+                      </td>
+                      <td className="px-5 py-3">
+                        <LeadStatusPillSelect
+                          value={lead.status}
+                          onChange={(status) => void handleStatusChange(lead.id, status)}
+                        />
+                      </td>
+                      <td className="text-text-secondary px-5 py-3" dir="ltr">
+                        {lead.follow_up_at ? formatDate(lead.follow_up_at) : '—'}
+                      </td>
+                      <td className="text-text-placeholder px-3 py-3">
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          className="h-4 w-4"
+                        >
+                          <path d="M15 6l-6 6 6 6" />
+                        </svg>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
       </Card>
     </AppShell>

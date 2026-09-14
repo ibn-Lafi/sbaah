@@ -13,7 +13,7 @@ const SIDEBAR_ROW_WIDTHS = ['70%', '85%', '60%', '90%', '75%', '65%', '55%'];
 export function DashboardShellSkeleton() {
   return (
     <div className="flex min-h-screen">
-      <div className="flex w-[216px] flex-none flex-col border-e border-border-subtle bg-surface-card p-[10px_10px_18px]">
+      <div className="border-border-subtle bg-surface-card hidden w-[216px] flex-none flex-col border-e p-[10px_10px_18px] md:flex">
         <div className="px-2 pb-[18px]">
           <Skeleton className="h-6 w-24" />
         </div>
@@ -25,20 +25,20 @@ export function DashboardShellSkeleton() {
             </div>
           ))}
         </div>
-        <div className="flex items-center gap-[9px] border-t border-border-subtle px-2 pt-[10px]">
+        <div className="border-border-subtle flex items-center gap-[9px] border-t px-2 pt-[10px]">
           <Skeleton className="h-8 w-8 flex-none rounded-full" />
           <Skeleton className="h-3 w-24 rounded" />
         </div>
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <div className="flex h-[72px] flex-none items-center gap-4 border-b border-border-subtle bg-surface-card px-7">
-          <Skeleton className="h-5 w-32" />
+        <div className="border-border-subtle bg-surface-card flex h-14 flex-none items-center gap-2 border-b px-4 md:h-[72px] md:gap-4 md:px-7">
+          <Skeleton className="h-5 w-28 md:w-32" />
           <div className="flex-1" />
-          <Skeleton className="h-[42px] w-[280px] rounded-full" />
-          <Skeleton className="h-[42px] w-[42px] flex-none rounded-full" />
+          <Skeleton className="hidden h-[42px] w-[280px] rounded-full md:block" />
+          <Skeleton className="h-9 w-9 flex-none rounded-full md:h-[42px] md:w-[42px]" />
         </div>
-        <div className="flex-1 overflow-auto p-7">
+        <div className="flex-1 overflow-auto p-4 pb-28 md:p-7">
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             {[0, 1, 2, 3].map((i) => (
               <Skeleton key={i} className="h-[110px] rounded-[18px]" />

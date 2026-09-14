@@ -33,13 +33,30 @@ import type { UserRole } from '@sbaah/shared';
 import { listProperties, createProperty } from '@/lib/api/properties';
 import { listBuildings, listProjects, createBuilding, createProject } from '@/lib/api/hierarchy';
 import { listRentals, createRental } from '@/lib/api/rentals';
-import { LISTING_TYPE_LABELS, PROPERTY_STATUS_LABELS, PROPERTY_TYPE_LABELS } from '@/lib/property/labels';
+import {
+  LISTING_TYPE_LABELS,
+  PROPERTY_STATUS_LABELS,
+  PROPERTY_TYPE_LABELS,
+} from '@/lib/property/labels';
 import { RENTAL_STATUS_LABELS } from '@/lib/rental/labels';
 import { formatDate } from '@/lib/format/date';
 
-const KIND_TITLES: Record<PropertyKind, string> = { units: 'العقارات', buildings: 'العمارات', projects: 'المشاريع', rentals: 'الإيجارات' };
+const KIND_TITLES: Record<PropertyKind, string> = {
+  units: 'العقارات',
+  buildings: 'العمارات',
+  projects: 'المشاريع',
+  rentals: 'الإيجارات',
+};
 
-function UnitsPanel({ accessToken, role, canManage }: { accessToken: string; role: UserRole; canManage: boolean }) {
+function UnitsPanel({
+  accessToken,
+  role,
+  canManage,
+}: {
+  accessToken: string;
+  role: UserRole;
+  canManage: boolean;
+}) {
   const router = useRouter();
   const [properties, setProperties] = useState<Property[] | null>(null);
   const [statusFilter, setStatusFilter] = useState<PropertyStatus | ''>('');
@@ -47,9 +64,11 @@ function UnitsPanel({ accessToken, role, canManage }: { accessToken: string; rol
 
   useEffect(() => {
     let cancelled = false;
-    void listProperties(accessToken, statusFilter ? { status: statusFilter } : {}).then((result) => {
-      if (!cancelled) setProperties(result.properties);
-    });
+    void listProperties(accessToken, statusFilter ? { status: statusFilter } : {}).then(
+      (result) => {
+        if (!cancelled) setProperties(result.properties);
+      },
+    );
     return () => {
       cancelled = true;
     };
@@ -57,8 +76,12 @@ function UnitsPanel({ accessToken, role, canManage }: { accessToken: string; rol
 
   return (
     <>
-      <div className="mb-5 flex items-center justify-between">
-        <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as PropertyStatus | '')} className="w-[200px]">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <Select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value as PropertyStatus | '')}
+          className="w-[200px]"
+        >
           <option value="">كل الحالات</option>
           {Object.entries(PROPERTY_STATUS_LABELS).map(([value, label]) => (
             <option key={value} value={value}>
@@ -86,38 +109,47 @@ function UnitsPanel({ accessToken, role, canManage }: { accessToken: string; rol
         {properties === null ? (
           <TableSkeleton columns={4} />
         ) : properties.length === 0 ? (
-          <p className="p-6 text-center text-text-secondary">لا توجد عقارات بعد</p>
+          <p className="text-text-secondary p-6 text-center">لا توجد عقارات بعد</p>
         ) : (
-          <table className="w-full text-sm">
-            <thead className="bg-surface-header text-right text-text-secondary">
-              <tr>
-                <th className="px-5 py-3 font-medium">العنوان</th>
-                <th className="px-5 py-3 font-medium">النوع</th>
-                <th className="px-5 py-3 font-medium">السعر</th>
-                <th className="px-5 py-3 font-medium">الحالة</th>
-              </tr>
-            </thead>
-            <tbody>
-              {properties.map((property) => (
-                <tr key={property.id} className="border-t border-border-subtle">
-                  <td className="px-5 py-3">
-                    <Link href={`/properties/${property.id}`} className="font-medium text-text-primary hover:text-brand">
-                      {property.title_ar}
-                    </Link>
-                  </td>
-                  <td className="px-5 py-3 text-text-secondary">
-                    {PROPERTY_TYPE_LABELS[property.property_type]} · {LISTING_TYPE_LABELS[property.listing_type]}
-                  </td>
-                  <td className="px-5 py-3 text-text-secondary" dir="ltr">
-                    {property.price.toLocaleString('en-US')} ر.س
-                  </td>
-                  <td className="px-5 py-3">
-                    <Badge status={property.status} label={PROPERTY_STATUS_LABELS[property.status]} />
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[640px] text-sm">
+              <thead className="bg-surface-header text-text-secondary text-right">
+                <tr>
+                  <th className="px-5 py-3 font-medium">العنوان</th>
+                  <th className="px-5 py-3 font-medium">النوع</th>
+                  <th className="px-5 py-3 font-medium">السعر</th>
+                  <th className="px-5 py-3 font-medium">الحالة</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {properties.map((property) => (
+                  <tr key={property.id} className="border-border-subtle border-t">
+                    <td className="px-5 py-3">
+                      <Link
+                        href={`/properties/${property.id}`}
+                        className="text-text-primary hover:text-brand font-medium"
+                      >
+                        {property.title_ar}
+                      </Link>
+                    </td>
+                    <td className="text-text-secondary px-5 py-3">
+                      {PROPERTY_TYPE_LABELS[property.property_type]} ·{' '}
+                      {LISTING_TYPE_LABELS[property.listing_type]}
+                    </td>
+                    <td className="text-text-secondary px-5 py-3" dir="ltr">
+                      {property.price.toLocaleString('en-US')} ر.س
+                    </td>
+                    <td className="px-5 py-3">
+                      <Badge
+                        status={property.status}
+                        label={PROPERTY_STATUS_LABELS[property.status]}
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </Card>
     </>
@@ -161,28 +193,35 @@ function BuildingsPanel({ accessToken, canManage }: { accessToken: string; canMa
         {buildings === null ? (
           <TableSkeleton columns={2} />
         ) : buildings.length === 0 ? (
-          <p className="p-6 text-center text-text-secondary">لا توجد عمارات بعد</p>
+          <p className="text-text-secondary p-6 text-center">لا توجد عمارات بعد</p>
         ) : (
-          <table className="w-full text-sm">
-            <thead className="bg-surface-header text-right text-text-secondary">
-              <tr>
-                <th className="px-5 py-3 font-medium">اسم العمارة</th>
-                <th className="px-5 py-3 font-medium">عدد الطوابق</th>
-              </tr>
-            </thead>
-            <tbody>
-              {buildings.map((building) => (
-                <tr key={building.id} className="border-t border-border-subtle">
-                  <td className="px-5 py-3">
-                    <Link href={`/buildings/${building.id}`} className="font-medium text-text-primary hover:text-brand">
-                      {building.name_ar}
-                    </Link>
-                  </td>
-                  <td className="px-5 py-3 text-text-secondary">{building.floors_count ?? '—'}</td>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[420px] text-sm">
+              <thead className="bg-surface-header text-text-secondary text-right">
+                <tr>
+                  <th className="px-5 py-3 font-medium">اسم العمارة</th>
+                  <th className="px-5 py-3 font-medium">عدد الطوابق</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {buildings.map((building) => (
+                  <tr key={building.id} className="border-border-subtle border-t">
+                    <td className="px-5 py-3">
+                      <Link
+                        href={`/buildings/${building.id}`}
+                        className="text-text-primary hover:text-brand font-medium"
+                      >
+                        {building.name_ar}
+                      </Link>
+                    </td>
+                    <td className="text-text-secondary px-5 py-3">
+                      {building.floors_count ?? '—'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </Card>
     </>
@@ -225,32 +264,41 @@ function ProjectsPanel({ accessToken, canManage }: { accessToken: string; canMan
         {projects === null ? (
           <TableSkeleton columns={2} />
         ) : projects.length === 0 ? (
-          <p className="p-6 text-center text-text-secondary">
-            لا توجد مشاريع بعد — تجميع اختياري لعقاراتك تحت مشروع واحد (مثل مشروع سكني متعدد العمارات)
+          <p className="text-text-secondary p-6 text-center">
+            لا توجد مشاريع بعد — تجميع اختياري لعقاراتك تحت مشروع واحد (مثل مشروع سكني متعدد
+            العمارات)
           </p>
         ) : (
-          <table className="w-full text-sm">
-            <thead className="bg-surface-header text-right text-text-secondary">
-              <tr>
-                <th className="px-5 py-3 font-medium">اسم المشروع</th>
-                <th className="px-5 py-3 font-medium">الحالة</th>
-              </tr>
-            </thead>
-            <tbody>
-              {projects.map((project) => (
-                <tr key={project.id} className="border-t border-border-subtle">
-                  <td className="px-5 py-3">
-                    <Link href={`/projects/${project.id}`} className="font-medium text-text-primary hover:text-brand">
-                      {project.name_ar}
-                    </Link>
-                  </td>
-                  <td className="px-5 py-3">
-                    <Badge status={project.status} label={PROPERTY_STATUS_LABELS[project.status]} />
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[420px] text-sm">
+              <thead className="bg-surface-header text-text-secondary text-right">
+                <tr>
+                  <th className="px-5 py-3 font-medium">اسم المشروع</th>
+                  <th className="px-5 py-3 font-medium">الحالة</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {projects.map((project) => (
+                  <tr key={project.id} className="border-border-subtle border-t">
+                    <td className="px-5 py-3">
+                      <Link
+                        href={`/projects/${project.id}`}
+                        className="text-text-primary hover:text-brand font-medium"
+                      >
+                        {project.name_ar}
+                      </Link>
+                    </td>
+                    <td className="px-5 py-3">
+                      <Badge
+                        status={project.status}
+                        label={PROPERTY_STATUS_LABELS[project.status]}
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </Card>
     </>
@@ -268,7 +316,9 @@ function RentalsPanel({ accessToken }: { accessToken: string }) {
     let cancelled = false;
     void listProperties(accessToken).then((result) => {
       if (cancelled) return;
-      setProperties(Object.fromEntries(result.properties.map((property) => [property.id, property])));
+      setProperties(
+        Object.fromEntries(result.properties.map((property) => [property.id, property])),
+      );
     });
     return () => {
       cancelled = true;
@@ -287,8 +337,12 @@ function RentalsPanel({ accessToken }: { accessToken: string }) {
 
   return (
     <>
-      <div className="mb-5 flex items-center justify-between">
-        <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as RentalStatus | '')} className="w-[200px]">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <Select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value as RentalStatus | '')}
+          className="w-[200px]"
+        >
           <option value="">كل الحالات</option>
           {Object.entries(RENTAL_STATUS_LABELS).map(([value, label]) => (
             <option key={value} value={value}>
@@ -315,40 +369,45 @@ function RentalsPanel({ accessToken }: { accessToken: string }) {
         {rentals === null ? (
           <TableSkeleton columns={5} />
         ) : rentals.length === 0 ? (
-          <p className="p-6 text-center text-text-secondary">لا توجد عقود إيجار بعد</p>
+          <p className="text-text-secondary p-6 text-center">لا توجد عقود إيجار بعد</p>
         ) : (
-          <table className="w-full text-sm">
-            <thead className="bg-surface-header text-right text-text-secondary">
-              <tr>
-                <th className="px-5 py-3 font-medium">العقار</th>
-                <th className="px-5 py-3 font-medium">المستأجر</th>
-                <th className="px-5 py-3 font-medium">الإيجار</th>
-                <th className="px-5 py-3 font-medium">نهاية العقد</th>
-                <th className="px-5 py-3 font-medium">الحالة</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rentals.map((rental) => (
-                <tr key={rental.id} className="border-t border-border-subtle">
-                  <td className="px-5 py-3">
-                    <Link href={`/rentals/${rental.id}`} className="font-medium text-text-primary hover:text-brand">
-                      {properties[rental.property_id]?.title_ar ?? rental.property_id}
-                    </Link>
-                  </td>
-                  <td className="px-5 py-3 text-text-secondary">{rental.tenant_name}</td>
-                  <td className="px-5 py-3 text-text-secondary" dir="ltr">
-                    {rental.rent_amount.toLocaleString('en-US')} ر.س
-                  </td>
-                  <td className="px-5 py-3 text-text-secondary" dir="ltr">
-                    {formatDate(rental.contract_end_date)}
-                  </td>
-                  <td className="px-5 py-3">
-                    <Badge status={rental.status} label={RENTAL_STATUS_LABELS[rental.status]} />
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[700px] text-sm">
+              <thead className="bg-surface-header text-text-secondary text-right">
+                <tr>
+                  <th className="px-5 py-3 font-medium">العقار</th>
+                  <th className="px-5 py-3 font-medium">المستأجر</th>
+                  <th className="px-5 py-3 font-medium">الإيجار</th>
+                  <th className="px-5 py-3 font-medium">نهاية العقد</th>
+                  <th className="px-5 py-3 font-medium">الحالة</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {rentals.map((rental) => (
+                  <tr key={rental.id} className="border-border-subtle border-t">
+                    <td className="px-5 py-3">
+                      <Link
+                        href={`/rentals/${rental.id}`}
+                        className="text-text-primary hover:text-brand font-medium"
+                      >
+                        {properties[rental.property_id]?.title_ar ?? rental.property_id}
+                      </Link>
+                    </td>
+                    <td className="text-text-secondary px-5 py-3">{rental.tenant_name}</td>
+                    <td className="text-text-secondary px-5 py-3" dir="ltr">
+                      {rental.rent_amount.toLocaleString('en-US')} ر.س
+                    </td>
+                    <td className="text-text-secondary px-5 py-3" dir="ltr">
+                      {formatDate(rental.contract_end_date)}
+                    </td>
+                    <td className="px-5 py-3">
+                      <Badge status={rental.status} label={RENTAL_STATUS_LABELS[rental.status]} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </Card>
     </>
@@ -366,11 +425,18 @@ function PropertiesPageContent() {
   const canManage = me.user.role !== 'agent';
 
   return (
-    <AppShell title={KIND_TITLES[kind]} orgName={me.tenant.name_ar} accountType={me.tenant.account_type} roleLabel={ROLE_LABELS[me.user.role]}>
+    <AppShell
+      title={KIND_TITLES[kind]}
+      orgName={me.tenant.name_ar}
+      accountType={me.tenant.account_type}
+      roleLabel={ROLE_LABELS[me.user.role]}
+    >
       <div className="mb-5">
         <KindTabs active={kind} />
       </div>
-      {kind === 'units' && <UnitsPanel accessToken={accessToken} role={me.user.role} canManage={canManage} />}
+      {kind === 'units' && (
+        <UnitsPanel accessToken={accessToken} role={me.user.role} canManage={canManage} />
+      )}
       {kind === 'buildings' && <BuildingsPanel accessToken={accessToken} canManage={canManage} />}
       {kind === 'projects' && <ProjectsPanel accessToken={accessToken} canManage={canManage} />}
       {kind === 'rentals' && <RentalsPanel accessToken={accessToken} />}

@@ -31,7 +31,7 @@ export function Sidebar({ orgName, accountType, roleLabel }: SidebarProps) {
   }
 
   return (
-    <div className="flex w-[216px] flex-none flex-col border-e border-border-subtle bg-surface-card p-[10px_10px_18px]">
+    <div className="border-border-subtle bg-surface-card hidden w-[216px] flex-none flex-col border-e p-[10px_10px_18px] md:flex">
       <div className="px-2 pb-[18px]">
         <BrandMark />
       </div>
@@ -46,14 +46,16 @@ export function Sidebar({ orgName, accountType, roleLabel }: SidebarProps) {
               <div key={item.group} className="flex flex-col gap-px">
                 <button
                   type="button"
-                  onClick={() => setOpenGroups((current) => ({ ...current, [item.group]: !isOpen }))}
+                  onClick={() =>
+                    setOpenGroups((current) => ({ ...current, [item.group]: !isOpen }))
+                  }
                   className={`flex h-[38px] flex-none items-center gap-2 rounded-[9px] px-[10px] text-[15px] ${
-                    hasActiveChild ? 'font-semibold text-brand' : 'font-normal text-text-tertiary'
+                    hasActiveChild ? 'text-brand font-semibold' : 'text-text-tertiary font-normal'
                   }`}
                 >
                   <GroupIcon className="h-[16px] w-[16px] flex-none" />
                   <span className="min-w-0 flex-1 truncate text-start">{item.label}</span>
-                  <span className="text-[10px] text-text-placeholder">{isOpen ? '▲' : '▼'}</span>
+                  <span className="text-text-placeholder text-[10px]">{isOpen ? '▲' : '▼'}</span>
                 </button>
                 {isOpen &&
                   item.children.map((child) => {
@@ -63,8 +65,10 @@ export function Sidebar({ orgName, accountType, roleLabel }: SidebarProps) {
                       <Link
                         key={child.href}
                         href={child.href}
-                        className={`flex h-[38px] flex-none items-center gap-2 rounded-[9px] ps-[26px] pe-[10px] text-[15px] ${
-                          active ? 'bg-brand-surface font-semibold text-brand' : 'font-normal text-text-tertiary'
+                        className={`flex h-[38px] flex-none items-center gap-2 rounded-[9px] pe-[10px] ps-[26px] text-[15px] ${
+                          active
+                            ? 'bg-brand-surface text-brand font-semibold'
+                            : 'text-text-tertiary font-normal'
                         }`}
                       >
                         <ChildIcon className="h-[16px] w-[16px] flex-none" />
@@ -83,7 +87,9 @@ export function Sidebar({ orgName, accountType, roleLabel }: SidebarProps) {
               key={item.href}
               href={item.href}
               className={`flex h-[38px] flex-none items-center gap-2 rounded-[9px] px-[10px] text-[15px] ${
-                active ? 'bg-brand-surface font-semibold text-brand' : 'font-normal text-text-tertiary'
+                active
+                  ? 'bg-brand-surface text-brand font-semibold'
+                  : 'text-text-tertiary font-normal'
               }`}
             >
               <ItemIcon className="h-[16px] w-[16px] flex-none" />
@@ -93,7 +99,7 @@ export function Sidebar({ orgName, accountType, roleLabel }: SidebarProps) {
         })}
       </nav>
 
-      <div className="relative mt-auto border-t border-border-subtle pt-[10px]">
+      <div className="border-border-subtle relative mt-auto border-t pt-[10px]">
         <button
           type="button"
           onClick={() => setAccountMenuOpen((open) => !open)}
@@ -101,18 +107,18 @@ export function Sidebar({ orgName, accountType, roleLabel }: SidebarProps) {
         >
           <AccountAvatar accountType={accountType} />
           <div className="flex min-w-0 flex-1 flex-col gap-px">
-            <div className="truncate text-xs font-semibold text-text-primary">{orgName}</div>
-            <div className="text-[11px] text-text-secondary">{roleLabel}</div>
+            <div className="text-text-primary truncate text-xs font-semibold">{orgName}</div>
+            <div className="text-text-secondary text-[11px]">{roleLabel}</div>
           </div>
         </button>
 
         {accountMenuOpen && (
-          <div className="absolute inset-x-2 bottom-full z-20 mb-2 flex flex-col gap-0.5 rounded-[14px] bg-surface-card p-1.5 shadow-[0_10px_30px_rgba(31,29,34,.18)]">
+          <div className="bg-surface-card absolute inset-x-2 bottom-full z-20 mb-2 flex flex-col gap-0.5 rounded-[14px] p-1.5 shadow-[0_10px_30px_rgba(31,29,34,.18)]">
             {(me.user.role === 'owner' || me.user.role === 'admin') && (
               <Link
                 href="/settings"
                 onClick={() => setAccountMenuOpen(false)}
-                className="rounded-[10px] px-[14px] py-[11px] text-[13px] font-medium text-text-primary hover:bg-surface-subtle"
+                className="text-text-primary hover:bg-surface-subtle rounded-[10px] px-[14px] py-[11px] text-[13px] font-medium"
               >
                 حسابي
               </Link>
@@ -121,7 +127,7 @@ export function Sidebar({ orgName, accountType, roleLabel }: SidebarProps) {
               <Link
                 href="/team"
                 onClick={() => setAccountMenuOpen(false)}
-                className="rounded-[10px] px-[14px] py-[11px] text-[13px] font-medium text-text-primary hover:bg-surface-subtle"
+                className="text-text-primary hover:bg-surface-subtle rounded-[10px] px-[14px] py-[11px] text-[13px] font-medium"
               >
                 إدارة الموظفين
               </Link>
@@ -130,16 +136,16 @@ export function Sidebar({ orgName, accountType, roleLabel }: SidebarProps) {
               <Link
                 href="/billing"
                 onClick={() => setAccountMenuOpen(false)}
-                className="rounded-[10px] px-[14px] py-[11px] text-[13px] font-medium text-text-primary hover:bg-surface-subtle"
+                className="text-text-primary hover:bg-surface-subtle rounded-[10px] px-[14px] py-[11px] text-[13px] font-medium"
               >
                 الفوترة والاشتراك
               </Link>
             )}
-            <div className="my-0.5 h-px bg-surface-subtle" />
+            <div className="bg-surface-subtle my-0.5 h-px" />
             <button
               type="button"
               onClick={handleSignOut}
-              className="rounded-[10px] px-[14px] py-[11px] text-start text-[13px] font-medium text-danger hover:bg-danger-surface"
+              className="text-danger hover:bg-danger-surface rounded-[10px] px-[14px] py-[11px] text-start text-[13px] font-medium"
             >
               تسجيل الخروج
             </button>

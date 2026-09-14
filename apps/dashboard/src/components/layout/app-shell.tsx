@@ -3,6 +3,7 @@
 import type { AccountType } from '@sbaah/shared';
 import { Sidebar } from './sidebar';
 import { Topbar } from './topbar';
+import { MobileNav } from './mobile-nav';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { getPlatformRootDomain } from '@/lib/env/platform-root-domain';
 
@@ -15,7 +16,8 @@ interface AppShellProps {
 }
 
 const SUSPENDED_MESSAGE: Record<'suspended' | 'cancelled', string> = {
-  suspended: 'حسابك معلَّق حاليًا — البيانات معروضة للقراءة فقط، ولا يمكن إجراء أي تعديل حتى تجديد اشتراكك.',
+  suspended:
+    'حسابك معلَّق حاليًا — البيانات معروضة للقراءة فقط، ولا يمكن إجراء أي تعديل حتى تجديد اشتراكك.',
   cancelled: 'تم إلغاء هذا الحساب — البيانات معروضة للقراءة فقط.',
 };
 
@@ -41,12 +43,13 @@ export function AppShell({ title, orgName, accountType, roleLabel, children }: A
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar title={title} siteUrl={siteUrl} />
         {status !== 'active' && (
-          <div className="border-b border-amber-200 bg-amber-50 px-7 py-3 text-sm font-medium text-amber-800">
+          <div className="border-b border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800 md:px-7">
             {SUSPENDED_MESSAGE[status]}
           </div>
         )}
-        <div className="flex-1 overflow-auto p-7">{children}</div>
+        <div className="flex-1 overflow-auto p-4 pb-28 md:p-7">{children}</div>
       </div>
+      <MobileNav orgName={orgName} accountType={accountType} roleLabel={roleLabel} />
     </div>
   );
 }

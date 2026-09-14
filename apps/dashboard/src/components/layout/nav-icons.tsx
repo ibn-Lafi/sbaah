@@ -4,7 +4,15 @@ type IconProps = { className?: string };
 
 function Svg({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
       {children}
     </svg>
   );
@@ -42,7 +50,6 @@ export function PropertiesIcon({ className }: IconProps) {
   );
 }
 
-
 export function ApplicantsIcon({ className }: IconProps) {
   return (
     <Svg className={className}>
@@ -65,7 +72,11 @@ export function WebsiteIcon({ className }: IconProps) {
 export function AppsIcon({ className }: IconProps) {
   return (
     <Svg className={className}>
-      {[6, 12, 18].flatMap((cy) => [6, 12, 18].map((cx) => <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="1.5" fill="currentColor" stroke="none" />))}
+      {[6, 12, 18].flatMap((cy) =>
+        [6, 12, 18].map((cx) => (
+          <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="1.5" fill="currentColor" stroke="none" />
+        )),
+      )}
     </Svg>
   );
 }
@@ -108,6 +119,23 @@ export function DomainIcon({ className }: IconProps) {
       <path d="M9.5 14.5l5-5" />
       <path d="M11 6.3l.8-.8a4 4 0 0 1 5.7 5.7l-.8.8" />
       <path d="M13 17.7l-.8.8a4 4 0 0 1-5.7-5.7l.8-.8" />
+    </Svg>
+  );
+}
+
+/** الشريط السفلي بعرض الجوال — الزر الدائري الذي يفتح قائمة بقية الصفحات. */
+export function MenuIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M4 7h16M4 12h16M4 17h16" />
+    </Svg>
+  );
+}
+
+export function CloseIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M6 6l12 12M18 6L6 18" />
     </Svg>
   );
 }
