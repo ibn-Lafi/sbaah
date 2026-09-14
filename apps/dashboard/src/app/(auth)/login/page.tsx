@@ -226,18 +226,22 @@ export default function LoginPage() {
       </div>
 
       {!(mode === 'otp' && otpSent) && (
-        <div className="mb-6 flex gap-4 text-sm">
+        <div className="mb-6 flex items-center justify-center gap-0.5 rounded-full bg-surface-subtle p-[5px]">
           <button
             type="button"
             onClick={() => switchChannel('sms')}
-            className={`font-semibold ${channel === 'sms' ? 'text-brand' : 'text-text-secondary'}`}
+            className={`flex h-8 flex-1 items-center justify-center rounded-full px-3 text-xs transition-colors ${
+              channel === 'sms' ? 'bg-brand-surface text-brand font-semibold' : 'text-text-secondary font-normal'
+            }`}
           >
             عبر الجوال
           </button>
           <button
             type="button"
             onClick={() => switchChannel('email')}
-            className={`font-semibold ${channel === 'email' ? 'text-brand' : 'text-text-secondary'}`}
+            className={`flex h-8 flex-1 items-center justify-center rounded-full px-3 text-xs transition-colors ${
+              channel === 'email' ? 'bg-brand-surface text-brand font-semibold' : 'text-text-secondary font-normal'
+            }`}
           >
             عبر البريد الإلكتروني
           </button>
