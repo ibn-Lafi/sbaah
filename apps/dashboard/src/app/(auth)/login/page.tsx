@@ -7,6 +7,7 @@ import { emailSchema, otpCodeSchema, passwordSchema, saudiPhoneSchema } from '@s
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/password-input';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { OtpInput } from '@/components/ui/otp-input';
 import { FormError } from '@/components/ui/form-error';
@@ -261,8 +262,7 @@ export default function LoginPage() {
               dir="ltr"
             />
           )}
-          <Input
-            type="password"
+          <PasswordInput
             placeholder="كلمة المرور"
             value={password}
             onChange={(event) => setPassword(event.target.value)}

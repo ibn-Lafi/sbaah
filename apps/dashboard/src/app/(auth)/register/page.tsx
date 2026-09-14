@@ -15,6 +15,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/password-input';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { OtpInput } from '@/components/ui/otp-input';
 import { FormError } from '@/components/ui/form-error';
@@ -325,8 +326,7 @@ export default function RegisterPage() {
           <form onSubmit={handleSubmitPassword} className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">
               <label className="text-text-primary text-sm font-medium">كلمة المرور</label>
-              <Input
-                type="password"
+              <PasswordInput
                 placeholder="••••••••"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
@@ -335,8 +335,7 @@ export default function RegisterPage() {
             </div>
             <div className="flex flex-col gap-2">
               <label className="text-text-primary text-sm font-medium">تأكيد كلمة المرور</label>
-              <Input
-                type="password"
+              <PasswordInput
                 placeholder="••••••••"
                 value={passwordConfirm}
                 onChange={(event) => setPasswordConfirm(event.target.value)}

@@ -6,6 +6,7 @@ import { consoleLoginSchema } from '@sbaah/shared';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/password-input';
 import { FormError } from '@/components/ui/form-error';
 import { login } from '@/lib/api/console-auth';
 import { ApiRequestError } from '@/lib/api/client';
@@ -48,7 +49,7 @@ export default function ConsoleLoginPage() {
 
         <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
           <Input type="email" placeholder="admin@sbaah.com" value={email} onChange={(e) => setEmail(e.target.value)} dir="ltr" />
-          <Input type="password" placeholder="كلمة المرور" value={password} onChange={(e) => setPassword(e.target.value)} />
+          <PasswordInput placeholder="كلمة المرور" value={password} onChange={(e) => setPassword(e.target.value)} />
           <FormError message={error} />
           <Button type="submit" disabled={loading}>
             {loading ? 'جارٍ الدخول...' : 'تسجيل الدخول'}
