@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Modal } from '@/components/ui/modal';
 import { PersonAvatar } from '@/components/ui/person-avatar';
+import { Select } from '@/components/ui/select';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { ROLE_LABELS } from '@/lib/auth/role-labels';
@@ -28,11 +29,6 @@ import { LEAD_SOURCE_LABELS, LEAD_STATUS_LABELS } from '@/lib/lead/labels';
 import { formatDate } from '@/lib/format/date';
 
 type StatusFilter = LeadStatus | 'all';
-
-const FILTERS: { value: StatusFilter; label: string }[] = [
-  { value: 'all', label: 'الكل' },
-  ...LEAD_STATUSES.map((status) => ({ value: status, label: LEAD_STATUS_LABELS[status] })),
-];
 
 function propertySubtitle(
   property: Property | undefined,
@@ -104,28 +100,21 @@ export default function LeadsPage() {
       accountType={me.tenant.account_type}
       roleLabel={ROLE_LABELS[me.user.role]}
     >
-      <div className="mb-5 flex items-center justify-between gap-4">
-        <div className="flex flex-1 items-center gap-2 overflow-x-auto">
-          {FILTERS.map((filter) => (
-            <button
-              key={filter.value}
-              type="button"
-              onClick={() => setStatusFilter(filter.value)}
-              className={`h-[36px] flex-none rounded-full px-4 text-[13px] font-medium transition-colors ${
-                statusFilter === filter.value
-                  ? 'bg-brand text-white'
-                  : 'border-border-default bg-surface-card text-text-secondary hover:border-text-placeholder border'
-              }`}
-            >
-              {filter.label}
-            </button>
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <Select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
+          className="w-[200px]"
+          style={{ height: '46px' }}
+        >
+          <option value="all">الكل</option>
+          {LEAD_STATUSES.map((status) => (
+            <option key={status} value={status}>
+              {LEAD_STATUS_LABELS[status]}
+            </option>
           ))}
-        </div>
-        {canManage && (
-          <Button onClick={() => setShowCreate(true)} className="flex-none">
-            + إضافة عميل محتمل
-          </Button>
-        )}
+        </Select>
+        {canManage && <Button onClick={() => setShowCreate(true)}>+ إضافة عميل محتمل</Button>}
       </div>
 
       {showCreate && (
