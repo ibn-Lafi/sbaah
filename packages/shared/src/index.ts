@@ -1,4 +1,5 @@
 export * from './config';
+export * from './format/date';
 export * from './http/api-client';
 export * from './labels';
 export * from './types/enums';

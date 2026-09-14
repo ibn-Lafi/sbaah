@@ -1,5 +1,3 @@
-import type { WebsiteSectionType } from './enums';
-
 /**
  * `website_sections.config` (jsonb) has no fixed shape at the DB/API
  * layer (task 28/42 deliberately left it a free-form record, pending
@@ -61,10 +59,3 @@ export type WebsiteSectionConfigByType = {
   broker_marketer_form: BrokerMarketerFormSectionConfig;
   footer: FooterSectionConfig;
 };
-
-export function getSectionConfig<T extends WebsiteSectionType>(
-  type: T,
-  config: Record<string, unknown>,
-): WebsiteSectionConfigByType[T] {
-  return config as WebsiteSectionConfigByType[T];
-}

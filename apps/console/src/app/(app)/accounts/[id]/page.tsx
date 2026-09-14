@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import type { Plan, Tenant, TenantStatus } from '@sbaah/shared';
+import { formatDate, type Plan, type Tenant, type TenantStatus } from '@sbaah/shared';
 import { ConsoleShell } from '@/components/layout/console-shell';
 import { Card } from '@/components/ui/card';
 import { Select } from '@/components/ui/select';
@@ -128,7 +128,7 @@ export default function AccountDetailPage() {
               <div>
                 <dt className="text-text-muted">تاريخ الإنشاء</dt>
                 <dd className="mt-0.5 font-medium" dir="ltr">
-                  {new Date(account.created_at).toLocaleDateString('en-GB')}
+                  {formatDate(account.created_at)}
                 </dd>
               </div>
             </dl>

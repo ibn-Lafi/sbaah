@@ -3,6 +3,7 @@ import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
 import { checkMediaLimits } from '@/lib/property/media-limits';
+import { safeExtensionFromMime } from '@/lib/storage/safe-extension';
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -63,7 +64,7 @@ export const POST = withErrorHandling<RouteContext>(async (request, { params }) 
     throw new ApiError(422, 'media_limit_exceeded', limitCheck.reason ?? 'تجاوزت الحد المسموح');
   }
 
-  const extension = file.name.split('.').pop() ?? 'bin';
+  const extension = safeExtensionFromMime(file.type);
   const objectPath = `${caller.tenantId}/${propertyId}/${crypto.randomUUID()}.${extension}`;
 
   const { error: uploadError } = await supabase.storage.from(BUCKET).upload(objectPath, file, {

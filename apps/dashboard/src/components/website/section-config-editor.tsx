@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import type { WebsiteSection } from '@sbaah/shared';
+import type { AboutSectionConfig, HeroSectionConfig, WebsiteSection } from '@sbaah/shared';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -25,7 +25,7 @@ interface SectionConfigEditorProps {
 export function SectionConfigEditor({ section, accessToken, onSaved }: SectionConfigEditorProps) {
   const hasBody = section.type === 'about' || section.type === 'why_us';
   const hasSubtitle = section.type === 'hero';
-  const config = section.config as { title_ar?: string; title_en?: string; subtitle_ar?: string; subtitle_en?: string; body_ar?: string; body_en?: string };
+  const config = section.config as HeroSectionConfig & AboutSectionConfig;
 
   const [titleAr, setTitleAr] = useState(config.title_ar ?? '');
   const [titleEn, setTitleEn] = useState(config.title_en ?? '');

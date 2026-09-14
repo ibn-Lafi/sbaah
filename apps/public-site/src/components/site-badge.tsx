@@ -1,6 +1,5 @@
-import type { AccountType } from '@sbaah/shared';
+import { ACCOUNT_TYPE_LABELS_BILINGUAL, type AccountType } from '@sbaah/shared';
 import type { Locale } from '@/lib/i18n/locales';
-import { ACCOUNT_TYPE_LABEL } from '@/lib/tenant/account-type-labels';
 
 const LABELS: Record<Locale, { prefix: string; brand: string }> = {
   ar: { prefix: 'جميع الحقوق محفوظة ', brand: '@سبعة' },
@@ -23,7 +22,7 @@ function getPlatformRootDomain(): string {
  * its only caller today.
  */
 export function SiteBadge({ accountType, locale }: { accountType: AccountType; locale: Locale }) {
-  const accountTypeLabel = ACCOUNT_TYPE_LABEL[locale][accountType];
+  const accountTypeLabel = ACCOUNT_TYPE_LABELS_BILINGUAL[accountType][locale];
   const { prefix, brand } = LABELS[locale];
 
   return (

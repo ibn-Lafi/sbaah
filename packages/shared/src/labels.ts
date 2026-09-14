@@ -14,6 +14,13 @@ export const ACCOUNT_TYPE_LABELS: Record<AccountType, string> = {
   company: 'شركة',
 };
 
+/** Bilingual — public-site's سبعة badge reads by locale (its tooltip describes "account type", never "verified": PRODUCT_SPEC section 6, no license/CR check behind it). Was a separate copy in public-site's own lib/tenant/account-type-labels.ts. */
+export const ACCOUNT_TYPE_LABELS_BILINGUAL: Record<AccountType, { ar: string; en: string }> = {
+  individual: { ar: 'فرد', en: 'Individual' },
+  institution: { ar: 'مؤسسة', en: 'Institution' },
+  company: { ar: 'شركة', en: 'Company' },
+};
+
 /** Bilingual source — dashboard (Arabic-only) reads `.ar`, public-site reads either by locale. */
 export const PROPERTY_TYPE_LABELS_BILINGUAL: Record<PropertyType, { ar: string; en: string }> = {
   apartment: { ar: 'شقة', en: 'Apartment' },

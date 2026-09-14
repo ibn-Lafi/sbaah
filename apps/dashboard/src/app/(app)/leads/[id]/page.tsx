@@ -26,8 +26,9 @@ import { PROPERTY_TYPE_LABELS } from '@/lib/property/labels';
 import { datetimeLocalToIso, isoToDatetimeLocal } from '@/lib/lead/datetime';
 import { formatRelativeTime } from '@/lib/format/date';
 
+// Matches Button's h-[46px] — these are <a> tags (tel:/WhatsApp deep links), not <button>s, so they can't use the Button component itself, but should still line up with it.
 const ACTION_LINK_CLASSES =
-  'rounded-control inline-flex h-[44px] flex-1 items-center justify-center gap-2 text-sm font-semibold transition-colors';
+  'rounded-control inline-flex h-[46px] flex-1 items-center justify-center gap-2 text-sm font-semibold transition-colors';
 
 export default function LeadDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);

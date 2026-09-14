@@ -3,7 +3,9 @@ import { createAnonClient, createServiceRoleClient, publicLeadInputSchema } from
 import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { extractClientIp, verifyCaptcha } from '@/lib/captcha/verify-captcha';
 import { validatePublicTenantTarget } from '@/lib/tenant/validate-public-target';
-import { LEAD_RATE_LIMIT_CONFIG, hasExceededLeadRateLimit } from '@/lib/lead/lead-rate-limit-policy';
+import { createIpRateLimitPolicy } from '@/lib/rate-limit/ip-rate-limit-policy';
+
+const LEAD_RATE_LIMIT = createIpRateLimitPolicy(10 * 60 * 1000, 5);
 
 /**
  * Unauthenticated — public-site's inquiry form. `leads` intentionally has
@@ -22,7 +24,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   const ip = extractClientIp(request.headers) ?? 'unknown';
 
   const serviceRole = createServiceRoleClient();
-  const windowStart = new Date(Date.now() - LEAD_RATE_LIMIT_CONFIG.windowMs).toISOString();
+  const windowStart = new Date(Date.now() - LEAD_RATE_LIMIT.windowMs).toISOString();
   const { count: recentAttempts, error: rateLimitError } = await serviceRole
     .from('lead_submission_attempts')
     .select('id', { count: 'exact', head: true })
@@ -31,7 +33,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   if (rateLimitError) {
     throw new Error(`Failed to check lead rate limit: ${rateLimitError.message}`);
   }
-  if (hasExceededLeadRateLimit(recentAttempts ?? 0)) {
+  if (LEAD_RATE_LIMIT.hasExceeded(recentAttempts ?? 0)) {
     throw new ApiError(429, 'lead_rate_limited', 'عدد كبير من الطلبات، حاول لاحقًا');
   }
 

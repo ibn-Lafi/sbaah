@@ -11,6 +11,16 @@
 @theme {
   --color-tenant-primary: var(--tenant-primary, #68458a);
   --color-tenant-secondary: var(--tenant-secondary, #000000);
+
+  /**
+   * سبعة's own fixed brand color — for the platform's own marketing pages
+   * (marketing-chrome.tsx/marketing-home.tsx), never a tenant's site,
+   * which is why it's a plain fixed token instead of the `--tenant-*`
+   * custom-property pattern above (was previously ~12 hardcoded `#68458A`
+   * literals across those two files — UI/UX audit finding).
+   */
+  --color-brand: #68458a;
+  --color-danger: #dc2626;
 }
 
 body {

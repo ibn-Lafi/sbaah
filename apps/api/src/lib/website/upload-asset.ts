@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { MAX_WEBSITE_ASSET_SIZE_MB } from '@sbaah/shared';
 import { ApiError } from '@/lib/http';
+import { safeExtensionFromMime } from '@/lib/storage/safe-extension';
 
 const BUCKET = 'website-assets';
 const BYTES_PER_MB = 1024 * 1024;
@@ -24,7 +25,7 @@ export async function uploadWebsiteAsset(
     throw new ApiError(422, 'file_too_large', `الحد الأقصى لحجم الصورة ${MAX_WEBSITE_ASSET_SIZE_MB} ميجابايت`);
   }
 
-  const extension = file.name.split('.').pop() ?? 'bin';
+  const extension = safeExtensionFromMime(file.type);
   const objectPath = `${tenantId}/${assetName}.${extension}`;
 
   const { error: uploadError } = await supabase.storage

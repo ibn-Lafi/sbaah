@@ -55,7 +55,7 @@ export default function DistrictsPage() {
   return (
     <ConsoleShell title="الأحياء">
       <div className="mb-4 flex items-center justify-between">
-        <Select value={cityFilter} onChange={(e) => setCityFilter(e.target.value)} className="w-[220px]">
+        <Select value={cityFilter} onChange={(e) => setCityFilter(e.target.value)} className="w-[220px]" compact>
           <option value="">كل المدن</option>
           {cities.map((city) => (
             <option key={city.id} value={city.id}>

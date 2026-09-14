@@ -136,7 +136,7 @@ export function InquiryForm({ locale, tenantId, propertyId }: InquiryFormProps) 
         className="rounded-lg border border-black/15 p-2 text-sm"
       />
       <div ref={widgetRef} />
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-danger">{error}</p>}
       <button
         type="submit"
         disabled={loading}

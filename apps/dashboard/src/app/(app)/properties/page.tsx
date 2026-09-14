@@ -58,7 +58,7 @@ export default function PropertiesPage() {
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as PropertyStatus | '')}
           className="w-[140px]"
-          style={{ height: '46px' }}
+          compact
         >
           <option value="">كل الحالات</option>
           {Object.entries(PROPERTY_STATUS_LABELS).map(([value, label]) => (

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import type { Tenant, TenantStatus } from '@sbaah/shared';
+import { formatDate, type Tenant, type TenantStatus } from '@sbaah/shared';
 import { ConsoleShell } from '@/components/layout/console-shell';
 import { Card } from '@/components/ui/card';
 import { Select } from '@/components/ui/select';
@@ -86,7 +86,7 @@ export default function AccountsPage() {
                     <TenantStatusBadge status={account.status} />
                   </td>
                   <td className="px-5 py-3 text-text-secondary" dir="ltr">
-                    {new Date(account.created_at).toLocaleDateString('en-GB')}
+                    {formatDate(account.created_at)}
                   </td>
                 </tr>
               ))}

@@ -1,5 +1,6 @@
 import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { getPlatformAdminClient } from '@/lib/auth/get-platform-admin-client';
+import { safeExtensionFromMime } from '@/lib/storage/safe-extension';
 
 const BUCKET = 'theme-assets';
 const MAX_SIZE_MB = 5;
@@ -30,7 +31,7 @@ export const POST = withErrorHandling<RouteContext>(async (request, { params }) 
     throw new ApiError(422, 'file_too_large', `الحد الأقصى لحجم الصورة ${MAX_SIZE_MB} ميجابايت`);
   }
 
-  const extension = file.name.split('.').pop() ?? 'bin';
+  const extension = safeExtensionFromMime(file.type);
   const objectPath = `${id}/preview.${extension}`;
 
   const { error: uploadError } = await supabase.storage

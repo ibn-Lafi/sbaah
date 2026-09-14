@@ -63,7 +63,7 @@ export default function RentalsPage() {
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as RentalStatus | '')}
           className="w-[140px]"
-          style={{ height: '46px' }}
+          compact
         >
           <option value="">كل الحالات</option>
           {Object.entries(RENTAL_STATUS_LABELS).map(([value, label]) => (

@@ -3,6 +3,7 @@
 import { useRef, useState } from 'react';
 import type { PropertyMedia } from '@sbaah/shared';
 import { Button } from '@/components/ui/button';
+import { DeleteButton } from '@/components/ui/delete-button';
 import { FormError } from '@/components/ui/form-error';
 import { deletePropertyMedia, uploadPropertyMedia } from '@/lib/api/properties';
 import { ApiRequestError } from '@/lib/api/client';
@@ -38,12 +39,11 @@ export function PropertyMediaManager({ propertyId, accessToken, media, onChange 
   }
 
   async function handleDelete(mediaId: string) {
-    setError(null);
     try {
       await deletePropertyMedia(accessToken, propertyId, mediaId);
       onChange(media.filter((item) => item.id !== mediaId));
     } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : 'تعذّر حذف الملف');
+      throw new Error(err instanceof ApiRequestError ? err.message : 'تعذّر حذف الملف');
     }
   }
 
@@ -58,13 +58,15 @@ export function PropertyMediaManager({ propertyId, accessToken, media, onChange 
             ) : (
               <video src={item.url} className="h-32 w-full object-cover" muted />
             )}
-            <button
-              type="button"
-              onClick={() => void handleDelete(item.id)}
-              className="absolute left-1 top-1 rounded-full bg-danger px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100"
-            >
-              حذف
-            </button>
+            <div className="absolute left-1 top-1 opacity-0 transition-opacity group-hover:opacity-100">
+              <DeleteButton
+                label="حذف"
+                confirmTitle="حذف الوسائط"
+                confirmMessage="سيتم حذف هذا الملف نهائيًا، ولا يمكن التراجع عن هذا الإجراء."
+                onConfirm={() => handleDelete(item.id)}
+                compact
+              />
+            </div>
           </div>
         ))}
       </div>

@@ -3,10 +3,9 @@ import { createAnonClient, createServiceRoleClient, publicBrokerMarketerApplicat
 import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { extractClientIp, verifyCaptcha } from '@/lib/captcha/verify-captcha';
 import { validatePublicTenantTarget } from '@/lib/tenant/validate-public-target';
-import {
-  BROKER_MARKETER_RATE_LIMIT_CONFIG,
-  hasExceededBrokerMarketerRateLimit,
-} from '@/lib/broker-marketer/broker-marketer-rate-limit-policy';
+import { createIpRateLimitPolicy } from '@/lib/rate-limit/ip-rate-limit-policy';
+
+const BROKER_MARKETER_RATE_LIMIT = createIpRateLimitPolicy(10 * 60 * 1000, 5);
 
 /**
  * Unauthenticated — the "الوسطاء والمسوقين" website section's form
@@ -24,7 +23,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   const ip = extractClientIp(request.headers) ?? 'unknown';
 
   const serviceRole = createServiceRoleClient();
-  const windowStart = new Date(Date.now() - BROKER_MARKETER_RATE_LIMIT_CONFIG.windowMs).toISOString();
+  const windowStart = new Date(Date.now() - BROKER_MARKETER_RATE_LIMIT.windowMs).toISOString();
   const { count: recentAttempts, error: rateLimitError } = await serviceRole
     .from('broker_marketer_application_attempts')
     .select('id', { count: 'exact', head: true })
@@ -33,7 +32,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   if (rateLimitError) {
     throw new Error(`Failed to check broker/marketer application rate limit: ${rateLimitError.message}`);
   }
-  if (hasExceededBrokerMarketerRateLimit(recentAttempts ?? 0)) {
+  if (BROKER_MARKETER_RATE_LIMIT.hasExceeded(recentAttempts ?? 0)) {
     throw new ApiError(429, 'application_rate_limited', 'عدد كبير من الطلبات، حاول لاحقًا');
   }
 

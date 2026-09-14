@@ -105,7 +105,7 @@ export default function LeadsPage() {
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
           className="w-[140px]"
-          style={{ height: '46px' }}
+          compact
         >
           <option value="all">الكل</option>
           {LEAD_STATUSES.map((status) => (

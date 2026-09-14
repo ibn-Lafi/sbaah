@@ -18,16 +18,16 @@ export async function MarketingHome({ locale }: { locale: Locale }) {
   return (
     <div>
       <section className="flex flex-col items-center gap-5 px-6 py-20 text-center">
-        <span className="rounded-full bg-[#68458A]/10 px-4 py-1 text-sm font-medium text-[#68458A]">{t.hero.eyebrow}</span>
+        <span className="rounded-full bg-brand/10 px-4 py-1 text-sm font-medium text-brand">{t.hero.eyebrow}</span>
         <h1 className="max-w-3xl text-3xl font-bold md:text-5xl">{t.hero.title}</h1>
         <p className="max-w-xl text-lg text-black/70">{t.hero.subtitle}</p>
         <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
           {dashboardUrl && (
-            <a href={`${dashboardUrl}/register`} className="rounded-lg bg-[#68458A] px-7 py-3 font-semibold text-white hover:opacity-90">
+            <a href={`${dashboardUrl}/register`} className="rounded-lg bg-brand px-7 py-3 font-semibold text-white hover:opacity-90">
               {t.hero.primaryCta}
             </a>
           )}
-          <a href="#features" className="rounded-lg border border-black/15 px-7 py-3 font-semibold hover:border-[#68458A] hover:text-[#68458A]">
+          <a href="#features" className="rounded-lg border border-black/15 px-7 py-3 font-semibold hover:border-brand hover:text-brand">
             {t.hero.secondaryCta}
           </a>
         </div>
@@ -38,7 +38,7 @@ export async function MarketingHome({ locale }: { locale: Locale }) {
         <div className="mx-auto grid max-w-5xl gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {t.features.items.map((item) => (
             <div key={item.title} className="rounded-xl border border-black/10 p-6">
-              <h3 className="mb-2 font-semibold text-[#68458A]">{item.title}</h3>
+              <h3 className="mb-2 font-semibold text-brand">{item.title}</h3>
               <p className="text-sm text-black/70">{item.body}</p>
             </div>
           ))}
@@ -80,7 +80,7 @@ export async function MarketingHome({ locale }: { locale: Locale }) {
                 {dashboardUrl && (
                   <a
                     href={`${dashboardUrl}/register`}
-                    className="mt-6 block rounded-lg bg-[#68458A] px-4 py-3 text-center font-semibold text-white hover:opacity-90"
+                    className="mt-6 block rounded-lg bg-brand px-4 py-3 text-center font-semibold text-white hover:opacity-90"
                   >
                     {t.pricing.cta}
                   </a>

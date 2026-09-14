@@ -60,7 +60,7 @@ export function Topbar({ title, siteUrl, accountType }: TopbarProps) {
         rel="noreferrer"
         aria-label="زيارة الموقع"
         title="زيارة الموقع"
-        className="md:bg-surface-subtle flex h-9 w-9 flex-none items-center justify-center rounded-full bg-white/15 text-white md:h-[42px] md:w-[42px] md:text-[#1F1D22]"
+        className="md:bg-surface-subtle flex h-9 w-9 flex-none items-center justify-center rounded-full bg-white/15 text-white md:h-[42px] md:w-[42px] md:text-text-primary"
       >
         <svg
           viewBox="0 0 24 24"

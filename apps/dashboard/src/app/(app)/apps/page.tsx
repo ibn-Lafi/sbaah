@@ -107,7 +107,7 @@ function AppIcon({ app }: { app: AppEntry }) {
   return (
     <div
       className={`flex h-14 w-14 flex-none items-center justify-center rounded-[16px] p-3 ${
-        app.tile === 'dark' ? 'bg-[#1f1d22]' : 'bg-surface-subtle'
+        app.tile === 'dark' ? 'bg-text-primary' : 'bg-surface-subtle'
       }`}
     >
       {/* eslint-disable-next-line @next/next/no-img-element -- static local brand mark, not a Next/Image-managed remote asset */}

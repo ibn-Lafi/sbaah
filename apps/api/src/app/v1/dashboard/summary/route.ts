@@ -51,8 +51,7 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     supabase.from('leads').select('id', { count: 'exact', head: true }),
     supabase.from('leads').select('id', { count: 'exact', head: true }).gte('created_at', startOfMonthIso),
     supabase.from('leads').select('id', { count: 'exact', head: true }).eq('status', 'won'),
-    // "Overdue follow-up" — the same actionable condition the daily
-    // digest job (task 41/42) will alert on, surfaced here live.
+    // "Overdue follow-up" — a lead whose follow_up_at has passed and isn't won/lost yet.
     supabase.from('leads').select('id', { count: 'exact', head: true }).lt('follow_up_at', nowIso).not('status', 'in', '(won,lost)'),
     Promise.all(LEAD_SOURCES.map((source) => supabase.from('leads').select('id', { count: 'exact', head: true }).eq('source', source))),
     // property_views has no select policy at all for Agent (migration

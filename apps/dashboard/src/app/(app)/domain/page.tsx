@@ -178,9 +178,10 @@ function CustomDomainCard({
               value={input}
               onChange={(e) => setInput(e.target.value)}
               dir="ltr"
+              compact
             />
           </div>
-          <Button type="submit" disabled={loading} className="h-[50px] sm:w-fit">
+          <Button type="submit" disabled={loading} className="sm:w-fit">
             {loading ? 'جارٍ الربط...' : 'ربط الدومين'}
           </Button>
         </form>
