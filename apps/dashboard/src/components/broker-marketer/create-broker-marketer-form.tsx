@@ -10,6 +10,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
+import { SearchableSelect } from '@/components/ui/searchable-select';
 import { FormError } from '@/components/ui/form-error';
 import {
   createBrokerMarketerApplication,
@@ -81,14 +82,12 @@ export function CreateBrokerMarketerForm({
         onChange={(e) => setFullName(e.target.value)}
       />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Select value={cityId} onChange={(e) => setCityId(e.target.value)}>
-          <option value="">اختر المدينة</option>
-          {cities.map((city) => (
-            <option key={city.id} value={city.id}>
-              {city.name_ar}
-            </option>
-          ))}
-        </Select>
+        <SearchableSelect
+          options={cities.map((city) => ({ value: city.id, label: city.name_ar }))}
+          value={cityId}
+          onChange={setCityId}
+          placeholder="اختر المدينة"
+        />
         <Input
           placeholder="رقم رخصة فال"
           value={falLicenseNumber}

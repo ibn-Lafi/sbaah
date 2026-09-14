@@ -14,6 +14,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
+import { SearchableSelect } from '@/components/ui/searchable-select';
 import { FormError } from '@/components/ui/form-error';
 import { LocationPicker, type LocationPickerValue } from '@/components/ui/location-picker';
 import { listCities, listDistricts } from '@/lib/api/reference-data';
@@ -162,14 +163,12 @@ export function BuildingForm({
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Select value={form.city_id} onChange={(e) => set('city_id', e.target.value)}>
-          <option value="">اختر المدينة</option>
-          {cities.map((city) => (
-            <option key={city.id} value={city.id}>
-              {city.name_ar}
-            </option>
-          ))}
-        </Select>
+        <SearchableSelect
+          options={cities.map((city) => ({ value: city.id, label: city.name_ar }))}
+          value={form.city_id}
+          onChange={(value) => set('city_id', value)}
+          placeholder="اختر المدينة"
+        />
         <Select
           value={form.district_id}
           onChange={(e) => set('district_id', e.target.value)}
