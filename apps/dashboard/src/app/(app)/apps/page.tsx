@@ -8,7 +8,7 @@ import { ROLE_LABELS } from '@/lib/auth/role-labels';
 
 /**
  * سوق التطبيقات — شبكة بطاقات (نفس نمط تصميم المؤسس: أيقونة الشعار الرسمي +
- * اسم + وصف + تصنيف + تقييم + زر "أضف التطبيق")، وليست سوقًا فعليًا
+ * اسم + وصف + تصنيف + سعر + زر "أضف التطبيق")، وليست سوقًا فعليًا
  * بتكاملات حقيقية (لا يوجد OAuth أو ربط خلفي لأي منها). واتساب فقط
  * تطبيق مُفعّل فعليًا (رقم واتساب بصفحة "الإعدادات" هو التكامل الحقيقي
  * الوحيد الموجود بالمنتج) لذا زرّه يفتح تلك الصفحة مباشرة؛ البقية "قريبًا"
@@ -24,7 +24,6 @@ interface AppEntry {
   name: string;
   description: string;
   category: string;
-  rating: number;
   price: string;
   tile: 'light' | 'dark';
   connected: boolean;
@@ -36,8 +35,7 @@ const APPS: AppEntry[] = [
     name: 'واتساب بزنس',
     description: 'تواصل مع عملائك المحتملين مباشرة عبر واتساب من صفحات موقعك',
     category: 'التواصل والدردشة',
-    rating: 4.8,
-    price: 'تطبيق مجاني',
+    price: 'مجاني',
     tile: 'light',
     connected: true,
   },
@@ -46,8 +44,7 @@ const APPS: AppEntry[] = [
     name: 'Google Analytics',
     description: 'خدمة تمكنك من جمع وتحليل البيانات وتحليل زوار متجرك بسهولة وسلاسة',
     category: 'التحليلات والتقارير',
-    rating: 4.0,
-    price: 'تطبيق مجاني',
+    price: 'مجاني',
     tile: 'light',
     connected: false,
   },
@@ -56,7 +53,6 @@ const APPS: AppEntry[] = [
     name: 'Mailchimp',
     description: 'أرسل حملات بريدية احترافية لعملائك المحتملين وتابع أداءها بسهولة',
     category: 'التسويق عبر البريد الإلكتروني',
-    rating: 4.3,
     price: 'تجربة مجانية',
     tile: 'dark',
     connected: false,
@@ -66,8 +62,7 @@ const APPS: AppEntry[] = [
     name: 'Zapier',
     description: 'اربط منصتك بآلاف التطبيقات وأتمِت مهامك المتكررة دون كتابة كود',
     category: 'الأتمتة والربط',
-    rating: 4.5,
-    price: 'تطبيق مجاني',
+    price: 'مجاني',
     tile: 'light',
     connected: false,
   },
@@ -76,8 +71,7 @@ const APPS: AppEntry[] = [
     name: 'سلة',
     description: 'زامن منتجاتك وطلباتك بين متجرك الإلكتروني ومنصة سلة بسهولة',
     category: 'التجارة الإلكترونية',
-    rating: 4.2,
-    price: 'تطبيق مجاني',
+    price: 'مجاني',
     tile: 'dark',
     connected: false,
   },
@@ -86,8 +80,7 @@ const APPS: AppEntry[] = [
     name: 'Snapchat Ads',
     description: 'أنشئ حملات إعلانية على سناب شات واستهدف جمهورك المهتم بالعقارات',
     category: 'التسويق والإعلانات',
-    rating: 4.1,
-    price: 'تطبيق مجاني',
+    price: 'مجاني',
     tile: 'dark',
     connected: false,
   },
@@ -98,23 +91,6 @@ function SearchIcon({ className }: { className?: string }) {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" className={className}>
       <circle cx="10.5" cy="10.5" r="6.5" />
       <path d="M20 20l-4.8-4.8" />
-    </svg>
-  );
-}
-
-function SortIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <path d="M7 4v16M7 4l-3 3M7 4l3 3" />
-      <path d="M17 20V4M17 20l-3-3M17 20l3-3" />
-    </svg>
-  );
-}
-
-function StarIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="#F5A623" className={className}>
-      <path d="M12 2.5l2.9 6.06 6.6.77-4.87 4.6 1.28 6.57L12 17.2l-5.91 3.3 1.28-6.57-4.87-4.6 6.6-.77L12 2.5z" />
     </svg>
   );
 }
@@ -173,12 +149,9 @@ function AppCard({ app }: { app: AppEntry }) {
             {justClicked ? 'قريبًا' : 'أضف التطبيق'}
           </button>
         )}
-        <div className="text-text-secondary flex items-center gap-1 text-[13px]">
-          <StarIcon className="h-4 w-4" />
-          <span>
-            {app.rating.toFixed(1)} {app.price}
-          </span>
-        </div>
+        <span className="bg-brand-surface text-brand rounded-[8px] px-2.5 py-1 text-xs font-semibold">
+          {app.price}
+        </span>
       </div>
     </div>
   );
@@ -187,14 +160,14 @@ function AppCard({ app }: { app: AppEntry }) {
 export default function AppsPage() {
   const { me } = useCurrentUser();
   const [query, setQuery] = useState('');
-  const [alphaSort, setAlphaSort] = useState(false);
 
-  const visibleApps = useMemo(() => {
-    const filtered = query.trim()
-      ? APPS.filter((app) => app.name.toLowerCase().includes(query.trim().toLowerCase()))
-      : APPS;
-    return alphaSort ? [...filtered].sort((a, b) => a.name.localeCompare(b.name, 'ar')) : filtered;
-  }, [query, alphaSort]);
+  const visibleApps = useMemo(
+    () =>
+      query.trim()
+        ? APPS.filter((app) => app.name.toLowerCase().includes(query.trim().toLowerCase()))
+        : APPS,
+    [query],
+  );
 
   return (
     <AppShell
@@ -203,28 +176,15 @@ export default function AppsPage() {
       accountType={me.tenant.account_type}
       roleLabel={ROLE_LABELS[me.user.role]}
     >
-      <div className="mb-5 flex items-center gap-3">
-        <button
-          type="button"
-          onClick={() => setAlphaSort((v) => !v)}
-          aria-label="ترتيب أبجدي"
-          title="ترتيب أبجدي"
-          className={`border-border-default flex h-12 w-12 flex-none items-center justify-center rounded-full border ${
-            alphaSort ? 'bg-brand-surface text-brand' : 'text-text-secondary'
-          }`}
-        >
-          <SortIcon className="h-[18px] w-[18px]" />
-        </button>
-        <div className="border-border-default flex h-12 flex-1 items-center gap-2 rounded-full border px-5">
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="ابحث عن تطبيق..."
-            className="text-text-primary placeholder:text-text-placeholder h-full flex-1 border-none bg-transparent text-sm outline-none"
-          />
-          <SearchIcon className="text-text-secondary h-[18px] w-[18px] flex-none" />
-        </div>
+      <div className="border-border-default mb-5 flex h-12 items-center gap-2 rounded-full border px-5">
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="ابحث عن تطبيق..."
+          className="text-text-primary placeholder:text-text-placeholder h-full flex-1 border-none bg-transparent text-sm outline-none"
+        />
+        <SearchIcon className="text-text-secondary h-[18px] w-[18px] flex-none" />
       </div>
 
       {visibleApps.length === 0 ? (
