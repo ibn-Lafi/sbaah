@@ -66,7 +66,9 @@ export function BuildingForm({
   submitLabel,
 }: BuildingFormProps) {
   const [form, setForm] = useState<FormState>(
-    initialValues ? toFormState(initialValues) : { ...EMPTY_STATE, project_id: defaultProjectId ?? '' },
+    initialValues
+      ? toFormState(initialValues)
+      : { ...EMPTY_STATE, project_id: defaultProjectId ?? '' },
   );
   const [projects, setProjects] = useState<Project[]>([]);
   const [cities, setCities] = useState<City[]>([]);
@@ -132,8 +134,12 @@ export function BuildingForm({
         ))}
       </Select>
 
-      <div className="grid grid-cols-2 gap-4">
-        <Input placeholder="اسم العمارة (عربي)" value={form.name_ar} onChange={(e) => set('name_ar', e.target.value)} />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Input
+          placeholder="اسم العمارة (عربي)"
+          value={form.name_ar}
+          onChange={(e) => set('name_ar', e.target.value)}
+        />
         <Input
           placeholder="اسم العمارة (إنجليزي، اختياري)"
           value={form.name_en}
@@ -141,7 +147,7 @@ export function BuildingForm({
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Select value={form.city_id} onChange={(e) => set('city_id', e.target.value)}>
           <option value="">اختر المدينة</option>
           {cities.map((city) => (
@@ -150,7 +156,11 @@ export function BuildingForm({
             </option>
           ))}
         </Select>
-        <Select value={form.district_id} onChange={(e) => set('district_id', e.target.value)} disabled={!form.city_id}>
+        <Select
+          value={form.district_id}
+          onChange={(e) => set('district_id', e.target.value)}
+          disabled={!form.city_id}
+        >
           <option value="">الحي (اختياري)</option>
           {districts.map((district) => (
             <option key={district.id} value={district.id}>

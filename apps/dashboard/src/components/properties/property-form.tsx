@@ -105,8 +105,17 @@ interface PropertyFormProps {
 }
 
 /** Shared by the "+ إضافة عقار" create modal and /properties/[id] — the only difference is whether status/availability show and what onSubmit does with the payload. */
-export function PropertyForm({ mode, initialValues, accessToken, role, onSubmit, submitLabel }: PropertyFormProps) {
-  const [form, setForm] = useState<FormState>(initialValues ? toFormState(initialValues) : EMPTY_STATE);
+export function PropertyForm({
+  mode,
+  initialValues,
+  accessToken,
+  role,
+  onSubmit,
+  submitLabel,
+}: PropertyFormProps) {
+  const [form, setForm] = useState<FormState>(
+    initialValues ? toFormState(initialValues) : EMPTY_STATE,
+  );
   const [cities, setCities] = useState<City[]>([]);
   const [districts, setDistricts] = useState<District[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
@@ -180,8 +189,12 @@ export function PropertyForm({ mode, initialValues, accessToken, role, onSubmit,
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <div className="grid grid-cols-2 gap-4">
-        <Input placeholder="عنوان العقار (عربي)" value={form.title_ar} onChange={(e) => set('title_ar', e.target.value)} />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Input
+          placeholder="عنوان العقار (عربي)"
+          value={form.title_ar}
+          onChange={(e) => set('title_ar', e.target.value)}
+        />
         <Input
           placeholder="عنوان العقار (إنجليزي، اختياري)"
           value={form.title_en}
@@ -200,7 +213,7 @@ export function PropertyForm({ mode, initialValues, accessToken, role, onSubmit,
         onChange={(e) => set('description_en', e.target.value)}
       />
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Select value={form.property_type} onChange={(e) => set('property_type', e.target.value)}>
           {PROPERTY_TYPES.map((type) => (
             <option key={type} value={type}>
@@ -217,7 +230,7 @@ export function PropertyForm({ mode, initialValues, accessToken, role, onSubmit,
         </Select>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Input
           type="number"
           placeholder="السعر (ريال)"
@@ -232,7 +245,7 @@ export function PropertyForm({ mode, initialValues, accessToken, role, onSubmit,
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Input
           type="number"
           placeholder="عدد الغرف (اختياري)"
@@ -247,7 +260,7 @@ export function PropertyForm({ mode, initialValues, accessToken, role, onSubmit,
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Select value={form.city_id} onChange={(e) => set('city_id', e.target.value)}>
           <option value="">اختر المدينة</option>
           {cities.map((city) => (
@@ -271,7 +284,7 @@ export function PropertyForm({ mode, initialValues, accessToken, role, onSubmit,
       </div>
 
       {/* PRODUCT_SPEC.md section 4.1 — optional hierarchy grouping; both independent nullable FKs (a unit can belong to a building without a project, or vice versa). */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Select value={form.project_id} onChange={(e) => set('project_id', e.target.value)}>
           <option value="">بلا مشروع (اختياري)</option>
           {projects.map((project) => (
@@ -302,7 +315,7 @@ export function PropertyForm({ mode, initialValues, accessToken, role, onSubmit,
       )}
 
       {mode === 'edit' && (
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Select value={form.status} onChange={(e) => set('status', e.target.value)}>
             {PROPERTY_STATUSES.map((status) => (
               <option key={status} value={status}>

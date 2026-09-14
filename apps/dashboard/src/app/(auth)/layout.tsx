@@ -5,7 +5,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
   return (
     <div className="flex min-h-screen">
       <AuthPanel />
-      <div className="flex flex-1 items-center justify-center p-6">
+      <div className="flex min-w-0 flex-1 items-center justify-center p-6">
         <div className="w-full max-w-[440px]">{children}</div>
       </div>
     </div>

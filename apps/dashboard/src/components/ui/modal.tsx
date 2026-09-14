@@ -20,22 +20,32 @@ export function Modal({ title, onClose, children, maxWidth = '720px' }: ModalPro
   }, [onClose]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      onClick={onClose}
+    >
       <div
-        className="max-h-[90vh] w-full overflow-auto rounded-card bg-surface-card p-8 shadow-[0_20px_60px_rgba(31,29,34,.25)]"
+        className="rounded-card bg-surface-card max-h-[90vh] w-full overflow-auto p-5 shadow-[0_20px_60px_rgba(31,29,34,.25)] sm:p-8"
         style={{ maxWidth }}
         onClick={(event) => event.stopPropagation()}
       >
         <div className="mb-5 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-text-primary">{title}</h2>
+          <h2 className="text-text-primary text-lg font-semibold">{title}</h2>
           <button
             type="button"
             onClick={onClose}
             aria-label="إغلاق"
             title="إغلاق"
-            className="flex h-8 w-8 flex-none items-center justify-center rounded-control text-text-secondary hover:bg-surface-subtle"
+            className="rounded-control text-text-secondary hover:bg-surface-subtle flex h-8 w-8 flex-none items-center justify-center"
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" className="h-[18px] w-[18px]">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.7"
+              strokeLinecap="round"
+              className="h-[18px] w-[18px]"
+            >
               <path d="M6 6l12 12M18 6L6 18" />
             </svg>
           </button>

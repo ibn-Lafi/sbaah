@@ -59,7 +59,9 @@ interface ProjectFormProps {
 }
 
 export function ProjectForm({ mode, initialValues, onSubmit, submitLabel }: ProjectFormProps) {
-  const [form, setForm] = useState<FormState>(initialValues ? toFormState(initialValues) : EMPTY_STATE);
+  const [form, setForm] = useState<FormState>(
+    initialValues ? toFormState(initialValues) : EMPTY_STATE,
+  );
   const [cities, setCities] = useState<City[]>([]);
   const [districts, setDistricts] = useState<District[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -114,8 +116,12 @@ export function ProjectForm({ mode, initialValues, onSubmit, submitLabel }: Proj
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <div className="grid grid-cols-2 gap-4">
-        <Input placeholder="اسم المشروع (عربي)" value={form.name_ar} onChange={(e) => set('name_ar', e.target.value)} />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Input
+          placeholder="اسم المشروع (عربي)"
+          value={form.name_ar}
+          onChange={(e) => set('name_ar', e.target.value)}
+        />
         <Input
           placeholder="اسم المشروع (إنجليزي، اختياري)"
           value={form.name_en}
@@ -134,7 +140,7 @@ export function ProjectForm({ mode, initialValues, onSubmit, submitLabel }: Proj
         onChange={(e) => set('description_en', e.target.value)}
       />
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Select value={form.city_id} onChange={(e) => set('city_id', e.target.value)}>
           <option value="">اختر المدينة</option>
           {cities.map((city) => (
@@ -143,7 +149,11 @@ export function ProjectForm({ mode, initialValues, onSubmit, submitLabel }: Proj
             </option>
           ))}
         </Select>
-        <Select value={form.district_id} onChange={(e) => set('district_id', e.target.value)} disabled={!form.city_id}>
+        <Select
+          value={form.district_id}
+          onChange={(e) => set('district_id', e.target.value)}
+          disabled={!form.city_id}
+        >
           <option value="">الحي (اختياري)</option>
           {districts.map((district) => (
             <option key={district.id} value={district.id}>

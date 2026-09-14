@@ -65,9 +65,18 @@ interface RentalFormProps {
   submitLabel: string;
 }
 
-export function RentalForm({ mode, initialValues, accessToken, defaultPropertyId, onSubmit, submitLabel }: RentalFormProps) {
+export function RentalForm({
+  mode,
+  initialValues,
+  accessToken,
+  defaultPropertyId,
+  onSubmit,
+  submitLabel,
+}: RentalFormProps) {
   const [form, setForm] = useState<FormState>(
-    initialValues ? toFormState(initialValues) : { ...EMPTY_STATE, property_id: defaultPropertyId ?? '' },
+    initialValues
+      ? toFormState(initialValues)
+      : { ...EMPTY_STATE, property_id: defaultPropertyId ?? '' },
   );
   const [properties, setProperties] = useState<Property[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -136,13 +145,17 @@ export function RentalForm({ mode, initialValues, accessToken, defaultPropertyId
         </Select>
       )}
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Input
           placeholder="اسم المستأجر"
           value={form.tenant_name}
           onChange={(e) => set('tenant_name', e.target.value)}
         />
-        <PhoneInput placeholder="5xxxxxxxx" value={form.tenant_phone} onChange={(value) => set('tenant_phone', value)} />
+        <PhoneInput
+          placeholder="5xxxxxxxx"
+          value={form.tenant_phone}
+          onChange={(value) => set('tenant_phone', value)}
+        />
       </div>
 
       <Input
@@ -152,9 +165,9 @@ export function RentalForm({ mode, initialValues, accessToken, defaultPropertyId
         onChange={(e) => set('rent_amount', e.target.value)}
       />
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1">
-          <label className="text-xs text-text-secondary">بداية العقد</label>
+          <label className="text-text-secondary text-xs">بداية العقد</label>
           <Input
             type="date"
             value={form.contract_start_date}
@@ -162,12 +175,20 @@ export function RentalForm({ mode, initialValues, accessToken, defaultPropertyId
           />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-xs text-text-secondary">نهاية العقد</label>
-          <Input type="date" value={form.contract_end_date} onChange={(e) => set('contract_end_date', e.target.value)} />
+          <label className="text-text-secondary text-xs">نهاية العقد</label>
+          <Input
+            type="date"
+            value={form.contract_end_date}
+            onChange={(e) => set('contract_end_date', e.target.value)}
+          />
         </div>
       </div>
 
-      <Textarea placeholder="ملاحظات (اختياري)" value={form.notes} onChange={(e) => set('notes', e.target.value)} />
+      <Textarea
+        placeholder="ملاحظات (اختياري)"
+        value={form.notes}
+        onChange={(e) => set('notes', e.target.value)}
+      />
 
       {mode === 'edit' && (
         <Select value={form.status} onChange={(e) => set('status', e.target.value)}>

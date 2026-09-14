@@ -66,7 +66,7 @@ export function CreateLeadForm({ accessToken, onCreated }: CreateLeadFormProps) 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <Input placeholder="الاسم" value={fullName} onChange={(e) => setFullName(e.target.value)} />
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <PhoneInput placeholder="5xxxxxxxx" value={phone} onChange={setPhone} />
         <Input
           type="email"

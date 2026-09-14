@@ -170,8 +170,8 @@ function CustomDomainCard({
           </button>
         </div>
       ) : (
-        <form onSubmit={handleSet} className="flex items-end gap-3">
-          <div className="flex flex-1 flex-col gap-2">
+        <form onSubmit={handleSet} className="flex flex-col gap-3 sm:flex-row sm:items-end">
+          <div className="flex min-w-0 flex-1 flex-col gap-2">
             <label className="text-text-primary text-sm font-medium">اسم الدومين</label>
             <Input
               placeholder="example.com"
@@ -180,7 +180,7 @@ function CustomDomainCard({
               dir="ltr"
             />
           </div>
-          <Button type="submit" disabled={loading} className="h-[50px]">
+          <Button type="submit" disabled={loading} className="h-[50px] sm:w-fit">
             {loading ? 'جارٍ الربط...' : 'ربط الدومين'}
           </Button>
         </form>

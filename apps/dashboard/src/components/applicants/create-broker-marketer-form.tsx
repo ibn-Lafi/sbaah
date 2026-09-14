@@ -11,7 +11,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { FormError } from '@/components/ui/form-error';
-import { createBrokerMarketerApplication, type BrokerMarketerApplicationWithRelations } from '@/lib/api/broker-applications';
+import {
+  createBrokerMarketerApplication,
+  type BrokerMarketerApplicationWithRelations,
+} from '@/lib/api/broker-applications';
 import { listCities } from '@/lib/api/reference-data';
 import { listProperties } from '@/lib/api/properties';
 import { ApiRequestError } from '@/lib/api/client';
@@ -22,7 +25,10 @@ interface CreateBrokerMarketerFormProps {
 }
 
 /** مطابق لبنية CreateLeadForm — طلب وسيط/مسوّق يدوي (بدلًا من النموذج العام بالموقع)، POST /v1/broker-applications (migration 0033). */
-export function CreateBrokerMarketerForm({ accessToken, onCreated }: CreateBrokerMarketerFormProps) {
+export function CreateBrokerMarketerForm({
+  accessToken,
+  onCreated,
+}: CreateBrokerMarketerFormProps) {
   const [cities, setCities] = useState<City[]>([]);
   const [properties, setProperties] = useState<Property[]>([]);
   const [fullName, setFullName] = useState('');
@@ -69,8 +75,12 @@ export function CreateBrokerMarketerForm({ accessToken, onCreated }: CreateBroke
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <Input placeholder="الاسم الكامل" value={fullName} onChange={(e) => setFullName(e.target.value)} />
-      <div className="grid grid-cols-2 gap-4">
+      <Input
+        placeholder="الاسم الكامل"
+        value={fullName}
+        onChange={(e) => setFullName(e.target.value)}
+      />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Select value={cityId} onChange={(e) => setCityId(e.target.value)}>
           <option value="">اختر المدينة</option>
           {cities.map((city) => (
@@ -86,7 +96,10 @@ export function CreateBrokerMarketerForm({ accessToken, onCreated }: CreateBroke
           dir="ltr"
         />
       </div>
-      <Select value={applicantType} onChange={(e) => setApplicantType(e.target.value as BrokerMarketerApplicantType)}>
+      <Select
+        value={applicantType}
+        onChange={(e) => setApplicantType(e.target.value as BrokerMarketerApplicantType)}
+      >
         <option value="broker">وسيط</option>
         <option value="marketer">مسوّق</option>
       </Select>
