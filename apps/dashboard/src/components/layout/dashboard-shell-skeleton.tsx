@@ -39,7 +39,7 @@ export function DashboardShellSkeleton() {
           <Skeleton className="h-9 w-9 flex-none rounded-full md:h-[42px] md:w-[42px]" />
         </div>
         <div className="bg-surface-page flex min-h-0 flex-1 flex-col rounded-t-[24px] md:rounded-none md:bg-transparent">
-          <div className="flex-1 overflow-auto p-4 pb-28 md:p-7">
+          <div className="flex-1 overflow-auto overscroll-contain p-4 pb-28 md:p-7">
             <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
               {[0, 1, 2, 3].map((i) => (
                 <Skeleton key={i} className="h-[110px] rounded-[18px]" />

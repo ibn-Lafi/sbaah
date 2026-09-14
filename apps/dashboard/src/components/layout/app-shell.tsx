@@ -57,7 +57,7 @@ export function AppShell({ title, orgName, accountType, roleLabel, children }: A
               {SUSPENDED_MESSAGE[status]}
             </div>
           )}
-          <div className="flex-1 overflow-auto p-4 pb-28 md:p-7">{children}</div>
+          <div className="flex-1 overflow-auto overscroll-contain p-4 pb-28 md:p-7">{children}</div>
         </div>
       </div>
       <MobileNav orgName={orgName} accountType={accountType} roleLabel={roleLabel} />

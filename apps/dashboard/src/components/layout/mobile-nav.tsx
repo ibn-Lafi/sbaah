@@ -163,7 +163,7 @@ export function MobileNav({ orgName, accountType, roleLabel }: MobileNavProps) {
         </div>
 
         <div
-          className="flex-1 overflow-auto p-3"
+          className="flex-1 overflow-auto overscroll-contain p-3"
           style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 12px)' }}
         >
           <div className="bg-surface-subtle flex items-center gap-[9px] rounded-[14px] px-3 py-3">

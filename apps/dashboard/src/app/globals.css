@@ -50,6 +50,20 @@
   --radius-card: 20px;
 }
 
+/**
+ * iOS Safari rubber-bands the whole document by default even when only an
+ * inner `overflow-auto` div is meant to scroll (AppShell's `h-dvh
+ * overflow-hidden` caps layout height, but doesn't stop the elastic bounce
+ * gesture itself) — a fast swipe could momentarily drag the fixed purple
+ * header out of view, exposing page content above it. `overscroll-behavior:
+ * none` here plus `overscroll-contain` on AppShell's own scroll container
+ * (app-shell.tsx) keeps the bounce fully contained inside that div.
+ */
+html,
+body {
+  overscroll-behavior: none;
+}
+
 body {
   margin: 0;
   background: var(--color-surface-page);

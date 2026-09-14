@@ -25,7 +25,7 @@ export function Modal({ title, onClose, children, maxWidth = '720px' }: ModalPro
       onClick={onClose}
     >
       <div
-        className="rounded-card bg-surface-card max-h-[90vh] w-full overflow-auto p-5 shadow-[0_20px_60px_rgba(31,29,34,.25)] sm:p-8"
+        className="rounded-card bg-surface-card max-h-[90vh] w-full overflow-auto overscroll-contain p-5 shadow-[0_20px_60px_rgba(31,29,34,.25)] sm:p-8"
         style={{ maxWidth }}
         onClick={(event) => event.stopPropagation()}
       >
