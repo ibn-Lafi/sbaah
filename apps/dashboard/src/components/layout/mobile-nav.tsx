@@ -61,40 +61,46 @@ export function MobileNav({ orgName, accountType, roleLabel }: MobileNavProps) {
 
   return (
     <div className="md:hidden">
-      <nav
-        className="border-border-subtle bg-surface-card fixed inset-x-4 z-40 flex items-center justify-between gap-1 rounded-full border p-1.5 shadow-[0_10px_30px_rgba(31,29,34,.16)]"
+      <div
+        className="fixed inset-x-4 z-40 flex items-center gap-3"
         style={{ bottom: 'calc(env(safe-area-inset-bottom) + 12px)' }}
       >
-        {pinnedItems.map(({ href, label, icon: ItemIcon }) => {
-          const active = pathname === href;
-          return (
-            <Link
-              key={href}
-              href={href}
-              className={`flex flex-1 flex-col items-center gap-0.5 rounded-full py-2 text-[11px] ${
-                active ? 'text-brand font-semibold' : 'text-text-tertiary font-normal'
-              }`}
-            >
-              <span
-                className={`flex h-8 w-8 items-center justify-center rounded-full ${active ? 'bg-brand-surface' : ''}`}
+        <nav className="border-border-subtle bg-surface-card flex h-14 flex-1 items-center justify-evenly gap-1 rounded-full border px-2 shadow-[0_10px_30px_rgba(31,29,34,.16)]">
+          {pinnedItems.map(({ href, label, icon: ItemIcon }) => {
+            const active = pathname === href;
+            return active ? (
+              <Link
+                key={href}
+                href={href}
+                className="bg-brand-surface text-brand flex h-10 flex-none items-center gap-2 rounded-full px-4 text-[13px] font-semibold"
               >
-                <ItemIcon className="h-[18px] w-[18px]" />
-              </span>
-              {label}
-            </Link>
-          );
-        })}
+                <ItemIcon className="h-[18px] w-[18px] flex-none" />
+                {label}
+              </Link>
+            ) : (
+              <Link
+                key={href}
+                href={href}
+                aria-label={label}
+                title={label}
+                className="text-text-tertiary flex h-10 w-10 flex-none items-center justify-center rounded-full"
+              >
+                <ItemIcon className="h-[19px] w-[19px]" />
+              </Link>
+            );
+          })}
+        </nav>
 
         <button
           type="button"
           onClick={() => setSheetOpen(true)}
           aria-label="بقية الصفحات"
           title="بقية الصفحات"
-          className="bg-brand flex h-11 w-11 flex-none items-center justify-center rounded-full text-white"
+          className="bg-brand flex h-14 w-14 flex-none items-center justify-center rounded-full text-white shadow-[0_10px_30px_rgba(104,69,138,.4)]"
         >
-          <MenuIcon className="h-5 w-5" />
+          <MenuIcon className="h-6 w-6" />
         </button>
-      </nav>
+      </div>
 
       {sheetOpen && (
         <div className="bg-surface-card fixed inset-0 z-50 flex flex-col">
