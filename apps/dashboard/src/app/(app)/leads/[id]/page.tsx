@@ -7,6 +7,7 @@ import { LEAD_STATUSES, type Property } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { DateTimePicker } from '@/components/ui/datetime-picker';
 import { DeleteButton } from '@/components/ui/delete-button';
 import { Input } from '@/components/ui/input';
 import { PersonAvatar } from '@/components/ui/person-avatar';
@@ -237,10 +238,9 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
 
                 <div className="flex flex-col gap-1">
                   <label className="text-xs text-text-secondary">تاريخ المتابعة القادمة</label>
-                  <Input
-                    type="datetime-local"
-                    defaultValue={isoToDatetimeLocal(lead.follow_up_at)}
-                    onBlur={(e) => void saveFollowUp(e.target.value)}
+                  <DateTimePicker
+                    value={isoToDatetimeLocal(lead.follow_up_at)}
+                    onChange={(value) => void saveFollowUp(value)}
                   />
                 </div>
 

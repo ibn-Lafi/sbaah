@@ -11,6 +11,7 @@ import {
   type RentalUpdateInput,
 } from '@sbaah/shared';
 import { Button } from '@/components/ui/button';
+import { DatePicker } from '@/components/ui/date-picker';
 import { Input } from '@/components/ui/input';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { Select } from '@/components/ui/select';
@@ -168,18 +169,16 @@ export function RentalForm({
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1">
           <label className="text-text-secondary text-xs">بداية العقد</label>
-          <Input
-            type="date"
+          <DatePicker
             value={form.contract_start_date}
-            onChange={(e) => set('contract_start_date', e.target.value)}
+            onChange={(value) => set('contract_start_date', value)}
           />
         </div>
         <div className="flex flex-col gap-1">
           <label className="text-text-secondary text-xs">نهاية العقد</label>
-          <Input
-            type="date"
+          <DatePicker
             value={form.contract_end_date}
-            onChange={(e) => set('contract_end_date', e.target.value)}
+            onChange={(value) => set('contract_end_date', value)}
           />
         </div>
       </div>
