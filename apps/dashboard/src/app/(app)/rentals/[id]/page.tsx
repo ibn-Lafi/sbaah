@@ -81,7 +81,7 @@ export default function EditRentalPage({ params }: { params: Promise<{ id: strin
           </Card>
 
           <DeleteButton
-            label="حذف عقد الإيجار"
+            label="حذف"
             confirmTitle="حذف عقد الإيجار"
             confirmMessage="سيتم حذف عقد الإيجار هذا نهائيًا، ولا يمكن التراجع عن هذا الإجراء."
             onConfirm={handleDelete}

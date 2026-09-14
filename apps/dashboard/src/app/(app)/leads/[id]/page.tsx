@@ -156,7 +156,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
             </Link>
             {canManage && (
               <DeleteButton
-                label="حذف العميل المحتمل"
+                label="حذف"
                 confirmTitle="حذف العميل المحتمل"
                 confirmMessage="سيتم حذف هذا العميل المحتمل وكل ملاحظاته نهائيًا، ولا يمكن التراجع عن هذا الإجراء."
                 onConfirm={handleDelete}

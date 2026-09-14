@@ -171,7 +171,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
 
           {canManage && (
             <DeleteButton
-              label="حذف العقار"
+              label="حذف"
               confirmTitle="حذف العقار"
               confirmMessage="سيتم حذف هذا العقار وكل بياناته المرتبطة (الصور، عقود الإيجار) نهائيًا، ولا يمكن التراجع عن هذا الإجراء."
               onConfirm={handleDelete}

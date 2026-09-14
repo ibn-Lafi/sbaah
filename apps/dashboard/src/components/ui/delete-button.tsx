@@ -17,9 +17,13 @@ interface DeleteButtonProps {
 }
 
 /**
- * زر حذف صغير (أيقونة + نص) بدل الزر الكبير القديم داخل بطاقة مستقلة —
- * يفتح نافذة منبثقة تأكيدية (بدل window.confirm) قبل تنفيذ الحذف.
- * مستخدَم في كل صفحات تفاصيل السجلات (عقار/عمارة/مشروع/إيجار/عميل محتمل).
+ * زر حذف معبّأ بلون الخطر (كبسولة حمراء بلا أيقونة) — يفتح نافذة منبثقة
+ * تأكيدية (بدل window.confirm) قبل تنفيذ الحذف. الشكل مطابق لنمط "Alert
+ * Dialog" التدميري الشائع (مثل c-alert-dialog-5 من REUI) لكن بألوان
+ * هويتنا (danger-surface/danger) بدل لون REUI الافتراضي، ونص عام "حذف"
+ * فقط بدل اسم الكيان — سياق الكيان يبقى داخل نافذة التأكيد نفسها
+ * (confirmTitle/confirmMessage). مستخدَم في كل صفحات تفاصيل السجلات
+ * (عقار/عمارة/مشروع/إيجار/عميل محتمل) وصفحة "الصفحات".
  */
 export function DeleteButton({ label, confirmTitle, confirmMessage, onConfirm, compact = false }: DeleteButtonProps) {
   const [open, setOpen] = useState(false);
@@ -42,16 +46,10 @@ export function DeleteButton({ label, confirmTitle, confirmMessage, onConfirm, c
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className={`inline-flex items-center gap-1.5 font-semibold text-danger hover:underline ${compact ? 'text-xs' : 'text-sm font-medium'}`}
+        className={`bg-danger-surface text-danger hover:bg-danger inline-flex w-fit flex-none items-center justify-center self-start rounded-full font-semibold transition-colors hover:text-white ${
+          compact ? 'px-3 py-1 text-xs' : 'px-4 py-2 text-sm'
+        }`}
       >
-        {!compact && (
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
-            <path d="M4 7h16" />
-            <path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
-            <path d="M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13" />
-            <path d="M10 11v6M14 11v6" />
-          </svg>
-        )}
         {label}
       </button>
 

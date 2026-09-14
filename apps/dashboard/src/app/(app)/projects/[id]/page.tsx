@@ -135,7 +135,7 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
 
           {canManage && (
             <DeleteButton
-              label="حذف المشروع"
+              label="حذف"
               confirmTitle="حذف المشروع"
               confirmMessage="سيتم حذف هذا المشروع نهائيًا، وستبقى العمارات المرتبطة به بلا مشروع محدد. لا يمكن التراجع عن هذا الإجراء."
               onConfirm={handleDelete}

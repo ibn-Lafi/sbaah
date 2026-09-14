@@ -84,7 +84,7 @@ export default function EditBuildingPage({ params }: { params: Promise<{ id: str
 
           {canManage && (
             <DeleteButton
-              label="حذف العمارة"
+              label="حذف"
               confirmTitle="حذف العمارة"
               confirmMessage="سيتم حذف هذه العمارة نهائيًا، وستبقى العقارات المرتبطة بها بلا عمارة محددة. لا يمكن التراجع عن هذا الإجراء."
               onConfirm={handleDelete}
