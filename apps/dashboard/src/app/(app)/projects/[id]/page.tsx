@@ -82,6 +82,7 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
             <ProjectForm
               mode="edit"
               initialValues={project}
+              accessToken={accessToken}
               submitLabel="حفظ التعديلات"
               onSubmit={async (input) => {
                 const { project: updated } = await updateProject(accessToken, id, input as ProjectUpdateInput);

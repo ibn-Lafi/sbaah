@@ -1,11 +1,13 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
-import type { City, CityInput } from '@sbaah/shared';
+import { useEffect, useState, type FormEvent } from 'react';
+import type { City, CityInput, Region } from '@sbaah/shared';
 import { cityInputSchema } from '@sbaah/shared';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
 import { FormError } from '@/components/ui/form-error';
+import { listRegions } from '@/lib/api/regions';
 
 interface CityFormProps {
   initial?: City;
@@ -14,6 +16,8 @@ interface CityFormProps {
 }
 
 export function CityForm({ initial, submitLabel, onSubmit }: CityFormProps) {
+  const [regions, setRegions] = useState<Region[]>([]);
+  const [regionId, setRegionId] = useState(initial?.region_id ?? '');
   const [nameAr, setNameAr] = useState(initial?.name_ar ?? '');
   const [nameEn, setNameEn] = useState(initial?.name_en ?? '');
   const [lat, setLat] = useState(initial?.lat === null || initial?.lat === undefined ? '' : String(initial.lat));
@@ -21,11 +25,16 @@ export function CityForm({ initial, submitLabel, onSubmit }: CityFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    void listRegions().then(setRegions);
+  }, []);
+
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     setError(null);
 
     const parsed = cityInputSchema.safeParse({
+      region_id: regionId,
       name_ar: nameAr,
       name_en: nameEn,
       lat: lat === '' ? null : Number(lat),
@@ -48,6 +57,17 @@ export function CityForm({ initial, submitLabel, onSubmit }: CityFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <label className="flex flex-col gap-1.5 text-sm">
+        المنطقة
+        <Select value={regionId} onChange={(e) => setRegionId(e.target.value)}>
+          <option value="">اختر المنطقة</option>
+          {regions.map((region) => (
+            <option key={region.id} value={region.id}>
+              {region.name_ar}
+            </option>
+          ))}
+        </Select>
+      </label>
       <label className="flex flex-col gap-1.5 text-sm">
         اسم المدينة (عربي)
         <Input value={nameAr} onChange={(e) => setNameAr(e.target.value)} />

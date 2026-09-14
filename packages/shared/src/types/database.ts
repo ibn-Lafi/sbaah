@@ -174,8 +174,16 @@ export interface WebsiteSection {
   config: Record<string, unknown>;
 }
 
+/** Fixed platform reference data (migration 0046) — the 13 official Saudi administrative regions, no console CRUD. */
+export interface Region {
+  id: string;
+  name_ar: string;
+  name_en: string;
+}
+
 export interface City {
   id: string;
+  region_id: string;
   name_ar: string;
   name_en: string;
   lat: number | null;

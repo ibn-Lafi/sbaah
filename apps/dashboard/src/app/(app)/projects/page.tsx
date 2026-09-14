@@ -48,6 +48,7 @@ export default function ProjectsPage() {
         <Modal title="إضافة مشروع" onClose={() => setShowCreate(false)}>
           <ProjectForm
             mode="create"
+            accessToken={accessToken}
             submitLabel="إضافة المشروع"
             onSubmit={async (input) => {
               const { project } = await createProject(accessToken, input as ProjectInput);

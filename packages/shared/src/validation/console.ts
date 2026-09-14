@@ -78,6 +78,7 @@ export const planUpdateSchema = planFieldsSchema.partial().refine(introPairMatch
 export type PlanUpdateInput = z.infer<typeof planUpdateSchema>;
 
 export const cityInputSchema = z.object({
+  region_id: z.string().uuid('المنطقة مطلوبة'),
   name_ar: z.string().min(2, 'اسم المدينة (عربي) مطلوب'),
   name_en: z.string().min(2, 'اسم المدينة (إنجليزي) مطلوب'),
   lat: z.number().optional().nullable(),

@@ -16,6 +16,12 @@ interface SearchableSelectProps {
   disabled?: boolean;
   /** Shows a "×" to reset to no selection — for optional fields (district/project/building/agent). */
   clearable?: boolean;
+  /**
+   * When set, typing a name with no matching option offers a
+   * "+ إضافة … " row that calls this to create it (e.g. a district a
+   * broker can't find yet — migration 0046) and selects the result.
+   */
+  onCreate?: (name: string) => Promise<SearchableSelectOption>;
 }
 
 /**
@@ -31,10 +37,12 @@ export function SearchableSelect({
   placeholder,
   disabled = false,
   clearable = false,
+  onCreate,
 }: SearchableSelectProps) {
   const [open, setOpen] = useState(false);
   const [openUpward, setOpenUpward] = useState(false);
   const [query, setQuery] = useState('');
+  const [creating, setCreating] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const selectedLabel = options.find((option) => option.value === value)?.label ?? '';
@@ -57,10 +65,26 @@ export function SearchableSelect({
     if (rect) setOpenUpward(window.innerHeight - rect.bottom < 260);
   }
 
-  const normalizedQuery = query.trim().toLowerCase();
+  const trimmedQuery = query.trim();
+  const normalizedQuery = trimmedQuery.toLowerCase();
   const filteredOptions = normalizedQuery
     ? options.filter((option) => option.label.toLowerCase().includes(normalizedQuery))
     : options;
+  const hasExactMatch = options.some((option) => option.label.toLowerCase() === normalizedQuery);
+  const canCreate = Boolean(onCreate) && trimmedQuery.length >= 2 && !hasExactMatch;
+
+  async function handleCreate() {
+    if (!onCreate || creating) return;
+    setCreating(true);
+    try {
+      const created = await onCreate(trimmedQuery);
+      onChange(created.value);
+      setOpen(false);
+      setQuery('');
+    } finally {
+      setCreating(false);
+    }
+  }
 
   return (
     <div ref={containerRef} className="relative">
@@ -102,7 +126,7 @@ export function SearchableSelect({
             openUpward ? 'bottom-full mb-1' : 'top-full mt-1'
           }`}
         >
-          {filteredOptions.length === 0 ? (
+          {filteredOptions.length === 0 && !canCreate ? (
             <p className="text-text-secondary px-4 py-3 text-sm">لا نتائج</p>
           ) : (
             filteredOptions.map((option) => (
@@ -121,6 +145,16 @@ export function SearchableSelect({
                 {option.label}
               </button>
             ))
+          )}
+          {canCreate && (
+            <button
+              type="button"
+              onClick={() => void handleCreate()}
+              disabled={creating}
+              className="text-brand hover:bg-surface-subtle border-border-subtle block w-full border-t px-4 py-2 text-right text-sm font-medium"
+            >
+              {creating ? 'جارٍ الإضافة...' : `+ إضافة "${trimmedQuery}"`}
+            </button>
           )}
         </div>
       )}

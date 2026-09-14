@@ -18,7 +18,7 @@ import { SearchableSelect } from '@/components/ui/searchable-select';
 import { Textarea } from '@/components/ui/textarea';
 import { FormError } from '@/components/ui/form-error';
 import { LocationPicker, type LocationPickerValue } from '@/components/ui/location-picker';
-import { listCities, listDistricts } from '@/lib/api/reference-data';
+import { createDistrict, listCities, listDistricts } from '@/lib/api/reference-data';
 import { PROPERTY_STATUS_LABELS } from '@/lib/property/labels';
 
 type FormState = {
@@ -59,11 +59,12 @@ function toFormState(project: Project): FormState {
 interface ProjectFormProps {
   mode: 'create' | 'edit';
   initialValues?: Project;
+  accessToken: string;
   onSubmit: (input: ProjectInput | ProjectUpdateInput) => Promise<void>;
   submitLabel: string;
 }
 
-export function ProjectForm({ mode, initialValues, onSubmit, submitLabel }: ProjectFormProps) {
+export function ProjectForm({ mode, initialValues, accessToken, onSubmit, submitLabel }: ProjectFormProps) {
   const [form, setForm] = useState<FormState>(
     initialValues ? toFormState(initialValues) : EMPTY_STATE,
   );
@@ -162,18 +163,24 @@ export function ProjectForm({ mode, initialValues, onSubmit, submitLabel }: Proj
           onChange={(value) => set('city_id', value)}
           placeholder="اختر المدينة"
         />
-        <Select
+        <SearchableSelect
+          options={districts.map((district) => ({ value: district.id, label: district.name_ar }))}
           value={form.district_id}
-          onChange={(e) => set('district_id', e.target.value)}
+          onChange={(value) => set('district_id', value)}
+          placeholder="الحي (اختياري)"
           disabled={!form.city_id}
-        >
-          <option value="">الحي (اختياري)</option>
-          {districts.map((district) => (
-            <option key={district.id} value={district.id}>
-              {district.name_ar}
-            </option>
-          ))}
-        </Select>
+          clearable
+          onCreate={async (name) => {
+            const district = await createDistrict(accessToken, {
+              city_id: form.city_id,
+              name_ar: name,
+              lat: form.location?.lat ?? null,
+              lng: form.location?.lng ?? null,
+            });
+            setDistricts((prev) => [...prev, district]);
+            return { value: district.id, label: district.name_ar };
+          }}
+        />
       </div>
 
       <LocationPicker

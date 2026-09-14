@@ -17,5 +17,6 @@ export * from './validation/console';
 export * from './validation/team';
 export * from './validation/billing';
 export * from './validation/broker-marketer';
+export * from './validation/district';
 export * from './supabase/client';
 export * from './supabase/bearer-token';
