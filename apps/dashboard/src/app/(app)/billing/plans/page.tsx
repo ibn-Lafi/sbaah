@@ -51,7 +51,7 @@ export default function ChangePlanPage() {
       roleLabel={ROLE_LABELS[me.user.role]}
     >
       <div className="mx-auto flex max-w-[820px] flex-col gap-6">
-        <BackButton href="/billing" label="رجوع للفوترة" className="self-end" />
+        <BackButton href="/billing" label="رجوع للفوترة" className="self-start" />
 
         <div className="text-center">
           <h1 className="text-2xl font-bold text-text-primary">اختر باقتك</h1>
