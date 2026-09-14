@@ -8,15 +8,6 @@ function Svg({ children, className }: { children: React.ReactNode; className?: s
   );
 }
 
-/** RTL "back" — points right (where "back" visually points in a right-to-left reading flow), not left. */
-export function BackArrowIcon({ className }: IconProps) {
-  return (
-    <Svg className={className}>
-      <path d="M9 6l6 6-6 6" />
-    </Svg>
-  );
-}
-
 /** الأقسام ↔ إعدادات الصفحة — منزلقات ضبط، تمييزًا عن أي ترس إعدادات عام آخر. */
 export function AdjustmentsIcon({ className }: IconProps) {
   return (

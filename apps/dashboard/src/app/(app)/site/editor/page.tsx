@@ -16,10 +16,10 @@ import { Switch } from '@/components/ui/switch';
 import { FormError } from '@/components/ui/form-error';
 import { EditorSkeleton } from '@/components/website/editor-skeleton';
 import { AssetUploader } from '@/components/website/asset-uploader';
+import { BackButton } from '@/components/ui/back-button';
 import { SectionList } from '@/components/website/section-list';
 import { SitePreview, type Device } from '@/components/website/site-preview';
 import {
-  BackArrowIcon,
   AdjustmentsIcon,
   CloseIcon,
   DesktopIcon,
@@ -194,14 +194,7 @@ export default function WebsiteEditorPage() {
       <div className="bg-surface-page hidden h-screen flex-col md:flex">
         {/* Toolbar */}
         <div className="border-border-subtle bg-surface-card flex h-14 flex-none items-center gap-2 border-b px-4">
-          <Link
-            href="/site"
-            aria-label="رجوع لمتجر الثيمات"
-            title="رجوع لمتجر الثيمات"
-            className="rounded-control text-text-secondary hover:bg-surface-subtle flex h-9 w-9 items-center justify-center"
-          >
-            <BackArrowIcon className="h-[18px] w-[18px]" />
-          </Link>
+          <BackButton href="/site" label="رجوع لمتجر الثيمات" />
         </div>
 
         {/* Panel + preview — panel first in DOM so it renders on the right under RTL, matching the reference tool. */}

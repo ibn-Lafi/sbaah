@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import type { BillingCycle, Plan } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
+import { BackButton } from '@/components/ui/back-button';
 import { LoadingState } from '@/components/ui/loading-state';
 import { PlanCycleToggle } from '@/components/billing/plan-cycle-toggle';
 import { PlanCard } from '@/components/billing/plan-card';
@@ -51,9 +51,7 @@ export default function ChangePlanPage() {
       roleLabel={ROLE_LABELS[me.user.role]}
     >
       <div className="mx-auto flex max-w-[820px] flex-col gap-6">
-        <Link href="/billing" className="self-end text-sm font-medium text-text-secondary hover:text-text-primary">
-          › رجوع للفوترة
-        </Link>
+        <BackButton href="/billing" label="رجوع للفوترة" className="self-end" />
 
         <div className="text-center">
           <h1 className="text-2xl font-bold text-text-primary">اختر باقتك</h1>
