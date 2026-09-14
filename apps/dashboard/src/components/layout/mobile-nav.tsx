@@ -64,7 +64,7 @@ export function MobileNav({ orgName, accountType, roleLabel }: MobileNavProps) {
   return (
     <div className="md:hidden">
       <div
-        className="fixed inset-x-4 z-40 flex items-center gap-3"
+        className="fixed inset-x-4 z-40 flex items-center justify-center gap-2"
         style={{ bottom: 'calc(env(safe-area-inset-bottom) + 12px)' }}
       >
         <button
@@ -77,20 +77,21 @@ export function MobileNav({ orgName, accountType, roleLabel }: MobileNavProps) {
           <MenuIcon className="h-5 w-5" />
         </button>
 
-        <nav className="border-border-subtle bg-surface-card flex h-12 flex-1 items-center justify-evenly gap-1 rounded-full border px-2 shadow-[0_10px_30px_rgba(31,29,34,.16)]">
+        <nav className="border-border-subtle bg-surface-card flex h-12 flex-none items-center gap-1 rounded-full border px-2 shadow-[0_10px_30px_rgba(31,29,34,.16)]">
           {pinnedItems.map(({ href, label, icon: ItemIcon }) => {
             const active = pathname === href;
             return (
               <Link
                 key={href}
                 href={href}
-                aria-label={label}
-                title={label}
-                className={`flex h-9 w-9 flex-none items-center justify-center rounded-full ${
-                  active ? 'bg-brand-surface text-brand' : 'text-text-tertiary'
+                className={`flex flex-none flex-col items-center justify-center gap-0.5 rounded-2xl px-2.5 py-1 text-[10px] leading-none ${
+                  active
+                    ? 'bg-brand-surface text-brand font-semibold'
+                    : 'text-text-tertiary font-normal'
                 }`}
               >
-                <ItemIcon className="h-[19px] w-[19px]" />
+                <ItemIcon className="h-[17px] w-[17px]" />
+                {label}
               </Link>
             );
           })}
