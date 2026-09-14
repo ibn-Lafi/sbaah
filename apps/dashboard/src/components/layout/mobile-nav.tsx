@@ -152,11 +152,15 @@ export function MobileNav({ orgName, accountType, roleLabel }: MobileNavProps) {
                       onClick={() =>
                         setOpenGroups((current) => ({ ...current, [item.group]: !isOpen }))
                       }
-                      className="text-text-placeholder flex h-9 flex-none items-center gap-2 px-[10px] text-[13px] font-medium"
+                      className={`flex h-11 flex-none items-center gap-2 rounded-[10px] px-[10px] text-[15px] ${
+                        isOpen
+                          ? 'text-text-primary font-semibold'
+                          : 'text-text-tertiary font-normal'
+                      }`}
                     >
-                      <GroupIcon className="h-[15px] w-[15px] flex-none" />
+                      <GroupIcon className="h-[17px] w-[17px] flex-none" />
                       <span className="min-w-0 flex-1 truncate text-start">{item.label}</span>
-                      <ChevronIcon open={isOpen} className="h-[12px] w-[12px] flex-none" />
+                      <ChevronIcon open={isOpen} className="h-[14px] w-[14px] flex-none" />
                     </button>
                     {isOpen && (
                       <div className="border-border-subtle me-[13px] flex flex-col gap-px border-e ps-[13px]">
