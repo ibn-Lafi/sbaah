@@ -41,7 +41,7 @@ export function AppShell({ title, orgName, accountType, roleLabel, children }: A
     <div className="flex min-h-screen">
       <Sidebar orgName={orgName} accountType={accountType} roleLabel={roleLabel} />
       <div className="flex min-w-0 flex-1 flex-col">
-        <Topbar title={title} siteUrl={siteUrl} />
+        <Topbar title={title} siteUrl={siteUrl} accountType={accountType} />
         {status !== 'active' && (
           <div className="border-b border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800 md:px-7">
             {SUSPENDED_MESSAGE[status]}

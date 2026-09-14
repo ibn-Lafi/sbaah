@@ -9,7 +9,6 @@ import { BrandMark } from '@/components/ui/brand-mark';
 import { NAV_ITEMS, isNavGroup, type NavEntry, type NavLeaf } from './nav-items';
 import { CloseIcon, MenuIcon } from './nav-icons';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
-import { signOut } from '@/lib/auth/session';
 
 interface MobileNavProps {
   orgName: string;
@@ -28,10 +27,10 @@ function isPinnedLeaf(item: NavEntry): item is NavLeaf {
  * Mobile-only bottom nav (md:hidden) — the sidebar (sidebar.tsx) is fixed-
  * width and desktop-only, so phones need their own chrome. Matches the
  * founder's Zid reference screenshots: a floating pill bar with the 3
- * most-used pages, plus a circular button that opens a full-screen sheet
- * listing every other page (and the account actions that live in the
- * desktop sidebar's bottom dropdown — settings/team/billing/sign-out —
- * since there's no sidebar here to hold them).
+ * most-used pages, plus a circular button that opens a partial-width sheet
+ * listing every other page. حسابي/إدارة الموظفين/الفوترة/تسجيل الخروج live
+ * in the topbar's own account popover on mobile instead (topbar.tsx) —
+ * not duplicated here.
  */
 export function MobileNav({ orgName, accountType, roleLabel }: MobileNavProps) {
   const pathname = usePathname();
@@ -54,11 +53,6 @@ export function MobileNav({ orgName, accountType, roleLabel }: MobileNavProps) {
   useEffect(() => {
     setSheetOpen(false);
   }, [pathname]);
-
-  function handleSignOut() {
-    setSheetOpen(false);
-    void signOut().then(() => router.replace('/login'));
-  }
 
   /** Closes the sheet first, then navigates once its slide-out transition has actually played — a plain <Link> would unmount everything instantly and the closing motion would never be seen. */
   function handleNavigate(event: MouseEvent, href: string) {
@@ -202,43 +196,6 @@ export function MobileNav({ orgName, accountType, roleLabel }: MobileNavProps) {
               );
             })}
           </nav>
-
-          <div className="border-border-subtle mt-3 flex flex-col gap-px border-t pt-3">
-            {(me.user.role === 'owner' || me.user.role === 'admin') && (
-              <Link
-                href="/settings"
-                onClick={(e) => handleNavigate(e, '/settings')}
-                className="text-text-tertiary flex h-11 flex-none items-center rounded-[10px] px-[10px] text-[15px] font-normal"
-              >
-                حسابي
-              </Link>
-            )}
-            {(me.user.role === 'owner' || me.user.role === 'admin') && (
-              <Link
-                href="/team"
-                onClick={(e) => handleNavigate(e, '/team')}
-                className="text-text-tertiary flex h-11 flex-none items-center rounded-[10px] px-[10px] text-[15px] font-normal"
-              >
-                إدارة الموظفين
-              </Link>
-            )}
-            {me.user.role === 'owner' && (
-              <Link
-                href="/billing"
-                onClick={(e) => handleNavigate(e, '/billing')}
-                className="text-text-tertiary flex h-11 flex-none items-center rounded-[10px] px-[10px] text-[15px] font-normal"
-              >
-                الفوترة والاشتراك
-              </Link>
-            )}
-            <button
-              type="button"
-              onClick={handleSignOut}
-              className="text-danger flex h-11 flex-none items-center rounded-[10px] px-[10px] text-start text-[15px] font-normal"
-            >
-              تسجيل الخروج
-            </button>
-          </div>
         </div>
       </div>
     </div>
