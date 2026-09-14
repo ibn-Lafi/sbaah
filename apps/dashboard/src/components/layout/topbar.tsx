@@ -37,7 +37,7 @@ export function Topbar({ title, siteUrl, accountType }: TopbarProps) {
   }
 
   return (
-    <div className="bg-brand md:border-border-subtle md:bg-surface-card flex h-16 flex-none items-center gap-2 rounded-b-[28px] px-4 shadow-[0_12px_24px_rgba(104,69,138,.22)] md:h-[72px] md:gap-4 md:rounded-none md:border-b md:px-7 md:shadow-none">
+    <div className="bg-brand md:border-border-subtle md:bg-surface-card flex h-16 flex-none items-center gap-2 px-4 md:h-[72px] md:gap-4 md:border-b md:px-7">
       <div className="flex-none md:hidden">
         <BrandMark width={64} height={17} invert />
       </div>

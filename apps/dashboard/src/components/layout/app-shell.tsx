@@ -42,12 +42,15 @@ export function AppShell({ title, orgName, accountType, roleLabel, children }: A
       <Sidebar orgName={orgName} accountType={accountType} roleLabel={roleLabel} />
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar title={title} siteUrl={siteUrl} accountType={accountType} />
-        {status !== 'active' && (
-          <div className="border-b border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800 md:px-7">
-            {SUSPENDED_MESSAGE[status]}
-          </div>
-        )}
-        <div className="flex-1 overflow-auto p-4 pb-28 md:p-7">{children}</div>
+        {/* Mobile: the page content is a rounded-top sheet rising into the purple header's straight bottom edge (founder's Zid reference) — the small curved notches this creates at the top corners are just the page's own background showing through the header's square corners. Desktop is untouched (no radius, transparent). */}
+        <div className="bg-surface-page flex min-h-0 flex-1 flex-col rounded-t-[24px] md:rounded-none md:bg-transparent">
+          {status !== 'active' && (
+            <div className="border-b border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800 md:px-7">
+              {SUSPENDED_MESSAGE[status]}
+            </div>
+          )}
+          <div className="flex-1 overflow-auto p-4 pb-28 md:p-7">{children}</div>
+        </div>
       </div>
       <MobileNav orgName={orgName} accountType={accountType} roleLabel={roleLabel} />
     </div>
