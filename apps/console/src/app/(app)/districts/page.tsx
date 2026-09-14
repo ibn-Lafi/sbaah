@@ -7,6 +7,7 @@ import { ConsoleShell } from '@/components/layout/console-shell';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
 import { FormError } from '@/components/ui/form-error';
 import { Modal } from '@/components/ui/modal';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
@@ -20,6 +21,7 @@ export default function DistrictsPage() {
   const { accessToken } = useCurrentAdmin();
   const [cities, setCities] = useState<City[]>([]);
   const [cityFilter, setCityFilter] = useState('');
+  const [search, setSearch] = useState('');
   const [districts, setDistricts] = useState<District[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
@@ -41,6 +43,11 @@ export default function DistrictsPage() {
 
   const cityNameById = Object.fromEntries(cities.map((c) => [c.id, c.name_ar]));
 
+  const query = search.trim().toLowerCase();
+  const visibleDistricts = districts === null ? null : query
+    ? districts.filter((d) => d.name_ar.includes(query) || d.name_en.toLowerCase().includes(query))
+    : districts;
+
   async function handleDelete(district: District) {
     if (!window.confirm(`حذف حي "${district.name_ar}"؟`)) return;
     setError(null);
@@ -54,15 +61,25 @@ export default function DistrictsPage() {
 
   return (
     <ConsoleShell title="الأحياء">
-      <div className="mb-4 flex items-center justify-between">
-        <Select value={cityFilter} onChange={(e) => setCityFilter(e.target.value)} className="w-[220px]" compact>
-          <option value="">كل المدن</option>
-          {cities.map((city) => (
-            <option key={city.id} value={city.id}>
-              {city.name_ar}
-            </option>
-          ))}
-        </Select>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <Input
+            type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="ابحث عن حي..."
+            className="w-[180px]"
+            compact
+          />
+          <Select value={cityFilter} onChange={(e) => setCityFilter(e.target.value)} className="w-[180px]" compact>
+            <option value="">كل المدن</option>
+            {cities.map((city) => (
+              <option key={city.id} value={city.id}>
+                {city.name_ar}
+              </option>
+            ))}
+          </Select>
+        </div>
         <Button onClick={() => setShowCreate(true)}>+ حي جديد</Button>
       </div>
 
@@ -90,10 +107,12 @@ export default function DistrictsPage() {
       <FormError message={error} />
 
       <Card className="mt-4 overflow-hidden">
-        {districts === null ? (
+        {visibleDistricts === null ? (
           <TableSkeleton columns={4} />
-        ) : districts.length === 0 ? (
-          <p className="p-6 text-center text-text-secondary">لا توجد أحياء بعد</p>
+        ) : visibleDistricts.length === 0 ? (
+          <p className="p-6 text-center text-text-secondary">
+            {query ? 'لا يوجد حي مطابق لبحثك' : 'لا توجد أحياء بعد'}
+          </p>
         ) : (
           <table className="w-full text-sm">
             <thead className="bg-surface-header text-right text-text-secondary">
@@ -105,7 +124,7 @@ export default function DistrictsPage() {
               </tr>
             </thead>
             <tbody>
-              {districts.map((district) => (
+              {visibleDistricts.map((district) => (
                 <tr key={district.id} className="border-t border-border-subtle">
                   <td className="px-5 py-3">
                     <Link href={`/districts/${district.id}`} className="font-medium hover:text-brand">

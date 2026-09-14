@@ -6,6 +6,7 @@ import type { City } from '@sbaah/shared';
 import { ConsoleShell } from '@/components/layout/console-shell';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { FormError } from '@/components/ui/form-error';
 import { Modal } from '@/components/ui/modal';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
@@ -17,12 +18,18 @@ import { ApiRequestError } from '@/lib/api/client';
 export default function CitiesPage() {
   const { accessToken } = useCurrentAdmin();
   const [cities, setCities] = useState<City[] | null>(null);
+  const [search, setSearch] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
 
   useEffect(() => {
     void listCities(accessToken).then((res) => setCities(res.cities));
   }, [accessToken]);
+
+  const query = search.trim().toLowerCase();
+  const visibleCities = cities === null ? null : query
+    ? cities.filter((c) => c.name_ar.includes(query) || c.name_en.toLowerCase().includes(query))
+    : cities;
 
   async function handleDelete(city: City) {
     if (!window.confirm(`حذف مدينة "${city.name_ar}"؟`)) return;
@@ -37,7 +44,15 @@ export default function CitiesPage() {
 
   return (
     <ConsoleShell title="المدن">
-      <div className="mb-4 flex justify-end">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <Input
+          type="search"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="ابحث عن مدينة..."
+          className="w-[220px]"
+          compact
+        />
         <Button onClick={() => setShowCreate(true)}>+ مدينة جديدة</Button>
       </div>
 
@@ -57,10 +72,12 @@ export default function CitiesPage() {
       <FormError message={error} />
 
       <Card className="mt-4 overflow-hidden">
-        {cities === null ? (
+        {visibleCities === null ? (
           <TableSkeleton columns={3} />
-        ) : cities.length === 0 ? (
-          <p className="p-6 text-center text-text-secondary">لا توجد مدن بعد</p>
+        ) : visibleCities.length === 0 ? (
+          <p className="p-6 text-center text-text-secondary">
+            {query ? 'لا توجد مدينة مطابقة لبحثك' : 'لا توجد مدن بعد'}
+          </p>
         ) : (
           <table className="w-full text-sm">
             <thead className="bg-surface-header text-right text-text-secondary">
@@ -71,7 +88,7 @@ export default function CitiesPage() {
               </tr>
             </thead>
             <tbody>
-              {cities.map((city) => (
+              {visibleCities.map((city) => (
                 <tr key={city.id} className="border-t border-border-subtle">
                   <td className="px-5 py-3">
                     <Link href={`/cities/${city.id}`} className="font-medium hover:text-brand">
