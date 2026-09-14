@@ -19,8 +19,6 @@ export const WEBSITE_PAGE_LABELS: Record<WebsitePageKey, string> = {
   properties: 'العقارات',
   property_detail: 'تفاصيل العقار',
   projects: 'المشاريع',
-  about: 'من نحن',
-  contact: 'تواصل معنا',
 };
 
 /** Public path for each page — used to build the device-preview iframe's URL. */
@@ -29,6 +27,4 @@ export const WEBSITE_PAGE_PATHS: Record<WebsitePageKey, string> = {
   properties: '/properties',
   property_detail: '/properties',
   projects: '/projects',
-  about: '/about',
-  contact: '/contact',
 };

@@ -25,7 +25,7 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     throw new Error('Website row missing for an existing tenant — check migration 0012');
   }
 
-  // Every tenant's website has exactly 6 fixed pages (migration 0024) —
+  // Every tenant's website has exactly 4 fixed pages (migration 0024, narrowed in 0038) —
   // returned in WEBSITE_PAGE_KEYS order (not insertion order) so محرر
   // الموقع's page tabs render in the same fixed order every time.
   const { data: pages, error: pagesError } = await supabase

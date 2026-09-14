@@ -6,8 +6,8 @@ import { BrokerMarketerForm } from '@/components/broker-marketer/broker-marketer
 /**
  * Renders one THEMED section (hero/about/why_us/contact/broker_marketer_form)
  * via the active theme's components — shared by every non-home page
- * (`/properties`, `/projects`, `/properties/[id]`, `/about`, `/contact`)
- * so the switch isn't duplicated 5 times. Deliberately does NOT handle
+ * (`/properties`, `/projects`, `/properties/[id]`) so the switch isn't
+ * duplicated 3 times. Deliberately does NOT handle
  * `property_grid`, `project_grid`, `property_detail`, or `footer` — those
  * are each page's own data-driven anchor (or, for footer, the layout's
  * fixed badge), not theme-branched content; see migration 0024's header

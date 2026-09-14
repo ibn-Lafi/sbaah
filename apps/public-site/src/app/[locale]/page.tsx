@@ -18,9 +18,10 @@ import { BrokerMarketerForm } from '@/components/broker-marketer/broker-marketer
  * call — the footer already carries the phone/WhatsApp/address block,
  * so a second one on the home page was redundant): a `contact` row may
  * still exist in this tenant's `website_sections` data (seeded before
- * this change, or still used on /about and /contact, which DO render
- * it via `renderThemedSection`), but the home page ignores it
- * unconditionally regardless of that row's `is_visible` toggle.
+ * this change), but the home page ignores it unconditionally regardless
+ * of that row's `is_visible` toggle. The /about and /contact pages that
+ * used to render `contact` sections were removed entirely (migration
+ * 0038) — nothing in the site links to them anymore.
  *
  * Which components render each `section.type` depends on the tenant's
  * theme (متجر الثيمات) — `getThemeComponents` resolves `site.website.theme_key`

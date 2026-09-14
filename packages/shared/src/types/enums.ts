@@ -77,11 +77,13 @@ export type BrokerMarketerApplicantType = (typeof BROKER_MARKETER_APPLICANT_TYPE
 
 /**
  * A website's fixed, non-user-creatable page set (متجر الثيمات follow-up:
- * multi-page sites). Each tenant gets exactly these 6 pages (migration
- * 0024) — there is deliberately no "add a page" flow, matching the same
+ * multi-page sites). Each tenant gets exactly these 4 pages (migration
+ * 0024, narrowed from 6 in migration 0038 — the classic theme's about/
+ * contact pages had no nav link pointing to them and were removed) —
+ * there is deliberately no "add a page" flow, matching the same
  * "curated, not a free canvas" philosophy as the section library itself.
  */
-export const WEBSITE_PAGE_KEYS = ['home', 'properties', 'property_detail', 'projects', 'about', 'contact'] as const;
+export const WEBSITE_PAGE_KEYS = ['home', 'properties', 'property_detail', 'projects'] as const;
 export type WebsitePageKey = (typeof WEBSITE_PAGE_KEYS)[number];
 
 /** Not part of PRODUCT_SPEC's original data model — see docs/OTP_FLOW.md. */

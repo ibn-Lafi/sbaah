@@ -6,7 +6,7 @@ import { resolvePublicTenantChrome } from '@/lib/tenant/resolve-public-tenant';
 
 const publicWebsiteQuerySchema = z.object({
   domain: z.string().min(1, 'الدومين مطلوب'),
-  /** Which of the tenant's 6 fixed pages (migration 0024) to return sections for — defaults to the homepage. */
+  /** Which of the tenant's 4 fixed pages (migration 0024, narrowed in 0038) to return sections for — defaults to the homepage. */
   page: z.enum(WEBSITE_PAGE_KEYS).default('home'),
 });
 

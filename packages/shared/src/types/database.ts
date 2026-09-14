@@ -156,7 +156,7 @@ export interface WebsiteCustomPage {
   updated_at: string;
 }
 
-/** One of a website's 6 fixed pages (migration 0024) — see WEBSITE_PAGE_KEYS. */
+/** One of a website's 4 fixed pages (migration 0024, narrowed in 0038) — see WEBSITE_PAGE_KEYS. */
 export interface WebsitePage {
   id: string;
   website_id: string;
@@ -166,7 +166,7 @@ export interface WebsitePage {
 export interface WebsiteSection {
   id: string;
   website_id: string;
-  /** Which of the website's 6 pages this section belongs to (migration 0024). */
+  /** Which of the website's 4 pages this section belongs to (migration 0024, narrowed in 0038). */
   page_id: string;
   type: WebsiteSectionType;
   order_index: number;
