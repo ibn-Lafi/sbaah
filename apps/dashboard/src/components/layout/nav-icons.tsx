@@ -50,6 +50,36 @@ export function PropertiesIcon({ className }: IconProps) {
   );
 }
 
+export function BuildingsIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <rect x="3.5" y="9" width="6.5" height="12" rx="1" />
+      <rect x="13.5" y="3" width="7" height="18" rx="1" />
+      <path d="M6 12.5h1.5M6 15.5h1.5M6 18.5h1.5M16 6.5h2M16 9.5h2M16 12.5h2M16 15.5h2" />
+    </Svg>
+  );
+}
+
+export function ProjectsIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M12 3l8 4.5-8 4.5-8-4.5 8-4.5z" />
+      <path d="M4 12l8 4.5 8-4.5" />
+      <path d="M4 16.5l8 4.5 8-4.5" />
+    </Svg>
+  );
+}
+
+export function RentalsIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <circle cx="7.5" cy="15.5" r="4" />
+      <path d="M10.5 12.5L19 4" />
+      <path d="M15.5 8l2.5 2.5M18 5.5l2.5 2.5" />
+    </Svg>
+  );
+}
+
 export function ApplicantsIcon({ className }: IconProps) {
   return (
     <Svg className={className}>

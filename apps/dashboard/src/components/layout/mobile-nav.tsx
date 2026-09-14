@@ -16,11 +16,46 @@ interface MobileNavProps {
   roleLabel: string;
 }
 
-/** The 3 items pinned on the bottom bar itself — the founder's explicit picks, matching NAV_ITEMS' own first 3 entries so both stay in sync automatically if their hrefs/labels ever change. */
-const PINNED_HREFS = ['/', '/leads', '/properties'];
+/**
+ * The 3 quick-access slots on the bottom bar itself — the founder's
+ * explicit picks. A plain string pins that leaf's href directly; 'properties'
+ * pins the "العقارات" group by its `group` key instead, using the group's
+ * own icon/label with its first child (الوحدات /properties) as the tap
+ * target, while lighting up for a visit to ANY of the group's pages
+ * (العمارات/المشاريع/الإيجارات included) — not just /properties itself.
+ */
+const PINNED_KEYS = ['/', '/leads', 'properties'];
 
-function isPinnedLeaf(item: NavEntry): item is NavLeaf {
-  return !isNavGroup(item) && PINNED_HREFS.includes(item.href);
+interface PinnedNavItem {
+  key: string;
+  href: string;
+  label: string;
+  icon: NavLeaf['icon'];
+  activeHrefs: string[];
+}
+
+function getPinnedItems(items: NavEntry[]): PinnedNavItem[] {
+  const result: PinnedNavItem[] = [];
+  for (const key of PINNED_KEYS) {
+    const match = items.find((item) =>
+      isNavGroup(item) ? item.group === key : item.href === key,
+    );
+    if (!match) continue;
+    if (isNavGroup(match)) {
+      const firstChild = match.children[0];
+      if (!firstChild) continue;
+      result.push({
+        key,
+        href: firstChild.href,
+        label: match.label,
+        icon: match.icon,
+        activeHrefs: match.children.map((child) => child.href),
+      });
+    } else {
+      result.push({ key, href: match.href, label: match.label, icon: match.icon, activeHrefs: [match.href] });
+    }
+  }
+  return result;
 }
 
 /**
@@ -39,7 +74,7 @@ export function MobileNav({ orgName, accountType, roleLabel }: MobileNavProps) {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
   const visibleItems = NAV_ITEMS.filter((item) => !item.roles || item.roles.includes(me.user.role));
-  const pinnedItems = visibleItems.filter(isPinnedLeaf);
+  const pinnedItems = getPinnedItems(visibleItems);
 
   useEffect(() => {
     if (!sheetOpen) return;
@@ -79,11 +114,11 @@ export function MobileNav({ orgName, accountType, roleLabel }: MobileNavProps) {
         </button>
 
         <nav className="border-border-subtle bg-surface-card flex h-12 flex-none items-center gap-1 rounded-full border px-2 shadow-[0_10px_30px_rgba(31,29,34,.16)]">
-          {pinnedItems.map(({ href, label, icon: ItemIcon }) => {
-            const active = pathname === href;
+          {pinnedItems.map(({ key, href, label, icon: ItemIcon, activeHrefs }) => {
+            const active = activeHrefs.includes(pathname);
             return (
               <Link
-                key={href}
+                key={key}
                 href={href}
                 className={`flex flex-none flex-col items-center justify-center gap-0.5 rounded-2xl px-2.5 py-1 text-[10px] leading-none ${
                   active

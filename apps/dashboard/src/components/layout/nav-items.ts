@@ -1,20 +1,18 @@
 /**
  * Sidebar main nav — matches the founder's Claude Design mockup
- * ("SBAAH App - Desktop.dc.html") exactly, including its expandable
- * group pattern (buildNav()'s `hasChevron`/`navOpen` — a parent row
- * toggles open/closed to reveal indented children instead of navigating
- * itself). "الموقع الالكتروني" is that one group in this app: تخصيص
- * الثيم (/site/editor), متجر الثيمات (/site), الدومين (/domain).
+ * ("SBAAH App - Desktop.dc.html"), including its expandable group pattern
+ * (buildNav()'s `hasChevron`/`navOpen` — a parent row toggles open/closed
+ * to reveal indented children instead of navigating itself). Two groups
+ * use that pattern: "العقارات" (الوحدات /properties، العمارات /buildings،
+ * المشاريع /projects، الإيجارات /rentals — each its own real page/route,
+ * not a query-param tab inside one page) and "الموقع الالكتروني" (تخصيص
+ * الثيم /site/editor، متجر الثيمات /site، الصفحات /site/pages، الدومين
+ * /domain).
  *
  * "الإعدادات"/"الفوترة والاشتراك"/"إدارة الموظفين" are NOT in this list —
  * the founder's later revision moves them into the account switcher
  * dropdown at the bottom of the sidebar instead (see sidebar.tsx), not
  * regular nav rows.
- *
- * "العقارات" here still points at /properties only — the mockup
- * consolidates properties/projects/buildings/rentals under this one nav
- * item with internal tabs (kindTabs), already built as /properties'
- * internal kind switcher.
  *
  * Each entry carries an `icon` component (nav-icons.tsx) — replaces the
  * old plain dot indicator per the founder's explicit request.
@@ -24,11 +22,14 @@ import type { UserRole } from '@sbaah/shared';
 import {
   ApplicantsIcon,
   AppsIcon,
+  BuildingsIcon,
   ClientsIcon,
   DashboardIcon,
   DomainIcon,
   PagesIcon,
+  ProjectsIcon,
   PropertiesIcon,
+  RentalsIcon,
   ThemeCustomizeIcon,
   ThemeStoreIcon,
   WebsiteIcon,
@@ -61,7 +62,17 @@ export function isNavGroup(entry: NavEntry): entry is NavGroup {
 export const NAV_ITEMS: NavEntry[] = [
   { href: '/', label: 'لوحة القيادة', icon: DashboardIcon },
   { href: '/leads', label: 'إدارة العملاء', icon: ClientsIcon },
-  { href: '/properties', label: 'العقارات', icon: PropertiesIcon },
+  {
+    group: 'properties',
+    label: 'العقارات',
+    icon: PropertiesIcon,
+    children: [
+      { href: '/properties', label: 'الوحدات', icon: PropertiesIcon },
+      { href: '/buildings', label: 'العمارات', icon: BuildingsIcon },
+      { href: '/projects', label: 'المشاريع', icon: ProjectsIcon },
+      { href: '/rentals', label: 'الإيجارات', icon: RentalsIcon },
+    ],
+  },
   { href: '/applicants', label: 'الوسطاء والمسوقين', icon: ApplicantsIcon, roles: ['owner', 'admin'] },
   {
     group: 'site',
