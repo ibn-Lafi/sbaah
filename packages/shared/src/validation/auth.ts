@@ -25,19 +25,23 @@ export const emailSchema = z.string().trim().toLowerCase().email('بريد إل�
 export const otpPurposeSchema = z.enum(OTP_PURPOSES);
 
 /**
- * `sms` (default, via Authentica) is the original and only channel for
- * every purpose including 'register'. `email` is newer, self-verified
- * (no Authentica involved — see migration 0042), and only valid for
- * 'login'/'reset_password': there is deliberately no email-based account
- * creation, phone stays the sole registration identifier.
+ * Which field identifies the account for a given request — `sms` means
+ * `phone`, `email` means `email`. Originally OTP-only (`sms` default, via
+ * Authentica, the original and only channel for every OTP purpose
+ * including 'register'; `email` is newer, self-verified — no Authentica
+ * involved, see migration 0042 — and only valid for 'login'/
+ * 'reset_password': there is deliberately no email-based account
+ * creation, phone stays the sole registration identifier), now reused by
+ * `loginWithPasswordSchema` below too since it's the same "which
+ * identifier did the caller send" concept either way.
  */
-export const otpChannelSchema = z.enum(['sms', 'email']);
-export type OtpChannel = z.infer<typeof otpChannelSchema>;
+export const authChannelSchema = z.enum(['sms', 'email']);
+export type AuthChannel = z.infer<typeof authChannelSchema>;
 
 /** `phone`/`channel` stay optional so every existing `{phone, purpose}` caller keeps working unchanged. */
 export const requestOtpSchema = z
   .object({
-    channel: otpChannelSchema.default('sms'),
+    channel: authChannelSchema.default('sms'),
     phone: saudiPhoneSchema.optional(),
     email: emailSchema.optional(),
     purpose: otpPurposeSchema,
@@ -49,7 +53,7 @@ export type RequestOtpInput = z.infer<typeof requestOtpSchema>;
 
 export const verifyOtpSchema = z
   .object({
-    channel: otpChannelSchema.default('sms'),
+    channel: authChannelSchema.default('sms'),
     phone: saudiPhoneSchema.optional(),
     email: emailSchema.optional(),
     code: otpCodeSchema,
@@ -70,10 +74,25 @@ export const updateMyEmailSchema = z.object({
 });
 export type UpdateMyEmailInput = z.infer<typeof updateMyEmailSchema>;
 
-export const loginWithPasswordSchema = z.object({
-  phone: saudiPhoneSchema,
-  password: passwordSchema,
-});
+/**
+ * Phone+password logs in directly against Supabase from the browser
+ * (docs/OTP_FLOW.md section 5b) — this schema is only actually sent to
+ * `api` for the email channel (POST /v1/auth/login), since Supabase Auth
+ * has no real notion of the user's own email (its `auth.users.email` is
+ * a synthetic, never-emailed address — see OTP_FLOW.md section 4), so
+ * resolving email → phone has to happen server-side before the real
+ * `signInWithPassword` call.
+ */
+export const loginWithPasswordSchema = z
+  .object({
+    channel: authChannelSchema.default('sms'),
+    phone: saudiPhoneSchema.optional(),
+    email: emailSchema.optional(),
+    password: passwordSchema,
+  })
+  .refine((v) => (v.channel === 'sms' ? !!v.phone : !!v.email), {
+    message: 'رقم الجوال أو البريد الإلكتروني مطلوب بحسب قناة الدخول',
+  });
 export type LoginWithPasswordInput = z.infer<typeof loginWithPasswordSchema>;
 
 /**

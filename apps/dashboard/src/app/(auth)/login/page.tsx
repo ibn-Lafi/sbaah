@@ -10,26 +10,37 @@ import { Input } from '@/components/ui/input';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { OtpInput } from '@/components/ui/otp-input';
 import { FormError } from '@/components/ui/form-error';
-import { sendOtp, sendOtpByEmail, verifyLoginOtp, type OtpIdentifier } from '@/lib/api/auth';
+import {
+  loginWithPasswordByEmail,
+  sendOtp,
+  sendOtpByEmail,
+  verifyLoginOtp,
+  type OtpIdentifier,
+} from '@/lib/api/auth';
 import { ApiRequestError } from '@/lib/api/client';
 import { adoptSession } from '@/lib/auth/session';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import { useResendCooldown } from '@/lib/auth/use-resend-cooldown';
 
 type LoginMode = 'password' | 'otp';
-type OtpChannel = 'sms' | 'email';
+type Channel = 'sms' | 'email';
 
 /**
- * Two independent paths, per docs/OTP_FLOW.md sections 5b/5c: password
- * login never touches `api` (straight to Supabase Auth), OTP login goes
- * through `api`'s otp/send + otp/verify and adopts the session it mints.
- * OTP login has two channels (docs/OTP_FLOW.md section 10): sms (the
- * original flow, unchanged) or email — both mint the same kind of session.
+ * `channel` (جوال/بريد) is one shared toggle for the whole page, applying
+ * to whichever mode (password/OTP) is active — matches the identifier
+ * choice, not the login method. Two independent methods either way, per
+ * docs/OTP_FLOW.md sections 5b/5c/10: phone+password logs in directly
+ * against Supabase from the browser; email+password goes through `api`
+ * (POST /v1/auth/login) since Supabase Auth has no real notion of the
+ * user's own email (its `auth.users.email` is a synthetic, never-emailed
+ * address — OTP_FLOW.md section 4) and the email → phone lookup has to
+ * happen server-side. OTP login (either channel) goes through `api`'s
+ * otp/send + otp/verify and adopts the session it mints.
  */
 export default function LoginPage() {
   const router = useRouter();
   const [mode, setMode] = useState<LoginMode>('password');
-  const [otpChannel, setOtpChannel] = useState<OtpChannel>('sms');
+  const [channel, setChannel] = useState<Channel>('sms');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -39,44 +50,69 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const resend = useResendCooldown();
 
+  async function handlePasswordLoginByPhone() {
+    const { error: signInError } = await getSupabaseBrowserClient().auth.signInWithPassword({ phone, password });
+    if (signInError) {
+      // "Invalid login credentials" (genuinely wrong phone/password) gets
+      // the friendly Arabic message; anything else (e.g. Supabase's
+      // phone auth provider not enabled on the project, a distinct error)
+      // is shown as-is — collapsing every failure into "wrong password"
+      // makes a real config problem indistinguishable from a typo.
+      setError(
+        signInError.message === 'Invalid login credentials'
+          ? 'رقم الجوال أو كلمة المرور غير صحيحة'
+          : `تعذّر تسجيل الدخول: ${signInError.message}`,
+      );
+      return;
+    }
+    router.push('/');
+  }
+
+  async function handlePasswordLoginByEmail() {
+    try {
+      const { access_token, refresh_token } = await loginWithPasswordByEmail(email, password);
+      await adoptSession(access_token, refresh_token);
+      router.push('/');
+    } catch (err) {
+      setError(err instanceof ApiRequestError ? err.message : 'تعذّر تسجيل الدخول');
+    }
+  }
+
   async function handlePasswordLogin(event: FormEvent) {
     event.preventDefault();
     setError(null);
 
-    const phoneCheck = saudiPhoneSchema.safeParse(phone);
-    if (!phoneCheck.success) {
-      setError(phoneCheck.error.issues[0]?.message ?? 'رقم جوال غير صحيح');
-      return;
-    }
     const passwordCheck = passwordSchema.safeParse(password);
     if (!passwordCheck.success) {
       setError(passwordCheck.error.issues[0]?.message ?? 'كلمة مرور غير صحيحة');
       return;
     }
 
-    setLoading(true);
-    try {
-      const { error: signInError } = await getSupabaseBrowserClient().auth.signInWithPassword({
-        phone,
-        password,
-      });
-      if (signInError) {
-        // "Invalid login credentials" (genuinely wrong phone/password) gets
-        // the friendly Arabic message; anything else (e.g. Supabase's
-        // phone auth provider not enabled on the project, a distinct error)
-        // is shown as-is — collapsing every failure into "wrong password"
-        // makes a real config problem indistinguishable from a typo.
-        setError(
-          signInError.message === 'Invalid login credentials'
-            ? 'رقم الجوال أو كلمة المرور غير صحيحة'
-            : `تعذّر تسجيل الدخول: ${signInError.message}`,
-        );
+    if (channel === 'sms') {
+      const phoneCheck = saudiPhoneSchema.safeParse(phone);
+      if (!phoneCheck.success) {
+        setError(phoneCheck.error.issues[0]?.message ?? 'رقم جوال غير صحيح');
         return;
       }
-      router.push('/');
+    } else {
+      const emailCheck = emailSchema.safeParse(email);
+      if (!emailCheck.success) {
+        setError(emailCheck.error.issues[0]?.message ?? 'بريد إلكتروني غير صحيح');
+        return;
+      }
+    }
+
+    setLoading(true);
+    try {
+      if (channel === 'sms') {
+        await handlePasswordLoginByPhone();
+      } else {
+        await handlePasswordLoginByEmail();
+      }
     } catch {
-      // Network-level failure reaching Supabase directly (not an
-      // auth rejection, which signInError above already covers).
+      // Network-level failure reaching Supabase directly (phone channel
+      // only — the email channel's ApiRequestError is already handled
+      // inside handlePasswordLoginByEmail above).
       setError('تعذّر الاتصال بالخادم، تحقق من اتصالك بالإنترنت');
     } finally {
       setLoading(false);
@@ -84,7 +120,7 @@ export default function LoginPage() {
   }
 
   function currentIdentifier(): OtpIdentifier | null {
-    if (otpChannel === 'sms') {
+    if (channel === 'sms') {
       const check = saudiPhoneSchema.safeParse(phone);
       if (!check.success) {
         setError(check.error.issues[0]?.message ?? 'رقم جوال غير صحيح');
@@ -135,7 +171,7 @@ export default function LoginPage() {
       setError(codeCheck.error.issues[0]?.message ?? 'رمز غير صحيح');
       return;
     }
-    const identifier = otpChannel === 'sms' ? { phone } : { email };
+    const identifier = channel === 'sms' ? { phone } : { email };
 
     setLoading(true);
     try {
@@ -156,8 +192,8 @@ export default function LoginPage() {
     setCode('');
   }
 
-  function switchOtpChannel(next: OtpChannel) {
-    setOtpChannel(next);
+  function switchChannel(next: Channel) {
+    setChannel(next);
     setError(null);
     setOtpSent(false);
     setCode('');
@@ -166,9 +202,9 @@ export default function LoginPage() {
   return (
     <Card className="p-8">
       <h1 className="mb-1 text-2xl font-bold text-text-primary">تسجيل الدخول</h1>
-      <p className="mb-6 text-sm text-text-secondary">أدخل رقم جوالك للمتابعة إلى لوحة التحكم</p>
+      <p className="mb-6 text-sm text-text-secondary">سجّل الدخول للمتابعة إلى لوحة التحكم</p>
 
-      <div className="mb-6 flex gap-2 rounded-control bg-surface-subtle p-1">
+      <div className="mb-4 flex gap-2 rounded-control bg-surface-subtle p-1">
         <button
           type="button"
           onClick={() => switchMode('password')}
@@ -189,9 +225,38 @@ export default function LoginPage() {
         </button>
       </div>
 
+      {!(mode === 'otp' && otpSent) && (
+        <div className="mb-6 flex gap-4 text-sm">
+          <button
+            type="button"
+            onClick={() => switchChannel('sms')}
+            className={`font-semibold ${channel === 'sms' ? 'text-brand' : 'text-text-secondary'}`}
+          >
+            عبر الجوال
+          </button>
+          <button
+            type="button"
+            onClick={() => switchChannel('email')}
+            className={`font-semibold ${channel === 'email' ? 'text-brand' : 'text-text-secondary'}`}
+          >
+            عبر البريد الإلكتروني
+          </button>
+        </div>
+      )}
+
       {mode === 'password' && (
         <form onSubmit={handlePasswordLogin} className="flex flex-col gap-4">
-          <PhoneInput placeholder="5xxxxxxxx" value={phone} onChange={setPhone} />
+          {channel === 'sms' ? (
+            <PhoneInput placeholder="5xxxxxxxx" value={phone} onChange={setPhone} />
+          ) : (
+            <Input
+              type="email"
+              placeholder="name@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              dir="ltr"
+            />
+          )}
           <Input
             type="password"
             placeholder="كلمة المرور"
@@ -209,47 +274,29 @@ export default function LoginPage() {
       )}
 
       {mode === 'otp' && !otpSent && (
-        <div className="flex flex-col gap-4">
-          <div className="flex gap-4 text-sm">
-            <button
-              type="button"
-              onClick={() => switchOtpChannel('sms')}
-              className={`font-semibold ${otpChannel === 'sms' ? 'text-brand' : 'text-text-secondary'}`}
-            >
-              عبر الجوال
-            </button>
-            <button
-              type="button"
-              onClick={() => switchOtpChannel('email')}
-              className={`font-semibold ${otpChannel === 'email' ? 'text-brand' : 'text-text-secondary'}`}
-            >
-              عبر البريد الإلكتروني
-            </button>
-          </div>
-          <form onSubmit={handleSendOtp} className="flex flex-col gap-4">
-            {otpChannel === 'sms' ? (
-              <PhoneInput placeholder="5xxxxxxxx" value={phone} onChange={setPhone} />
-            ) : (
-              <Input
-                type="email"
-                placeholder="name@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                dir="ltr"
-              />
-            )}
-            <FormError message={error} />
-            <Button type="submit" loading={loading}>
-              {loading ? 'جارٍ الإرسال...' : 'إرسال رمز التحقق'}
-            </Button>
-          </form>
-        </div>
+        <form onSubmit={handleSendOtp} className="flex flex-col gap-4">
+          {channel === 'sms' ? (
+            <PhoneInput placeholder="5xxxxxxxx" value={phone} onChange={setPhone} />
+          ) : (
+            <Input
+              type="email"
+              placeholder="name@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              dir="ltr"
+            />
+          )}
+          <FormError message={error} />
+          <Button type="submit" loading={loading}>
+            {loading ? 'جارٍ الإرسال...' : 'إرسال رمز التحقق'}
+          </Button>
+        </form>
       )}
 
       {mode === 'otp' && otpSent && (
         <form onSubmit={handleVerifyOtp} className="flex flex-col gap-4">
           <p className="text-sm text-text-secondary">
-            أدخل الرمز المرسل إلى {otpChannel === 'sms' ? phone : email}
+            أدخل الرمز المرسل إلى {channel === 'sms' ? phone : email}
           </p>
           <OtpInput value={code} onChange={setCode} disabled={loading} />
           <FormError message={error} />

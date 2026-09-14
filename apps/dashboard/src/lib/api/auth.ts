@@ -48,6 +48,11 @@ export function verifyLoginOtp(identifier: OtpIdentifier, code: string) {
   return apiPost<LoginOtpVerified>('/auth/otp/verify', { ...otpChannelFields(identifier), code, purpose: 'login' });
 }
 
+/** Phone+password logs in directly against Supabase instead (see login/page.tsx) — this is the email-only counterpart, mediated by `api` since Supabase Auth has no real notion of the user's own email. */
+export function loginWithPasswordByEmail(email: string, password: string) {
+  return apiPost<LoginOtpVerified>('/auth/login', { channel: 'email', email, password });
+}
+
 export interface RegisterResponse {
   access_token: string;
   refresh_token: string;
