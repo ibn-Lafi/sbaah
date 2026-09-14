@@ -62,7 +62,7 @@ export default function RentalsPage() {
         <Select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as RentalStatus | '')}
-          className="w-[200px]"
+          className="w-[140px]"
           style={{ height: '46px' }}
         >
           <option value="">كل الحالات</option>

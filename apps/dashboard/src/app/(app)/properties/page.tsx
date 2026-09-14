@@ -57,7 +57,7 @@ export default function PropertiesPage() {
         <Select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as PropertyStatus | '')}
-          className="w-[200px]"
+          className="w-[140px]"
           style={{ height: '46px' }}
         >
           <option value="">كل الحالات</option>
