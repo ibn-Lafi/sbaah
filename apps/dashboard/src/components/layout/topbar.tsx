@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { AccountType } from '@sbaah/shared';
 import { AccountAvatar } from '@/components/ui/account-avatar';
+import { BrandMark } from '@/components/ui/brand-mark';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { signOut } from '@/lib/auth/session';
 
@@ -15,13 +16,15 @@ interface TopbarProps {
 }
 
 /**
- * Matches the mockup's topbar exactly on desktop; below md the search pill
- * hides (bottom nav's page list covers navigation there) and spacing/sizes
- * shrink so the title + action buttons always fit a phone screen without
- * wrapping. Mobile also gets its own account icon (next to "زيارة الموقع")
- * opening a small anchored popover for حسابي/إدارة الموظفين/الفوترة —
- * these normally live in the desktop sidebar's bottom account-switcher
- * dropdown, which doesn't exist on phones (sidebar.tsx is `hidden md:flex`).
+ * Matches the mockup's topbar exactly on desktop. Below md it becomes the
+ * founder's own reference (Zid's purple, curved-bottom mobile header): brand
+ * color, rounded bottom corners, and the سبعة logo (sidebar.tsx carries the
+ * same mark on desktop, so it's mobile-only here) — search pill hides there
+ * too (bottom nav's page list covers navigation instead). Mobile also gets
+ * its own account icon (next to "زيارة الموقع") opening a small anchored
+ * popover for حسابي/إدارة الموظفين/الفوترة — these normally live in the
+ * desktop sidebar's bottom account-switcher dropdown, which doesn't exist on
+ * phones (sidebar.tsx is `hidden md:flex`).
  */
 export function Topbar({ title, siteUrl, accountType }: TopbarProps) {
   const router = useRouter();
@@ -34,8 +37,11 @@ export function Topbar({ title, siteUrl, accountType }: TopbarProps) {
   }
 
   return (
-    <div className="border-border-subtle bg-surface-card flex h-14 flex-none items-center gap-2 border-b px-4 md:h-[72px] md:gap-4 md:px-7">
-      <div className="text-text-primary min-w-0 flex-1 truncate text-[16px] font-semibold md:flex-none md:text-[19px]">
+    <div className="bg-brand md:border-border-subtle md:bg-surface-card flex h-16 flex-none items-center gap-2 rounded-b-[28px] px-4 shadow-[0_12px_24px_rgba(104,69,138,.22)] md:h-[72px] md:gap-4 md:rounded-none md:border-b md:px-7 md:shadow-none">
+      <div className="flex-none md:hidden">
+        <BrandMark width={64} height={17} invert />
+      </div>
+      <div className="md:text-text-primary min-w-0 flex-1 truncate text-[15px] font-semibold text-white md:flex-none md:text-[19px]">
         {title}
       </div>
       <div className="hidden flex-1 md:block" />
@@ -53,12 +59,12 @@ export function Topbar({ title, siteUrl, accountType }: TopbarProps) {
         rel="noreferrer"
         aria-label="زيارة الموقع"
         title="زيارة الموقع"
-        className="bg-surface-subtle flex h-9 w-9 flex-none items-center justify-center rounded-full md:h-[42px] md:w-[42px]"
+        className="md:bg-surface-subtle flex h-9 w-9 flex-none items-center justify-center rounded-full bg-white/15 text-white md:h-[42px] md:w-[42px] md:text-[#1F1D22]"
       >
         <svg
           viewBox="0 0 24 24"
           fill="none"
-          stroke="#1F1D22"
+          stroke="currentColor"
           strokeWidth="1.7"
           className="h-[17px] w-[17px] md:h-[19px] md:w-[19px]"
         >
