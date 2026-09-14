@@ -50,8 +50,8 @@ export function AppShell({ title, orgName, accountType, roleLabel, children }: A
       <Sidebar orgName={orgName} accountType={accountType} roleLabel={roleLabel} />
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         <Topbar title={title} siteUrl={siteUrl} accountType={accountType} />
-        {/* Mobile: the page content is a plain square-cornered sheet that tucks UP behind the purple header by -mt-5 — the header itself (topbar.tsx: relative z-10 rounded-b-[28px]) is what's in front and curved, so its rounded bottom corners dip down over this card's top, exactly like the reference platform (page behind the header, not the other way around). Desktop is untouched (no overlap, transparent). */}
-        <div className="bg-surface-page -mt-5 flex min-h-0 flex-1 flex-col md:mt-0 md:bg-transparent">
+        {/* Mobile: the page content is a rounded-top sheet that overlaps UP into the purple header by -mt-5 (founder's Zid reference, red-circled) — the header stays a plain square rectangle behind it; the curve itself, and the small light notches it cuts into the header's own bottom corners, come entirely from this card's corner radius sitting on top. Desktop is untouched (no radius, no overlap, transparent). */}
+        <div className="bg-surface-page relative z-10 -mt-5 flex min-h-0 flex-1 flex-col rounded-t-[28px] md:mt-0 md:rounded-none md:bg-transparent">
           {status !== 'active' && (
             <div className="border-b border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800 md:px-7">
               {SUSPENDED_MESSAGE[status]}

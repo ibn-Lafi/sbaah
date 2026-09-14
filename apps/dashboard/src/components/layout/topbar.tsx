@@ -37,8 +37,8 @@ export function Topbar({ title, siteUrl, accountType }: TopbarProps) {
   }
 
   return (
-    <div className="bg-brand md:border-border-subtle md:bg-surface-card relative z-10 flex h-20 flex-none items-center gap-2 rounded-b-[28px] px-4 pb-5 md:h-[72px] md:gap-4 md:rounded-none md:border-b md:px-7 md:pb-0">
-      {/* Header sits IN FRONT of the page (rounded-b-[28px] + z-10, matching the reference platform exactly — not the other way around): its own curved bottom corners dip down over the content card's square top, which tucks up behind it via -mt-5 (app-shell.tsx). pb-5 keeps the logo/title/icons clear of that curve. */}
+    <div className="bg-brand md:border-border-subtle md:bg-surface-card flex h-20 flex-none items-center gap-2 px-4 pb-5 md:h-[72px] md:gap-4 md:border-b md:px-7 md:pb-0">
+      {/* pb-5 keeps the logo/title/icons clear of the content card's -mt-5 overlap (app-shell.tsx) — otherwise their bottom edges would sit under it. */}
       <div className="flex-none md:hidden">
         <BrandMark width={64} height={17} invert />
       </div>

@@ -32,13 +32,13 @@ export function DashboardShellSkeleton() {
       </div>
 
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-        <div className="bg-brand md:bg-surface-card relative z-10 flex h-16 flex-none items-center gap-2 rounded-b-[28px] px-4 md:h-[72px] md:gap-4 md:rounded-none md:px-7">
+        <div className="bg-brand md:bg-surface-card flex h-16 flex-none items-center gap-2 px-4 md:h-[72px] md:gap-4 md:px-7">
           <Skeleton className="h-5 w-28 md:w-32" />
           <div className="flex-1" />
           <Skeleton className="hidden h-[42px] w-[280px] rounded-full md:block" />
           <Skeleton className="h-9 w-9 flex-none rounded-full md:h-[42px] md:w-[42px]" />
         </div>
-        <div className="bg-surface-page -mt-5 flex min-h-0 flex-1 flex-col md:mt-0 md:bg-transparent">
+        <div className="bg-surface-page flex min-h-0 flex-1 flex-col rounded-t-[24px] md:rounded-none md:bg-transparent">
           <div className="flex-1 overflow-auto overscroll-contain p-4 pb-28 md:p-7">
             <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
               {[0, 1, 2, 3].map((i) => (
