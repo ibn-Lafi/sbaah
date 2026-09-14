@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import {
   projectInputSchema,
   projectUpdateSchema,
@@ -82,6 +82,14 @@ export function ProjectForm({ mode, initialValues, onSubmit, submitLabel }: Proj
     }
     void listDistricts(form.city_id).then(setDistricts);
   }, [form.city_id]);
+
+  const mapFocusPoint = useMemo<LocationPickerValue | null>(() => {
+    const district = districts.find((d) => d.id === form.district_id);
+    if (district?.lat != null && district?.lng != null) return { lat: district.lat, lng: district.lng };
+    const city = cities.find((c) => c.id === form.city_id);
+    if (city?.lat != null && city?.lng != null) return { lat: city.lat, lng: city.lng };
+    return null;
+  }, [form.city_id, form.district_id, cities, districts]);
 
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((current) => ({ ...current, [key]: value }));
@@ -169,7 +177,11 @@ export function ProjectForm({ mode, initialValues, onSubmit, submitLabel }: Proj
         </Select>
       </div>
 
-      <LocationPicker value={form.location} onChange={(location) => set('location', location)} />
+      <LocationPicker
+        value={form.location}
+        onChange={(location) => set('location', location)}
+        focusPoint={mapFocusPoint}
+      />
 
       {mode === 'edit' && (
         <Select value={form.status} onChange={(e) => set('status', e.target.value)}>

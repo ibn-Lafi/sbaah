@@ -12,6 +12,8 @@ export interface LocationPickerValue {
 interface LocationPickerProps {
   value: LocationPickerValue | null;
   onChange: (value: LocationPickerValue | null) => void;
+  /** Pans the map here when it changes (e.g. the form's city/district Select) — a navigation aid, does not itself set `value`. */
+  focusPoint?: LocationPickerValue | null;
 }
 
 /** Riyadh — the map opens centered here until a location is picked or an existing one is loaded. */
@@ -24,8 +26,26 @@ const DEFAULT_CENTER: [number, number] = [46.6753, 24.7136];
  */
 const MAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
 
+/**
+ * Without this, maplibre-gl draws Arabic place labels with each glyph in
+ * the correct position but the letters themselves unshaped/unconnected
+ * (reads as mirrored/broken Arabic) — this is maplibre's own documented
+ * fix (see the `setRTLTextPlugin` doc comment in its .d.ts), not
+ * something specific to this map style. Guarded because calling it twice
+ * throws, and both `LocationPicker` and the public-site map mount it.
+ */
+let rtlPluginRequested = false;
+function ensureRtlTextPlugin() {
+  if (rtlPluginRequested) return;
+  rtlPluginRequested = true;
+  void maplibregl.setRTLTextPlugin(
+    'https://unpkg.com/@mapbox/mapbox-gl-rtl-text@0.2.3/mapbox-gl-rtl-text.js',
+    true,
+  );
+}
+
 /** Click/drag to set a lat/lng — used by property/project/building forms (all optional fields). */
-export function LocationPicker({ value, onChange }: LocationPickerProps) {
+export function LocationPicker({ value, onChange, focusPoint }: LocationPickerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const markerRef = useRef<maplibregl.Marker | null>(null);
@@ -34,6 +54,7 @@ export function LocationPicker({ value, onChange }: LocationPickerProps) {
 
   useEffect(() => {
     if (!containerRef.current) return;
+    ensureRtlTextPlugin();
 
     const map = new maplibregl.Map({
       container: containerRef.current,
@@ -72,6 +93,11 @@ export function LocationPicker({ value, onChange }: LocationPickerProps) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (!mapRef.current || !focusPoint) return;
+    mapRef.current.flyTo({ center: [focusPoint.lng, focusPoint.lat], zoom: 12, duration: 800 });
+  }, [focusPoint]);
 
   return (
     <div className="flex flex-col gap-2">

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import {
   propertyInputSchema,
   propertyUpdateSchema,
@@ -147,6 +147,14 @@ export function PropertyForm({
     void listDistricts(form.city_id).then(setDistricts);
   }, [form.city_id]);
 
+  const mapFocusPoint = useMemo<LocationPickerValue | null>(() => {
+    const district = districts.find((d) => d.id === form.district_id);
+    if (district?.lat != null && district?.lng != null) return { lat: district.lat, lng: district.lng };
+    const city = cities.find((c) => c.id === form.city_id);
+    if (city?.lat != null && city?.lng != null) return { lat: city.lat, lng: city.lng };
+    return null;
+  }, [form.city_id, form.district_id, cities, districts]);
+
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((current) => ({ ...current, [key]: value }));
   }
@@ -289,7 +297,11 @@ export function PropertyForm({
         </Select>
       </div>
 
-      <LocationPicker value={form.location} onChange={(location) => set('location', location)} />
+      <LocationPicker
+        value={form.location}
+        onChange={(location) => set('location', location)}
+        focusPoint={mapFocusPoint}
+      />
 
       {/* PRODUCT_SPEC.md section 4.1 — optional hierarchy grouping; both independent nullable FKs (a unit can belong to a building without a project, or vice versa). */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

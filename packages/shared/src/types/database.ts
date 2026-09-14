@@ -178,6 +178,8 @@ export interface City {
   id: string;
   name_ar: string;
   name_en: string;
+  lat: number | null;
+  lng: number | null;
 }
 
 export interface District {
@@ -185,6 +187,8 @@ export interface District {
   city_id: string;
   name_ar: string;
   name_en: string;
+  lat: number | null;
+  lng: number | null;
 }
 
 /** PRODUCT_SPEC section 4.1 — optional hierarchy grouping, added with migration 0008. */

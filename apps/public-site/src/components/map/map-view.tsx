@@ -17,6 +17,24 @@ type SelectedPin =
 
 const MAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
 
+/**
+ * Without this, maplibre-gl draws Arabic place labels with each glyph in
+ * the correct position but the letters themselves unshaped/unconnected
+ * (reads as mirrored/broken Arabic) — this is maplibre's own documented
+ * fix (see the `setRTLTextPlugin` doc comment in its .d.ts), not
+ * something specific to this map style. Guarded because calling it twice
+ * throws.
+ */
+let rtlPluginRequested = false;
+function ensureRtlTextPlugin() {
+  if (rtlPluginRequested) return;
+  rtlPluginRequested = true;
+  void maplibregl.setRTLTextPlugin(
+    'https://unpkg.com/@mapbox/mapbox-gl-rtl-text@0.2.3/mapbox-gl-rtl-text.js',
+    true,
+  );
+}
+
 const VIEW_LABEL: Record<Locale, string> = { ar: 'عرض التفاصيل', en: 'View details' };
 const GOOGLE_MAPS_LABEL: Record<Locale, string> = { ar: 'فتح في خرائط قوقل', en: 'Open in Google Maps' };
 const KIND_LABEL: Record<Locale, Record<SelectedPin['kind'], string>> = {
@@ -147,6 +165,7 @@ export function MapView({ locale, cities, pins }: MapViewProps) {
 
   useEffect(() => {
     if (!containerRef.current || allPins.length === 0) return;
+    ensureRtlTextPlugin();
 
     const bounds = new maplibregl.LngLatBounds();
     allPins.forEach((pin) => bounds.extend([pin.data.lng, pin.data.lat]));

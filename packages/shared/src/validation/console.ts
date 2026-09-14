@@ -80,6 +80,8 @@ export type PlanUpdateInput = z.infer<typeof planUpdateSchema>;
 export const cityInputSchema = z.object({
   name_ar: z.string().min(2, 'اسم المدينة (عربي) مطلوب'),
   name_en: z.string().min(2, 'اسم المدينة (إنجليزي) مطلوب'),
+  lat: z.number().optional().nullable(),
+  lng: z.number().optional().nullable(),
 });
 export type CityInput = z.infer<typeof cityInputSchema>;
 
@@ -90,6 +92,8 @@ export const districtInputSchema = z.object({
   city_id: z.string().uuid('المدينة مطلوبة'),
   name_ar: z.string().min(2, 'اسم الحي (عربي) مطلوب'),
   name_en: z.string().min(2, 'اسم الحي (إنجليزي) مطلوب'),
+  lat: z.number().optional().nullable(),
+  lng: z.number().optional().nullable(),
 });
 export type DistrictInput = z.infer<typeof districtInputSchema>;
 
