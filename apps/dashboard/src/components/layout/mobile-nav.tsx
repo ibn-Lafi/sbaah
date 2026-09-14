@@ -122,7 +122,7 @@ export function MobileNav({ orgName, accountType, roleLabel }: MobileNavProps) {
         role="dialog"
         aria-modal="true"
         aria-hidden={!sheetOpen}
-        className={`bg-surface-card fixed inset-y-0 right-0 z-50 flex w-[82%] max-w-[340px] flex-col shadow-[0_0_40px_rgba(31,29,34,.25)] transition-transform duration-300 ease-out ${
+        className={`bg-surface-card rounded-card fixed inset-y-3 right-0 z-50 flex w-[82%] max-w-[340px] flex-col overflow-hidden shadow-[0_0_40px_rgba(31,29,34,.25)] transition-transform duration-300 ease-out ${
           sheetOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
