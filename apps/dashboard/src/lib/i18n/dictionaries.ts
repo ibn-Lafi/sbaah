@@ -22,12 +22,8 @@ export interface ChromeDictionary {
     };
     apps: string;
   };
-  accountMenu: {
-    settings: string;
-    team: string;
-    billing: string;
-    signOut: string;
-  };
+  /** الإعدادات — نقطة دخول واحدة في الشريط الجانبي (سطح المكتب) والشريط السفلي (الجوال) على حد سواء، تقود لصفحة /settings المُبوَّبة (الحساب/الموظفين/الفوترة/بيانات الموقع). */
+  settingsNavLabel: string;
   topbar: {
     searchPlaceholder: string;
     visitSite: string;
@@ -36,7 +32,6 @@ export interface ChromeDictionary {
   mobileNav: {
     morePages: string;
     close: string;
-    settings: string;
   };
   appShell: {
     suspended: string;
@@ -83,12 +78,7 @@ export const dictionaries: Record<Locale, ChromeDictionary> = {
       },
       apps: 'التطبيقات',
     },
-    accountMenu: {
-      settings: 'حسابي',
-      team: 'إدارة الموظفين',
-      billing: 'الفوترة والاشتراك',
-      signOut: 'تسجيل الخروج',
-    },
+    settingsNavLabel: 'الإعدادات',
     topbar: {
       searchPlaceholder: 'بحث...',
       visitSite: 'زيارة الموقع',
@@ -97,7 +87,6 @@ export const dictionaries: Record<Locale, ChromeDictionary> = {
     mobileNav: {
       morePages: 'بقية الصفحات',
       close: 'إغلاق',
-      settings: 'الإعدادات',
     },
     appShell: {
       suspended:
@@ -142,12 +131,7 @@ export const dictionaries: Record<Locale, ChromeDictionary> = {
       },
       apps: 'Apps',
     },
-    accountMenu: {
-      settings: 'My Account',
-      team: 'Team Management',
-      billing: 'Billing & Subscription',
-      signOut: 'Sign Out',
-    },
+    settingsNavLabel: 'Settings',
     topbar: {
       searchPlaceholder: 'Search...',
       visitSite: 'Visit Site',
@@ -156,7 +140,6 @@ export const dictionaries: Record<Locale, ChromeDictionary> = {
     mobileNav: {
       morePages: 'More Pages',
       close: 'Close',
-      settings: 'Settings',
     },
     appShell: {
       suspended: 'Your account is currently suspended — data is read-only until you renew your subscription.',

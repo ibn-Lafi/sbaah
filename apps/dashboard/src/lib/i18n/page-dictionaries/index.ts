@@ -1,7 +1,7 @@
 /**
  * Per-page dictionaries, kept separate from `../dictionaries.ts` (the
  * persistent chrome — sidebar/topbar/mobile-nav/app-shell — already
- * shipped and consumed as `t.nav`/`t.accountMenu`/etc.) so translating
+ * shipped and consumed as `t.nav`/`t.settingsNavLabel`/etc.) so translating
  * one page never means editing a single shared file every other page's
  * translation also touches. Each domain file exports an `ar` object (the
  * source of truth, unchanged from what shipped before translation) and

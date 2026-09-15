@@ -260,7 +260,7 @@ export function MobileNav({ orgName, accountType }: MobileNavProps) {
             }`}
           >
             <SettingsIcon className="h-[17px] w-[17px] flex-none" />
-            {t.mobileNav.settings}
+            {t.settingsNavLabel}
           </Link>
         </div>
       </div>
