@@ -7,6 +7,8 @@ export const websiteAr = {
       'اختر شكل موقعك، ثم اضغط "تخصيص الثيم" على الثيم الحالي لتعديل أقسامه وألوانه ومحتواه',
     customizeTheme: 'تخصيص الثيم',
     selectTheme: 'اختيار',
+    previewTheme: 'معاينة',
+    publishedBadge: 'منشور',
     errors: {
       saveTheme: 'تعذّر حفظ الثيم',
     },
@@ -139,6 +141,8 @@ export const websiteEn: typeof websiteAr = {
       'Choose the look of your website, then click "Customize theme" on your current theme to edit its sections, colors and content',
     customizeTheme: 'Customize theme',
     selectTheme: 'Select',
+    previewTheme: 'Preview',
+    publishedBadge: 'Published',
     errors: {
       saveTheme: 'Failed to save the theme',
     },

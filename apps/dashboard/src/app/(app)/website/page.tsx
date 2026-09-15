@@ -12,6 +12,7 @@ import { useLocale } from '@/lib/i18n/locale-context';
 import { getWebsite, updateWebsite } from '@/lib/api/website';
 import { listThemes } from '@/lib/api/reference-data';
 import { ApiRequestError } from '@/lib/api/client';
+import { getPlatformRootDomain } from '@/lib/env/platform-root-domain';
 
 /** متجر الثيمات — theme selection only. Content editing (أقسام/صفحات/ألوان) is a separate screen, reached via the selected theme's "تخصيص الثيم" button — see /website/editor. Domain management moved to its own top-level nav item, /domain. */
 export default function ThemeStorePage() {
@@ -21,6 +22,7 @@ export default function ThemeStorePage() {
   const [website, setWebsite] = useState<Website | null>(null);
   const [themes, setThemes] = useState<Theme[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const siteUrl = `https://${me.tenant.subdomain}.${getPlatformRootDomain()}`;
 
   useEffect(() => {
     void getWebsite(accessToken).then((result) => setWebsite(result.website));
@@ -61,7 +63,13 @@ export default function ThemeStorePage() {
         <Card className="p-8">
           <h2 className="mb-1 text-base font-semibold text-text-primary">{t.themeStore.pageTitle}</h2>
           <p className="mb-4 text-sm text-text-secondary">{t.themeStore.description}</p>
-          <ThemeGallery themes={themes} selectedThemeId={website.theme_id} primaryColor={website.primary_color} onSelect={(themeId) => void saveTheme(themeId)} />
+          <ThemeGallery
+            themes={themes}
+            selectedThemeId={website.theme_id}
+            primaryColor={website.primary_color}
+            siteUrl={siteUrl}
+            onSelect={(themeId) => void saveTheme(themeId)}
+          />
         </Card>
       </div>
     </AppShell>
