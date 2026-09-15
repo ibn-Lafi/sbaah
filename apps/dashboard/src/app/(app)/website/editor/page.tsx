@@ -336,9 +336,9 @@ export default function WebsiteEditorPage() {
                           {EDITABLE_TYPES.includes(section.type) && (
                             <button
                               type="button"
-                              onClick={() => setMobileEditingId(mobileEditingId === section.id ? null : section.id)}
-                              aria-label={mobileEditingId === section.id ? t.sectionList.closeEdit : t.sectionList.editContent}
-                              title={mobileEditingId === section.id ? t.sectionList.closeEdit : t.sectionList.editContent}
+                              onClick={() => setMobileEditingId(section.id)}
+                              aria-label={t.sectionList.editContent}
+                              title={t.sectionList.editContent}
                               className="text-text-secondary hover:text-brand"
                             >
                               <PencilIcon className="h-[16px] w-[16px]" />
@@ -349,22 +349,6 @@ export default function WebsiteEditorPage() {
                             onDuplicate={() => void duplicateSectionHandler(section)}
                           />
                         </div>
-                        {mobileEditingId === section.id && (
-                          <SectionConfigEditor
-                            section={section}
-                            accessToken={accessToken}
-                            website={website}
-                            onWebsiteUpdate={(updated) => setWebsite(updated)}
-                            onSaved={(updated) => {
-                              if (!activePage) return;
-                              mergeSections(activePage.id, [
-                                ...visibleContentSections.map((s) => (s.id === updated.id ? updated : s)),
-                                ...hiddenContentSections,
-                              ]);
-                              setMobileEditingId(null);
-                            }}
-                          />
-                        )}
                       </div>
                     ))}
 
@@ -379,6 +363,31 @@ export default function WebsiteEditorPage() {
                   </div>
                 )}
               </div>
+
+              {/* "تحرير المحتوى" (جوال) بنافذة منبثقة (طلب المؤسس) بدل التمدد ضمن القائمة. */}
+              {mobileEditingId &&
+                (() => {
+                  const editingSection = visibleContentSections.find((s) => s.id === mobileEditingId);
+                  if (!editingSection) return null;
+                  return (
+                    <Modal title={t.sectionTypeLabels[editingSection.type]} onClose={() => setMobileEditingId(null)}>
+                      <SectionConfigEditor
+                        section={editingSection}
+                        accessToken={accessToken}
+                        website={website}
+                        onWebsiteUpdate={(updated) => setWebsite(updated)}
+                        onSaved={(updated) => {
+                          if (!activePage) return;
+                          mergeSections(activePage.id, [
+                            ...visibleContentSections.map((s) => (s.id === updated.id ? updated : s)),
+                            ...hiddenContentSections,
+                          ]);
+                          setMobileEditingId(null);
+                        }}
+                      />
+                    </Modal>
+                  );
+                })()}
 
               {/* أسفل الصفحة */}
               <div className="border-border-subtle border-t px-4 py-4">

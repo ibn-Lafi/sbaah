@@ -6,6 +6,7 @@ import { SectionRowMenu } from './section-row-menu';
 import { useLocale } from '@/lib/i18n/locale-context';
 import { reorderSections } from '@/lib/api/website';
 import { SectionConfigEditor } from './section-config-editor';
+import { Modal } from '@/components/ui/modal';
 
 interface SectionListProps {
   /** أقسام مُفعَّلة (ظاهرة) فقط — الإخفاء يُزيل القسم من هذه القائمة عائدًا لمكتبة "إضافة قسم" (onHide/onDuplicate، مُدارتان بصفحة المحرر نفسها ككل الأقسام معًا، بما فيها المخفية). */
@@ -82,25 +83,34 @@ export function SectionList({ sections, accessToken, onChange, onHide, onDuplica
             {EDITABLE_TYPES.includes(section.type) && (
               <button
                 type="button"
-                onClick={() => setEditingId(editingId === section.id ? null : section.id)}
+                onClick={() => setEditingId(section.id)}
                 className="text-xs font-semibold text-brand hover:underline"
               >
-                {editingId === section.id ? t.sectionList.closeEdit : t.sectionList.editContent}
+                {t.sectionList.editContent}
               </button>
             )}
             <SectionRowMenu onHide={() => onHide(section)} onDuplicate={() => onDuplicate(section)} />
           </div>
-          {editingId === section.id && (
-            <SectionConfigEditor
-              section={section}
-              accessToken={accessToken}
-              onSaved={handleConfigSaved}
-              website={website}
-              onWebsiteUpdate={onWebsiteUpdate}
-            />
-          )}
         </div>
       ))}
+
+      {/* "تحرير المحتوى" بنافذة منبثقة (طلب المؤسس) بدل التمدد ضمن القائمة. */}
+      {editingId &&
+        (() => {
+          const editingSection = ordered.find((s) => s.id === editingId);
+          if (!editingSection) return null;
+          return (
+            <Modal title={t.sectionTypeLabels[editingSection.type]} onClose={() => setEditingId(null)}>
+              <SectionConfigEditor
+                section={editingSection}
+                accessToken={accessToken}
+                onSaved={handleConfigSaved}
+                website={website}
+                onWebsiteUpdate={onWebsiteUpdate}
+              />
+            </Modal>
+          );
+        })()}
     </div>
   );
 }
