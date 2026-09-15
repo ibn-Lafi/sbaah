@@ -1,4 +1,4 @@
-import type { AccountType, AccountTypeUpdateInput, CustomDomainStatus, SocialLinksUpdateInput } from '@sbaah/shared';
+import type { AccountType, AccountTypeUpdateInput, CustomDomainStatus, FalLicenseUpdateInput, SocialLinksUpdateInput } from '@sbaah/shared';
 import { apiGet, apiDelete, apiPatch, apiPost } from './client';
 
 export interface SocialLinks {
@@ -20,11 +20,16 @@ export interface AccountTypeInfo {
   account_type: AccountType;
   cr_number: string | null;
   tax_number: string | null;
-  fal_license_number: string;
+  fal_license_number: string | null;
 }
 
 export function updateAccountType(accessToken: string, input: AccountTypeUpdateInput) {
   return apiPatch<AccountTypeInfo>('/tenant/account-type', input, accessToken);
+}
+
+/** حسابي — رخصة فال، بطاقتها الخاصة (migration 0047: منفصلة عن نوع الحساب، لم تعد تُطلب أثناء التسجيل). */
+export function updateFalLicense(accessToken: string, input: FalLicenseUpdateInput) {
+  return apiPatch<{ id: string; fal_license_number: string }>('/tenant/fal-license', input, accessToken);
 }
 
 export interface DnsRecord {

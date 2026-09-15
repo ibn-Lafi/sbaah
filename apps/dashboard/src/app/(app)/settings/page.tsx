@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import type { AccountType } from '@sbaah/shared';
-import { ACCOUNT_TYPE_LABELS, accountTypeUpdateSchema, socialLinksUpdateSchema } from '@sbaah/shared';
+import { ACCOUNT_TYPE_LABELS, accountTypeUpdateSchema, falLicenseUpdateSchema, socialLinksUpdateSchema } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -23,7 +23,7 @@ import {
 } from '@/components/website/editor-icons';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { ROLE_LABELS } from '@/lib/auth/role-labels';
-import { updateSocialLinks, updateAccountType, type SocialLinks } from '@/lib/api/tenant';
+import { updateSocialLinks, updateAccountType, updateFalLicense, type SocialLinks } from '@/lib/api/tenant';
 import { getWebsite, updateWebsite } from '@/lib/api/website';
 import { updateMyEmail } from '@/lib/api/auth';
 import { ApiRequestError } from '@/lib/api/client';
@@ -374,6 +374,65 @@ function EmailCard({ accessToken, initialEmail }: { accessToken: string; initial
   );
 }
 
+/**
+ * رخصة فال — بطاقتها الخاصة، منفصلة عن "نوع الحساب" لأنها لا تتغيّر
+ * بتبديله (migration 0047: لم تعد تُطلب أثناء التسجيل، تُدخل هنا أول
+ * مرة أو تُعدَّل لاحقًا). غيابها لا يعطّل شيئًا في الحساب — يمنع فقط
+ * نشر الموقع العام، فتُعرض هذه الرسالة عند فراغها لتوضيح السبب.
+ */
+function FalLicenseCard({ accessToken, initial, canEdit }: { accessToken: string; initial: string | null; canEdit: boolean }) {
+  const [draft, setDraft] = useState(initial ?? '');
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  async function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    setError(null);
+    setSaved(false);
+
+    const result = falLicenseUpdateSchema.safeParse({ fal_license_number: draft });
+    if (!result.success) {
+      setError(result.error.issues[0]?.message ?? 'تحقق من رقم الرخصة');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await updateFalLicense(accessToken, result.data);
+      setSaved(true);
+    } catch (err) {
+      setError(err instanceof ApiRequestError ? err.message : 'تعذّر حفظ رخصة فال');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <Card className="p-6">
+      <h2 className="mb-1 text-base font-semibold text-text-primary">رخصة فال</h2>
+      <p className="mb-4 text-sm text-text-secondary">
+        {initial
+          ? 'رقم رخصتك المهنية من الهيئة العامة للعقار.'
+          : 'أدخلها لتفعيل نشر موقعك الإلكتروني العام — الحساب يعمل بكامل ميزاته الأخرى بدونها.'}
+      </p>
+      {canEdit ? (
+        <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-3">
+          <Input value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="رقم رخصة فال" dir="ltr" />
+          <FormError message={error} />
+          <Button type="submit" disabled={loading} className="w-fit">
+            {loading ? 'جارٍ الحفظ...' : saved ? 'تم الحفظ ✓' : 'حفظ'}
+          </Button>
+        </form>
+      ) : (
+        <p className="text-sm font-medium text-text-primary" dir="ltr">
+          {initial ?? '—'}
+        </p>
+      )}
+    </Card>
+  );
+}
+
 /** حسابي (من قائمة الحساب المنسدلة أسفل الشريط الجانبي) — بيانات الحساب + حسابات التواصل الاجتماعي؛ النطاق الفرعي/الدومين المخصص انتقلا إلى /domain (عنصر قائمة مستقل، مطابق للتصميم). */
 export default function SettingsPage() {
   const { me, accessToken } = useCurrentUser();
@@ -403,6 +462,12 @@ export default function SettingsPage() {
             cr_number: me.tenant.cr_number,
             tax_number: me.tenant.tax_number,
           }}
+        />
+
+        <FalLicenseCard
+          accessToken={accessToken}
+          canEdit={me.user.role === 'owner'}
+          initial={me.tenant.fal_license_number}
         />
 
         <EmailCard accessToken={accessToken} initialEmail={me.user.email} />

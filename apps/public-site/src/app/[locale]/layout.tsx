@@ -67,14 +67,27 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
     notFound();
   }
 
-  // Suspended/cancelled tenant (PRODUCT_SPEC section 2, task 36/42) —
-  // its own complete, unbranded shell (no tenant colors/font/logo,
-  // deliberately: see SuspendedPage), never reaching `children`.
+  // Suspended/cancelled tenant, or one whose free trial ran out
+  // (PRODUCT_SPEC section 2, task 36/42; migration 0047) — its own
+  // complete, unbranded shell (no tenant colors/font/logo, deliberately:
+  // see SuspendedPage), never reaching `children`.
   if (result.status === 'suspended') {
     return (
       <html lang={locale} dir={dir}>
         <body>
-          <SuspendedPage />
+          <SuspendedPage reason="suspended" />
+        </body>
+      </html>
+    );
+  }
+
+  // migration 0047 — تنطبق البيانات المطلوبة قبل النشر (لا فرق ملحوظ
+  // للزائر عن "غير موجود" فعليًا، لكن رسالة مختلفة أدق).
+  if (result.status === 'incomplete_profile') {
+    return (
+      <html lang={locale} dir={dir}>
+        <body>
+          <SuspendedPage reason="incomplete_profile" />
         </body>
       </html>
     );

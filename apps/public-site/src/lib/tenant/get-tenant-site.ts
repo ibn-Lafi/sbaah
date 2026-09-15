@@ -29,8 +29,10 @@ export interface TenantSite {
 
 export type TenantSiteResult =
   | { status: 'not_found' }
-  /** PRODUCT_SPEC section 2 — a suspended/cancelled tenant's domain still resolves, but the whole site must show "غير متاح حاليًا" instead of a plain 404 (task 36/42). Deliberately carries no tenant name/branding — a generic message, not a personalized one, keeps a random visitor from learning anything about *why* or *whose* account this is. */
+  /** PRODUCT_SPEC section 2 — a suspended/cancelled tenant's domain still resolves, but the whole site must show "غير متاح حاليًا" instead of a plain 404 (task 36/42). Deliberately carries no tenant name/branding — a generic message, not a personalized one, keeps a random visitor from learning anything about *why* or *whose* account this is. A trial-plan tenant past its 14 days (migration 0047) is folded into this exact same case — `api` returns the same `tenant_suspended` code for both. */
   | { status: 'suspended' }
+  /** migration 0047 — فال (any account type) or CR/tax number (institution/company) missing: the tenant hasn't finished حسابي yet, so their site simply hasn't published — a distinct message from "suspended" since nothing is wrong with the account itself. */
+  | { status: 'incomplete_profile' }
   | { status: 'active'; site: TenantSite };
 
 /**
@@ -61,6 +63,9 @@ const fetchTenantSiteResult = cache(async (pageKey: WebsitePageKey): Promise<Ten
     }
     if (error instanceof ApiRequestError && error.code === 'tenant_suspended') {
       return { status: 'suspended' };
+    }
+    if (error instanceof ApiRequestError && error.code === 'profile_incomplete') {
+      return { status: 'incomplete_profile' };
     }
     throw error;
   }

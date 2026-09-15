@@ -1,51 +1,27 @@
 import { z } from 'zod';
 
 /**
- * Registration payload shape depends on account_type, per PRODUCT_SPEC
- * section 2: فال license is mandatory for every type; institution/company
- * additionally require CR number, tax number, and an entity name.
+ * Registration (migration 0047) only asks for account_type itself — the
+ * فال license, CR number, tax number, and (for institution/company) the
+ * entity's own name are no longer collected there at all; they're filled
+ * in later from حسابي (falLicenseUpdateSchema below, and
+ * accountTypeUpdateSchema's name/cr/tax fields). Until then the tenant's
+ * public site simply doesn't publish (resolve_public_tenant, migration
+ * 0047) — everything else about the account works normally.
  */
-
-const falLicenseNumberSchema = z
+export const falLicenseNumberSchema = z
   .string()
   .min(1, 'رقم رخصة "فال" مطلوب');
 
-export const individualRegistrationSchema = z.object({
-  account_type: z.literal('individual'),
-  full_name: z.string().min(3, 'الاسم الثلاثي مطلوب'),
+/** حسابي — رخصة فال، مستقلة عن نوع الحساب (تنطبق على الأنواع الثلاثة كلها) ولا تُطلب إلا هنا، بعد التسجيل. */
+export const falLicenseUpdateSchema = z.object({
   fal_license_number: falLicenseNumberSchema,
 });
-
-const organizationFields = {
-  name_ar: z.string().min(2, 'اسم الجهة مطلوب'),
-  /** The registering person, distinct from the entity's own name_ar above — becomes the Owner user's full_name. */
-  owner_full_name: z.string().min(3, 'الاسم الثلاثي لمسؤول الحساب مطلوب'),
-  cr_number: z.string().min(1, 'رقم السجل التجاري مطلوب'),
-  tax_number: z.string().min(1, 'الرقم الضريبي مطلوب'),
-  fal_license_number: falLicenseNumberSchema,
-};
-
-export const institutionRegistrationSchema = z.object({
-  account_type: z.literal('institution'),
-  ...organizationFields,
-});
-
-export const companyRegistrationSchema = z.object({
-  account_type: z.literal('company'),
-  ...organizationFields,
-});
-
-export const tenantRegistrationSchema = z.discriminatedUnion('account_type', [
-  individualRegistrationSchema,
-  institutionRegistrationSchema,
-  companyRegistrationSchema,
-]);
-
-export type TenantRegistrationInput = z.infer<typeof tenantRegistrationSchema>;
+export type FalLicenseUpdateInput = z.infer<typeof falLicenseUpdateSchema>;
 
 /**
  * حسابي (Settings) — تبديل نوع الحساب بعد التسجيل. لا يعيد طلب رخصة فال
- * (ثابتة بلا علاقة بالنوع) ولا اسم مسؤول الحساب (ذلك اسم المستخدم نفسه،
+ * (بطاقتها الخاصة أعلاه) ولا اسم مسؤول الحساب (ذلك اسم المستخدم نفسه،
  * لا يتغيّر بتبديل نوع الحساب) — فقط الحقول التي يحدّدها النوع فعليًا:
  * الاسم المعروض للحساب (فرد) أو اسم الجهة+السجل+الضريبي (مؤسسة/شركة).
  */

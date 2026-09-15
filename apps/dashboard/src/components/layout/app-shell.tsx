@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import type { AccountType } from '@sbaah/shared';
 import { Sidebar } from './sidebar';
 import { Topbar } from './topbar';
@@ -21,6 +22,12 @@ const SUSPENDED_MESSAGE: Record<'suspended' | 'cancelled', string> = {
   cancelled: 'تم إلغاء هذا الحساب — البيانات معروضة للقراءة فقط.',
 };
 
+/** Whole days left until `iso` — 0 on its final calendar day, never negative (callers check expiry separately). */
+function daysRemaining(iso: string): number {
+  const ms = new Date(iso).getTime() - Date.now();
+  return Math.max(0, Math.ceil(ms / (24 * 60 * 60 * 1000)));
+}
+
 /**
  * The authenticated dashboard chrome — every route under `(app)` renders
  * inside this. Reads `tenant.status` from context itself (task 38/42)
@@ -36,6 +43,14 @@ export function AppShell({ title, orgName, accountType, roleLabel, children }: A
   // Always the subdomain URL, never the (possibly unverified/not-yet-
   // DNS-configured) custom domain — this link must always actually load.
   const siteUrl = `https://${me.tenant.subdomain}.${getPlatformRootDomain()}`;
+
+  // trial_ends_at is only ever set for a trial-plan signup (migration
+  // 0047) — an independent signal from `status`, so it needs its own
+  // banner even while status is still 'active'. Past it, RLS (updated
+  // is_tenant_active) already blocks every write server-side, same as
+  // suspended; this banner just explains why before the user tries.
+  const trialEndsAt = me.tenant.trial_ends_at;
+  const trialExpired = trialEndsAt !== null && new Date(trialEndsAt) <= new Date();
 
   return (
     // `h-dvh` + `overflow-hidden` (not `min-h-screen`) is load-bearing, not
@@ -55,6 +70,25 @@ export function AppShell({ title, orgName, accountType, roleLabel, children }: A
           {status !== 'active' && (
             <div className="bg-warning-surface text-warning px-4 py-3 text-sm font-medium md:px-7">
               {SUSPENDED_MESSAGE[status]}
+            </div>
+          )}
+          {status === 'active' && trialExpired && (
+            <div className="bg-warning-surface text-warning flex flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm font-medium md:px-7">
+              <span>انتهت تجربتك المجانية — البيانات معروضة للقراءة فقط، اشترك بباقة لمواصلة استخدام حسابك.</span>
+              <Link href="/billing" className="font-semibold whitespace-nowrap underline">
+                الاشتراك الآن
+              </Link>
+            </div>
+          )}
+          {status === 'active' && !trialExpired && trialEndsAt && (
+            <div className="bg-brand-surface text-brand flex flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm font-medium md:px-7">
+              <span>
+                باقي على انتهاء تجربتك المجانية {daysRemaining(trialEndsAt)}{' '}
+                {daysRemaining(trialEndsAt) === 1 ? 'يوم' : 'أيام'}.
+              </span>
+              <Link href="/billing" className="font-semibold whitespace-nowrap underline">
+                الاشتراك الآن
+              </Link>
             </div>
           )}
           <div className="flex-1 overflow-auto overscroll-contain p-4 pb-28 md:p-7">{children}</div>

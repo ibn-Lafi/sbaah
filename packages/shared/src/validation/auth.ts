@@ -1,6 +1,5 @@
 import { z } from 'zod';
-import { OTP_PURPOSES } from '../types/enums';
-import { tenantRegistrationSchema } from './tenant';
+import { OTP_PURPOSES, ACCOUNT_TYPES } from '../types/enums';
 
 /**
  * Saudi mobile numbers only, E.164 format (e.g. +966501234567).
@@ -111,12 +110,19 @@ export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
  * docs/OTP_FLOW.md section 5a step 5: `registration_token` is the
  * short-lived token from a successful `purpose: 'register'` OTP verify —
  * it already carries the phone number, so it isn't repeated here.
+ *
+ * Migration 0047 redesign — flat shape, no more account_type-dependent
+ * fields at registration: full_name/email/password (one unified step),
+ * account_type on its own (just the pick, no extra fields), then plan_id.
+ * فال license/CR/tax/entity-name move entirely to حسابي after signup.
  */
 export const registerSchema = z.object({
   registration_token: z.string().min(1),
+  full_name: z.string().min(3, 'الاسم الكريم مطلوب'),
+  email: emailSchema,
   password: passwordSchema,
-  account: tenantRegistrationSchema,
-  /** Chosen at registration step 6 (اختر باقة وادفع) — no more silent default-to-Basic. */
+  account_type: z.enum(ACCOUNT_TYPES),
+  /** Chosen at registration's last step — no more silent default-to-Basic. May be the one free-trial plan (migration 0047). */
   plan_id: z.string().uuid('يجب اختيار باقة'),
 });
 export type RegisterInput = z.infer<typeof registerSchema>;

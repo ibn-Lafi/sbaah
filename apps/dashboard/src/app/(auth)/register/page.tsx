@@ -3,14 +3,14 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import {
+  emailSchema,
   otpCodeSchema,
   passwordSchema,
   saudiPhoneSchema,
-  tenantRegistrationSchema,
   REGISTRATION_OPEN,
   type AccountType,
   type BillingCycle,
-  type TenantRegistrationInput,
+  type Plan,
 } from '@sbaah/shared';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -27,21 +27,20 @@ import { PlanCycleToggle } from '@/components/billing/plan-cycle-toggle';
 import { PlanCard } from '@/components/billing/plan-card';
 import { register, sendOtp, verifyRegisterOtp } from '@/lib/api/auth';
 import { startCheckout } from '@/lib/api/billing';
-import { listPlans } from '@/lib/api/reference-data';
+import { listPlans, getTrialPlan } from '@/lib/api/reference-data';
 import { groupPlansByTier, planForCycle, type PlanTier } from '@/lib/billing/plan-tiers';
 import { ApiRequestError } from '@/lib/api/client';
 import { adoptSession } from '@/lib/auth/session';
 import { useResendCooldown } from '@/lib/auth/use-resend-cooldown';
 
-const STEPS = ['phone', 'otp', 'password', 'account_type', 'details', 'plan'] as const;
+const STEPS = ['phone', 'otp', 'account', 'account_type', 'plan'] as const;
 type Step = (typeof STEPS)[number];
 
 const STEP_TITLES: Record<Step, string> = {
   phone: 'رقم الجوال',
   otp: 'رمز التحقق',
-  password: 'تعيين كلمة المرور',
+  account: 'بيانات الحساب',
   account_type: 'ما نوع حسابك؟',
-  details: 'بيانات الحساب',
   plan: 'اختر باقتك',
 };
 
@@ -68,13 +67,12 @@ function RegistrationClosedNotice() {
 }
 
 /**
- * docs/OTP_FLOW.md section 5a, extended per the founder's mockup: 6 steps
- * — phone, OTP, password (own step, confirm field + strength meter),
- * account type (its own step, 3 badge cards matching the mockup — not a
- * segmented control buried in "تفاصيل الحساب" anymore), account details,
- * then plan + StreamPay payment. Only the last step actually creates the
- * account and starts checkout (`register()` + `startCheckout()`) — every
- * earlier step is presentational/validation only.
+ * docs/OTP_FLOW.md section 5a, ثم أعيد تصميمها (migration 0047): 5 خطوات
+ * — هاتف، OTP، بيانات الحساب (اسم + بريد + كلمة مرور بخطوة واحدة)، نوع
+ * الحساب (اختيار مجرّد، بلا حقول إضافية — بيانات الشركة/المؤسسة انتقلت
+ * كاملة لحسابي بعد التسجيل)، ثم الباقة (تتضمن خيار التجربة المجانية إن
+ * كانت مفعّلة من console). فقط الخطوة الأخيرة تُنشئ الحساب فعليًا
+ * (register() + إما دخول مباشر للتجربة المجانية أو startCheckout()).
  */
 export default function RegisterPage() {
   const [step, setStep] = useState<Step>('phone');
@@ -89,24 +87,22 @@ export default function RegisterPage() {
 
   const [accountType, setAccountType] = useState<AccountType>('individual');
   const [fullName, setFullName] = useState('');
-  const [nameAr, setNameAr] = useState('');
-  const [ownerFullName, setOwnerFullName] = useState('');
-  const [crNumber, setCrNumber] = useState('');
-  const [taxNumber, setTaxNumber] = useState('');
-  const [falLicenseNumber, setFalLicenseNumber] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
 
   const [tiers, setTiers] = useState<PlanTier[] | null>(null);
+  const [trialPlan, setTrialPlan] = useState<Plan | null | undefined>(undefined);
   const [cycle, setCycle] = useState<BillingCycle>('annual');
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
 
   useEffect(() => {
     if (step !== 'plan' || tiers !== null) return;
-    void listPlans().then((loaded) => {
+    void Promise.all([listPlans(), getTrialPlan()]).then(([loaded, trial]) => {
       const grouped = groupPlansByTier(loaded);
       setTiers(grouped);
-      setSelectedPlanId((current) => current ?? (grouped[0] ? planForCycle(grouped[0], cycle).id : null));
+      setTrialPlan(trial);
+      setSelectedPlanId((current) => current ?? trial?.id ?? (grouped[0] ? planForCycle(grouped[0], cycle).id : null));
     });
     // Intentionally excludes `cycle` — this only sets the *initial*
     // selection once tiers are fetched, it shouldn't re-run every time
@@ -114,9 +110,10 @@ export default function RegisterPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step, tiers]);
 
-  /** Keeps the same tier selected across a cycle switch (rather than leaving `selectedPlanId` pointing at a now-hidden card, which would submit a plan no longer shown as chosen). */
+  /** Keeps the same tier selected across a cycle switch (rather than leaving `selectedPlanId` pointing at a now-hidden card, which would submit a plan no longer shown as chosen). Never touches the trial selection — it has no cycle. */
   function handleCycleChange(newCycle: BillingCycle) {
     setCycle(newCycle);
+    if (trialPlan && selectedPlanId === trialPlan.id) return;
     const currentTier = tiers?.find((tier) => tier.monthly?.id === selectedPlanId || tier.annual?.id === selectedPlanId);
     if (currentTier) {
       setSelectedPlanId(planForCycle(currentTier, newCycle).id);
@@ -172,7 +169,7 @@ export default function RegisterPage() {
     try {
       const { registration_token } = await verifyRegisterOtp(phone, code);
       setRegistrationToken(registration_token);
-      setStep('password');
+      setStep('account');
     } catch (err) {
       setError(err instanceof ApiRequestError ? err.message : 'تعذّر التحقق من الرمز');
     } finally {
@@ -180,10 +177,19 @@ export default function RegisterPage() {
     }
   }
 
-  function handleSubmitPassword(event: FormEvent) {
+  function handleSubmitAccount(event: FormEvent) {
     event.preventDefault();
     setError(null);
 
+    if (fullName.trim().length < 3) {
+      setError('الاسم الكريم مطلوب');
+      return;
+    }
+    const emailCheck = emailSchema.safeParse(email);
+    if (!emailCheck.success) {
+      setError(emailCheck.error.issues[0]?.message ?? 'بريد إلكتروني غير صحيح');
+      return;
+    }
     const passwordCheck = passwordSchema.safeParse(password);
     if (!passwordCheck.success) {
       setError(passwordCheck.error.issues[0]?.message ?? 'كلمة مرور غير صحيحة');
@@ -198,30 +204,6 @@ export default function RegisterPage() {
 
   function handleSubmitAccountType(event: FormEvent) {
     event.preventDefault();
-    setStep('details');
-  }
-
-  function handleSubmitDetails(event: FormEvent) {
-    event.preventDefault();
-    setError(null);
-
-    const account: TenantRegistrationInput =
-      accountType === 'individual'
-        ? { account_type: 'individual', full_name: fullName, fal_license_number: falLicenseNumber }
-        : {
-            account_type: accountType,
-            name_ar: nameAr,
-            owner_full_name: ownerFullName,
-            cr_number: crNumber,
-            tax_number: taxNumber,
-            fal_license_number: falLicenseNumber,
-          };
-
-    const accountCheck = tenantRegistrationSchema.safeParse(account);
-    if (!accountCheck.success) {
-      setError(accountCheck.error.issues[0]?.message ?? 'يرجى مراجعة بيانات الحساب');
-      return;
-    }
     setStep('plan');
   }
 
@@ -234,28 +216,23 @@ export default function RegisterPage() {
       return;
     }
 
-    const account: TenantRegistrationInput =
-      accountType === 'individual'
-        ? { account_type: 'individual', full_name: fullName, fal_license_number: falLicenseNumber }
-        : {
-            account_type: accountType,
-            name_ar: nameAr,
-            owner_full_name: ownerFullName,
-            cr_number: crNumber,
-            tax_number: taxNumber,
-            fal_license_number: falLicenseNumber,
-          };
-
     setLoading(true);
     setProvisioning(true);
     try {
-      const { access_token, refresh_token } = await register({
+      const { access_token, refresh_token, is_trial } = await register({
         registration_token: registrationToken,
+        full_name: fullName,
+        email,
         password,
-        account,
+        account_type: accountType,
         plan_id: selectedPlanId,
       });
       await adoptSession(access_token, refresh_token);
+      if (is_trial) {
+        setProvisioningDone(true);
+        window.location.href = '/';
+        return;
+      }
       const { checkout_url } = await startCheckout(access_token);
       setProvisioningDone(true);
       window.location.href = checkout_url;
@@ -286,10 +263,9 @@ export default function RegisterPage() {
         <p className="text-text-secondary mb-6 text-sm">
           {step === 'phone' && 'أدخل رقم جوالك لبدء التسجيل'}
           {step === 'otp' && `أدخل الرمز المرسل إلى ${phone}`}
-          {step === 'password' && 'ستستخدمها لاحقًا للدخول بدل رمز التحقق'}
-          {step === 'account_type' && 'يحدّد النوع الحقول المطلوبة وشكل صفحة "من نحن" في موقعك'}
-          {step === 'details' && 'أكمل بيانات الحساب'}
-          {step === 'plan' && 'الدفع مطلوب لتفعيل حسابك بالكامل'}
+          {step === 'account' && 'بيانات الدخول الأساسية لحسابك'}
+          {step === 'account_type' && 'يحدّد النوع شكل صفحة "من نحن" في موقعك — يمكنك إكمال بياناته لاحقًا من حسابي'}
+          {step === 'plan' && 'الدفع مطلوب لتفعيل حسابك بالكامل، أو ابدأ بتجربة مجانية إن كانت متاحة'}
         </p>
 
         {step === 'phone' && (
@@ -322,8 +298,16 @@ export default function RegisterPage() {
           </form>
         )}
 
-        {step === 'password' && (
-          <form onSubmit={handleSubmitPassword} className="flex flex-col gap-4">
+        {step === 'account' && (
+          <form onSubmit={handleSubmitAccount} className="flex flex-col gap-4">
+            <Input placeholder="الاسم الكريم" value={fullName} onChange={(event) => setFullName(event.target.value)} />
+            <Input
+              type="email"
+              placeholder="البريد الإلكتروني"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              dir="ltr"
+            />
             <div className="flex flex-col gap-2">
               <label className="text-text-primary text-sm font-medium">كلمة المرور</label>
               <PasswordInput
@@ -378,56 +362,22 @@ export default function RegisterPage() {
           </form>
         )}
 
-        {step === 'details' && (
-          <form onSubmit={handleSubmitDetails} className="flex flex-col gap-4">
-            {accountType === 'individual' ? (
-              <Input
-                placeholder="الاسم الثلاثي"
-                value={fullName}
-                onChange={(event) => setFullName(event.target.value)}
-              />
-            ) : (
-              <>
-                <Input
-                  placeholder={accountType === 'institution' ? 'اسم المؤسسة' : 'اسم الشركة'}
-                  value={nameAr}
-                  onChange={(event) => setNameAr(event.target.value)}
-                />
-                <Input
-                  placeholder="الاسم الثلاثي لمسؤول الحساب"
-                  value={ownerFullName}
-                  onChange={(event) => setOwnerFullName(event.target.value)}
-                />
-                <Input
-                  placeholder="رقم السجل التجاري"
-                  value={crNumber}
-                  onChange={(event) => setCrNumber(event.target.value)}
-                />
-                <Input
-                  placeholder="الرقم الضريبي"
-                  value={taxNumber}
-                  onChange={(event) => setTaxNumber(event.target.value)}
-                />
-              </>
-            )}
-
-            <Input
-              placeholder="رقم رخصة فال"
-              value={falLicenseNumber}
-              onChange={(event) => setFalLicenseNumber(event.target.value)}
-            />
-
-            <FormError message={error} />
-            <Button type="submit">متابعة</Button>
-          </form>
-        )}
-
         {step === 'plan' && (
-          <form onSubmit={handleSubmitPlan} className="flex flex-col gap-4">
+          <form onSubmit={(e) => void handleSubmitPlan(e)} className="flex flex-col gap-4">
             {tiers === null ? (
               <LoadingState className="py-6" />
             ) : (
               <>
+                {trialPlan && (
+                  <PlanCard
+                    plan={trialPlan}
+                    isCurrent={false}
+                    selected={selectedPlanId === trialPlan.id}
+                    selecting={false}
+                    selectDisabled={loading}
+                    onSelect={() => setSelectedPlanId(trialPlan.id)}
+                  />
+                )}
                 <PlanCycleToggle value={cycle} onChange={handleCycleChange} />
                 <div className="flex flex-col gap-3">
                   {tiers.map((tier) => {
@@ -451,7 +401,11 @@ export default function RegisterPage() {
             )}
             <FormError message={error} />
             <Button type="submit" loading={loading}>
-              {loading ? 'جارٍ التجهيز...' : 'الدفع والاشتراك'}
+              {loading
+                ? 'جارٍ التجهيز...'
+                : trialPlan && selectedPlanId === trialPlan.id
+                  ? 'ابدأ التجربة المجانية'
+                  : 'الدفع والاشتراك'}
             </Button>
           </form>
         )}

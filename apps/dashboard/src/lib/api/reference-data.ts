@@ -1,6 +1,12 @@
 import type { City, District, DistrictCreateInput, Plan, Theme } from '@sbaah/shared';
 import { apiGet, apiPost } from './client';
 
+/** Registration's last step only — the one free-trial plan (migration 0047), or null if the founder has turned it off from console. Never shown on /billing. */
+export async function getTrialPlan(): Promise<Plan | null> {
+  const { plan } = await apiGet<{ plan: Plan | null }>('/public/trial-plan');
+  return plan;
+}
+
 /** GET /v1/public/* — unauthenticated by design (RLS already makes these tables openly readable, task 22/42/23/42). */
 export async function listCities(): Promise<City[]> {
   const { cities } = await apiGet<{ cities: City[] }>('/public/cities');

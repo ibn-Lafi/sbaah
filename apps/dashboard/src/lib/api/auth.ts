@@ -59,6 +59,8 @@ export interface RegisterResponse {
   expires_at: number;
   tenant_id: string;
   subdomain: string;
+  /** True only when the chosen plan was the one free-trial plan (migration 0047) — the register page skips StreamPay checkout entirely in that case. */
+  is_trial: boolean;
 }
 
 export function register(payload: RegisterInput) {
@@ -86,6 +88,8 @@ export interface MeResponse {
     subdomain: string;
     custom_domain: string | null;
     status: TenantStatus;
+    /** Set only for a trial-plan signup (migration 0047) — past this, the account is read-only until the tenant subscribes to a real plan. */
+    trial_ends_at: string | null;
     cr_number: string | null;
     tax_number: string | null;
     fal_license_number: string | null;

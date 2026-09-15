@@ -54,6 +54,8 @@ export interface Plan {
   is_active: boolean;
   /** The matching recurring Product's id in StreamPay's own dashboard (set up manually there first) — null until console fills it in. */
   streampay_product_id: string | null;
+  /** The one free-trial plan (migration 0047) — chosen only at registration step 5, never shown on /billing or any later plan switch. */
+  is_trial: boolean;
 }
 
 /** جدول من صف واحد (id ثابت = true) — روابط حسابات سبعة نفسها (المنصة)، تُدار من console فقط. تظهر في لوحة تسجيل الدخول/إنشاء حساب بدل شريط "عقار←موقع←زائر←Lead←متابعة". */
@@ -71,7 +73,8 @@ export interface Tenant {
   name_ar: string;
   name_en: string;
   account_type: AccountType;
-  fal_license_number: string;
+  /** No longer collected at registration (migration 0047) — filled in later from حسابي. Required for the tenant's public site to publish. */
+  fal_license_number: string | null;
   cr_number: string | null;
   tax_number: string | null;
   /** الحساب's social links (حسابي) — نطاقًا اختياريًا؛ يظهر في تذييل الموقع فقط ما تم تعبئته. */
@@ -88,6 +91,8 @@ export interface Tenant {
   status: TenantStatus;
   /** Whether the first StreamPay charge for the chosen plan (registration step 6) cleared — see migration 0027. */
   payment_status: PaymentStatus;
+  /** Set only when the chosen plan at registration was the free-trial plan (migration 0047) — null for every normal paid signup. Past this timestamp the tenant is treated exactly like a suspended one (is_tenant_active) until they subscribe to a real plan. */
+  trial_ends_at: string | null;
   created_at: string;
 }
 

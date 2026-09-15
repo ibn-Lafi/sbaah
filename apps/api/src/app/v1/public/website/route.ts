@@ -32,8 +32,20 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
   if (!chrome) {
     throw new ApiError(404, 'site_not_found', 'الموقع غير موجود');
   }
-  if (chrome.status !== 'active') {
+  const trialExpired = chrome.trial_ends_at !== null && new Date(chrome.trial_ends_at) <= new Date();
+  if (chrome.status !== 'active' || trialExpired) {
     throw new ApiError(403, 'tenant_suspended', 'الحساب غير متاح حاليًا');
+  }
+  // مطلوب مؤسس (migration 0047): الموقع العام لا يُنشر لحين إكمال بيانات
+  // الحساب — فال لأي نوع، والسجل التجاري/الرقم الضريبي أيضًا لمؤسسة/شركة.
+  // resolve_public_tenant (properties/leads) يفرض هذا فعليًا بجملة SQL؛
+  // هنا (resolve_public_tenant_chrome لا يفلتر عمدًا) لا بد من نفس الفحص
+  // صراحة، لعرض رسالة مختلفة عن "الحساب موقوف".
+  const profileComplete =
+    chrome.fal_license_number !== null &&
+    (chrome.account_type === 'individual' || (chrome.cr_number !== null && chrome.tax_number !== null));
+  if (!profileComplete) {
+    throw new ApiError(403, 'profile_incomplete', 'الموقع غير منشور بعد');
   }
   const tenantId = chrome.id;
   const tenant = {
