@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { Modal } from '@/components/ui/modal';
 import { FormError } from '@/components/ui/form-error';
 import { EditorSkeleton } from '@/components/website/editor-skeleton';
 import { BackButton } from '@/components/ui/back-button';
@@ -592,17 +593,31 @@ export default function WebsiteEditorPage() {
                       />
                     </button>
                     {openZones.content && (
-                      <div className="mt-4">
+                      <div className="mt-4 flex flex-col gap-3">
                         {activePage && (
                           <SectionList
                             key={activePage.id}
-                            sections={contentSections}
+                            sections={visibleContentSections}
                             accessToken={accessToken}
-                            onChange={(sections) => mergeSections(activePage.id, sections)}
+                            // SectionList لا يعرف إلا الأقسام الظاهرة (reorder
+                            // API يُعيد فقط ما أرسلناه له) — لازم إعادة دمج
+                            // الأقسام المخفية يدويًا هنا وإلا تضيع من الحالة.
+                            onChange={(updatedVisible) =>
+                              mergeSections(activePage.id, [...updatedVisible, ...hiddenContentSections])
+                            }
+                            onHide={(section) => void toggleSectionVisibility(section)}
                             website={website}
                             onWebsiteUpdate={(updated) => setWebsite(updated)}
                           />
                         )}
+                        <button
+                          type="button"
+                          onClick={() => setAddSectionOpen(true)}
+                          className="rounded-input border-border-default text-brand flex items-center justify-center gap-2 border border-dashed px-4 py-3 text-sm font-semibold"
+                        >
+                          <PlusIcon className="h-[16px] w-[16px]" />
+                          {t.editor.addSection}
+                        </button>
                       </div>
                     )}
                   </div>
@@ -746,6 +761,61 @@ export default function WebsiteEditorPage() {
             </div>
           </div>
         </div>
+
+        {/* نافذة "إضافة قسم" بعرض الكمبيوتر — نفس حالة/منطق نافذة الجوال
+            (اختيار راديو يبقي النافذة مفتوحة، ثم تأكيد صريح)، بقالب Modal
+            المشترك المستخدم أصلًا في كل تدفقات "+ إضافة ..." بلوحة التحكم،
+            بدل نمط الورقة السفلية الخاص بالجوال. */}
+        {addSectionOpen && (
+          <Modal title={t.editor.addSectionTitle} onClose={closeAddSectionSheet} maxWidth="420px">
+            <div className="flex flex-col gap-3">
+              <div className="relative">
+                <SearchIcon className="text-text-placeholder pointer-events-none absolute start-4 top-1/2 h-[16px] w-[16px] -translate-y-1/2" />
+                <Input
+                  value={addSectionQuery}
+                  onChange={(e) => setAddSectionQuery(e.target.value)}
+                  placeholder={t.editor.searchSectionPlaceholder}
+                  className="ps-10"
+                />
+              </div>
+
+              {filteredHiddenSections.length === 0 ? (
+                <p className="text-text-secondary py-6 text-center text-sm">{t.editor.noHiddenSections}</p>
+              ) : (
+                <div className="flex max-h-[320px] flex-col gap-2 overflow-y-auto">
+                  {filteredHiddenSections.map((section) => {
+                    const selected = selectedSectionId === section.id;
+                    return (
+                      <button
+                        key={section.id}
+                        type="button"
+                        onClick={() => setSelectedSectionId(section.id)}
+                        className={`rounded-input flex items-center gap-3 border px-4 py-3 text-start ${
+                          selected ? 'border-brand ring-brand ring-1' : 'border-border-default'
+                        }`}
+                      >
+                        <SectionTypeIcon type={section.type} className="text-text-secondary h-[16px] w-[16px] flex-none" />
+                        <span className="flex-1 text-sm font-medium text-text-primary">
+                          {t.sectionTypeLabels[section.type]}
+                        </span>
+                        <RadioIcon selected={selected} className="text-brand h-[18px] w-[18px] flex-none" />
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              <div className="flex items-center gap-2 pt-1">
+                <Button type="button" onClick={confirmAddSection} disabled={!selectedSectionId} className="flex-1">
+                  {t.editor.addSectionConfirm}
+                </Button>
+                <Button type="button" variant="secondary" onClick={closeAddSectionSheet} className="flex-1">
+                  {t.editor.addSectionCancel}
+                </Button>
+              </div>
+            </div>
+          </Modal>
+        )}
       </div>
     </>
   );

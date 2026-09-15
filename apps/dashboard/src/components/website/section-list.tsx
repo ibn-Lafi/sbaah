@@ -1,16 +1,18 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Website, WebsiteSection } from '@sbaah/shared';
-import { Switch } from '@/components/ui/switch';
+import { EyeOffIcon } from './editor-icons';
 import { useLocale } from '@/lib/i18n/locale-context';
-import { updateSection, reorderSections } from '@/lib/api/website';
+import { reorderSections } from '@/lib/api/website';
 import { SectionConfigEditor } from './section-config-editor';
 
 interface SectionListProps {
+  /** أقسام مُفعَّلة (ظاهرة) فقط — الإخفاء يُزيل القسم من هذه القائمة عائدًا لمكتبة "إضافة قسم" (onHide، مُدارة بصفحة المحرر نفسها ككل الأقسام معًا، بما فيها المخفية). */
   sections: WebsiteSection[];
   accessToken: string;
   onChange: (sections: WebsiteSection[]) => void;
+  onHide: (section: WebsiteSection) => void;
   website: Website;
   onWebsiteUpdate: (website: Website) => void;
 }
@@ -22,12 +24,19 @@ export const EDITABLE_TYPES: WebsiteSection['type'][] = ['hero', 'about', 'why_u
  * reorder doesn't need a full DnD library. Each drop persists the whole
  * new order in one call (sectionReorderSchema, PRODUCT_SPEC section 6).
  */
-export function SectionList({ sections, accessToken, onChange, website, onWebsiteUpdate }: SectionListProps) {
+export function SectionList({ sections, accessToken, onChange, onHide, website, onWebsiteUpdate }: SectionListProps) {
   const { pages } = useLocale();
   const t = pages.website;
   const [ordered, setOrdered] = useState(sections);
   const [editingId, setEditingId] = useState<string | null>(null);
   const dragIndex = useRef<number | null>(null);
+
+  // "sections" يتغيّر من خارج هذا المكوّن أيضًا الآن (إضافة/إخفاء قسم من
+  // صفحة المحرر نفسها، لا فقط بإعادة الترتيب الداخلية هنا) — لازم مزامنة
+  // الحالة المحلية معه بدل الاكتفاء بالقيمة الأولية عند التركيب.
+  useEffect(() => {
+    setOrdered(sections);
+  }, [sections]);
 
   function handleDrop(dropIndex: number) {
     if (dragIndex.current === null || dragIndex.current === dropIndex) return;
@@ -42,13 +51,6 @@ export function SectionList({ sections, accessToken, onChange, website, onWebsit
       accessToken,
       next.map((section, index) => ({ id: section.id, order_index: index })),
     ).then((result) => onChange(result.sections));
-  }
-
-  async function handleToggle(section: WebsiteSection) {
-    const next = ordered.map((item) => (item.id === section.id ? { ...item, is_visible: !item.is_visible } : item));
-    setOrdered(next);
-    const { section: updated } = await updateSection(accessToken, section.id, { is_visible: !section.is_visible });
-    onChange(next.map((item) => (item.id === updated.id ? updated : item)));
   }
 
   function handleConfigSaved(updated: WebsiteSection) {
@@ -85,7 +87,15 @@ export function SectionList({ sections, accessToken, onChange, website, onWebsit
                 {editingId === section.id ? t.sectionList.closeEdit : t.sectionList.editContent}
               </button>
             )}
-            <Switch checked={section.is_visible} onChange={() => void handleToggle(section)} />
+            <button
+              type="button"
+              onClick={() => onHide(section)}
+              aria-label={t.editor.hideSection}
+              title={t.editor.hideSection}
+              className="text-text-secondary hover:text-danger flex-none"
+            >
+              <EyeOffIcon className="h-[16px] w-[16px]" />
+            </button>
           </div>
           {editingId === section.id && (
             <SectionConfigEditor
