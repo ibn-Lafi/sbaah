@@ -11,6 +11,7 @@ import { createLead } from '@/lib/api/leads';
 import { listProperties } from '@/lib/api/properties';
 import { listTeam, type TeamMember } from '@/lib/api/team';
 import { ApiRequestError } from '@/lib/api/client';
+import { useLocale } from '@/lib/i18n/locale-context';
 
 interface CreateLeadFormProps {
   accessToken: string;
@@ -19,6 +20,8 @@ interface CreateLeadFormProps {
 
 /** RLS (leads_owner_admin_manage) has no insert policy for Agent — matches POST /v1/leads' explicit 403 for that role. Same reasoning is why the agent-assignment select below fetches GET /v1/team unconditionally: only Owner/Admin ever render this form. */
 export function CreateLeadForm({ accessToken, onCreated }: CreateLeadFormProps) {
+  const { pages } = useLocale();
+  const t = pages.leads;
   const [properties, setProperties] = useState<Property[]>([]);
   const [team, setTeam] = useState<TeamMember[]>([]);
   const [fullName, setFullName] = useState('');
@@ -48,7 +51,7 @@ export function CreateLeadForm({ accessToken, onCreated }: CreateLeadFormProps) 
 
     const result = manualLeadInputSchema.safeParse(candidate);
     if (!result.success) {
-      setError(result.error.issues[0]?.message ?? 'يرجى مراجعة بيانات العميل المحتمل');
+      setError(result.error.issues[0]?.message ?? t.createForm.validationError);
       return;
     }
 
@@ -57,7 +60,7 @@ export function CreateLeadForm({ accessToken, onCreated }: CreateLeadFormProps) 
       const { lead } = await createLead(accessToken, result.data);
       onCreated(lead);
     } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : 'تعذّر إضافة العميل المحتمل');
+      setError(err instanceof ApiRequestError ? err.message : t.createForm.createError);
     } finally {
       setLoading(false);
     }
@@ -65,19 +68,19 @@ export function CreateLeadForm({ accessToken, onCreated }: CreateLeadFormProps) 
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <Input placeholder="الاسم" value={fullName} onChange={(e) => setFullName(e.target.value)} />
+      <Input placeholder={t.createForm.namePlaceholder} value={fullName} onChange={(e) => setFullName(e.target.value)} />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <PhoneInput placeholder="5xxxxxxxx" value={phone} onChange={setPhone} />
+        <PhoneInput placeholder={t.createForm.phonePlaceholder} value={phone} onChange={setPhone} />
         <Input
           type="email"
-          placeholder="البريد الإلكتروني (اختياري)"
+          placeholder={t.createForm.emailPlaceholder}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           dir="ltr"
         />
       </div>
       <Select value={propertyId} onChange={(e) => setPropertyId(e.target.value)}>
-        <option value="">بلا عقار محدد (اختياري)</option>
+        <option value="">{t.createForm.noPropertySelected}</option>
         {properties.map((property) => (
           <option key={property.id} value={property.id}>
             {property.title_ar}
@@ -85,7 +88,7 @@ export function CreateLeadForm({ accessToken, onCreated }: CreateLeadFormProps) 
         ))}
       </Select>
       <Select value={assignedAgentId} onChange={(e) => setAssignedAgentId(e.target.value)}>
-        <option value="">بلا مسؤول (اختياري)</option>
+        <option value="">{t.createForm.noAgentSelected}</option>
         {team.map((member) => (
           <option key={member.id} value={member.id}>
             {member.full_name}
@@ -95,7 +98,7 @@ export function CreateLeadForm({ accessToken, onCreated }: CreateLeadFormProps) 
 
       <FormError message={error} />
       <Button type="submit" disabled={loading}>
-        {loading ? 'جارٍ الإضافة...' : 'إضافة العميل المحتمل'}
+        {loading ? t.createForm.submitting : t.createForm.submit}
       </Button>
     </form>
   );

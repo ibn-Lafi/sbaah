@@ -2,7 +2,7 @@
 
 import { LEAD_STATUSES, type LeadStatus } from '@sbaah/shared';
 import { STATUS_CLASSES } from '@/components/ui/badge';
-import { LEAD_STATUS_LABELS } from '@/lib/lead/labels';
+import { useLocale } from '@/lib/i18n/locale-context';
 
 interface LeadStatusPillSelectProps {
   value: LeadStatus;
@@ -11,6 +11,8 @@ interface LeadStatusPillSelectProps {
 
 /** قائمة منسدلة ملوّنة داخل صف الجدول — تبديل حالة العميل المحتمل مباشرة دون فتح صفحة التفاصيل. */
 export function LeadStatusPillSelect({ value, onChange }: LeadStatusPillSelectProps) {
+  const { pages } = useLocale();
+  const t = pages.leads;
   return (
     <select
       value={value}
@@ -20,7 +22,7 @@ export function LeadStatusPillSelect({ value, onChange }: LeadStatusPillSelectPr
     >
       {LEAD_STATUSES.map((status) => (
         <option key={status} value={status}>
-          {LEAD_STATUS_LABELS[status]}
+          {t.statusLabels[status]}
         </option>
       ))}
     </select>

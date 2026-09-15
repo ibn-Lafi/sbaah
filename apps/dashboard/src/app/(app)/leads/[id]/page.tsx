@@ -20,10 +20,10 @@ import { addLeadNote, deleteLead, getLead, updateLead, type LeadWithNotes } from
 import { getProperty } from '@/lib/api/properties';
 import { listTeam, type TeamMember } from '@/lib/api/team';
 import { ApiRequestError } from '@/lib/api/client';
-import { LEAD_STATUS_LABELS, LEAD_SOURCE_LABELS } from '@/lib/lead/labels';
 import { PROPERTY_TYPE_LABELS } from '@/lib/property/labels';
 import { datetimeLocalToIso, isoToDatetimeLocal } from '@/lib/lead/datetime';
 import { formatRelativeTime } from '@/lib/format/date';
+import { useLocale } from '@/lib/i18n/locale-context';
 
 // Matches Button's h-[46px] — these are <a> tags (tel:/WhatsApp deep links), not <button>s, so they can't use the Button component itself, but should still line up with it.
 const ACTION_LINK_CLASSES =
@@ -33,6 +33,8 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
   const { id } = use(params);
   const router = useRouter();
   const { me, accessToken } = useCurrentUser();
+  const { pages } = useLocale();
+  const t = pages.leads;
   const [lead, setLead] = useState<LeadWithNotes | null>(null);
   const [property, setProperty] = useState<Property | null>(null);
   const [team, setTeam] = useState<TeamMember[]>([]);
@@ -75,7 +77,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
       const { lead: updated } = await updateLead(accessToken, id, { assigned_agent_id: assignedAgentId || null });
       setLead((current) => (current ? { ...current, ...updated } : current));
     } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : 'تعذّر حفظ المسؤول');
+      setError(err instanceof ApiRequestError ? err.message : t.detail.errors.saveAgent);
     }
   }
 
@@ -85,7 +87,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
       const { lead: updated } = await updateLead(accessToken, id, { status: status as (typeof LEAD_STATUSES)[number] });
       setLead((current) => (current ? { ...current, ...updated } : current));
     } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : 'تعذّر حفظ الحالة');
+      setError(err instanceof ApiRequestError ? err.message : t.detail.errors.saveStatus);
     }
   }
 
@@ -95,7 +97,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
       const { lead: updated } = await updateLead(accessToken, id, { follow_up_at: datetimeLocalToIso(localValue) });
       setLead((current) => (current ? { ...current, ...updated } : current));
     } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : 'تعذّر حفظ تاريخ المتابعة');
+      setError(err instanceof ApiRequestError ? err.message : t.detail.errors.saveFollowUp);
     }
   }
 

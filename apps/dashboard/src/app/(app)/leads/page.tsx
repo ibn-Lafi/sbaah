@@ -24,7 +24,8 @@ import { listLeads, updateLead } from '@/lib/api/leads';
 import { listProperties } from '@/lib/api/properties';
 import { listDistricts } from '@/lib/api/reference-data';
 import { PROPERTY_TYPE_LABELS } from '@/lib/property/labels';
-import { LEAD_SOURCE_LABELS, LEAD_STATUS_LABELS } from '@/lib/lead/labels';
+import { useLocale } from '@/lib/i18n/locale-context';
+import type { PageDictionaries } from '@/lib/i18n/page-dictionaries';
 import { formatDate } from '@/lib/format/date';
 
 type StatusFilter = LeadStatus | 'all';
@@ -32,11 +33,12 @@ type StatusFilter = LeadStatus | 'all';
 function propertySubtitle(
   property: Property | undefined,
   districts: Record<string, District>,
+  t: PageDictionaries['leads'],
 ): string | null {
   if (!property) return null;
   const typeLabel = PROPERTY_TYPE_LABELS[property.property_type];
   const district = property.district_id ? districts[property.district_id] : undefined;
-  return district ? `${typeLabel} · حي ${district.name_ar}` : typeLabel;
+  return district ? t.list.propertySubtitle(typeLabel, district.name_ar) : typeLabel;
 }
 
 /**
@@ -47,6 +49,8 @@ function propertySubtitle(
 export default function LeadsPage() {
   const router = useRouter();
   const { me, accessToken } = useCurrentUser();
+  const { pages } = useLocale();
+  const t = pages.leads;
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [leads, setLeads] = useState<Lead[] | null>(null);
   const [properties, setProperties] = useState<Record<string, Property>>({});
@@ -94,7 +98,7 @@ export default function LeadsPage() {
 
   return (
     <AppShell
-      title="إدارة العملاء"
+      title={t.list.title}
       orgName={me.tenant.name_ar}
       accountType={me.tenant.account_type}
     >
@@ -105,18 +109,18 @@ export default function LeadsPage() {
           className="w-[140px]"
           compact
         >
-          <option value="all">الكل</option>
+          <option value="all">{t.list.statusFilterAll}</option>
           {LEAD_STATUSES.map((status) => (
             <option key={status} value={status}>
-              {LEAD_STATUS_LABELS[status]}
+              {t.statusLabels[status]}
             </option>
           ))}
         </Select>
-        {canManage && <Button onClick={() => setShowCreate(true)}>+ إضافة عميل محتمل</Button>}
+        {canManage && <Button onClick={() => setShowCreate(true)}>{t.list.addButton}</Button>}
       </div>
 
       {showCreate && (
-        <Modal title="إضافة عميل محتمل" onClose={() => setShowCreate(false)}>
+        <Modal title={t.createModal.title} onClose={() => setShowCreate(false)}>
           <CreateLeadForm
             accessToken={accessToken}
             onCreated={(lead) => router.push(`/leads/${lead.id}`)}
@@ -128,24 +132,24 @@ export default function LeadsPage() {
         {leads === null ? (
           <TableSkeleton columns={5} />
         ) : leads.length === 0 ? (
-          <p className="text-text-secondary p-6 text-center">لا يوجد عملاء محتملون بعد</p>
+          <p className="text-text-secondary p-6 text-center">{t.list.emptyState}</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[760px] text-sm">
               <thead className="bg-surface-header text-text-secondary text-right">
                 <tr>
-                  <th className="px-5 py-3 font-medium">العميل</th>
-                  <th className="px-5 py-3 font-medium">الجوال</th>
-                  <th className="px-5 py-3 font-medium">المصدر</th>
-                  <th className="px-5 py-3 font-medium">الحالة</th>
-                  <th className="px-5 py-3 font-medium">المتابعة القادمة</th>
+                  <th className="px-5 py-3 font-medium">{t.list.table.name}</th>
+                  <th className="px-5 py-3 font-medium">{t.list.table.phone}</th>
+                  <th className="px-5 py-3 font-medium">{t.list.table.source}</th>
+                  <th className="px-5 py-3 font-medium">{t.list.table.status}</th>
+                  <th className="px-5 py-3 font-medium">{t.list.table.nextFollowUp}</th>
                   <th className="w-10 px-3 py-3" />
                 </tr>
               </thead>
               <tbody>
                 {leads.map((lead) => {
                   const property = lead.property_id ? properties[lead.property_id] : undefined;
-                  const subtitle = propertySubtitle(property, districts);
+                  const subtitle = propertySubtitle(property, districts, t);
                   return (
                     <tr
                       key={lead.id}
@@ -173,7 +177,7 @@ export default function LeadsPage() {
                         {lead.phone ?? '—'}
                       </td>
                       <td className="text-text-secondary px-5 py-3">
-                        {LEAD_SOURCE_LABELS[lead.source]}
+                        {t.sourceLabels[lead.source]}
                       </td>
                       <td className="px-5 py-3">
                         <LeadStatusPillSelect
