@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { AccountType } from '@sbaah/shared';
-import { accountTypeUpdateSchema, falLicenseUpdateSchema, socialLinksUpdateSchema } from '@sbaah/shared';
+import { organizationInfoUpdateSchema, falLicenseUpdateSchema, socialLinksUpdateSchema } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -47,61 +47,37 @@ function InfoRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-interface AccountTypeInitial {
-  account_type: AccountType;
-  name_ar: string;
-  cr_number: string | null;
-  tax_number: string | null;
-}
-
 /**
  * نوع الحساب — قابل للتبديل بأي اتجاه (فرد↔مؤسسة↔شركة) من داخل تبويب
  * "بيانات الموقع" بالإعدادات، Owner فقط (assertOwner بنفس تقييد الدومين).
- * يعيد تحميل الصفحة بعد الحفظ لتحديث شارة النوع/الاسم المعروض في AppShell
- * بلا حاجة لآلية refresh مخصصة لـ me (نفس نمط صفحة الدومين).
+ * هذه الخطوة تختار النوع فقط، بلا أي حقل آخر معها — اسم الموقع والسجل
+ * التجاري والرقم الضريبي يُعدَّلان بعدها من بطاقة "بيانات الجهة" الخاصة
+ * (OrganizationInfoCard)، بجانب رخصة فال. يعيد تحميل الصفحة بعد الحفظ
+ * لتحديث شارة النوع المعروضة في AppShell وظهور/اختفاء بطاقة "بيانات
+ * الجهة" بلا حاجة لآلية refresh مخصصة لـ me (نفس نمط صفحة الدومين).
  */
 const ACCOUNT_TYPES: AccountType[] = ['individual', 'institution', 'company'];
 
-function AccountTypeCard({ accessToken, initial, canEdit }: { accessToken: string; initial: AccountTypeInitial; canEdit: boolean }) {
+function AccountTypeCard({ accessToken, initial, canEdit }: { accessToken: string; initial: AccountType; canEdit: boolean }) {
   const { pages } = useLocale();
   const t = pages.settings;
   const [editing, setEditing] = useState(false);
-  const [accountType, setAccountType] = useState<AccountType>(initial.account_type);
-  const [fullName, setFullName] = useState(initial.name_ar);
-  const [nameAr, setNameAr] = useState(initial.name_ar);
-  const [crNumber, setCrNumber] = useState(initial.cr_number ?? '');
-  const [taxNumber, setTaxNumber] = useState(initial.tax_number ?? '');
+  const [accountType, setAccountType] = useState<AccountType>(initial);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   function cancel() {
     setEditing(false);
     setError(null);
-    setAccountType(initial.account_type);
-    setFullName(initial.name_ar);
-    setNameAr(initial.name_ar);
-    setCrNumber(initial.cr_number ?? '');
-    setTaxNumber(initial.tax_number ?? '');
+    setAccountType(initial);
   }
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     setError(null);
-
-    const payload =
-      accountType === 'individual'
-        ? { account_type: 'individual' as const, full_name: fullName }
-        : { account_type: accountType, name_ar: nameAr, cr_number: crNumber, tax_number: taxNumber };
-
-    const result = accountTypeUpdateSchema.safeParse(payload);
-    if (!result.success) {
-      setError(result.error.issues[0]?.message ?? t.common.invalidData);
-      return;
-    }
-
     setLoading(true);
     try {
-      await updateAccountType(accessToken, result.data);
+      await updateAccountType(accessToken, { account_type: accountType });
       window.location.reload();
     } catch (err) {
       setError(err instanceof ApiRequestError ? err.message : t.accountType.switchFailed);
@@ -115,7 +91,7 @@ function AccountTypeCard({ accessToken, initial, canEdit }: { accessToken: strin
         <div className="flex items-center justify-between">
           <div>
             <h2 className="mb-1 text-base font-semibold text-text-primary">{t.accountType.title}</h2>
-            <p className="text-sm text-text-secondary">{t.accountType.options[initial.account_type].label}</p>
+            <p className="text-sm text-text-secondary">{t.accountType.options[initial].label}</p>
           </div>
           {canEdit && (
             <Button type="button" variant="secondary" onClick={() => setEditing(true)}>
@@ -155,38 +131,6 @@ function AccountTypeCard({ accessToken, initial, canEdit }: { accessToken: strin
           })}
         </div>
 
-        {accountType === 'individual' ? (
-          <Input
-            placeholder={t.accountType.fullNamePlaceholder}
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-          />
-        ) : (
-          <>
-            <Input
-              placeholder={
-                accountType === 'institution'
-                  ? t.accountType.institutionNamePlaceholder
-                  : t.accountType.companyNamePlaceholder
-              }
-              value={nameAr}
-              onChange={(e) => setNameAr(e.target.value)}
-            />
-            <Input
-              placeholder={t.accountType.crNumberPlaceholder}
-              value={crNumber}
-              onChange={(e) => setCrNumber(e.target.value)}
-              dir="ltr"
-            />
-            <Input
-              placeholder={t.accountType.taxNumberPlaceholder}
-              value={taxNumber}
-              onChange={(e) => setTaxNumber(e.target.value)}
-              dir="ltr"
-            />
-          </>
-        )}
-
         <FormError message={error} />
         <div className="flex gap-2">
           <Button type="submit" disabled={loading}>
@@ -197,6 +141,102 @@ function AccountTypeCard({ accessToken, initial, canEdit }: { accessToken: strin
           </Button>
         </div>
       </form>
+    </Card>
+  );
+}
+
+/**
+ * بيانات الجهة — اسم الموقع + السجل التجاري + الرقم الضريبي، لحسابات
+ * مؤسسة/شركة القائمة بالفعل فقط (تُخفى تمامًا لحساب فرد — رخصة فال تبقى
+ * وحدها). "اسم الموقع" هنا هو نفس حقل tenant.name_ar المعروض في بطاقة
+ * "بيانات الحساب" أعلى الصفحة (InfoRow)، لا نسخة مستقلة عنه.
+ */
+function OrganizationInfoCard({
+  accessToken,
+  accountType,
+  initial,
+  canEdit,
+}: {
+  accessToken: string;
+  accountType: 'institution' | 'company';
+  initial: { name_ar: string; cr_number: string | null; tax_number: string | null };
+  canEdit: boolean;
+}) {
+  const { pages } = useLocale();
+  const t = pages.settings;
+  const [nameAr, setNameAr] = useState(initial.name_ar);
+  const [crNumber, setCrNumber] = useState(initial.cr_number ?? '');
+  const [taxNumber, setTaxNumber] = useState(initial.tax_number ?? '');
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  async function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    setError(null);
+    setSaved(false);
+
+    const result = organizationInfoUpdateSchema.safeParse({
+      account_type: accountType,
+      name_ar: nameAr,
+      cr_number: crNumber,
+      tax_number: taxNumber,
+    });
+    if (!result.success) {
+      setError(result.error.issues[0]?.message ?? t.common.invalidData);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await updateAccountType(accessToken, result.data);
+      setSaved(true);
+    } catch (err) {
+      setError(err instanceof ApiRequestError ? err.message : t.organizationInfo.saveFailed);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <Card className="p-6">
+      <h2 className="mb-1 text-base font-semibold text-text-primary">{t.organizationInfo.title}</h2>
+      <p className="mb-4 text-sm text-text-secondary">{t.organizationInfo.description}</p>
+      {canEdit ? (
+        <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-3">
+          <Input
+            placeholder={
+              accountType === 'institution'
+                ? t.organizationInfo.institutionNamePlaceholder
+                : t.organizationInfo.companyNamePlaceholder
+            }
+            value={nameAr}
+            onChange={(e) => setNameAr(e.target.value)}
+          />
+          <Input
+            placeholder={t.organizationInfo.crNumberPlaceholder}
+            value={crNumber}
+            onChange={(e) => setCrNumber(e.target.value)}
+            dir="ltr"
+          />
+          <Input
+            placeholder={t.organizationInfo.taxNumberPlaceholder}
+            value={taxNumber}
+            onChange={(e) => setTaxNumber(e.target.value)}
+            dir="ltr"
+          />
+          <FormError message={error} />
+          <Button type="submit" disabled={loading} className="w-fit">
+            {loading ? t.common.saving : saved ? t.common.saved : t.common.save}
+          </Button>
+        </form>
+      ) : (
+        <>
+          <InfoRow label={t.organizationInfo.websiteNameLabel} value={initial.name_ar} />
+          <InfoRow label={t.organizationInfo.crNumberLabel} value={initial.cr_number ?? '—'} />
+          <InfoRow label={t.organizationInfo.taxNumberLabel} value={initial.tax_number ?? '—'} />
+        </>
+      )}
     </Card>
   );
 }
@@ -521,19 +561,23 @@ function WebsiteDataTab({ accessToken }: { accessToken: string }) {
     <>
       <Card className="p-6">
         <h2 className="mb-2 text-base font-semibold text-text-primary">{settings.accountInfo.title}</h2>
-        <InfoRow label={settings.accountInfo.accountName} value={me.tenant.name_ar} />
+        <InfoRow label={settings.accountInfo.websiteName} value={me.tenant.name_ar} />
       </Card>
 
-      <AccountTypeCard
-        accessToken={accessToken}
-        canEdit={canEdit}
-        initial={{
-          account_type: me.tenant.account_type,
-          name_ar: me.tenant.name_ar,
-          cr_number: me.tenant.cr_number,
-          tax_number: me.tenant.tax_number,
-        }}
-      />
+      <AccountTypeCard accessToken={accessToken} canEdit={canEdit} initial={me.tenant.account_type} />
+
+      {me.tenant.account_type !== 'individual' && (
+        <OrganizationInfoCard
+          accessToken={accessToken}
+          canEdit={canEdit}
+          accountType={me.tenant.account_type}
+          initial={{
+            name_ar: me.tenant.name_ar,
+            cr_number: me.tenant.cr_number,
+            tax_number: me.tenant.tax_number,
+          }}
+        />
+      )}
 
       <FalLicenseCard accessToken={accessToken} canEdit={canEdit} initial={me.tenant.fal_license_number} />
 

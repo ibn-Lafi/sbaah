@@ -5,9 +5,9 @@ import { z } from 'zod';
  * فال license, CR number, tax number, and (for institution/company) the
  * entity's own name are no longer collected there at all; they're filled
  * in later from حسابي (falLicenseUpdateSchema below, and
- * accountTypeUpdateSchema's name/cr/tax fields). Until then the tenant's
- * public site simply doesn't publish (resolve_public_tenant, migration
- * 0047) — everything else about the account works normally.
+ * organizationInfoUpdateSchema's name/cr/tax fields). Until then the
+ * tenant's public site simply doesn't publish (resolve_public_tenant,
+ * migration 0047) — everything else about the account works normally.
  */
 export const falLicenseNumberSchema = z
   .string()
@@ -20,39 +20,33 @@ export const falLicenseUpdateSchema = z.object({
 export type FalLicenseUpdateInput = z.infer<typeof falLicenseUpdateSchema>;
 
 /**
- * حسابي (Settings) — تبديل نوع الحساب بعد التسجيل. لا يعيد طلب رخصة فال
- * (بطاقتها الخاصة أعلاه) ولا اسم مسؤول الحساب (ذلك اسم المستخدم نفسه،
- * لا يتغيّر بتبديل نوع الحساب) — فقط الحقول التي يحدّدها النوع فعليًا:
- * الاسم المعروض للحساب (فرد) أو اسم الجهة+السجل+الضريبي (مؤسسة/شركة).
+ * حسابي (Settings) — تبديل نوع الحساب بعد التسجيل: النوع فقط (فرد/مؤسسة/
+ * شركة)، بلا أي حقل آخر معه في نفس الخطوة. اسم الجهة والسجل التجاري
+ * والرقم الضريبي يُعدَّلان لاحقًا من بطاقة "بيانات الجهة" الخاصة بها
+ * (organizationInfoUpdateSchema أدناه)، بجانب رخصة فال، فقط لحسابات
+ * مؤسسة/شركة — لا تُطلب أبدًا لحساب فرد (tenants_individual_no_org_fields،
+ * migration 0047).
  */
-const organizationAccountTypeFields = {
+export const accountTypeSwitchSchema = z.object({
+  account_type: z.enum(['individual', 'institution', 'company']),
+});
+export type AccountTypeSwitchInput = z.infer<typeof accountTypeSwitchSchema>;
+
+/**
+ * بطاقة "بيانات الجهة" — اسم الموقع (نفس اسم الحساب المعروض في بطاقة
+ * "بيانات الحساب") + السجل التجاري + الرقم الضريبي، لحسابات مؤسسة/شركة
+ * فقط. account_type مُعاد إرساله هنا (بلا تغييره فعليًا) لتحديد أي فرع من
+ * القيدين ينطبق — الـAPI يرفض الطلب إن كان نوع الحساب الحالي "فرد".
+ */
+export const organizationInfoUpdateSchema = z.object({
+  account_type: z.enum(['institution', 'company']),
   name_ar: z.string().min(2, 'اسم الجهة مطلوب'),
   cr_number: z.string().min(1, 'رقم السجل التجاري مطلوب'),
   tax_number: z.string().min(1, 'الرقم الضريبي مطلوب'),
-};
-
-export const individualAccountTypeUpdateSchema = z.object({
-  account_type: z.literal('individual'),
-  full_name: z.string().min(3, 'الاسم الثلاثي مطلوب'),
 });
+export type OrganizationInfoUpdateInput = z.infer<typeof organizationInfoUpdateSchema>;
 
-export const institutionAccountTypeUpdateSchema = z.object({
-  account_type: z.literal('institution'),
-  ...organizationAccountTypeFields,
-});
-
-export const companyAccountTypeUpdateSchema = z.object({
-  account_type: z.literal('company'),
-  ...organizationAccountTypeFields,
-});
-
-export const accountTypeUpdateSchema = z.discriminatedUnion('account_type', [
-  individualAccountTypeUpdateSchema,
-  institutionAccountTypeUpdateSchema,
-  companyAccountTypeUpdateSchema,
-]);
-
-export type AccountTypeUpdateInput = z.infer<typeof accountTypeUpdateSchema>;
+export type AccountTypeUpdateInput = AccountTypeSwitchInput | OrganizationInfoUpdateInput;
 
 /** PRODUCT_SPEC section 4.3 — partially self-service custom domain. Bare hostname, no protocol/path. */
 export const customDomainInputSchema = z.object({
