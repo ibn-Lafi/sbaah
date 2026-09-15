@@ -21,6 +21,7 @@ export function renderThemedSection(
   ctx: {
     locale: Locale;
     bannerUrl: string | null;
+    bannerVideoUrl: string | null;
     tenantName: string;
     whatsappPhone: string;
     tenantId: string;
@@ -37,6 +38,7 @@ export function renderThemedSection(
           locale={ctx.locale}
           config={section.config}
           bannerUrl={ctx.bannerUrl}
+          bannerVideoUrl={ctx.bannerVideoUrl}
           tenantName={ctx.tenantName}
         />
       );

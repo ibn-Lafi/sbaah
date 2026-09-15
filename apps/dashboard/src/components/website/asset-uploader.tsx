@@ -11,9 +11,11 @@ interface AssetUploaderProps {
   currentUrl: string | null;
   onUpload: (file: File) => Promise<void>;
   onRemove: () => Promise<void>;
+  /** 'video' يبدّل معاينة `<img>` بمشغّل `<video>` وقيمة accept — يُستخدم لفيديو خلفية الهيرو. */
+  kind?: 'image' | 'video';
 }
 
-export function AssetUploader({ label, currentUrl, onUpload, onRemove }: AssetUploaderProps) {
+export function AssetUploader({ label, currentUrl, onUpload, onRemove, kind = 'image' }: AssetUploaderProps) {
   const { pages } = useLocale();
   const t = pages.website;
   const [error, setError] = useState<string | null>(null);
@@ -30,7 +32,7 @@ export function AssetUploader({ label, currentUrl, onUpload, onRemove }: AssetUp
     try {
       await onUpload(file);
     } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : t.assetUploader.errors.upload);
+      setError(err instanceof ApiRequestError ? err.message : t.assetUploader.errors[kind === 'video' ? 'uploadVideo' : 'uploadImage']);
     } finally {
       setLoading(false);
     }
@@ -41,8 +43,12 @@ export function AssetUploader({ label, currentUrl, onUpload, onRemove }: AssetUp
       <p className="text-sm font-medium text-text-primary">{label}</p>
       {currentUrl ? (
         <div className="flex items-center gap-3">
-          {/* eslint-disable-next-line @next/next/no-img-element -- Supabase Storage public URL, not a local/optimizable asset */}
-          <img src={currentUrl} alt={label} className="h-16 w-28 rounded-input border border-border-default object-cover" />
+          {kind === 'video' ? (
+            <video src={currentUrl} muted className="h-16 w-28 rounded-input border border-border-default object-cover" />
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element -- Supabase Storage public URL, not a local/optimizable asset
+            <img src={currentUrl} alt={label} className="h-16 w-28 rounded-input border border-border-default object-cover" />
+          )}
           <Button type="button" variant="secondary" disabled={loading} onClick={() => fileInputRef.current?.click()}>
             {t.assetUploader.replace}
           </Button>
@@ -52,10 +58,16 @@ export function AssetUploader({ label, currentUrl, onUpload, onRemove }: AssetUp
         </div>
       ) : (
         <Button type="button" variant="secondary" disabled={loading} onClick={() => fileInputRef.current?.click()} className="w-fit">
-          {loading ? t.assetUploader.uploading : t.assetUploader.upload}
+          {loading ? t.assetUploader.uploading : t.assetUploader[kind === 'video' ? 'uploadVideo' : 'uploadImage']}
         </Button>
       )}
-      <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => void handleFileSelected(e)} />
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept={kind === 'video' ? 'video/*' : 'image/*'}
+        className="hidden"
+        onChange={(e) => void handleFileSelected(e)}
+      />
       <FormError message={error} />
     </div>
   );

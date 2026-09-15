@@ -73,7 +73,14 @@ export default async function PropertiesPage({ params, searchParams }: PageProps
   const theme = getThemeComponents(site.website.theme_key);
 
   const gridSection = site.sections.find((s) => s.type === 'property_grid');
-  const themedCtx = { locale, bannerUrl: site.website.banner_image_url, tenantName, whatsappPhone: site.whatsapp_phone, tenantId: site.tenant.id };
+  const themedCtx = {
+    locale,
+    bannerUrl: site.website.banner_image_url,
+    bannerVideoUrl: site.website.banner_video_url,
+    tenantName,
+    whatsappPhone: site.whatsapp_phone,
+    tenantId: site.tenant.id,
+  };
   const before = site.sections.filter((s) => s.type !== 'property_grid' && (!gridSection || s.order_index < gridSection.order_index));
   const after = site.sections.filter((s) => s.type !== 'property_grid' && gridSection && s.order_index > gridSection.order_index);
 

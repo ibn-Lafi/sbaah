@@ -15,7 +15,6 @@ import { Select } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { FormError } from '@/components/ui/form-error';
 import { EditorSkeleton } from '@/components/website/editor-skeleton';
-import { AssetUploader } from '@/components/website/asset-uploader';
 import { BackButton } from '@/components/ui/back-button';
 import { SectionList, EDITABLE_TYPES } from '@/components/website/section-list';
 import { SectionConfigEditor } from '@/components/website/section-config-editor';
@@ -39,7 +38,6 @@ import {
   getWebsite,
   updateWebsite,
   updateSection,
-  uploadBanner,
   type WebsitePageWithSections,
 } from '@/lib/api/website';
 import { ApiRequestError } from '@/lib/api/client';
@@ -317,6 +315,8 @@ export default function WebsiteEditorPage() {
                           <SectionConfigEditor
                             section={section}
                             accessToken={accessToken}
+                            website={website}
+                            onWebsiteUpdate={(updated) => setWebsite(updated)}
                             onSaved={(updated) => {
                               if (!activePage) return;
                               mergeSections(activePage.id, [
@@ -412,18 +412,6 @@ export default function WebsiteEditorPage() {
                     ))}
                   </Select>
                 </div>
-                <AssetUploader
-                  label={t.editor.bannerImageLabel}
-                  currentUrl={website.banner_image_url}
-                  onUpload={async (file) => {
-                    const { website: updated } = await uploadBanner(accessToken, file);
-                    setWebsite((current) => (current ? { ...current, ...updated } : current));
-                  }}
-                  onRemove={async () => {
-                    const { website: updated } = await updateWebsite(accessToken, { banner_image_url: null });
-                    setWebsite((current) => (current ? { ...current, ...updated } : current));
-                  }}
-                />
               </div>
             </>
           )}
@@ -580,6 +568,8 @@ export default function WebsiteEditorPage() {
                             sections={contentSections}
                             accessToken={accessToken}
                             onChange={(sections) => mergeSections(activePage.id, sections)}
+                            website={website}
+                            onWebsiteUpdate={(updated) => setWebsite(updated)}
                           />
                         )}
                       </div>
@@ -673,20 +663,6 @@ export default function WebsiteEditorPage() {
                           ))}
                         </Select>
                       </div>
-                      <AssetUploader
-                        label={t.editor.bannerImageLabel}
-                        currentUrl={website.banner_image_url}
-                        onUpload={async (file) => {
-                          const { website: updated } = await uploadBanner(accessToken, file);
-                          setWebsite((current) => (current ? { ...current, ...updated } : current));
-                        }}
-                        onRemove={async () => {
-                          const { website: updated } = await updateWebsite(accessToken, {
-                            banner_image_url: null,
-                          });
-                          setWebsite((current) => (current ? { ...current, ...updated } : current));
-                        }}
-                      />
                     </div>
                   )}
                 </div>

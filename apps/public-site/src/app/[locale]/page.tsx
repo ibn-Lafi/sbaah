@@ -59,6 +59,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 locale={locale}
                 config={section.config}
                 bannerUrl={site.website.banner_image_url}
+                bannerVideoUrl={site.website.banner_video_url}
                 tenantName={tenantName}
               />
             );

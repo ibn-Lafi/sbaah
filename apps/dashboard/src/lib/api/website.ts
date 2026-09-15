@@ -35,7 +35,7 @@ export function reorderSections(
   return apiPatch<{ sections: WebsiteSection[] }>('/website/sections/reorder', { sections }, accessToken);
 }
 
-function uploadAsset(accessToken: string, path: '/website/logo' | '/website/banner', file: File) {
+function uploadAsset(accessToken: string, path: '/website/logo' | '/website/banner' | '/website/banner-video', file: File) {
   const formData = new FormData();
   formData.append('file', file);
   return apiUpload<{ website: Website }>(path, formData, accessToken);
@@ -47,6 +47,11 @@ export function uploadLogo(accessToken: string, file: File): Promise<{ website: 
 
 export function uploadBanner(accessToken: string, file: File): Promise<{ website: Website }> {
   return uploadAsset(accessToken, '/website/banner', file);
+}
+
+/** فيديو خلفية الهيرو (config.variant='video'/'video_search') — بديل عن uploadBanner، لا يظهران معًا. */
+export function uploadBannerVideo(accessToken: string, file: File): Promise<{ website: Website }> {
+  return uploadAsset(accessToken, '/website/banner-video', file);
 }
 
 export function getCustomPages(accessToken: string): Promise<{ pages: WebsiteCustomPage[] }> {

@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { MAX_WEBSITE_ASSET_SIZE_MB } from '@sbaah/shared';
+import { MAX_WEBSITE_ASSET_SIZE_MB, MAX_WEBSITE_VIDEO_SIZE_MB } from '@sbaah/shared';
 import { ApiError } from '@/lib/http';
 import { safeExtensionFromMime } from '@/lib/storage/safe-extension';
 
@@ -7,22 +7,29 @@ const BUCKET = 'website-assets';
 const BYTES_PER_MB = 1024 * 1024;
 
 /**
- * Shared by POST /v1/website/logo and /v1/website/banner — same upload +
- * column-update shape, only the target column and object filename differ.
- * Images only (logo/banner are never video, unlike property media).
+ * Shared by POST /v1/website/logo, /v1/website/banner, and
+ * /v1/website/banner-video — same upload + column-update shape, only the
+ * target column, object filename, and expected mime family (image vs
+ * video — only banner-video accepts video) differ.
  */
 export async function uploadWebsiteAsset(
   supabase: SupabaseClient,
   tenantId: string,
   file: File,
-  assetName: 'logo' | 'banner',
-  column: 'logo_url' | 'banner_image_url',
+  assetName: 'logo' | 'banner' | 'banner-video',
+  column: 'logo_url' | 'banner_image_url' | 'banner_video_url',
 ) {
-  if (!file.type.startsWith('image/')) {
-    throw new ApiError(400, 'unsupported_file_type', 'صورة فقط مسموحة');
+  const isVideoAsset = assetName === 'banner-video';
+  if (!file.type.startsWith(isVideoAsset ? 'video/' : 'image/')) {
+    throw new ApiError(400, 'unsupported_file_type', isVideoAsset ? 'فيديو فقط مسموح' : 'صورة فقط مسموحة');
   }
-  if (file.size > MAX_WEBSITE_ASSET_SIZE_MB * BYTES_PER_MB) {
-    throw new ApiError(422, 'file_too_large', `الحد الأقصى لحجم الصورة ${MAX_WEBSITE_ASSET_SIZE_MB} ميجابايت`);
+  const maxSizeMb = isVideoAsset ? MAX_WEBSITE_VIDEO_SIZE_MB : MAX_WEBSITE_ASSET_SIZE_MB;
+  if (file.size > maxSizeMb * BYTES_PER_MB) {
+    throw new ApiError(
+      422,
+      'file_too_large',
+      `الحد الأقصى لحجم ${isVideoAsset ? 'الفيديو' : 'الصورة'} ${maxSizeMb} ميجابايت`,
+    );
   }
 
   const extension = safeExtensionFromMime(file.type);

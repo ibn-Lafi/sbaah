@@ -15,6 +15,7 @@ export const websiteUpdateSchema = z.object({
   font_family: z.string().min(1).optional(),
   logo_url: z.string().url().optional().nullable(),
   banner_image_url: z.string().url().optional().nullable(),
+  banner_video_url: z.string().url().optional().nullable(),
   announcement_bar_text: z.string().max(200).optional().nullable(),
   footer_description: z.string().max(2000).optional().nullable(),
   address: z.string().max(500).optional().nullable(),
@@ -69,6 +70,9 @@ export type SectionReorderInput = z.infer<typeof sectionReorderSchema>;
  * than an arbitrary guess needing later revisiting like the video limit.
  */
 export const MAX_WEBSITE_ASSET_SIZE_MB = 5;
+
+/** فيديو خلفية الهيرو (variant='video'/'video_search') — نفس حد فيديوهات العقار (MAX_VIDEO_SIZE_MB، packages/shared/src/validation/property.ts) لا رقمًا مستقلًا مخترعًا. */
+export const MAX_WEBSITE_VIDEO_SIZE_MB = 50;
 
 /**
  * PRODUCT_SPEC section 6: "خط من قائمة مدعومة" without naming the list —

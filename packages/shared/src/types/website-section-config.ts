@@ -8,11 +8,29 @@
  * columns before this task, so `config` is `{}` for every section on
  * every existing account.
  */
+/**
+ * أربعة أشكال لقسم الهيرو (طلب المؤسس، ترتيب أقسام الصفحة الرئيسية —
+ * ثيم الأساسي): صورة فقط، صورة مع فلتر بحث العقارات، فيديو فقط، فيديو
+ * مع فلتر بحث العقارات. الصورة/الفيديو نفسهما يبقيان على مستوى الموقع
+ * (`website.banner_image_url`/`banner_video_url`، مشتركان بين كل صفحات
+ * الموقع كما كانا) — هذا الحقل يتحكم فقط بأي المُدخلين (صورة أو فيديو)
+ * يُعرض ومعه فلتر البحث أو بدونه، ولأن هذا الحقل جزء من `config` الخاص
+ * بكل قسم Hero على حدة، يمكن أن يختلف من صفحة لأخرى (الرئيسية/العقارات/
+ * تفاصيل العقار/المشاريع) رغم مشاركتها نفس ملف الصورة/الفيديو حاليًا —
+ * لو احتاج المؤسس مستقبلًا صورة/فيديو مختلفًا لكل صفحة، ذلك يحتاج نقل
+ * الحقلين لداخل `config` بدل مستوى الموقع، قرار معماري منفصل لم يُطلب هنا.
+ * الحساب الحالي بلا `variant` (كل حساب قائم اليوم) يُفسَّر 'image_search'
+ * — نفس السلوك الحي الحالي بالضبط (صورة إن وُجدت + فلتر بحث دائمًا).
+ */
+export const HERO_VARIANTS = ['image', 'image_search', 'video', 'video_search'] as const;
+export type HeroVariant = (typeof HERO_VARIANTS)[number];
+
 export interface HeroSectionConfig {
   title_ar?: string;
   title_en?: string;
   subtitle_ar?: string;
   subtitle_en?: string;
+  variant?: HeroVariant;
 }
 
 export interface PropertyGridSectionConfig {

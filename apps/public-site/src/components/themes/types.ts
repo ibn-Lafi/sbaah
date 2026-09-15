@@ -15,6 +15,7 @@ export interface HeroSectionProps {
   locale: Locale;
   config: HeroSectionConfig;
   bannerUrl: string | null;
+  bannerVideoUrl: string | null;
   tenantName: string;
 }
 

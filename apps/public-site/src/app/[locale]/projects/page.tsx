@@ -24,7 +24,14 @@ export default async function ProjectsPage({ params }: { params: Promise<{ local
   const citiesById = new Map(cities.map((city) => [city.id, city]));
   const tenantName = locale === 'ar' ? site.tenant.name_ar : site.tenant.name_en;
   const theme = getThemeComponents(site.website.theme_key);
-  const ctx = { locale, bannerUrl: site.website.banner_image_url, tenantName, whatsappPhone: site.whatsapp_phone, tenantId: site.tenant.id };
+  const ctx = {
+    locale,
+    bannerUrl: site.website.banner_image_url,
+    bannerVideoUrl: site.website.banner_video_url,
+    tenantName,
+    whatsappPhone: site.whatsapp_phone,
+    tenantId: site.tenant.id,
+  };
 
   const gridSection = site.sections.find((s) => s.type === 'project_grid');
   const before = site.sections.filter((s) => s.type !== 'project_grid' && (!gridSection || s.order_index < gridSection.order_index));

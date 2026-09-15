@@ -4,43 +4,57 @@ import type { HeroSectionProps } from '../types';
 import { PropertySearchBar } from '@/components/properties/property-search-bar';
 
 /**
- * No `config.title_*` fallback text baked in (unlike property_grid/about's
- * fallback titles) — a hero with no authored title just falls back to the
- * tenant's own name, always meaningful with zero editor input.
+ * أربعة أشكال (HeroSectionConfig.variant، packages/shared — طلب المؤسس،
+ * ترتيب أقسام الصفحة الرئيسية لثيم الأساسي): صورة فقط / صورة مع فلتر
+ * بحث العقارات / فيديو فقط / فيديو مع فلتر بحث العقارات. بلا `variant`
+ * محفوظ (كل حساب قائم اليوم) = 'image_search' — نفس السلوك الحي القديم
+ * بالضبط (صورة إن وُجدت + فلتر بحث دائمًا)، فلا يتغيّر شيء لحساب لم
+ * يلمس هذا الإعداد بعد.
  *
- * Async (fetches `cities` for the search bar's location select) — the
- * shared `ThemeSectionComponents` type already accommodates this
- * (`SectionComponent<P>` allows a `Promise<ReactNode>`-returning
- * function), and every render-section call site uses `<theme.HeroSection
- * ... />` as JSX, which Next's App Router (React Server Components)
- * renders correctly whether the component is sync or async.
+ * فيديو الخلفية `<video>` حقيقي (لا CSS background-image، الذي لا يدعم
+ * الفيديو) — autoPlay+muted+loop+playsInline إلزامي لتشغيله تلقائيًا
+ * على الجوال (خصوصًا Safari iOS الذي يرفض autoplay بصوت أو بلا
+ * playsInline). لا رفع فيديو بعد = يتصرف القسم وكأنه بلا خلفية إطلاقًا
+ * (نفس تعامل غياب bannerUrl بالضبط)، لا نص مكسور بانتظار ملف لم يُرفع.
  *
- * `bannerUrl` case pulls itself up (`-mt-20`, matching header.tsx's
- * reserved `h-20` spacer exactly) so the image sits directly behind the
- * fixed, transparent-at-top header — the "photo behind the header" look
- * from the founder's reference image. Extra top padding (`pt-36` instead
- * of `pt-16`) keeps the title clear of the floating header once it's
- * pulled up. No banner means no reason to reclaim that space — the
- * header's own spacer already keeps this section's normal position.
+ * `bannerUrl`/فيديو يسحبان القسم للأعلى (`-mt-20`) خلف الهيدر الشفاف
+ * فقط عند وجود خلفية فعلية — نفس تعليق `header.tsx`، لم يتغيّر.
  */
-export async function HeroSection({ locale, config, bannerUrl, tenantName }: HeroSectionProps) {
+export async function HeroSection({ locale, config, bannerUrl, bannerVideoUrl, tenantName }: HeroSectionProps) {
   const title = pickLocalized(locale, config.title_ar || tenantName, config.title_en ?? null) || tenantName;
   const subtitle = pickLocalized(locale, config.subtitle_ar ?? '', config.subtitle_en ?? null);
-  const cities = await listCities();
+  const variant = config.variant ?? 'image_search';
+  const showSearch = variant === 'image_search' || variant === 'video_search';
+  const useVideo = (variant === 'video' || variant === 'video_search') && Boolean(bannerVideoUrl);
+  const useImage = (variant === 'image' || variant === 'image_search') && Boolean(bannerUrl);
+  const hasBackground = useVideo || useImage;
+  const cities = showSearch ? await listCities() : [];
 
   return (
     <section
-      className={`relative flex min-h-[420px] flex-col items-center justify-center gap-6 px-6 pb-20 text-center text-white ${bannerUrl ? '-mt-20 pt-36' : 'pt-16'}`}
-      style={bannerUrl ? { backgroundImage: `url(${bannerUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}
+      className={`relative flex min-h-[420px] flex-col items-center justify-center gap-6 overflow-hidden px-6 pb-20 text-center text-white ${hasBackground ? '-mt-20 pt-36' : 'pt-16'}`}
+      style={useImage ? { backgroundImage: `url(${bannerUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}
     >
-      {bannerUrl && <div className="absolute inset-0 bg-black/40" />}
+      {useVideo && (
+        <video
+          src={bannerVideoUrl ?? undefined}
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+      )}
+      {hasBackground && <div className="absolute inset-0 bg-black/40" />}
       <div className="relative flex flex-col items-center gap-4">
-        <h1 className={`text-3xl font-bold md:text-4xl ${bannerUrl ? 'text-white' : 'text-tenant-primary'}`}>{title}</h1>
-        {subtitle && <p className={`max-w-xl text-lg ${bannerUrl ? 'text-white/90' : 'text-black/70'}`}>{subtitle}</p>}
+        <h1 className={`text-3xl font-bold md:text-4xl ${hasBackground ? 'text-white' : 'text-tenant-primary'}`}>{title}</h1>
+        {subtitle && <p className={`max-w-xl text-lg ${hasBackground ? 'text-white/90' : 'text-black/70'}`}>{subtitle}</p>}
       </div>
-      <div className="relative w-full max-w-4xl">
-        <PropertySearchBar locale={locale} cities={cities} />
-      </div>
+      {showSearch && (
+        <div className="relative w-full max-w-4xl">
+          <PropertySearchBar locale={locale} cities={cities} />
+        </div>
+      )}
     </section>
   );
 }

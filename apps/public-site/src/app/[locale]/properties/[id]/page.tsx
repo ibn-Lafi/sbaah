@@ -51,6 +51,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
   const themedCtx = {
     locale,
     bannerUrl: site.website.banner_image_url,
+    bannerVideoUrl: site.website.banner_video_url,
     tenantName,
     whatsappPhone: site.whatsapp_phone,
     tenantId: site.tenant.id,

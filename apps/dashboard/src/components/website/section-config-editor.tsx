@@ -1,17 +1,34 @@
 'use client';
 
 import { useState } from 'react';
-import type { AboutSectionConfig, HeroSectionConfig, WebsiteSection } from '@sbaah/shared';
+import {
+  HERO_VARIANTS,
+  type AboutSectionConfig,
+  type HeroSectionConfig,
+  type HeroVariant,
+  type Website,
+  type WebsiteSection,
+} from '@sbaah/shared';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Select } from '@/components/ui/select';
 import { useLocale } from '@/lib/i18n/locale-context';
-import { updateSection } from '@/lib/api/website';
+import { updateSection, uploadBanner, uploadBannerVideo, updateWebsite } from '@/lib/api/website';
+import { AssetUploader } from './asset-uploader';
 
 interface SectionConfigEditorProps {
   section: WebsiteSection;
   accessToken: string;
   onSaved: (section: WebsiteSection) => void;
+  /**
+   * صورة/فيديو خلفية الهيرو (website.banner_image_url/banner_video_url)
+   * يبقيان على مستوى الموقع (مشتركان بين كل الصفحات، كما كانا) — لا
+   * علاقة لهما بـ`section.config` — لذلك هذا المكوّن يحتاج نسخة `website`
+   * الحالية وطريقة لتحديثها في حالة الصفحة الأب، فقط لقسم hero.
+   */
+  website: Website;
+  onWebsiteUpdate: (website: Website) => void;
 }
 
 /**
@@ -22,12 +39,17 @@ interface SectionConfigEditorProps {
  * product (e.g. property title_ar/title_en). `footer`/`property_grid`
  * have no free-text content worth editing here — `property_grid` shows
  * real listings, `footer` is just the tenant name + the fixed سبعة badge.
+ *
+ * قسم hero فقط يضيف شكل القسم (HERO_VARIANTS) + رفع الصورة أو الفيديو
+ * المناسب للشكل المختار — طلب المؤسس (ترتيب أقسام الصفحة الرئيسية، ثيم
+ * الأساسي): صورة فقط / صورة مع فلتر بحث العقارات / فيديو فقط / فيديو
+ * مع فلتر بحث العقارات.
  */
-export function SectionConfigEditor({ section, accessToken, onSaved }: SectionConfigEditorProps) {
+export function SectionConfigEditor({ section, accessToken, onSaved, website, onWebsiteUpdate }: SectionConfigEditorProps) {
   const { pages } = useLocale();
   const t = pages.website;
+  const isHero = section.type === 'hero';
   const hasBody = section.type === 'about' || section.type === 'why_us';
-  const hasSubtitle = section.type === 'hero';
   const config = section.config as HeroSectionConfig & AboutSectionConfig;
 
   const [titleAr, setTitleAr] = useState(config.title_ar ?? '');
@@ -36,6 +58,7 @@ export function SectionConfigEditor({ section, accessToken, onSaved }: SectionCo
   const [subtitleEn, setSubtitleEn] = useState(config.subtitle_en ?? '');
   const [bodyAr, setBodyAr] = useState(config.body_ar ?? '');
   const [bodyEn, setBodyEn] = useState(config.body_en ?? '');
+  const [variant, setVariant] = useState<HeroVariant>(config.variant ?? 'image_search');
   const [loading, setLoading] = useState(false);
 
   async function handleSave() {
@@ -44,10 +67,11 @@ export function SectionConfigEditor({ section, accessToken, onSaved }: SectionCo
       const nextConfig: Record<string, string> = {};
       if (titleAr) nextConfig.title_ar = titleAr;
       if (titleEn) nextConfig.title_en = titleEn;
-      if (hasSubtitle && subtitleAr) nextConfig.subtitle_ar = subtitleAr;
-      if (hasSubtitle && subtitleEn) nextConfig.subtitle_en = subtitleEn;
+      if (isHero && subtitleAr) nextConfig.subtitle_ar = subtitleAr;
+      if (isHero && subtitleEn) nextConfig.subtitle_en = subtitleEn;
       if (hasBody && bodyAr) nextConfig.body_ar = bodyAr;
       if (hasBody && bodyEn) nextConfig.body_en = bodyEn;
+      if (isHero) nextConfig.variant = variant;
 
       const { section: updated } = await updateSection(accessToken, section.id, { config: nextConfig });
       onSaved(updated);
@@ -56,6 +80,9 @@ export function SectionConfigEditor({ section, accessToken, onSaved }: SectionCo
     }
   }
 
+  const showImageUploader = isHero && (variant === 'image' || variant === 'image_search');
+  const showVideoUploader = isHero && (variant === 'video' || variant === 'video_search');
+
   return (
     <div className="flex flex-col gap-3 rounded-input border border-border-subtle bg-surface-subtle p-4">
       <div className="grid grid-cols-2 gap-3">
@@ -63,7 +90,7 @@ export function SectionConfigEditor({ section, accessToken, onSaved }: SectionCo
         <Input placeholder={t.sectionConfigEditor.titleEn} value={titleEn} onChange={(e) => setTitleEn(e.target.value)} />
       </div>
 
-      {hasSubtitle && (
+      {isHero && (
         <div className="grid grid-cols-2 gap-3">
           <Input placeholder={t.sectionConfigEditor.subtitleAr} value={subtitleAr} onChange={(e) => setSubtitleAr(e.target.value)} />
           <Input placeholder={t.sectionConfigEditor.subtitleEn} value={subtitleEn} onChange={(e) => setSubtitleEn(e.target.value)} />
@@ -75,6 +102,50 @@ export function SectionConfigEditor({ section, accessToken, onSaved }: SectionCo
           <Textarea placeholder={t.sectionConfigEditor.bodyAr} value={bodyAr} onChange={(e) => setBodyAr(e.target.value)} />
           <Textarea placeholder={t.sectionConfigEditor.bodyEn} value={bodyEn} onChange={(e) => setBodyEn(e.target.value)} />
         </div>
+      )}
+
+      {isHero && (
+        <div className="flex flex-col gap-2">
+          <label className="text-text-secondary text-xs">{t.sectionConfigEditor.heroVariantLabel}</label>
+          <Select value={variant} onChange={(e) => setVariant(e.target.value as HeroVariant)} className="h-10">
+            {HERO_VARIANTS.map((v) => (
+              <option key={v} value={v}>
+                {t.sectionConfigEditor.heroVariants[v]}
+              </option>
+            ))}
+          </Select>
+        </div>
+      )}
+
+      {showImageUploader && (
+        <AssetUploader
+          label={t.sectionConfigEditor.heroImageLabel}
+          currentUrl={website.banner_image_url}
+          onUpload={async (file) => {
+            const { website: updated } = await uploadBanner(accessToken, file);
+            onWebsiteUpdate(updated);
+          }}
+          onRemove={async () => {
+            const { website: updated } = await updateWebsite(accessToken, { banner_image_url: null });
+            onWebsiteUpdate(updated);
+          }}
+        />
+      )}
+
+      {showVideoUploader && (
+        <AssetUploader
+          kind="video"
+          label={t.sectionConfigEditor.heroVideoLabel}
+          currentUrl={website.banner_video_url}
+          onUpload={async (file) => {
+            const { website: updated } = await uploadBannerVideo(accessToken, file);
+            onWebsiteUpdate(updated);
+          }}
+          onRemove={async () => {
+            const { website: updated } = await updateWebsite(accessToken, { banner_video_url: null });
+            onWebsiteUpdate(updated);
+          }}
+        />
       )}
 
       <Button type="button" variant="secondary" onClick={() => void handleSave()} disabled={loading} className="w-fit">

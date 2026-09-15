@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import type { WebsiteSection } from '@sbaah/shared';
+import type { Website, WebsiteSection } from '@sbaah/shared';
 import { Switch } from '@/components/ui/switch';
 import { useLocale } from '@/lib/i18n/locale-context';
 import { updateSection, reorderSections } from '@/lib/api/website';
@@ -11,6 +11,8 @@ interface SectionListProps {
   sections: WebsiteSection[];
   accessToken: string;
   onChange: (sections: WebsiteSection[]) => void;
+  website: Website;
+  onWebsiteUpdate: (website: Website) => void;
 }
 
 export const EDITABLE_TYPES: WebsiteSection['type'][] = ['hero', 'about', 'why_us', 'contact'];
@@ -20,7 +22,7 @@ export const EDITABLE_TYPES: WebsiteSection['type'][] = ['hero', 'about', 'why_u
  * reorder doesn't need a full DnD library. Each drop persists the whole
  * new order in one call (sectionReorderSchema, PRODUCT_SPEC section 6).
  */
-export function SectionList({ sections, accessToken, onChange }: SectionListProps) {
+export function SectionList({ sections, accessToken, onChange, website, onWebsiteUpdate }: SectionListProps) {
   const { pages } = useLocale();
   const t = pages.website;
   const [ordered, setOrdered] = useState(sections);
@@ -86,7 +88,13 @@ export function SectionList({ sections, accessToken, onChange }: SectionListProp
             <Switch checked={section.is_visible} onChange={() => void handleToggle(section)} />
           </div>
           {editingId === section.id && (
-            <SectionConfigEditor section={section} accessToken={accessToken} onSaved={handleConfigSaved} />
+            <SectionConfigEditor
+              section={section}
+              accessToken={accessToken}
+              onSaved={handleConfigSaved}
+              website={website}
+              onWebsiteUpdate={onWebsiteUpdate}
+            />
           )}
         </div>
       ))}

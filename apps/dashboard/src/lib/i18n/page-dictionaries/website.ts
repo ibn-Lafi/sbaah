@@ -1,4 +1,4 @@
-import type { WebsitePageKey, WebsiteSectionType } from '@sbaah/shared';
+import type { HeroVariant, WebsitePageKey, WebsiteSectionType } from '@sbaah/shared';
 
 export const websiteAr = {
   themeStore: {
@@ -37,7 +37,6 @@ export const websiteAr = {
     primaryColor: 'اللون الأساسي',
     secondaryColor: 'اللون الثانوي',
     font: 'الخط',
-    bannerImageLabel: 'صورة البانر (قسم الغلاف الرئيسي)',
     desktopView: 'عرض كمبيوتر',
     mobileView: 'عرض جوال',
     sitePreviewTitle: 'معاينة الموقع',
@@ -51,10 +50,12 @@ export const websiteAr = {
   assetUploader: {
     replace: 'استبدال',
     remove: 'إزالة',
-    upload: '+ رفع صورة',
+    uploadImage: '+ رفع صورة',
+    uploadVideo: '+ رفع فيديو',
     uploading: 'جارٍ الرفع...',
     errors: {
-      upload: 'تعذّر رفع الصورة',
+      uploadImage: 'تعذّر رفع الصورة',
+      uploadVideo: 'تعذّر رفع الفيديو',
     },
   },
   sectionConfigEditor: {
@@ -66,6 +67,15 @@ export const websiteAr = {
     bodyEn: 'النص (إنجليزي، اختياري)',
     save: 'حفظ المحتوى',
     saving: 'جارٍ الحفظ...',
+    heroVariantLabel: 'شكل قسم الهيرو',
+    heroVariants: {
+      image: 'صورة فقط',
+      image_search: 'صورة مع فلتر بحث العقارات',
+      video: 'فيديو فقط',
+      video_search: 'فيديو مع فلتر بحث العقارات',
+    } satisfies Record<HeroVariant, string>,
+    heroImageLabel: 'صورة الخلفية',
+    heroVideoLabel: 'فيديو الخلفية',
   },
   sectionList: {
     footerBadgeNote: 'شارة سبعة تظهر دائمًا',
@@ -156,7 +166,6 @@ export const websiteEn: typeof websiteAr = {
     primaryColor: 'Primary Color',
     secondaryColor: 'Secondary Color',
     font: 'Font',
-    bannerImageLabel: 'Banner image (hero section)',
     desktopView: 'Desktop view',
     mobileView: 'Mobile view',
     sitePreviewTitle: 'Website preview',
@@ -170,10 +179,12 @@ export const websiteEn: typeof websiteAr = {
   assetUploader: {
     replace: 'Replace',
     remove: 'Remove',
-    upload: '+ Upload image',
+    uploadImage: '+ Upload image',
+    uploadVideo: '+ Upload video',
     uploading: 'Uploading...',
     errors: {
-      upload: 'Failed to upload the image',
+      uploadImage: 'Failed to upload the image',
+      uploadVideo: 'Failed to upload the video',
     },
   },
   sectionConfigEditor: {
@@ -185,6 +196,15 @@ export const websiteEn: typeof websiteAr = {
     bodyEn: 'Text (English, optional)',
     save: 'Save content',
     saving: 'Saving...',
+    heroVariantLabel: 'Hero section style',
+    heroVariants: {
+      image: 'Image only',
+      image_search: 'Image with property search filter',
+      video: 'Video only',
+      video_search: 'Video with property search filter',
+    },
+    heroImageLabel: 'Background image',
+    heroVideoLabel: 'Background video',
   },
   sectionList: {
     footerBadgeNote: 'The Sbaah badge always shows',
