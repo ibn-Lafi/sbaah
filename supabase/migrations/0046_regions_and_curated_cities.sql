@@ -11,18 +11,34 @@
 --   الموقع بالخريطة عند إضافة عقار، لا تعبئة جماعية من بيانات حكومية).
 --
 -- هذه الهجرة تحذف بالكامل كل ما أدخلته 0045 بجدولي cities/districts ثم
--- تُعيد بناءهما. **تحذير قبل التشغيل**: إن كان أي عقار/مشروع/عمارة حقيقي
--- قد أُنشئ بالفعل ويُشير لمدينة أو حي (city_id/district_id) — سيفشل
--- الحذف أدناه بخطأ foreign key (لا حذف صامت لبيانات حية). افحص أولًا:
---   select count(*) from properties where city_id is not null;
---   select count(*) from projects where city_id is not null;
---   select count(*) from buildings where city_id is not null;
--- إن كانت كلها صفرًا، شغّل الهجرة مباشرة. إن لم تكن، أعِد تعيين city_id/
--- district_id لتلك السجلات يدويًا أولًا (أو أخبرني لأتعامل معها).
+-- تُعيد بناءهما. المؤسس فحص قبل التشغيل ووجد 3 سجلات (عقار/مشروع/عمارة)
+-- تُشير فعليًا لمدينة/حي من بيانات 0045 القديمة — city_id لا يقبل NULL
+-- على الثلاثة، فحذف مباشر كان سيفشل بخطأ foreign key. لذا هذه النسخة
+-- **تُعيد ربط تلك السجلات تلقائيًا** بدل الحذف الأعمى:
+--   1. تأخذ لقطة (snapshot) من أسماء المدن/الأحياء القديمة قبل حذفها.
+--   2. تُدرج المدن الجديدة المنسّقة.
+--   3. تُعيد ربط كل عقار/مشروع/عمارة بالمدينة الجديدة التي تحمل *نفس
+--      الاسم العربي* بالضبط (يعمل تلقائيًا طالما المدينة القديمة
+--      المستخدمة كانت مدينة معروفة أصلًا — كالرياض/جدة/الدمام... —
+--      وهي الحالة شبه المؤكدة لأي بيانات تجريبية حقيقية بهذه المرحلة).
+--   4. تُفرغ district_id لتلك السجلات (عمودها يقبل NULL خلافًا لـcity_id)
+--      لأن الأحياء القديمة تُحذف نهائيًا ولا تُستبدل بمقابل جديد — يعاد
+--      اختيار/إضافة الحي يدويًا لاحقًا من نفس النموذج.
+--   5. عندها فقط تُحذف المدن/الأحياء القديمة، فلا يبقى أي مرجع إليها.
+--
+-- **إن كانت إحدى الـ3 مدينة قديمة اسمها غير موجود بالقائمة الجديدة
+-- أدناه** (قرية/حي صغير حقًا، لا مدينة معروفة) — ستفشل الخطوة الأخيرة
+-- بخطأ foreign key بدل حذف صامت، وعندها أخبرني بالاسم الظاهر بالخطأ
+-- لأضيفه للقائمة أو أعالجه يدويًا.
 -- =============================================================================
 
-delete from districts;
-delete from cities;
+-- الملف كله معاملة واحدة (begin/commit): فشل أي خطوة (كخطأ foreign key
+-- بالخطوة الأخيرة) يتراجع عن كل شيء تلقائيًا — لا حالة وسطى (مناطق/مدن
+-- جديدة مُدرجة لكن قديمة لم تُحذف بعد) تبقى بقاعدة البيانات.
+begin;
+
+create temporary table _old_cities_backup as select id, name_ar from cities;
+create temporary table _old_districts_backup as select id from districts;
 
 -- ---------------------------------------------------------------------------
 -- regions — بيانات مرجعية ثابتة على مستوى المنصة (كالمدن)، لا شاشة إدارة
@@ -62,7 +78,7 @@ insert into regions (name_ar, name_en) values
   ('الباحة', 'Al Bahah'),
   ('الجوف', 'Al Jouf');
 
--- الإحداثيات وlname_en هنا من نفس مصدر هجرة 0045 (SPL National Address).
+-- الإحداثيات وname_en هنا من نفس مصدر هجرة 0045 (SPL National Address).
 insert into cities (name_ar, name_en, lat, lng, region_id) values
   ('الرياض', 'Riyadh', 24.69999996, 46.73333003, (select id from regions where name_ar = 'الرياض')),
   ('الخرج', 'Al Kharj', 24.15869998, 47.32695995, (select id from regions where name_ar = 'الرياض')),
@@ -142,4 +158,40 @@ insert into cities (name_ar, name_en, lat, lng, region_id) values
   ('القريات', 'Al Qurayyat', 31.35133999, 37.33972993, (select id from regions where name_ar = 'الجوف')),
   ('دومة الجندل', 'Dawmat Al Jandal', 29.81786995, 39.86566997, (select id from regions where name_ar = 'الجوف'));
 
+-- ---------------------------------------------------------------------------
+-- إعادة ربط أي عقار/مشروع/عمارة حقيقي كان يشير لمدينة/حي من 0045 القديمة
+-- (بالاسم العربي المطابق تمامًا)، ثم حذف القديم بأمان — بالترتيب الموضّح
+-- بتعليق رأس الملف. district_id يُفرَّغ (NULL) بدل إعادة ربطه: لا مقابل
+-- جديد للأحياء القديمة، ويُعاد اختياره يدويًا لاحقًا من نفس النموذج.
+-- ---------------------------------------------------------------------------
+update properties p
+set city_id = new_c.id
+from _old_cities_backup old_c
+join cities new_c on new_c.name_ar = old_c.name_ar and new_c.region_id is not null
+where p.city_id = old_c.id;
+
+update projects pr
+set city_id = new_c.id
+from _old_cities_backup old_c
+join cities new_c on new_c.name_ar = old_c.name_ar and new_c.region_id is not null
+where pr.city_id = old_c.id;
+
+update buildings b
+set city_id = new_c.id
+from _old_cities_backup old_c
+join cities new_c on new_c.name_ar = old_c.name_ar and new_c.region_id is not null
+where b.city_id = old_c.id;
+
+update properties set district_id = null where district_id in (select id from _old_districts_backup);
+update projects set district_id = null where district_id in (select id from _old_districts_backup);
+update buildings set district_id = null where district_id in (select id from _old_districts_backup);
+
+delete from districts where id in (select id from _old_districts_backup);
+delete from cities where id in (select id from _old_cities_backup);
+
+drop table _old_cities_backup;
+drop table _old_districts_backup;
+
 alter table cities alter column region_id set not null;
+
+commit;
