@@ -14,7 +14,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
 import { Modal } from '@/components/ui/modal';
 import { FormError } from '@/components/ui/form-error';
 import { EditorSkeleton } from '@/components/website/editor-skeleton';
@@ -94,7 +93,6 @@ export default function WebsiteEditorPage() {
         return false;
       return true;
     }) ?? [];
-  const footerSection = activePage?.website_sections.find((s) => s.type === 'footer');
   // محرر الجوال: الأقسام المُفعَّلة تُعرض في "محتوى الصفحة"، والمخفية
   // تصبح "مكتبة" القسم القابلة للإضافة — كل أقسام الصفحة موجودة أصلًا
   // بقاعدة البيانات منذ إنشاء الحساب (migration 0024، فلسفة "منسّقة لا
@@ -391,24 +389,13 @@ export default function WebsiteEditorPage() {
                 >
                   <span>
                     {t.editor.bottomOfPage}{' '}
-                    <span className="text-text-secondary font-normal">({t.editor.sectionsCount(2)})</span>
+                    <span className="text-text-secondary font-normal">({t.editor.sectionsCount(1)})</span>
                   </span>
                   <ChevronIcon open={openZones.bottom} className="text-text-secondary h-[14px] w-[14px]" />
                 </button>
                 {openZones.bottom && (
                   <div className="mt-3 flex flex-col gap-3">
-                    {footerSection && (
-                      <div className="rounded-input border-border-default flex items-center gap-3 border px-4 py-3">
-                        <SectionTypeIcon type="footer" className="text-text-secondary h-[16px] w-[16px] flex-none" />
-                        <span className="flex-1 text-sm font-medium text-text-primary">
-                          {t.editor.showFooterOnPage}
-                        </span>
-                        <Switch
-                          checked={footerSection.is_visible}
-                          onChange={() => void toggleSectionVisibility(footerSection)}
-                        />
-                      </div>
-                    )}
+                    <p className="text-text-primary text-sm font-semibold">{t.editor.footerLabel}</p>
 
                     <div className="flex flex-col gap-2">
                       <div className="rounded-input border-border-default flex items-center gap-3 border px-4 py-3">
@@ -678,17 +665,7 @@ export default function WebsiteEditorPage() {
                     </button>
                     {openZones.bottom && (
                       <div className="mt-4 flex flex-col gap-4">
-                        {footerSection && (
-                          <div className="rounded-input border-border-default flex items-center justify-between border px-4 py-3">
-                            <span className="text-text-primary text-sm">
-                              {t.editor.showFooterOnPage}
-                            </span>
-                            <Switch
-                              checked={footerSection.is_visible}
-                              onChange={() => void toggleSectionVisibility(footerSection)}
-                            />
-                          </div>
-                        )}
+                        <p className="text-text-primary text-sm font-semibold">{t.editor.footerLabel}</p>
 
                         <div className="flex flex-col gap-2">
                           <label className="text-text-secondary text-xs">
