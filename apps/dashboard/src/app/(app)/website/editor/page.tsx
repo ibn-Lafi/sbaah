@@ -254,10 +254,9 @@ export default function WebsiteEditorPage() {
                   <div className="mt-3 flex flex-col gap-2">
                     <div className="rounded-input border-border-default flex items-center gap-3 border px-4 py-3">
                       <PencilIcon className="text-text-secondary h-[16px] w-[16px] flex-none" />
-                      <span className="flex-1 text-sm font-medium text-text-primary">
-                        {t.editor.announcementBarLabel}
-                      </span>
+                      <span className="text-sm font-medium text-text-primary">{t.editor.headerLabel}</span>
                     </div>
+                    <label className="text-text-secondary px-1 text-xs">{t.editor.announcementBarLabel}</label>
                     <Input
                       value={textDraft.announcement}
                       onChange={(e) => setTextDraft((c) => ({ ...c, announcement: e.target.value }))}
@@ -541,6 +540,7 @@ export default function WebsiteEditorPage() {
                     </button>
                     {openZones.top && (
                       <div className="mt-4 flex flex-col gap-4">
+                        <p className="text-text-primary text-sm font-semibold">{t.editor.headerLabel}</p>
                         <div className="flex flex-col gap-2">
                           <label className="text-text-secondary text-xs">
                             {t.editor.announcementBarLabel}
