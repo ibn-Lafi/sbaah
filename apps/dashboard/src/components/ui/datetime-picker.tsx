@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Calendar, CalendarIcon } from './calendar';
+import { useLocale } from '@/lib/i18n/locale-context';
 
 /** يطابق عقد `<input type="datetime-local">` الأصلي (`YYYY-MM-DDTHH:mm`, بلا منطقة زمنية) — نفس القيمة التي يستهلكها isoToDatetimeLocal/datetimeLocalToIso، فلا حاجة لتعديل تلك التحويلات لدى المستدعي. */
 function splitValue(value: string): { date: Date | null; time: string } {
@@ -32,7 +33,10 @@ interface DateTimePickerProps {
 }
 
 /** يستبدل `<Input type="datetime-local">` بتقويم + حقل وقت مطابقَين لهوية المنصة، لنفس سبب DatePicker (اتساق التصميم بدل منتقي المتصفح الأصلي). */
-export function DateTimePicker({ value, onChange, placeholder = 'اختر التاريخ والوقت', className = '' }: DateTimePickerProps) {
+export function DateTimePicker({ value, onChange, placeholder, className = '' }: DateTimePickerProps) {
+  const { pages } = useLocale();
+  const t = pages.common;
+  const resolvedPlaceholder = placeholder ?? t.chooseDateTime;
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const { date: selected, time } = splitValue(value);
@@ -60,7 +64,7 @@ export function DateTimePicker({ value, onChange, placeholder = 'اختر الت
         className="rounded-input border-border-default text-text-primary focus:border-text-primary flex h-[54px] w-full min-w-0 items-center justify-between border px-4 text-base outline-none"
       >
         <span className={selected ? '' : 'text-text-placeholder'}>
-          {selected ? formatDisplay(selected, time) : placeholder}
+          {selected ? formatDisplay(selected, time) : resolvedPlaceholder}
         </span>
         <CalendarIcon className="text-text-secondary h-[18px] w-[18px] flex-none" />
       </button>
@@ -74,7 +78,7 @@ export function DateTimePicker({ value, onChange, placeholder = 'اختر الت
             onSelect={(date) => onChange(joinValue(date, time || '09:00'))}
           />
           <div className="border-border-subtle flex items-center gap-2 border-t px-4 py-3">
-            <span className="text-text-secondary text-xs">الوقت</span>
+            <span className="text-text-secondary text-xs">{t.time}</span>
             <input
               type="time"
               value={time}

@@ -1,2 +1,2 @@
-export const domainAr = {} as const;
+export const domainAr = {};
 export const domainEn: typeof domainAr = {};

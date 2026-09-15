@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Input } from './input';
+import { useLocale } from '@/lib/i18n/locale-context';
 
 export interface SearchableSelectOption {
   value: string;
@@ -39,6 +40,8 @@ export function SearchableSelect({
   clearable = false,
   onCreate,
 }: SearchableSelectProps) {
+  const { pages } = useLocale();
+  const t = pages.common;
   const [open, setOpen] = useState(false);
   const [openUpward, setOpenUpward] = useState(false);
   const [query, setQuery] = useState('');
@@ -114,7 +117,7 @@ export function SearchableSelect({
         <button
           type="button"
           onClick={() => onChange('')}
-          aria-label="إزالة الاختيار"
+          aria-label={t.clearSelection}
           className="text-text-secondary hover:text-text-primary absolute end-3 top-1/2 -translate-y-1/2 text-base"
         >
           ×
@@ -127,7 +130,7 @@ export function SearchableSelect({
           }`}
         >
           {filteredOptions.length === 0 && !canCreate ? (
-            <p className="text-text-secondary px-4 py-3 text-sm">لا نتائج</p>
+            <p className="text-text-secondary px-4 py-3 text-sm">{t.noResults}</p>
           ) : (
             filteredOptions.map((option) => (
               <button
@@ -153,7 +156,7 @@ export function SearchableSelect({
               disabled={creating}
               className="text-brand hover:bg-surface-subtle border-border-subtle block w-full border-t px-4 py-2 text-right text-sm font-medium"
             >
-              {creating ? 'جارٍ الإضافة...' : `+ إضافة "${trimmedQuery}"`}
+              {creating ? t.adding : t.addOption(trimmedQuery)}
             </button>
           )}
         </div>

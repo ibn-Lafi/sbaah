@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Calendar, CalendarIcon } from './calendar';
+import { useLocale } from '@/lib/i18n/locale-context';
 
 /** أرقام غربية بصيغة YYYY-MM-DD محليًا (بلا تحويل UTC) — يطابق عقد `<input type="date">` الأصلي الذي يستبدله هذا المكوّن، فلا حاجة لتعديل أي منطق تحقّق/حفظ لدى المستدعي. */
 function parseDateValue(value: string): Date | null {
@@ -29,7 +30,9 @@ interface DatePickerProps {
 }
 
 /** يستبدل `<Input type="date">` بتقويم مطابق لهوية المنصة (بنفسجي العلامة، عربي بالكامل) بدل منتقي المتصفح الأصلي غير المتّسق بين المنصات. */
-export function DatePicker({ value, onChange, placeholder = 'اختر التاريخ', className = '' }: DatePickerProps) {
+export function DatePicker({ value, onChange, placeholder, className = '' }: DatePickerProps) {
+  const { pages } = useLocale();
+  const resolvedPlaceholder = placeholder ?? pages.common.chooseDate;
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const selected = parseDateValue(value);
@@ -56,7 +59,7 @@ export function DatePicker({ value, onChange, placeholder = 'اختر التار
         }}
         className="rounded-input border-border-default text-text-primary focus:border-text-primary flex h-[54px] w-full min-w-0 items-center justify-between border px-4 text-base outline-none"
       >
-        <span className={selected ? '' : 'text-text-placeholder'}>{selected ? formatDisplay(selected) : placeholder}</span>
+        <span className={selected ? '' : 'text-text-placeholder'}>{selected ? formatDisplay(selected) : resolvedPlaceholder}</span>
         <CalendarIcon className="text-text-secondary h-[18px] w-[18px] flex-none" />
       </button>
 

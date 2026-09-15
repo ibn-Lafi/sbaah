@@ -1,32 +1,16 @@
 'use client';
 
+import { useLocale } from '@/lib/i18n/locale-context';
+
 /**
  * شبكة تقويم شهر واحد — مبنية يدويًا (بلا react-day-picker أو أي مكتبة
  * تقويم خارجية) لتطابق هوية المنصة تمامًا (بنفسجي العلامة للتحديد، عربي
  * كامل) بدل محاولة تلوين مكتبة جاهزة فوق تصميمها الخاص. أسماء الأشهر
- * عربية يدويًا (لا Intl('ar')) لتبقى أرقام السنة غربية مطابقةً لبقية
+ * تأتي من قاموس الترجمة (لا Intl) لتبقى أرقام السنة غربية مطابقةً لبقية
  * تنسيقات التاريخ بالمنصة (lib/format/date.ts). الأسبوع يبدأ بالأحد
- * (العرف السعودي/الخليجي)، ويُترك الاتجاه الطبيعي RTL للصفحة بلا فرض
- * dir="ltr" — فيظهر الأحد يمينًا والسبت يسارًا، وهو الترتيب المعتاد
- * بتقاويم الجوال العربية.
+ * بالعربي (العرف السعودي/الخليجي) وبالأحد أيضًا بالإنجليزي لنفس الشبكة
+ * (فقط اتجاه الصفحة RTL/LTR يقرر أي طرف يظهر فيه أولاً، بلا فرض dir هنا).
  */
-const ARABIC_MONTHS = [
-  'يناير',
-  'فبراير',
-  'مارس',
-  'أبريل',
-  'مايو',
-  'يونيو',
-  'يوليو',
-  'أغسطس',
-  'سبتمبر',
-  'أكتوبر',
-  'نوفمبر',
-  'ديسمبر',
-];
-
-const WEEKDAY_LABELS = ['ح', 'ن', 'ث', 'ر', 'خ', 'ج', 'س'];
-
 function ChevronLeftIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -69,6 +53,8 @@ interface CalendarProps {
 }
 
 export function Calendar({ month, onMonthChange, selected, onSelect }: CalendarProps) {
+  const { pages } = useLocale();
+  const t = pages.common;
   const year = month.getFullYear();
   const monthIndex = month.getMonth();
   const firstWeekday = new Date(year, monthIndex, 1).getDay();
@@ -86,18 +72,18 @@ export function Calendar({ month, onMonthChange, selected, onSelect }: CalendarP
         <button
           type="button"
           onClick={() => onMonthChange(addMonths(month, -1))}
-          aria-label="الشهر السابق"
+          aria-label={t.previousMonth}
           className="text-text-secondary hover:bg-surface-subtle flex h-8 w-8 items-center justify-center rounded-full"
         >
           <ChevronLeftIcon className="h-[18px] w-[18px]" />
         </button>
         <span className="text-text-primary text-sm font-semibold">
-          {ARABIC_MONTHS[monthIndex]} {year}
+          {t.calendarMonths[monthIndex]} {year}
         </span>
         <button
           type="button"
           onClick={() => onMonthChange(addMonths(month, 1))}
-          aria-label="الشهر التالي"
+          aria-label={t.nextMonth}
           className="text-text-secondary hover:bg-surface-subtle flex h-8 w-8 items-center justify-center rounded-full"
         >
           <ChevronRightIcon className="h-[18px] w-[18px]" />
@@ -105,7 +91,7 @@ export function Calendar({ month, onMonthChange, selected, onSelect }: CalendarP
       </div>
 
       <div className="grid grid-cols-7 gap-y-1">
-        {WEEKDAY_LABELS.map((label, i) => (
+        {t.calendarWeekdayLabels.map((label, i) => (
           <div key={i} className="text-text-tertiary flex h-8 items-center justify-center text-xs font-medium">
             {label}
           </div>

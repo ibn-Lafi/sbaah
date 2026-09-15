@@ -1,2 +1,2 @@
-export const propertiesAr = {} as const;
+export const propertiesAr = {};
 export const propertiesEn: typeof propertiesAr = {};

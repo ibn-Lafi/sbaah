@@ -8,6 +8,7 @@
  * an `en` object whose type is checked against it, so a missing English
  * key is a compile error instead of a silent fallback to Arabic text.
  */
+import { commonAr, commonEn } from './common';
 import { dashboardHomeAr, dashboardHomeEn } from './dashboard-home';
 import { leadsAr, leadsEn } from './leads';
 import { propertiesAr, propertiesEn } from './properties';
@@ -26,6 +27,7 @@ import type { Locale } from '../locale';
 
 export const pageDictionaries = {
   ar: {
+    common: commonAr,
     dashboardHome: dashboardHomeAr,
     leads: leadsAr,
     properties: propertiesAr,
@@ -42,6 +44,7 @@ export const pageDictionaries = {
     auth: authAr,
   },
   en: {
+    common: commonEn,
     dashboardHome: dashboardHomeEn,
     leads: leadsEn,
     properties: propertiesEn,

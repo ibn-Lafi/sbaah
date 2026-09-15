@@ -1,2 +1,2 @@
-export const buildingsAr = {} as const;
+export const buildingsAr = {};
 export const buildingsEn: typeof buildingsAr = {};

@@ -1,2 +1,2 @@
-export const brokerMarketerAr = {} as const;
+export const brokerMarketerAr = {};
 export const brokerMarketerEn: typeof brokerMarketerAr = {};

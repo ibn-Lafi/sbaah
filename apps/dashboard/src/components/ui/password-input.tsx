@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Input, type InputProps } from './input';
+import { useLocale } from '@/lib/i18n/locale-context';
 
 function EyeIcon({ className }: { className?: string }) {
   return (
@@ -24,6 +25,8 @@ function EyeOffIcon({ className }: { className?: string }) {
 
 /** Every password field in the system gets a show/hide toggle — wraps `Input`, only overriding `type`. */
 export function PasswordInput({ style, ...props }: Omit<InputProps, 'type'>) {
+  const { pages } = useLocale();
+  const t = pages.common;
   const [visible, setVisible] = useState(false);
 
   return (
@@ -36,8 +39,8 @@ export function PasswordInput({ style, ...props }: Omit<InputProps, 'type'>) {
       <button
         type="button"
         onClick={() => setVisible((current) => !current)}
-        aria-label={visible ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
-        title={visible ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
+        aria-label={visible ? t.hidePassword : t.showPassword}
+        title={visible ? t.hidePassword : t.showPassword}
         className="text-text-secondary hover:text-text-primary absolute end-3 top-1/2 flex -translate-y-1/2 items-center justify-center"
       >
         {visible ? <EyeOffIcon className="h-[18px] w-[18px]" /> : <EyeIcon className="h-[18px] w-[18px]" />}

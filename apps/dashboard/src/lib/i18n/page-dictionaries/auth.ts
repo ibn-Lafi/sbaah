@@ -1,2 +1,2 @@
-export const authAr = {} as const;
+export const authAr = {};
 export const authEn: typeof authAr = {};

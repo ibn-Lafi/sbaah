@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, type ReactNode } from 'react';
+import { useLocale } from '@/lib/i18n/locale-context';
 
 interface ModalProps {
   title: string;
@@ -11,6 +12,7 @@ interface ModalProps {
 
 /** Every "+ إضافة ..." flow (عقار/عمارة/مشروع/إيجار/عميل محتمل/عضو) opens one of these on top of the current list page instead of navigating to a standalone /new route. */
 export function Modal({ title, onClose, children, maxWidth = '720px' }: ModalProps) {
+  const { pages } = useLocale();
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') onClose();
@@ -34,8 +36,8 @@ export function Modal({ title, onClose, children, maxWidth = '720px' }: ModalPro
           <button
             type="button"
             onClick={onClose}
-            aria-label="إغلاق"
-            title="إغلاق"
+            aria-label={pages.common.close}
+            title={pages.common.close}
             className="rounded-control text-text-secondary hover:bg-surface-subtle flex h-8 w-8 flex-none items-center justify-center"
           >
             <svg

@@ -1,2 +1,2 @@
-export const appsAr = {} as const;
+export const appsAr = {};
 export const appsEn: typeof appsAr = {};

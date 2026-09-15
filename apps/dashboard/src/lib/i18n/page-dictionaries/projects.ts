@@ -1,2 +1,2 @@
-export const projectsAr = {} as const;
+export const projectsAr = {};
 export const projectsEn: typeof projectsAr = {};

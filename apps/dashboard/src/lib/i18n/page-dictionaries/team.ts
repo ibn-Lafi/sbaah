@@ -1,2 +1,2 @@
-export const teamAr = {} as const;
+export const teamAr = {};
 export const teamEn: typeof teamAr = {};

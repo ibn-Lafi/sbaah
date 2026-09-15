@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
+import { useLocale } from '@/lib/i18n/locale-context';
 
 export interface LocationPickerValue {
   lat: number;
@@ -46,6 +47,8 @@ function ensureRtlTextPlugin() {
 
 /** Click/drag to set a lat/lng — used by property/project/building forms (all optional fields). */
 export function LocationPicker({ value, onChange, focusPoint }: LocationPickerProps) {
+  const { pages } = useLocale();
+  const t = pages.common;
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const markerRef = useRef<maplibregl.Marker | null>(null);
@@ -102,7 +105,7 @@ export function LocationPicker({ value, onChange, focusPoint }: LocationPickerPr
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-text-primary">الموقع على الخريطة (اختياري)</span>
+        <span className="text-sm font-medium text-text-primary">{t.locationOnMap}</span>
         {value && (
           <button
             type="button"
@@ -113,7 +116,7 @@ export function LocationPicker({ value, onChange, focusPoint }: LocationPickerPr
             }}
             className="text-xs font-semibold text-danger hover:underline"
           >
-            إزالة الموقع
+            {t.removeLocation}
           </button>
         )}
       </div>
@@ -121,7 +124,7 @@ export function LocationPicker({ value, onChange, focusPoint }: LocationPickerPr
         ref={containerRef}
         className="h-[280px] w-full overflow-hidden rounded-input border border-border-default"
       />
-      <p className="text-xs text-text-secondary">انقر على الخريطة لتحديد الموقع، أو اسحب العلامة لتعديله.</p>
+      <p className="text-xs text-text-secondary">{t.mapInstructions}</p>
     </div>
   );
 }

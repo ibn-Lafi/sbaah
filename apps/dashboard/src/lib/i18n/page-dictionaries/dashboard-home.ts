@@ -1,2 +1,2 @@
-export const dashboardHomeAr = {} as const;
+export const dashboardHomeAr = {};
 export const dashboardHomeEn: typeof dashboardHomeAr = {};

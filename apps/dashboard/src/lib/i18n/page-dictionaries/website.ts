@@ -1,2 +1,2 @@
-export const websiteAr = {} as const;
+export const websiteAr = {};
 export const websiteEn: typeof websiteAr = {};

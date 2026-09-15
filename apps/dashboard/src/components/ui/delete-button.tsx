@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Button } from './button';
 import { Modal } from './modal';
+import { useLocale } from '@/lib/i18n/locale-context';
 
 interface DeleteButtonProps {
   /** نص الزر الصغير نفسه، مثال: "حذف العقار". */
@@ -26,6 +27,8 @@ interface DeleteButtonProps {
  * (عقار/عمارة/مشروع/إيجار/عميل محتمل) وصفحة "الصفحات".
  */
 export function DeleteButton({ label, confirmTitle, confirmMessage, onConfirm, compact = false }: DeleteButtonProps) {
+  const { pages } = useLocale();
+  const t = pages.common;
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,7 +39,7 @@ export function DeleteButton({ label, confirmTitle, confirmMessage, onConfirm, c
     try {
       await onConfirm();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'تعذّر الحذف');
+      setError(err instanceof Error ? err.message : t.deleteFailed);
       setLoading(false);
     }
   }
@@ -59,10 +62,10 @@ export function DeleteButton({ label, confirmTitle, confirmMessage, onConfirm, c
           {error && <p className="mb-4 text-sm text-danger">{error}</p>}
           <div className="flex justify-end gap-2">
             <Button type="button" variant="secondary" disabled={loading} onClick={() => setOpen(false)}>
-              إلغاء
+              {t.cancel}
             </Button>
             <Button type="button" variant="danger" loading={loading} onClick={() => void handleConfirm()}>
-              حذف نهائيًا
+              {t.deletePermanently}
             </Button>
           </div>
         </Modal>
