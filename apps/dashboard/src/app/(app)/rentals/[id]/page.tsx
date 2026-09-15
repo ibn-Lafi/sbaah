@@ -9,6 +9,7 @@ import { DeleteButton } from '@/components/ui/delete-button';
 import { FormPageSkeleton } from '@/components/ui/form-page-skeleton';
 import { RentalForm } from '@/components/rentals/rental-form';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
+import { useLocale } from '@/lib/i18n/locale-context';
 import { deleteRental, getRental, updateRental } from '@/lib/api/rentals';
 import { ApiRequestError } from '@/lib/api/client';
 
@@ -16,6 +17,8 @@ export default function EditRentalPage({ params }: { params: Promise<{ id: strin
   const { id } = use(params);
   const router = useRouter();
   const { me, accessToken } = useCurrentUser();
+  const { pages } = useLocale();
+  const t = pages.rentals;
   const [rental, setRental] = useState<Rental | null>(null);
   const [notFound, setNotFound] = useState(false);
 
@@ -38,25 +41,25 @@ export default function EditRentalPage({ params }: { params: Promise<{ id: strin
       await deleteRental(accessToken, id);
       router.push('/rentals');
     } catch (err) {
-      throw new Error(err instanceof ApiRequestError ? err.message : 'تعذّر حذف الإيجار');
+      throw new Error(err instanceof ApiRequestError ? err.message : t.detail.deleteFailed);
     }
   }
 
   if (notFound) {
     return (
       <AppShell
-        title="إيجار غير موجود"
+        title={t.detail.notFoundTitle}
         orgName={me.tenant.name_ar}
         accountType={me.tenant.account_type}
       >
-        <p className="text-text-secondary">الإيجار غير موجود.</p>
+        <p className="text-text-secondary">{t.detail.notFoundMessage}</p>
       </AppShell>
     );
   }
 
   return (
     <AppShell
-      title={rental ? `إيجار — ${rental.tenant_name}` : 'تعديل إيجار'}
+      title={rental ? t.detail.pageTitle(rental.tenant_name) : t.detail.editTitle}
       orgName={me.tenant.name_ar}
       accountType={me.tenant.account_type}
     >
@@ -69,7 +72,7 @@ export default function EditRentalPage({ params }: { params: Promise<{ id: strin
               mode="edit"
               initialValues={rental}
               accessToken={accessToken}
-              submitLabel="حفظ التعديلات"
+              submitLabel={t.detail.saveLabel}
               onSubmit={async (input) => {
                 const { rental: updated } = await updateRental(accessToken, id, input as RentalUpdateInput);
                 setRental(updated);
@@ -78,9 +81,9 @@ export default function EditRentalPage({ params }: { params: Promise<{ id: strin
           </Card>
 
           <DeleteButton
-            label="حذف"
-            confirmTitle="حذف عقد الإيجار"
-            confirmMessage="سيتم حذف عقد الإيجار هذا نهائيًا، ولا يمكن التراجع عن هذا الإجراء."
+            label={t.detail.deleteLabel}
+            confirmTitle={t.detail.deleteConfirmTitle}
+            confirmMessage={t.detail.deleteConfirmMessage}
             onConfirm={handleDelete}
           />
         </div>

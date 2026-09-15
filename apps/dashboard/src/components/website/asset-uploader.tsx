@@ -3,6 +3,7 @@
 import { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { FormError } from '@/components/ui/form-error';
+import { useLocale } from '@/lib/i18n/locale-context';
 import { ApiRequestError } from '@/lib/api/client';
 
 interface AssetUploaderProps {
@@ -13,6 +14,8 @@ interface AssetUploaderProps {
 }
 
 export function AssetUploader({ label, currentUrl, onUpload, onRemove }: AssetUploaderProps) {
+  const { pages } = useLocale();
+  const t = pages.website;
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -27,7 +30,7 @@ export function AssetUploader({ label, currentUrl, onUpload, onRemove }: AssetUp
     try {
       await onUpload(file);
     } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : 'تعذّر رفع الصورة');
+      setError(err instanceof ApiRequestError ? err.message : t.assetUploader.errors.upload);
     } finally {
       setLoading(false);
     }
@@ -41,15 +44,15 @@ export function AssetUploader({ label, currentUrl, onUpload, onRemove }: AssetUp
           {/* eslint-disable-next-line @next/next/no-img-element -- Supabase Storage public URL, not a local/optimizable asset */}
           <img src={currentUrl} alt={label} className="h-16 w-28 rounded-input border border-border-default object-cover" />
           <Button type="button" variant="secondary" disabled={loading} onClick={() => fileInputRef.current?.click()}>
-            استبدال
+            {t.assetUploader.replace}
           </Button>
           <Button type="button" variant="danger" disabled={loading} onClick={() => void onRemove()}>
-            إزالة
+            {t.assetUploader.remove}
           </Button>
         </div>
       ) : (
         <Button type="button" variant="secondary" disabled={loading} onClick={() => fileInputRef.current?.click()} className="w-fit">
-          {loading ? 'جارٍ الرفع...' : '+ رفع صورة'}
+          {loading ? t.assetUploader.uploading : t.assetUploader.upload}
         </Button>
       )}
       <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => void handleFileSelected(e)} />

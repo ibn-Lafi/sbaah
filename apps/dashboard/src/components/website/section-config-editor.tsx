@@ -5,6 +5,7 @@ import type { AboutSectionConfig, HeroSectionConfig, WebsiteSection } from '@sba
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { useLocale } from '@/lib/i18n/locale-context';
 import { updateSection } from '@/lib/api/website';
 
 interface SectionConfigEditorProps {
@@ -23,6 +24,8 @@ interface SectionConfigEditorProps {
  * real listings, `footer` is just the tenant name + the fixed سبعة badge.
  */
 export function SectionConfigEditor({ section, accessToken, onSaved }: SectionConfigEditorProps) {
+  const { pages } = useLocale();
+  const t = pages.website;
   const hasBody = section.type === 'about' || section.type === 'why_us';
   const hasSubtitle = section.type === 'hero';
   const config = section.config as HeroSectionConfig & AboutSectionConfig;
@@ -56,26 +59,26 @@ export function SectionConfigEditor({ section, accessToken, onSaved }: SectionCo
   return (
     <div className="flex flex-col gap-3 rounded-input border border-border-subtle bg-surface-subtle p-4">
       <div className="grid grid-cols-2 gap-3">
-        <Input placeholder="العنوان (عربي)" value={titleAr} onChange={(e) => setTitleAr(e.target.value)} />
-        <Input placeholder="العنوان (إنجليزي، اختياري)" value={titleEn} onChange={(e) => setTitleEn(e.target.value)} />
+        <Input placeholder={t.sectionConfigEditor.titleAr} value={titleAr} onChange={(e) => setTitleAr(e.target.value)} />
+        <Input placeholder={t.sectionConfigEditor.titleEn} value={titleEn} onChange={(e) => setTitleEn(e.target.value)} />
       </div>
 
       {hasSubtitle && (
         <div className="grid grid-cols-2 gap-3">
-          <Input placeholder="العنوان الفرعي (عربي)" value={subtitleAr} onChange={(e) => setSubtitleAr(e.target.value)} />
-          <Input placeholder="العنوان الفرعي (إنجليزي، اختياري)" value={subtitleEn} onChange={(e) => setSubtitleEn(e.target.value)} />
+          <Input placeholder={t.sectionConfigEditor.subtitleAr} value={subtitleAr} onChange={(e) => setSubtitleAr(e.target.value)} />
+          <Input placeholder={t.sectionConfigEditor.subtitleEn} value={subtitleEn} onChange={(e) => setSubtitleEn(e.target.value)} />
         </div>
       )}
 
       {hasBody && (
         <div className="grid grid-cols-2 gap-3">
-          <Textarea placeholder="النص (عربي)" value={bodyAr} onChange={(e) => setBodyAr(e.target.value)} />
-          <Textarea placeholder="النص (إنجليزي، اختياري)" value={bodyEn} onChange={(e) => setBodyEn(e.target.value)} />
+          <Textarea placeholder={t.sectionConfigEditor.bodyAr} value={bodyAr} onChange={(e) => setBodyAr(e.target.value)} />
+          <Textarea placeholder={t.sectionConfigEditor.bodyEn} value={bodyEn} onChange={(e) => setBodyEn(e.target.value)} />
         </div>
       )}
 
       <Button type="button" variant="secondary" onClick={() => void handleSave()} disabled={loading} className="w-fit">
-        {loading ? 'جارٍ الحفظ...' : 'حفظ المحتوى'}
+        {loading ? t.sectionConfigEditor.saving : t.sectionConfigEditor.save}
       </Button>
     </div>
   );

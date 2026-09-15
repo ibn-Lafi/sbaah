@@ -15,6 +15,7 @@ import { PasswordStrengthMeter } from '@/components/auth/password-strength-meter
 import { resetPassword, sendOtp, sendOtpByEmail, verifyResetPasswordOtp, type OtpIdentifier } from '@/lib/api/auth';
 import { ApiRequestError } from '@/lib/api/client';
 import { useResendCooldown } from '@/lib/auth/use-resend-cooldown';
+import { useLocale } from '@/lib/i18n/locale-context';
 
 type Step = 'identify' | 'otp' | 'new_password';
 type OtpChannel = 'sms' | 'email';
@@ -27,6 +28,8 @@ type OtpChannel = 'sms' | 'email';
  */
 export default function ForgotPasswordPage() {
   const router = useRouter();
+  const { pages } = useLocale();
+  const t = pages.auth;
   const [step, setStep] = useState<Step>('identify');
   const [channel, setChannel] = useState<OtpChannel>('sms');
   const [phone, setPhone] = useState('');
@@ -70,7 +73,7 @@ export default function ForgotPasswordPage() {
       setStep('otp');
       resend.start();
     } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : 'تعذّر إرسال رمز التحقق');
+      setError(err instanceof ApiRequestError ? err.message : t.shared.otpSendFailedFallback);
     } finally {
       setLoading(false);
     }
@@ -98,7 +101,7 @@ export default function ForgotPasswordPage() {
       setResetToken(reset_token);
       setStep('new_password');
     } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : 'تعذّر التحقق من الرمز');
+      setError(err instanceof ApiRequestError ? err.message : t.shared.otpVerifyFailedFallback);
     } finally {
       setLoading(false);
     }

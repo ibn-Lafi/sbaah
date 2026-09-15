@@ -25,14 +25,10 @@ import { FormError } from '@/components/ui/form-error';
 import { LocationPicker, type LocationPickerValue } from '@/components/ui/location-picker';
 import { createDistrict, listCities, listDistricts } from '@/lib/api/reference-data';
 import { listBuildings, listProjects } from '@/lib/api/hierarchy';
-import {
-  LISTING_TYPE_LABELS,
-  PROPERTY_AVAILABILITY_LABELS,
-  PROPERTY_STATUS_LABELS,
-  PROPERTY_TYPE_LABELS,
-} from '@/lib/property/labels';
+import { getListingTypeLabels, getPropertyTypeLabels } from '@/lib/property/labels';
 import type { PropertyWithMedia } from '@/lib/api/properties';
 import { listTeam, type TeamMember } from '@/lib/api/team';
+import { useLocale } from '@/lib/i18n/locale-context';
 
 type FormState = {
   title_ar: string;
@@ -118,6 +114,10 @@ export function PropertyForm({
   onSubmit,
   submitLabel,
 }: PropertyFormProps) {
+  const { locale, pages } = useLocale();
+  const t = pages.properties;
+  const propertyTypeLabels = getPropertyTypeLabels(locale);
+  const listingTypeLabels = getListingTypeLabels(locale);
   const [form, setForm] = useState<FormState>(
     initialValues ? toFormState(initialValues) : EMPTY_STATE,
   );
@@ -188,7 +188,7 @@ export function PropertyForm({
     const schema = mode === 'create' ? propertyInputSchema : propertyUpdateSchema;
     const result = schema.safeParse(candidate);
     if (!result.success) {
-      setError(result.error.issues[0]?.message ?? 'يرجى مراجعة بيانات العقار');
+      setError(result.error.issues[0]?.message ?? t.form.validationError);
       return;
     }
 
@@ -196,7 +196,7 @@ export function PropertyForm({
     try {
       await onSubmit(result.data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'تعذّر حفظ العقار');
+      setError(err instanceof Error ? err.message : t.form.saveError);
     } finally {
       setLoading(false);
     }
@@ -206,24 +206,24 @@ export function PropertyForm({
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Input
-          placeholder="عنوان العقار (عربي)"
+          placeholder={t.form.fields.titleAr}
           value={form.title_ar}
           onChange={(e) => set('title_ar', e.target.value)}
         />
         <Input
-          placeholder="عنوان العقار (إنجليزي، اختياري)"
+          placeholder={t.form.fields.titleEn}
           value={form.title_en}
           onChange={(e) => set('title_en', e.target.value)}
         />
       </div>
 
       <Textarea
-        placeholder="وصف العقار (عربي)"
+        placeholder={t.form.fields.descriptionAr}
         value={form.description_ar}
         onChange={(e) => set('description_ar', e.target.value)}
       />
       <Textarea
-        placeholder="وصف العقار (إنجليزي، اختياري)"
+        placeholder={t.form.fields.descriptionEn}
         value={form.description_en}
         onChange={(e) => set('description_en', e.target.value)}
       />
@@ -232,14 +232,14 @@ export function PropertyForm({
         <Select value={form.property_type} onChange={(e) => set('property_type', e.target.value)}>
           {PROPERTY_TYPES.map((type) => (
             <option key={type} value={type}>
-              {PROPERTY_TYPE_LABELS[type]}
+              {propertyTypeLabels[type]}
             </option>
           ))}
         </Select>
         <Select value={form.listing_type} onChange={(e) => set('listing_type', e.target.value)}>
           {LISTING_TYPES.map((type) => (
             <option key={type} value={type}>
-              {LISTING_TYPE_LABELS[type]}
+              {listingTypeLabels[type]}
             </option>
           ))}
         </Select>
@@ -248,13 +248,13 @@ export function PropertyForm({
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Input
           type="number"
-          placeholder="السعر (ريال)"
+          placeholder={t.form.fields.price}
           value={form.price}
           onChange={(e) => set('price', e.target.value)}
         />
         <Input
           type="number"
-          placeholder="المساحة (م²)"
+          placeholder={t.form.fields.area}
           value={form.area_sqm}
           onChange={(e) => set('area_sqm', e.target.value)}
         />
@@ -263,13 +263,13 @@ export function PropertyForm({
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Input
           type="number"
-          placeholder="عدد الغرف (اختياري)"
+          placeholder={t.form.fields.bedrooms}
           value={form.bedrooms}
           onChange={(e) => set('bedrooms', e.target.value)}
         />
         <Input
           type="number"
-          placeholder="عدد دورات المياه (اختياري)"
+          placeholder={t.form.fields.bathrooms}
           value={form.bathrooms}
           onChange={(e) => set('bathrooms', e.target.value)}
         />
@@ -280,13 +280,13 @@ export function PropertyForm({
           options={cities.map((city) => ({ value: city.id, label: city.name_ar }))}
           value={form.city_id}
           onChange={(value) => set('city_id', value)}
-          placeholder="اختر المدينة"
+          placeholder={t.form.fields.citySelect}
         />
         <SearchableSelect
           options={districts.map((district) => ({ value: district.id, label: district.name_ar }))}
           value={form.district_id}
           onChange={(value) => set('district_id', value)}
-          placeholder="الحي (اختياري)"
+          placeholder={t.form.fields.districtSelect}
           disabled={!form.city_id}
           clearable
           onCreate={async (name) => {
@@ -306,7 +306,7 @@ export function PropertyForm({
       {/* PRODUCT_SPEC.md section 4.1 — optional hierarchy grouping; both independent nullable FKs (a unit can belong to a building without a project, or vice versa). */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Select value={form.project_id} onChange={(e) => set('project_id', e.target.value)}>
-          <option value="">بلا مشروع (اختياري)</option>
+          <option value="">{t.form.fields.noProject}</option>
           {projects.map((project) => (
             <option key={project.id} value={project.id}>
               {project.name_ar}
@@ -314,7 +314,7 @@ export function PropertyForm({
           ))}
         </Select>
         <Select value={form.building_id} onChange={(e) => set('building_id', e.target.value)}>
-          <option value="">بلا عمارة (اختياري)</option>
+          <option value="">{t.form.fields.noBuilding}</option>
           {buildings.map((building) => (
             <option key={building.id} value={building.id}>
               {building.name_ar}
@@ -325,7 +325,7 @@ export function PropertyForm({
 
       {canAssignAgent && (
         <Select value={form.agent_id} onChange={(e) => set('agent_id', e.target.value)}>
-          <option value="">بلا مسؤول (اختياري)</option>
+          <option value="">{t.form.fields.noAgent}</option>
           {team.map((member) => (
             <option key={member.id} value={member.id}>
               {member.full_name}
@@ -339,14 +339,14 @@ export function PropertyForm({
           <Select value={form.status} onChange={(e) => set('status', e.target.value)}>
             {PROPERTY_STATUSES.map((status) => (
               <option key={status} value={status}>
-                {PROPERTY_STATUS_LABELS[status]}
+                {t.statusLabels[status]}
               </option>
             ))}
           </Select>
           <Select value={form.availability} onChange={(e) => set('availability', e.target.value)}>
             {PROPERTY_AVAILABILITY.map((availability) => (
               <option key={availability} value={availability}>
-                {PROPERTY_AVAILABILITY_LABELS[availability]}
+                {t.availabilityLabels[availability]}
               </option>
             ))}
           </Select>
@@ -355,7 +355,7 @@ export function PropertyForm({
 
       <FormError message={error} />
       <Button type="submit" disabled={loading}>
-        {loading ? 'جارٍ الحفظ...' : submitLabel}
+        {loading ? t.form.saving : submitLabel}
       </Button>
     </form>
   );

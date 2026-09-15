@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { Select } from '@/components/ui/select';
 import { FormError } from '@/components/ui/form-error';
-import { ROLE_LABELS } from '@/lib/auth/role-labels';
+import { useLocale } from '@/lib/i18n/locale-context';
 import { inviteTeamMember, type TeamMember } from '@/lib/api/team';
 
 interface TeamInviteFormProps {
@@ -16,6 +16,8 @@ interface TeamInviteFormProps {
 }
 
 export function TeamInviteForm({ accessToken, onInvited }: TeamInviteFormProps) {
+  const { t, pages } = useLocale();
+  const inviteForm = pages.team.inviteForm;
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
@@ -34,7 +36,7 @@ export function TeamInviteForm({ accessToken, onInvited }: TeamInviteFormProps) 
       email: email.trim() || undefined,
     });
     if (!result.success) {
-      setError(result.error.issues[0]?.message ?? 'يرجى مراجعة البيانات');
+      setError(result.error.issues[0]?.message ?? inviteForm.invalidData);
       return;
     }
 
@@ -43,7 +45,7 @@ export function TeamInviteForm({ accessToken, onInvited }: TeamInviteFormProps) 
       const { member } = await inviteTeamMember(accessToken, result.data);
       onInvited(member);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'تعذّرت دعوة العضو');
+      setError(err instanceof Error ? err.message : inviteForm.inviteFailed);
     } finally {
       setLoading(false);
     }
@@ -51,22 +53,26 @@ export function TeamInviteForm({ accessToken, onInvited }: TeamInviteFormProps) 
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <Input placeholder="الاسم الثلاثي" value={fullName} onChange={(e) => setFullName(e.target.value)} />
-      <PhoneInput placeholder="5xxxxxxxx" value={phone} onChange={setPhone} />
+      <Input
+        placeholder={inviteForm.fullNamePlaceholder}
+        value={fullName}
+        onChange={(e) => setFullName(e.target.value)}
+      />
+      <PhoneInput placeholder={inviteForm.phonePlaceholder} value={phone} onChange={setPhone} />
       <Input
         type="email"
-        placeholder="البريد الإلكتروني (اختياري)"
+        placeholder={inviteForm.emailPlaceholder}
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         dir="ltr"
       />
       <Select value={role} onChange={(e) => setRole(e.target.value as 'admin' | 'agent')}>
-        <option value="agent">{ROLE_LABELS.agent}</option>
-        <option value="admin">{ROLE_LABELS.admin}</option>
+        <option value="agent">{t.roleLabels.agent}</option>
+        <option value="admin">{t.roleLabels.admin}</option>
       </Select>
       <FormError message={error} />
       <Button type="submit" disabled={loading}>
-        {loading ? 'جارٍ الإرسال...' : 'إرسال الدعوة'}
+        {loading ? inviteForm.sending : inviteForm.submitLabel}
       </Button>
     </form>
   );

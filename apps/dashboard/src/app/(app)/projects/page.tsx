@@ -13,11 +13,13 @@ import { Modal } from '@/components/ui/modal';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { listProjects, createProject } from '@/lib/api/hierarchy';
-import { PROPERTY_STATUS_LABELS } from '@/lib/property/labels';
+import { useLocale } from '@/lib/i18n/locale-context';
 
 /** عنصر فرعي بمجموعة "العقارات" بالشريط — كانت تبويبًا داخل /properties، أصبحت صفحتها الخاصة. */
 export default function ProjectsPage() {
   const { me, accessToken } = useCurrentUser();
+  const { pages } = useLocale();
+  const t = pages.projects;
   const router = useRouter();
   const [projects, setProjects] = useState<Project[] | null>(null);
   const [showCreate, setShowCreate] = useState(false);
@@ -35,19 +37,19 @@ export default function ProjectsPage() {
 
   return (
     <AppShell
-      title="المشاريع"
+      title={t.list.title}
       orgName={me.tenant.name_ar}
       accountType={me.tenant.account_type}
     >
       <div className="mb-5 flex items-center justify-end">
-        {canManage && <Button onClick={() => setShowCreate(true)}>+ إضافة مشروع</Button>}
+        {canManage && <Button onClick={() => setShowCreate(true)}>{t.list.addButton}</Button>}
       </div>
       {showCreate && (
-        <Modal title="إضافة مشروع" onClose={() => setShowCreate(false)}>
+        <Modal title={t.list.createModalTitle} onClose={() => setShowCreate(false)}>
           <ProjectForm
             mode="create"
             accessToken={accessToken}
-            submitLabel="إضافة المشروع"
+            submitLabel={t.list.createSubmitLabel}
             onSubmit={async (input) => {
               const { project } = await createProject(accessToken, input as ProjectInput);
               router.push(`/projects/${project.id}`);
@@ -59,17 +61,14 @@ export default function ProjectsPage() {
         {projects === null ? (
           <TableSkeleton columns={2} />
         ) : projects.length === 0 ? (
-          <p className="text-text-secondary p-6 text-center">
-            لا توجد مشاريع بعد — تجميع اختياري لعقاراتك تحت مشروع واحد (مثل مشروع سكني متعدد
-            العمارات)
-          </p>
+          <p className="text-text-secondary p-6 text-center">{t.list.emptyState}</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[420px] text-sm">
               <thead className="bg-surface-header text-text-secondary text-right">
                 <tr>
-                  <th className="px-5 py-3 font-medium">اسم المشروع</th>
-                  <th className="px-5 py-3 font-medium">الحالة</th>
+                  <th className="px-5 py-3 font-medium">{t.list.table.name}</th>
+                  <th className="px-5 py-3 font-medium">{t.list.table.status}</th>
                 </tr>
               </thead>
               <tbody>
@@ -86,7 +85,7 @@ export default function ProjectsPage() {
                     <td className="px-5 py-3">
                       <Badge
                         status={project.status}
-                        label={PROPERTY_STATUS_LABELS[project.status]}
+                        label={pages.properties.statusLabels[project.status]}
                       />
                     </td>
                   </tr>

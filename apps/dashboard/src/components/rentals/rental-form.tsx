@@ -17,9 +17,9 @@ import { PhoneInput } from '@/components/ui/phone-input';
 import { Select } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { FormError } from '@/components/ui/form-error';
+import { useLocale } from '@/lib/i18n/locale-context';
 import { listProperties } from '@/lib/api/properties';
 import { LISTING_TYPE_LABELS } from '@/lib/property/labels';
-import { RENTAL_STATUS_LABELS } from '@/lib/rental/labels';
 
 type FormState = {
   property_id: string;
@@ -74,6 +74,8 @@ export function RentalForm({
   onSubmit,
   submitLabel,
 }: RentalFormProps) {
+  const { pages } = useLocale();
+  const t = pages.rentals.form;
   const [form, setForm] = useState<FormState>(
     initialValues
       ? toFormState(initialValues)
@@ -119,7 +121,7 @@ export function RentalForm({
     const schema = mode === 'create' ? rentalInputSchema : rentalUpdateSchema;
     const result = schema.safeParse(candidate);
     if (!result.success) {
-      setError(result.error.issues[0]?.message ?? 'يرجى مراجعة بيانات الإيجار');
+      setError(result.error.issues[0]?.message ?? t.invalidData);
       return;
     }
 
@@ -127,7 +129,7 @@ export function RentalForm({
     try {
       await onSubmit(result.data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'تعذّر حفظ الإيجار');
+      setError(err instanceof Error ? err.message : t.saveFailed);
     } finally {
       setLoading(false);
     }
@@ -137,7 +139,7 @@ export function RentalForm({
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       {mode === 'create' && (
         <Select value={form.property_id} onChange={(e) => set('property_id', e.target.value)}>
-          <option value="">اختر العقار</option>
+          <option value="">{t.propertyPlaceholder}</option>
           {properties.map((property) => (
             <option key={property.id} value={property.id}>
               {property.title_ar} · {LISTING_TYPE_LABELS[property.listing_type]}
@@ -148,12 +150,12 @@ export function RentalForm({
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Input
-          placeholder="اسم المستأجر"
+          placeholder={t.tenantNamePlaceholder}
           value={form.tenant_name}
           onChange={(e) => set('tenant_name', e.target.value)}
         />
         <PhoneInput
-          placeholder="5xxxxxxxx"
+          placeholder={t.tenantPhonePlaceholder}
           value={form.tenant_phone}
           onChange={(value) => set('tenant_phone', value)}
         />
@@ -161,21 +163,21 @@ export function RentalForm({
 
       <Input
         type="number"
-        placeholder="مبلغ الإيجار (ريال)"
+        placeholder={t.rentAmountPlaceholder}
         value={form.rent_amount}
         onChange={(e) => set('rent_amount', e.target.value)}
       />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1">
-          <label className="text-text-secondary text-xs">بداية العقد</label>
+          <label className="text-text-secondary text-xs">{t.contractStartLabel}</label>
           <DatePicker
             value={form.contract_start_date}
             onChange={(value) => set('contract_start_date', value)}
           />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-text-secondary text-xs">نهاية العقد</label>
+          <label className="text-text-secondary text-xs">{t.contractEndLabel}</label>
           <DatePicker
             value={form.contract_end_date}
             onChange={(value) => set('contract_end_date', value)}
@@ -184,7 +186,7 @@ export function RentalForm({
       </div>
 
       <Textarea
-        placeholder="ملاحظات (اختياري)"
+        placeholder={t.notesPlaceholder}
         value={form.notes}
         onChange={(e) => set('notes', e.target.value)}
       />
@@ -193,7 +195,7 @@ export function RentalForm({
         <Select value={form.status} onChange={(e) => set('status', e.target.value)}>
           {RENTAL_STATUSES.map((status) => (
             <option key={status} value={status}>
-              {RENTAL_STATUS_LABELS[status]}
+              {pages.rentals.statusLabels[status]}
             </option>
           ))}
         </Select>
@@ -201,7 +203,7 @@ export function RentalForm({
 
       <FormError message={error} />
       <Button type="submit" disabled={loading}>
-        {loading ? 'جارٍ الحفظ...' : submitLabel}
+        {loading ? t.saving : submitLabel}
       </Button>
     </form>
   );

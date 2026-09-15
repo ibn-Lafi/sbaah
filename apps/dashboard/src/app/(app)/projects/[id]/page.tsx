@@ -14,11 +14,14 @@ import { FormPageSkeleton } from '@/components/ui/form-page-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { createBuilding, deleteProject, getProject, listBuildings, updateProject } from '@/lib/api/hierarchy';
 import { ApiRequestError } from '@/lib/api/client';
+import { useLocale } from '@/lib/i18n/locale-context';
 
 export default function EditProjectPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
   const { me, accessToken } = useCurrentUser();
+  const { pages } = useLocale();
+  const t = pages.projects;
   const [project, setProject] = useState<Project | null>(null);
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [notFound, setNotFound] = useState(false);
@@ -49,25 +52,25 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
       await deleteProject(accessToken, id);
       router.push('/projects');
     } catch (err) {
-      throw new Error(err instanceof ApiRequestError ? err.message : 'تعذّر حذف المشروع');
+      throw new Error(err instanceof ApiRequestError ? err.message : t.detail.deleteFallbackError);
     }
   }
 
   if (notFound) {
     return (
       <AppShell
-        title="مشروع غير موجود"
+        title={t.detail.notFoundTitle}
         orgName={me.tenant.name_ar}
         accountType={me.tenant.account_type}
       >
-        <p className="text-text-secondary">المشروع غير موجود.</p>
+        <p className="text-text-secondary">{t.detail.notFoundMessage}</p>
       </AppShell>
     );
   }
 
   return (
     <AppShell
-      title={project?.name_ar ?? 'تعديل مشروع'}
+      title={project?.name_ar ?? t.detail.defaultTitle}
       orgName={me.tenant.name_ar}
       accountType={me.tenant.account_type}
     >
@@ -80,7 +83,7 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
               mode="edit"
               initialValues={project}
               accessToken={accessToken}
-              submitLabel="حفظ التعديلات"
+              submitLabel={t.detail.editSubmitLabel}
               onSubmit={async (input) => {
                 const { project: updated } = await updateProject(accessToken, id, input as ProjectUpdateInput);
                 setProject(updated);
@@ -90,24 +93,24 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
 
           <Card className="p-8">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-base font-semibold text-text-primary">العمارات التابعة لهذا المشروع</h2>
+              <h2 className="text-base font-semibold text-text-primary">{t.detail.buildingsSectionTitle}</h2>
               {canManage && (
                 <button
                   type="button"
                   onClick={() => setShowCreateBuilding(true)}
                   className="text-sm font-semibold text-brand hover:underline"
                 >
-                  + إضافة عمارة
+                  {t.detail.addBuildingButton}
                 </button>
               )}
             </div>
             {showCreateBuilding && (
-              <Modal title="إضافة عمارة" onClose={() => setShowCreateBuilding(false)}>
+              <Modal title={t.detail.createBuildingModalTitle} onClose={() => setShowCreateBuilding(false)}>
                 <BuildingForm
                   mode="create"
                   accessToken={accessToken}
                   defaultProjectId={id}
-                  submitLabel="إضافة العمارة"
+                  submitLabel={t.detail.createBuildingSubmitLabel}
                   onSubmit={async (input) => {
                     const { building } = await createBuilding(accessToken, input as BuildingInput);
                     setBuildings((prev) => [...prev, building]);
@@ -117,7 +120,7 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
               </Modal>
             )}
             {buildings.length === 0 ? (
-              <p className="text-sm text-text-secondary">لا عمارات مرتبطة بعد.</p>
+              <p className="text-sm text-text-secondary">{t.detail.noBuildings}</p>
             ) : (
               <ul className="flex flex-col gap-2">
                 {buildings.map((building) => (
@@ -133,9 +136,9 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
 
           {canManage && (
             <DeleteButton
-              label="حذف"
-              confirmTitle="حذف المشروع"
-              confirmMessage="سيتم حذف هذا المشروع نهائيًا، وستبقى العمارات المرتبطة به بلا مشروع محدد. لا يمكن التراجع عن هذا الإجراء."
+              label={t.detail.deleteLabel}
+              confirmTitle={t.detail.deleteConfirmTitle}
+              confirmMessage={t.detail.deleteConfirmMessage}
               onConfirm={handleDelete}
             />
           )}

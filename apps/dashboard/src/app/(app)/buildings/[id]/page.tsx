@@ -43,25 +43,25 @@ export default function EditBuildingPage({ params }: { params: Promise<{ id: str
       await deleteBuilding(accessToken, id);
       router.push('/buildings');
     } catch (err) {
-      throw new Error(err instanceof ApiRequestError ? err.message : 'تعذّر حذف العمارة');
+      throw new Error(err instanceof ApiRequestError ? err.message : t.detail.deleteFallbackError);
     }
   }
 
   if (notFound) {
     return (
       <AppShell
-        title="عمارة غير موجودة"
+        title={t.detail.notFoundTitle}
         orgName={me.tenant.name_ar}
         accountType={me.tenant.account_type}
       >
-        <p className="text-text-secondary">العمارة غير موجودة.</p>
+        <p className="text-text-secondary">{t.detail.notFoundMessage}</p>
       </AppShell>
     );
   }
 
   return (
     <AppShell
-      title={building?.name_ar ?? 'تعديل عمارة'}
+      title={building?.name_ar ?? t.detail.defaultTitle}
       orgName={me.tenant.name_ar}
       accountType={me.tenant.account_type}
     >
@@ -74,7 +74,7 @@ export default function EditBuildingPage({ params }: { params: Promise<{ id: str
               mode="edit"
               initialValues={building}
               accessToken={accessToken}
-              submitLabel="حفظ التعديلات"
+              submitLabel={t.detail.editSubmitLabel}
               onSubmit={async (input) => {
                 const { building: updated } = await updateBuilding(accessToken, id, input as BuildingUpdateInput);
                 setBuilding(updated);
@@ -84,9 +84,9 @@ export default function EditBuildingPage({ params }: { params: Promise<{ id: str
 
           {canManage && (
             <DeleteButton
-              label="حذف"
-              confirmTitle="حذف العمارة"
-              confirmMessage="سيتم حذف هذه العمارة نهائيًا، وستبقى العقارات المرتبطة بها بلا عمارة محددة. لا يمكن التراجع عن هذا الإجراء."
+              label={t.detail.deleteLabel}
+              confirmTitle={t.detail.deleteConfirmTitle}
+              confirmMessage={t.detail.deleteConfirmMessage}
               onConfirm={handleDelete}
             />
           )}

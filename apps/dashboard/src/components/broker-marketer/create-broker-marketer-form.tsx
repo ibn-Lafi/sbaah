@@ -19,6 +19,7 @@ import {
 import { listCities } from '@/lib/api/reference-data';
 import { listProperties } from '@/lib/api/properties';
 import { ApiRequestError } from '@/lib/api/client';
+import { useLocale } from '@/lib/i18n/locale-context';
 
 interface CreateBrokerMarketerFormProps {
   accessToken: string;
@@ -39,6 +40,8 @@ export function CreateBrokerMarketerForm({
   const [propertyId, setPropertyId] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const { pages } = useLocale();
+  const t = pages.brokerMarketer.form;
 
   useEffect(() => {
     void listCities().then(setCities);
@@ -59,7 +62,7 @@ export function CreateBrokerMarketerForm({
 
     const result = manualBrokerMarketerApplicationInputSchema.safeParse(candidate);
     if (!result.success) {
-      setError(result.error.issues[0]?.message ?? 'يرجى مراجعة البيانات المدخلة');
+      setError(result.error.issues[0]?.message ?? t.invalidInput);
       return;
     }
 
@@ -68,7 +71,7 @@ export function CreateBrokerMarketerForm({
       const { application } = await createBrokerMarketerApplication(accessToken, result.data);
       onCreated(application);
     } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : 'تعذّر إضافة الطلب');
+      setError(err instanceof ApiRequestError ? err.message : t.submitFailed);
     } finally {
       setLoading(false);
     }
@@ -77,7 +80,7 @@ export function CreateBrokerMarketerForm({
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <Input
-        placeholder="الاسم الكامل"
+        placeholder={t.fullNamePlaceholder}
         value={fullName}
         onChange={(e) => setFullName(e.target.value)}
       />
@@ -86,10 +89,10 @@ export function CreateBrokerMarketerForm({
           options={cities.map((city) => ({ value: city.id, label: city.name_ar }))}
           value={cityId}
           onChange={setCityId}
-          placeholder="اختر المدينة"
+          placeholder={t.cityPlaceholder}
         />
         <Input
-          placeholder="رقم رخصة فال"
+          placeholder={t.falLicensePlaceholder}
           value={falLicenseNumber}
           onChange={(e) => setFalLicenseNumber(e.target.value)}
           dir="ltr"
@@ -99,11 +102,11 @@ export function CreateBrokerMarketerForm({
         value={applicantType}
         onChange={(e) => setApplicantType(e.target.value as BrokerMarketerApplicantType)}
       >
-        <option value="broker">وسيط</option>
-        <option value="marketer">مسوّق</option>
+        <option value="broker">{t.applicantTypeBroker}</option>
+        <option value="marketer">{t.applicantTypeMarketer}</option>
       </Select>
       <Select value={propertyId} onChange={(e) => setPropertyId(e.target.value)}>
-        <option value="">بلا عقار محدد (اختياري)</option>
+        <option value="">{t.noPropertyOption}</option>
         {properties.map((property) => (
           <option key={property.id} value={property.id}>
             {property.title_ar}
@@ -113,7 +116,7 @@ export function CreateBrokerMarketerForm({
 
       <FormError message={error} />
       <Button type="submit" disabled={loading}>
-        {loading ? 'جارٍ الإضافة...' : 'إضافة الطلب'}
+        {loading ? t.submitting : t.submit}
       </Button>
     </form>
   );

@@ -11,16 +11,12 @@ import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { SegmentedToggle } from '@/components/ui/segmented-toggle';
 import { CreateBrokerMarketerForm } from '@/components/broker-marketer/create-broker-marketer-form';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
+import { useLocale } from '@/lib/i18n/locale-context';
 import {
   listBrokerMarketerApplications,
   type BrokerMarketerApplicationWithRelations,
 } from '@/lib/api/broker-marketer';
 import { formatDate } from '@/lib/format/date';
-
-const TABS: { value: BrokerMarketerApplicantType; label: string }[] = [
-  { value: 'broker', label: 'وسيط' },
-  { value: 'marketer', label: 'مسوّق' },
-];
 
 /**
  * "الوسطاء والمسوقين" — طلبات نموذج website_sections' broker_marketer_form
@@ -29,6 +25,12 @@ const TABS: { value: BrokerMarketerApplicantType; label: string }[] = [
  */
 export default function BrokerMarketerPage() {
   const { me, accessToken } = useCurrentUser();
+  const { pages } = useLocale();
+  const t = pages.brokerMarketer;
+  const TABS: { value: BrokerMarketerApplicantType; label: string }[] = [
+    { value: 'broker', label: t.tabs.broker },
+    { value: 'marketer', label: t.tabs.marketer },
+  ];
   const [tab, setTab] = useState<BrokerMarketerApplicantType>('broker');
   const [applications, setApplications] = useState<BrokerMarketerApplicationWithRelations[] | null>(
     null,
@@ -60,7 +62,7 @@ export default function BrokerMarketerPage() {
 
   return (
     <AppShell
-      title="الوسطاء والمسوقين"
+      title={t.pageTitle}
       orgName={me.tenant.name_ar}
       accountType={me.tenant.account_type}
     >
@@ -70,12 +72,12 @@ export default function BrokerMarketerPage() {
 
       {canManage && (
         <div className="mb-5 flex justify-end">
-          <Button onClick={() => setShowCreate(true)}>+ إضافة</Button>
+          <Button onClick={() => setShowCreate(true)}>{t.addButton}</Button>
         </div>
       )}
 
       {showCreate && (
-        <Modal title="إضافة وسيط أو مسوّق" onClose={() => setShowCreate(false)}>
+        <Modal title={t.createModalTitle} onClose={() => setShowCreate(false)}>
           <CreateBrokerMarketerForm accessToken={accessToken} onCreated={handleCreated} />
         </Modal>
       )}
@@ -85,15 +87,13 @@ export default function BrokerMarketerPage() {
           <TableSkeleton columns={4} />
         ) : applications.length === 0 ? (
           <div className="flex flex-col items-center gap-2 p-10 text-center">
-            <p className="text-text-secondary">
-              لا يوجد {tab === 'broker' ? 'وسطاء' : 'مسوّقون'} بعد
-            </p>
+            <p className="text-text-secondary">{t.emptyState.noneYet(tab)}</p>
             <p className="text-text-placeholder text-xs">
-              فعّل قسم &quot;نموذج الوسطاء والمسوقين&quot; من{' '}
+              {t.emptyState.hintPrefix}{' '}
               <Link href="/website/editor" className="text-brand hover:underline">
-                محرر الموقع
+                {t.emptyState.hintLink}
               </Link>{' '}
-              ليتمكن المهتمون من التقديم.
+              {t.emptyState.hintSuffix}
             </p>
           </div>
         ) : (
@@ -101,11 +101,11 @@ export default function BrokerMarketerPage() {
             <table className="w-full min-w-[640px] text-sm">
               <thead className="bg-surface-header text-text-secondary text-right">
                 <tr>
-                  <th className="px-5 py-3 font-medium">الاسم</th>
-                  <th className="px-5 py-3 font-medium">المدينة</th>
-                  <th className="px-5 py-3 font-medium">رخصة فال</th>
-                  <th className="px-5 py-3 font-medium">العقار</th>
-                  <th className="px-5 py-3 font-medium">التاريخ</th>
+                  <th className="px-5 py-3 font-medium">{t.table.name}</th>
+                  <th className="px-5 py-3 font-medium">{t.table.city}</th>
+                  <th className="px-5 py-3 font-medium">{t.table.falLicense}</th>
+                  <th className="px-5 py-3 font-medium">{t.table.property}</th>
+                  <th className="px-5 py-3 font-medium">{t.table.date}</th>
                 </tr>
               </thead>
               <tbody>
@@ -129,7 +129,7 @@ export default function BrokerMarketerPage() {
                           {application.properties.title_ar}
                         </Link>
                       ) : (
-                        'طلب عام'
+                        t.table.generalApplication
                       )}
                     </td>
                     <td className="text-text-secondary px-5 py-3" dir="ltr">

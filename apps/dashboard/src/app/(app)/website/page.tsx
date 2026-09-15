@@ -33,14 +33,14 @@ export default function ThemeStorePage() {
       const { website: updated } = await updateWebsite(accessToken, { theme_id: themeId });
       setWebsite((current) => (current ? { ...current, ...updated } : current));
     } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : 'تعذّر حفظ الثيم');
+      setError(err instanceof ApiRequestError ? err.message : t.themeStore.errors.saveTheme);
     }
   }
 
   if (!website) {
     return (
       <AppShell
-        title="متجر الثيمات"
+        title={t.themeStore.pageTitle}
         orgName={me.tenant.name_ar}
         accountType={me.tenant.account_type}
       >
@@ -51,7 +51,7 @@ export default function ThemeStorePage() {
 
   return (
     <AppShell
-      title="متجر الثيمات"
+      title={t.themeStore.pageTitle}
       orgName={me.tenant.name_ar}
       accountType={me.tenant.account_type}
     >
@@ -59,10 +59,8 @@ export default function ThemeStorePage() {
         <FormError message={error} />
 
         <Card className="p-8">
-          <h2 className="mb-1 text-base font-semibold text-text-primary">متجر الثيمات</h2>
-          <p className="mb-4 text-sm text-text-secondary">
-            اختر شكل موقعك، ثم اضغط &quot;تخصيص الثيم&quot; على الثيم الحالي لتعديل أقسامه وألوانه ومحتواه
-          </p>
+          <h2 className="mb-1 text-base font-semibold text-text-primary">{t.themeStore.pageTitle}</h2>
+          <p className="mb-4 text-sm text-text-secondary">{t.themeStore.description}</p>
           <ThemeGallery themes={themes} selectedThemeId={website.theme_id} primaryColor={website.primary_color} onSelect={(themeId) => void saveTheme(themeId)} />
         </Card>
       </div>

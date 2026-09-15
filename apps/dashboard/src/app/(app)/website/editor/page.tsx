@@ -27,8 +27,8 @@ import {
   ChevronIcon,
 } from '@/components/website/editor-icons';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
+import { useLocale } from '@/lib/i18n/locale-context';
 import { getPlatformRootDomain } from '@/lib/env/platform-root-domain';
-import { WEBSITE_PAGE_LABELS } from '@/lib/website/labels';
 import {
   getWebsite,
   updateWebsite,
@@ -53,6 +53,8 @@ const HEX_PATTERN = /^#[0-9A-Fa-f]{6}$/;
  */
 export default function WebsiteEditorPage() {
   const { me, accessToken } = useCurrentUser();
+  const { pages: pageLabels } = useLocale();
+  const t = pageLabels.website;
   const [website, setWebsite] = useState<Website | null>(null);
   const [pages, setPages] = useState<WebsitePageWithSections[]>([]);
   const [colorDraft, setColorDraft] = useState({ primary: '', secondary: '' });
@@ -109,7 +111,7 @@ export default function WebsiteEditorPage() {
       const { website: updated } = await updateWebsite(accessToken, { [field]: value });
       setWebsite((current) => (current ? { ...current, ...updated } : current));
     } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : 'تعذّر حفظ اللون');
+      setError(err instanceof ApiRequestError ? err.message : t.editor.errors.saveColor);
     }
   }
 
@@ -119,7 +121,7 @@ export default function WebsiteEditorPage() {
       const { website: updated } = await updateWebsite(accessToken, { font_family: font });
       setWebsite((current) => (current ? { ...current, ...updated } : current));
     } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : 'تعذّر حفظ الخط');
+      setError(err instanceof ApiRequestError ? err.message : t.editor.errors.saveFont);
     }
   }
 
@@ -131,7 +133,7 @@ export default function WebsiteEditorPage() {
       });
       setWebsite((current) => (current ? { ...current, ...updated } : current));
     } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : 'تعذّر حفظ شريط الإعلان');
+      setError(err instanceof ApiRequestError ? err.message : t.editor.errors.saveAnnouncement);
     }
   }
 
@@ -143,7 +145,7 @@ export default function WebsiteEditorPage() {
       });
       setWebsite((current) => (current ? { ...current, ...updated } : current));
     } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : 'تعذّر حفظ نص الفوتر');
+      setError(err instanceof ApiRequestError ? err.message : t.editor.errors.saveFooterDescription);
     }
   }
 

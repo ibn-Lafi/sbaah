@@ -22,7 +22,7 @@ import {
   MailIcon,
 } from '@/components/website/editor-icons';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
-import { ROLE_LABELS } from '@/lib/auth/role-labels';
+import { useLocale } from '@/lib/i18n/locale-context';
 import { updateSocialLinks, updateAccountType, updateFalLicense, type SocialLinks } from '@/lib/api/tenant';
 import { getWebsite, updateWebsite } from '@/lib/api/website';
 import { updateMyEmail } from '@/lib/api/auth';
@@ -38,12 +38,6 @@ function InfoRow({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
-
-const ACCOUNT_TYPE_OPTIONS: { type: AccountType; label: string; description: string }[] = [
-  { type: 'individual', label: 'فرد', description: 'وسيط مستقل يعمل باسمه برخصة فال' },
-  { type: 'institution', label: 'مؤسسة', description: 'مؤسسة فردية لها سجل تجاري ورقم ضريبي' },
-  { type: 'company', label: 'شركة', description: 'شركة عقارية بفريق ووسطاء متعددين' },
-];
 
 interface AccountTypeInitial {
   account_type: AccountType;

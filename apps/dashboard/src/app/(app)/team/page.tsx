@@ -10,12 +10,13 @@ import { Modal } from '@/components/ui/modal';
 import { Select } from '@/components/ui/select';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
-import { ROLE_LABELS } from '@/lib/auth/role-labels';
-import { USER_STATUS_LABELS } from '@/lib/team/labels';
+import { useLocale } from '@/lib/i18n/locale-context';
 import { listTeam, updateTeamMember, type TeamMember } from '@/lib/api/team';
 
 export default function TeamPage() {
   const { me, accessToken } = useCurrentUser();
+  const { t, pages } = useLocale();
+  const team = pages.team;
   const [members, setMembers] = useState<TeamMember[] | null>(null);
   const [showInvite, setShowInvite] = useState(false);
 
@@ -40,16 +41,16 @@ export default function TeamPage() {
 
   return (
     <AppShell
-      title="الفريق"
+      title={team.pageTitle}
       orgName={me.tenant.name_ar}
       accountType={me.tenant.account_type}
     >
       <div className="mb-5 flex items-center justify-end">
-        <Button onClick={() => setShowInvite(true)}>+ دعوة عضو</Button>
+        <Button onClick={() => setShowInvite(true)}>{team.inviteButton}</Button>
       </div>
 
       {showInvite && (
-        <Modal title="دعوة عضو" onClose={() => setShowInvite(false)}>
+        <Modal title={team.inviteModalTitle} onClose={() => setShowInvite(false)}>
           <TeamInviteForm
             accessToken={accessToken}
             onInvited={() => {
@@ -68,10 +69,10 @@ export default function TeamPage() {
             <table className="w-full min-w-[560px] text-sm">
               <thead className="bg-surface-header text-text-secondary text-right">
                 <tr>
-                  <th className="px-5 py-3 font-medium">الاسم</th>
-                  <th className="px-5 py-3 font-medium">الجوال</th>
-                  <th className="px-5 py-3 font-medium">الدور</th>
-                  <th className="px-5 py-3 font-medium">الحالة</th>
+                  <th className="px-5 py-3 font-medium">{team.table.name}</th>
+                  <th className="px-5 py-3 font-medium">{team.table.phone}</th>
+                  <th className="px-5 py-3 font-medium">{team.table.role}</th>
+                  <th className="px-5 py-3 font-medium">{team.table.status}</th>
                 </tr>
               </thead>
               <tbody>
@@ -94,23 +95,23 @@ export default function TeamPage() {
                             }
                             className="h-9 py-0 text-sm"
                           >
-                            <option value="admin">{ROLE_LABELS.admin}</option>
-                            <option value="agent">{ROLE_LABELS.agent}</option>
+                            <option value="admin">{t.roleLabels.admin}</option>
+                            <option value="agent">{t.roleLabels.agent}</option>
                           </Select>
                         ) : (
-                          ROLE_LABELS[member.role]
+                          t.roleLabels[member.role]
                         )}
                       </td>
                       <td className="px-5 py-3">
                         {editable && member.status === 'invited' ? (
                           <div className="flex items-center gap-2">
-                            <Badge status={member.status} label={USER_STATUS_LABELS.invited} />
+                            <Badge status={member.status} label={team.statusLabels.invited} />
                             <button
                               type="button"
                               onClick={() => handleStatusChange(member.id, 'disabled')}
                               className="text-danger text-xs hover:underline"
                             >
-                              إلغاء الدعوة
+                              {team.cancelInvite}
                             </button>
                           </div>
                         ) : editable ? (
@@ -121,11 +122,11 @@ export default function TeamPage() {
                             }
                             className="h-9 py-0 text-sm"
                           >
-                            <option value="active">{USER_STATUS_LABELS.active}</option>
-                            <option value="disabled">{USER_STATUS_LABELS.disabled}</option>
+                            <option value="active">{team.statusLabels.active}</option>
+                            <option value="disabled">{team.statusLabels.disabled}</option>
                           </Select>
                         ) : (
-                          <Badge status={member.status} label={USER_STATUS_LABELS[member.status]} />
+                          <Badge status={member.status} label={team.statusLabels[member.status]} />
                         )}
                       </td>
                     </tr>

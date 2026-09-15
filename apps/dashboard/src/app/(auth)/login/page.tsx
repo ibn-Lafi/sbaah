@@ -23,6 +23,7 @@ import { ApiRequestError } from '@/lib/api/client';
 import { adoptSession } from '@/lib/auth/session';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import { useResendCooldown } from '@/lib/auth/use-resend-cooldown';
+import { useLocale } from '@/lib/i18n/locale-context';
 
 type LoginMode = 'password' | 'otp';
 type Channel = 'sms' | 'email';
@@ -41,6 +42,8 @@ type Channel = 'sms' | 'email';
  */
 export default function LoginPage() {
   const router = useRouter();
+  const { pages } = useLocale();
+  const t = pages.auth;
   const [mode, setMode] = useState<LoginMode>('password');
   const [channel, setChannel] = useState<Channel>('sms');
   const [phone, setPhone] = useState('');
@@ -62,8 +65,8 @@ export default function LoginPage() {
       // makes a real config problem indistinguishable from a typo.
       setError(
         signInError.message === 'Invalid login credentials'
-          ? 'رقم الجوال أو كلمة المرور غير صحيحة'
-          : `تعذّر تسجيل الدخول: ${signInError.message}`,
+          ? t.login.invalidCredentials
+          : t.login.loginFailedWithReason(signInError.message),
       );
       return;
     }
@@ -76,7 +79,7 @@ export default function LoginPage() {
       await adoptSession(access_token, refresh_token);
       router.push('/');
     } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : 'تعذّر تسجيل الدخول');
+      setError(err instanceof ApiRequestError ? err.message : t.login.loginFailedFallback);
     }
   }
 
@@ -115,7 +118,7 @@ export default function LoginPage() {
       // Network-level failure reaching Supabase directly (phone channel
       // only — the email channel's ApiRequestError is already handled
       // inside handlePasswordLoginByEmail above).
-      setError('تعذّر الاتصال بالخادم، تحقق من اتصالك بالإنترنت');
+      setError(t.login.connectionFailed);
     } finally {
       setLoading(false);
     }
@@ -153,7 +156,7 @@ export default function LoginPage() {
       setOtpSent(true);
       resend.start();
     } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : 'تعذّر إرسال رمز التحقق');
+      setError(err instanceof ApiRequestError ? err.message : t.shared.otpSendFailedFallback);
     } finally {
       setLoading(false);
     }
@@ -181,7 +184,7 @@ export default function LoginPage() {
       await adoptSession(access_token, refresh_token);
       router.push('/');
     } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : 'تعذّر التحقق من الرمز');
+      setError(err instanceof ApiRequestError ? err.message : t.shared.otpVerifyFailedFallback);
     } finally {
       setLoading(false);
     }
@@ -203,8 +206,8 @@ export default function LoginPage() {
 
   return (
     <Card className="p-8">
-      <h1 className="mb-1 text-2xl font-bold text-text-primary">تسجيل الدخول</h1>
-      <p className="mb-6 text-sm text-text-secondary">سجّل الدخول للمتابعة إلى لوحة التحكم</p>
+      <h1 className="mb-1 text-2xl font-bold text-text-primary">{t.shared.signIn}</h1>
+      <p className="mb-6 text-sm text-text-secondary">{t.login.subtitle}</p>
 
       <div className="mb-4 flex gap-2 rounded-control bg-surface-subtle p-1">
         <button
@@ -214,7 +217,7 @@ export default function LoginPage() {
             mode === 'password' ? 'bg-surface-card text-text-primary shadow-sm' : 'text-text-secondary'
           }`}
         >
-          كلمة المرور
+          {t.login.passwordTab}
         </button>
         <button
           type="button"
@@ -223,7 +226,7 @@ export default function LoginPage() {
             mode === 'otp' ? 'bg-surface-card text-text-primary shadow-sm' : 'text-text-secondary'
           }`}
         >
-          رمز التحقق
+          {t.login.otpTab}
         </button>
       </div>
 
@@ -233,8 +236,8 @@ export default function LoginPage() {
           value={channel}
           onChange={switchChannel}
           options={[
-            { value: 'sms', label: 'عبر الجوال' },
-            { value: 'email', label: 'عبر البريد الإلكتروني' },
+            { value: 'sms', label: t.shared.channelPhone },
+            { value: 'email', label: t.shared.channelEmail },
           ]}
         />
       )}
@@ -253,16 +256,16 @@ export default function LoginPage() {
             />
           )}
           <PasswordInput
-            placeholder="كلمة المرور"
+            placeholder={t.login.passwordPlaceholder}
             value={password}
             onChange={(event) => setPassword(event.target.value)}
           />
           <FormError message={error} />
           <Button type="submit" loading={loading}>
-            {loading ? 'جارٍ الدخول...' : 'دخول'}
+            {loading ? t.login.signingIn : t.login.signInButton}
           </Button>
           <Link href="/forgot-password" className="text-center text-sm text-brand hover:underline">
-            نسيت كلمة المرور؟
+            {t.login.forgotPasswordLink}
           </Link>
         </form>
       )}
@@ -282,20 +285,18 @@ export default function LoginPage() {
           )}
           <FormError message={error} />
           <Button type="submit" loading={loading}>
-            {loading ? 'جارٍ الإرسال...' : 'إرسال رمز التحقق'}
+            {loading ? t.shared.sendingOtp : t.shared.sendOtp}
           </Button>
         </form>
       )}
 
       {mode === 'otp' && otpSent && (
         <form onSubmit={handleVerifyOtp} className="flex flex-col gap-4">
-          <p className="text-sm text-text-secondary">
-            أدخل الرمز المرسل إلى {channel === 'sms' ? phone : email}
-          </p>
+          <p className="text-sm text-text-secondary">{t.shared.otpSentTo(channel === 'sms' ? phone : email)}</p>
           <OtpInput value={code} onChange={setCode} disabled={loading} />
           <FormError message={error} />
           <Button type="submit" loading={loading}>
-            {loading ? 'جارٍ التحقق...' : 'تأكيد'}
+            {loading ? t.shared.verifying : t.shared.verify}
           </Button>
           <button
             type="button"
@@ -303,15 +304,15 @@ export default function LoginPage() {
             onClick={() => void sendLoginOtp()}
             className="text-sm text-brand hover:underline disabled:cursor-not-allowed disabled:text-text-placeholder"
           >
-            {resend.secondsLeft > 0 ? `إعادة الإرسال بعد ${resend.secondsLeft} ثانية` : 'إعادة إرسال الرمز'}
+            {resend.secondsLeft > 0 ? t.shared.resendIn(resend.secondsLeft) : t.shared.resendCode}
           </button>
         </form>
       )}
 
       <p className="mt-6 text-center text-sm text-text-secondary">
-        ليس لديك حساب؟{' '}
+        {t.login.noAccountPrompt}{' '}
         <Link href="/register" className="font-semibold text-brand hover:underline">
-          إنشاء حساب جديد
+          {t.login.createAccountLink}
         </Link>
       </p>
     </Card>

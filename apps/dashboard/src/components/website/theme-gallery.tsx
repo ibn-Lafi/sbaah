@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { Theme } from '@sbaah/shared';
+import { useLocale } from '@/lib/i18n/locale-context';
 import { ThemePreview } from './theme-preview';
 
 /**
@@ -20,6 +21,9 @@ export function ThemeGallery({
   primaryColor: string;
   onSelect: (themeId: string) => void;
 }) {
+  const { pages } = useLocale();
+  const t = pages.website;
+
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
       {themes.map((theme) => {
@@ -41,11 +45,11 @@ export function ThemeGallery({
               <span className="text-sm font-medium text-text-primary">{theme.name_ar}</span>
               {selected ? (
                 <Link href="/website/editor" className="text-xs font-semibold text-brand hover:underline">
-                  تخصيص الثيم
+                  {t.themeStore.customizeTheme}
                 </Link>
               ) : (
                 <button type="button" onClick={() => onSelect(theme.id)} className="text-xs font-semibold text-text-secondary hover:text-brand">
-                  اختيار
+                  {t.themeStore.selectTheme}
                 </button>
               )}
             </div>

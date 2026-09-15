@@ -3,8 +3,8 @@
 import { useRef, useState } from 'react';
 import type { WebsiteSection } from '@sbaah/shared';
 import { Switch } from '@/components/ui/switch';
+import { useLocale } from '@/lib/i18n/locale-context';
 import { updateSection, reorderSections } from '@/lib/api/website';
-import { SECTION_TYPE_LABELS } from '@/lib/website/labels';
 import { SectionConfigEditor } from './section-config-editor';
 
 interface SectionListProps {
@@ -21,6 +21,8 @@ const EDITABLE_TYPES: WebsiteSection['type'][] = ['hero', 'about', 'why_us', 'co
  * new order in one call (sectionReorderSchema, PRODUCT_SPEC section 6).
  */
 export function SectionList({ sections, accessToken, onChange }: SectionListProps) {
+  const { pages } = useLocale();
+  const t = pages.website;
   const [ordered, setOrdered] = useState(sections);
   const [editingId, setEditingId] = useState<string | null>(null);
   const dragIndex = useRef<number | null>(null);
@@ -70,15 +72,15 @@ export function SectionList({ sections, accessToken, onChange }: SectionListProp
             <span aria-hidden="true" className="text-text-placeholder">
               ⠿
             </span>
-            <span className="flex-1 text-sm font-medium text-text-primary">{SECTION_TYPE_LABELS[section.type]}</span>
-            {section.type === 'footer' && <span className="text-xs text-text-secondary">شارة سبعة تظهر دائمًا</span>}
+            <span className="flex-1 text-sm font-medium text-text-primary">{t.sectionTypeLabels[section.type]}</span>
+            {section.type === 'footer' && <span className="text-xs text-text-secondary">{t.sectionList.footerBadgeNote}</span>}
             {EDITABLE_TYPES.includes(section.type) && (
               <button
                 type="button"
                 onClick={() => setEditingId(editingId === section.id ? null : section.id)}
                 className="text-xs font-semibold text-brand hover:underline"
               >
-                {editingId === section.id ? 'إغلاق' : 'تحرير المحتوى'}
+                {editingId === section.id ? t.sectionList.closeEdit : t.sectionList.editContent}
               </button>
             )}
             <Switch checked={section.is_visible} onChange={() => void handleToggle(section)} />
