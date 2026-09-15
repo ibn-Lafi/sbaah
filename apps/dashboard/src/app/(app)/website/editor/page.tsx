@@ -398,7 +398,7 @@ export default function WebsiteEditorPage() {
                         </div>
                       </div>
                       <div className="flex flex-col gap-2">
-                        <label className="text-text-secondary text-xs">اللون الثانوي</label>
+                        <label className="text-text-secondary text-xs">{t.editor.secondaryColor}</label>
                         <div className="flex items-center gap-2">
                           <input
                             type="color"
@@ -421,7 +421,7 @@ export default function WebsiteEditorPage() {
                         </div>
                       </div>
                       <div className="flex flex-col gap-2">
-                        <label className="text-text-secondary text-xs">الخط</label>
+                        <label className="text-text-secondary text-xs">{t.editor.font}</label>
                         <Select
                           value={website.font_family}
                           onChange={(e) => void saveFont(e.target.value)}
@@ -435,7 +435,7 @@ export default function WebsiteEditorPage() {
                         </Select>
                       </div>
                       <AssetUploader
-                        label="صورة البانر (قسم الغلاف الرئيسي)"
+                        label={t.editor.bannerImageLabel}
                         currentUrl={website.banner_image_url}
                         onUpload={async (file) => {
                           const { website: updated } = await uploadBanner(accessToken, file);
@@ -468,7 +468,7 @@ export default function WebsiteEditorPage() {
               >
                 {WEBSITE_PAGE_KEYS.map((key) => (
                   <option key={key} value={key}>
-                    {WEBSITE_PAGE_LABELS[key]}
+                    {t.pageTabLabels[key]}
                   </option>
                 ))}
               </Select>
@@ -477,8 +477,8 @@ export default function WebsiteEditorPage() {
                 <button
                   type="button"
                   onClick={() => setDevice('desktop')}
-                  aria-label="عرض كمبيوتر"
-                  title="عرض كمبيوتر"
+                  aria-label={t.editor.desktopView}
+                  title={t.editor.desktopView}
                   className={`flex h-8 w-8 items-center justify-center rounded-full ${device === 'desktop' ? 'bg-surface-card text-brand shadow-sm' : 'text-text-secondary'}`}
                 >
                   <DesktopIcon className="h-[16px] w-[16px]" />
@@ -486,8 +486,8 @@ export default function WebsiteEditorPage() {
                 <button
                   type="button"
                   onClick={() => setDevice('mobile')}
-                  aria-label="عرض جوال"
-                  title="عرض جوال"
+                  aria-label={t.editor.mobileView}
+                  title={t.editor.mobileView}
                   className={`flex h-8 w-8 items-center justify-center rounded-full ${device === 'mobile' ? 'bg-surface-card text-brand shadow-sm' : 'text-text-secondary'}`}
                 >
                   <MobileIcon className="h-[16px] w-[16px]" />

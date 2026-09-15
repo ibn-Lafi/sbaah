@@ -164,7 +164,7 @@ export default function RegisterPage() {
       setRegistrationToken(registration_token);
       setStep('account');
     } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : 'تعذّر التحقق من الرمز');
+      setError(err instanceof ApiRequestError ? err.message : t.shared.otpVerifyFailedFallback);
     } finally {
       setLoading(false);
     }
@@ -175,7 +175,7 @@ export default function RegisterPage() {
     setError(null);
 
     if (fullName.trim().length < 3) {
-      setError('الاسم الكريم مطلوب');
+      setError(t.register.fullNameRequired);
       return;
     }
     const emailCheck = emailSchema.safeParse(email);
@@ -189,7 +189,7 @@ export default function RegisterPage() {
       return;
     }
     if (password !== passwordConfirm) {
-      setError('كلمتا المرور غير متطابقتين');
+      setError(t.register.passwordMismatch);
       return;
     }
     setStep('account_type');
@@ -205,7 +205,7 @@ export default function RegisterPage() {
     setError(null);
 
     if (!selectedPlanId) {
-      setError('اختر باقة للمتابعة');
+      setError(t.register.selectPlanRequired);
       return;
     }
 
@@ -231,7 +231,7 @@ export default function RegisterPage() {
       window.location.href = checkout_url;
     } catch (err) {
       setProvisioning(false);
-      setError(err instanceof ApiRequestError ? err.message : 'تعذّر إنشاء الحساب، حاول مرة أخرى');
+      setError(err instanceof ApiRequestError ? err.message : t.register.registrationFailedFallback);
     } finally {
       setLoading(false);
     }
@@ -240,23 +240,23 @@ export default function RegisterPage() {
   const stepIndex = STEPS.indexOf(step);
 
   if (!REGISTRATION_OPEN) {
-    return <RegistrationClosedNotice />;
+    return <RegistrationClosedNotice t={t} />;
   }
 
   return (
     <>
       <ProvisioningOverlay active={provisioning} done={provisioningDone} />
       <Card className="p-8">
-        <RegistrationStepper labels={STEPS.map((s) => STEPPER_LABELS[s])} currentIndex={stepIndex} />
+        <RegistrationStepper labels={STEPS.map((s) => t.register.stepperLabels[s])} currentIndex={stepIndex} />
         <h1 className="text-text-primary mb-1 text-2xl font-bold">
-          {step === 'phone' || step === 'otp' ? 'إنشاء حساب جديد' : STEP_TITLES[step]}
+          {step === 'phone' || step === 'otp' ? t.register.createAccountHeading : t.register.stepTitles[step]}
         </h1>
         <p className="text-text-secondary mb-6 text-sm">
-          {step === 'phone' && 'أدخل رقم جوالك لبدء التسجيل'}
-          {step === 'otp' && `أدخل الرمز المرسل إلى ${phone}`}
-          {step === 'account' && 'بيانات الدخول الأساسية لحسابك'}
-          {step === 'account_type' && 'يحدّد النوع شكل صفحة "من نحن" في موقعك — يمكنك إكمال بياناته لاحقًا من حسابي'}
-          {step === 'plan' && 'الدفع مطلوب لتفعيل حسابك بالكامل، أو ابدأ بتجربة مجانية إن كانت متاحة'}
+          {step === 'phone' && t.register.phoneSubtitle}
+          {step === 'otp' && t.shared.otpSentTo(phone)}
+          {step === 'account' && t.register.accountSubtitle}
+          {step === 'account_type' && t.register.accountTypeSubtitle}
+          {step === 'plan' && t.register.planSubtitle}
         </p>
 
         {step === 'phone' && (
@@ -264,7 +264,7 @@ export default function RegisterPage() {
             <PhoneInput placeholder="5xxxxxxxx" value={phone} onChange={setPhone} />
             <FormError message={error} />
             <Button type="submit" loading={loading}>
-              {loading ? 'جارٍ الإرسال...' : 'إرسال رمز التحقق'}
+              {loading ? t.shared.sendingOtp : t.shared.sendOtp}
             </Button>
           </form>
         )}
@@ -274,7 +274,7 @@ export default function RegisterPage() {
             <OtpInput value={code} onChange={setCode} disabled={loading} />
             <FormError message={error} />
             <Button type="submit" loading={loading}>
-              {loading ? 'جارٍ التحقق...' : 'تأكيد'}
+              {loading ? t.shared.verifying : t.shared.verify}
             </Button>
             <button
               type="button"
@@ -282,25 +282,27 @@ export default function RegisterPage() {
               onClick={() => void resendOtp()}
               className="text-brand disabled:text-text-placeholder text-sm hover:underline disabled:cursor-not-allowed"
             >
-              {resend.secondsLeft > 0
-                ? `إعادة الإرسال بعد ${resend.secondsLeft} ثانية`
-                : 'إعادة إرسال الرمز'}
+              {resend.secondsLeft > 0 ? t.shared.resendIn(resend.secondsLeft) : t.shared.resendCode}
             </button>
           </form>
         )}
 
         {step === 'account' && (
           <form onSubmit={handleSubmitAccount} className="flex flex-col gap-4">
-            <Input placeholder="الاسم الكريم" value={fullName} onChange={(event) => setFullName(event.target.value)} />
+            <Input
+              placeholder={t.register.fullNamePlaceholder}
+              value={fullName}
+              onChange={(event) => setFullName(event.target.value)}
+            />
             <Input
               type="email"
-              placeholder="البريد الإلكتروني"
+              placeholder={t.register.emailPlaceholder}
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               dir="ltr"
             />
             <div className="flex flex-col gap-2">
-              <label className="text-text-primary text-sm font-medium">كلمة المرور</label>
+              <label className="text-text-primary text-sm font-medium">{t.register.passwordLabel}</label>
               <PasswordInput
                 placeholder="••••••••"
                 value={password}
@@ -309,7 +311,7 @@ export default function RegisterPage() {
               <PasswordStrengthMeter password={password} />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-text-primary text-sm font-medium">تأكيد كلمة المرور</label>
+              <label className="text-text-primary text-sm font-medium">{t.register.confirmPasswordLabel}</label>
               <PasswordInput
                 placeholder="••••••••"
                 value={passwordConfirm}
@@ -318,7 +320,7 @@ export default function RegisterPage() {
             </div>
             <FormError message={error} />
             <Button type="submit" disabled={loading}>
-              متابعة
+              {t.register.continueButton}
             </Button>
           </form>
         )}
@@ -326,8 +328,9 @@ export default function RegisterPage() {
         {step === 'account_type' && (
           <form onSubmit={handleSubmitAccountType} className="flex flex-col gap-4">
             <div className="flex flex-col gap-3">
-              {ACCOUNT_TYPE_OPTIONS.map(({ type, label, description }) => {
+              {ACCOUNT_TYPES.map((type) => {
                 const selected = accountType === type;
+                const { label, description } = t.register.accountTypes[type];
                 return (
                   <button
                     key={type}
@@ -349,7 +352,7 @@ export default function RegisterPage() {
               })}
             </div>
             <FormError message={error} />
-            <Button type="submit">متابعة</Button>
+            <Button type="submit">{t.register.continueButton}</Button>
           </form>
         )}
 
@@ -393,18 +396,18 @@ export default function RegisterPage() {
             <FormError message={error} />
             <Button type="submit" loading={loading}>
               {loading
-                ? 'جارٍ التجهيز...'
+                ? t.register.preparingButton
                 : trialPlan && selectedPlanId === trialPlan.id
-                  ? 'ابدأ التجربة المجانية'
-                  : 'الدفع والاشتراك'}
+                  ? t.register.startTrialButton
+                  : t.register.payAndSubscribeButton}
             </Button>
           </form>
         )}
 
         <p className="text-text-secondary mt-6 text-center text-sm">
-          لديك حساب بالفعل؟{' '}
+          {t.register.haveAccountPrompt}{' '}
           <Link href="/login" className="text-brand font-semibold hover:underline">
-            تسجيل الدخول
+            {t.shared.signIn}
           </Link>
         </p>
       </Card>

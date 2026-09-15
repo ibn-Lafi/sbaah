@@ -193,24 +193,25 @@ function AccountTypeCard({ accessToken, initial, canEdit }: { accessToken: strin
   );
 }
 
-const SOCIAL_FIELDS: { key: keyof SocialLinks; label: string; placeholder: string; Icon: typeof InstagramIcon }[] = [
-  { key: 'social_instagram', label: 'إنستغرام', placeholder: 'رابط حساب إنستغرام', Icon: InstagramIcon },
-  { key: 'social_tiktok', label: 'تيك توك', placeholder: 'رابط حساب تيك توك', Icon: TiktokIcon },
-  { key: 'social_snapchat', label: 'سناب شات', placeholder: 'رابط حساب سناب شات', Icon: SnapchatIcon },
-];
-
-/** حقلا واتساب/اتصال يُخزَّنان كأرقام بلا + (966 متبوعة بتسعة أرقام) لتوافق digitsOnly() بالموقع العام — يُعرضان دائمًا برمز +966 ثابت مثل بقية حقول الجوال. */
-const PHONE_SOCIAL_FIELDS: { key: 'social_whatsapp' | 'social_phone'; label: string; Icon: typeof WhatsappIcon }[] = [
-  { key: 'social_whatsapp', label: 'واتساب', Icon: WhatsappIcon },
-  { key: 'social_phone', label: 'اتصال', Icon: CallIcon },
-];
-
 /** حسابات التواصل الاجتماعي — تُعرض تلقائيًا (فقط ما تمت تعبئته) في تذييل الموقع العام (site/editor's أسفل الصفحة). */
 function SocialLinksCard({ accessToken, initial }: { accessToken: string; initial: SocialLinks }) {
+  const { pages } = useLocale();
+  const t = pages.settings;
   const [draft, setDraft] = useState<SocialLinks>(initial);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  /** حقلا واتساب/اتصال يُخزَّنان كأرقام بلا + (966 متبوعة بتسعة أرقام) لتوافق digitsOnly() بالموقع العام — يُعرضان دائمًا برمز +966 ثابت مثل بقية حقول الجوال. */
+  const phoneSocialFields: { key: 'social_whatsapp' | 'social_phone'; label: string; Icon: typeof WhatsappIcon }[] = [
+    { key: 'social_whatsapp', label: t.socialLinks.whatsapp, Icon: WhatsappIcon },
+    { key: 'social_phone', label: t.socialLinks.call, Icon: CallIcon },
+  ];
+  const socialFields: { key: keyof SocialLinks; label: string; placeholder: string; Icon: typeof InstagramIcon }[] = [
+    { key: 'social_instagram', label: t.socialLinks.instagram, placeholder: t.socialLinks.instagramPlaceholder, Icon: InstagramIcon },
+    { key: 'social_tiktok', label: t.socialLinks.tiktok, placeholder: t.socialLinks.tiktokPlaceholder, Icon: TiktokIcon },
+    { key: 'social_snapchat', label: t.socialLinks.snapchat, placeholder: t.socialLinks.snapchatPlaceholder, Icon: SnapchatIcon },
+  ];
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -218,7 +219,7 @@ function SocialLinksCard({ accessToken, initial }: { accessToken: string; initia
     setSaved(false);
     const result = socialLinksUpdateSchema.safeParse(draft);
     if (!result.success) {
-      setError(result.error.issues[0]?.message ?? 'تحقق من البيانات المدخلة');
+      setError(result.error.issues[0]?.message ?? t.common.invalidData);
       return;
     }
     setLoading(true);
@@ -227,7 +228,7 @@ function SocialLinksCard({ accessToken, initial }: { accessToken: string; initia
       setDraft(updated);
       setSaved(true);
     } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : 'تعذّر حفظ حسابات التواصل');
+      setError(err instanceof ApiRequestError ? err.message : t.socialLinks.saveFailed);
     } finally {
       setLoading(false);
     }
@@ -235,12 +236,10 @@ function SocialLinksCard({ accessToken, initial }: { accessToken: string; initia
 
   return (
     <Card className="p-6">
-      <h2 className="mb-1 text-base font-semibold text-text-primary">حسابات التواصل الاجتماعي</h2>
-      <p className="mb-4 text-sm text-text-secondary">
-        يظهر في تذييل موقعك الإلكتروني فقط ما تمت تعبئته هنا.
-      </p>
+      <h2 className="mb-1 text-base font-semibold text-text-primary">{t.socialLinks.title}</h2>
+      <p className="mb-4 text-sm text-text-secondary">{t.socialLinks.description}</p>
       <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-3">
-        {PHONE_SOCIAL_FIELDS.map(({ key, label, Icon }) => (
+        {phoneSocialFields.map(({ key, label, Icon }) => (
           <div key={key} className="flex flex-col gap-2">
             <label className="flex items-center gap-2 text-sm font-medium text-text-primary">
               <Icon className="h-[16px] w-[16px] text-text-secondary" />
@@ -248,13 +247,13 @@ function SocialLinksCard({ accessToken, initial }: { accessToken: string; initia
             </label>
             <PhoneInput
               storagePrefix="966"
-              placeholder="5xxxxxxxx"
+              placeholder={t.socialLinks.phonePlaceholder}
               value={draft[key] ?? ''}
               onChange={(value) => setDraft((c) => ({ ...c, [key]: value }))}
             />
           </div>
         ))}
-        {SOCIAL_FIELDS.map(({ key, label, placeholder, Icon }) => (
+        {socialFields.map(({ key, label, placeholder, Icon }) => (
           <div key={key} className="flex flex-col gap-2">
             <label className="flex items-center gap-2 text-sm font-medium text-text-primary">
               <Icon className="h-[16px] w-[16px] text-text-secondary" />
@@ -270,7 +269,7 @@ function SocialLinksCard({ accessToken, initial }: { accessToken: string; initia
         ))}
         <FormError message={error} />
         <Button type="submit" disabled={loading} className="w-fit">
-          {loading ? 'جارٍ الحفظ...' : saved ? 'تم الحفظ ✓' : 'حفظ'}
+          {loading ? t.common.saving : saved ? t.common.saved : t.common.save}
         </Button>
       </form>
     </Card>
@@ -283,6 +282,8 @@ function SocialLinksCard({ accessToken, initial }: { accessToken: string; initia
  * المستخدمة في تذييل الموقع العام؛ يظهر هناك مع "تواصل معنا".
  */
 function AddressCard({ accessToken }: { accessToken: string }) {
+  const { pages } = useLocale();
+  const t = pages.settings;
   const [value, setValue] = useState<string | null>(null);
   const [draft, setDraft] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -306,7 +307,7 @@ function AddressCard({ accessToken }: { accessToken: string }) {
       setValue(updated.footer_description ?? '');
       setSaved(true);
     } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : 'تعذّر حفظ العنوان');
+      setError(err instanceof ApiRequestError ? err.message : t.address.saveFailed);
     } finally {
       setLoading(false);
     }
@@ -320,19 +321,19 @@ function AddressCard({ accessToken }: { accessToken: string }) {
     <Card className="p-6">
       <h2 className="mb-1 flex items-center gap-2 text-base font-semibold text-text-primary">
         <LocationIcon className="h-[18px] w-[18px] text-text-secondary" />
-        العنوان
+        {t.address.title}
       </h2>
-      <p className="mb-4 text-sm text-text-secondary">يظهر مع تواصل معنا في تذييل موقعك الإلكتروني.</p>
+      <p className="mb-4 text-sm text-text-secondary">{t.address.description}</p>
       <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-3">
         <Textarea
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
-          placeholder="نبذة قصيرة أو عنوان الحساب يظهر في تذييل الموقع"
+          placeholder={t.address.placeholder}
           className="min-h-[80px]"
         />
         <FormError message={error} />
         <Button type="submit" disabled={loading} className="w-fit">
-          {loading ? 'جارٍ الحفظ...' : saved ? 'تم الحفظ ✓' : 'حفظ'}
+          {loading ? t.common.saving : saved ? t.common.saved : t.common.save}
         </Button>
       </form>
     </Card>
@@ -345,6 +346,8 @@ function AddressCard({ accessToken }: { accessToken: string }) {
  * أخرى يحتاجها حسابك (مثل تعيين عميل محتمل لك). يمكن تركه فارغًا.
  */
 function EmailCard({ accessToken, initialEmail }: { accessToken: string; initialEmail: string | null }) {
+  const { pages } = useLocale();
+  const t = pages.settings;
   const [draft, setDraft] = useState(initialEmail ?? '');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -359,7 +362,7 @@ function EmailCard({ accessToken, initialEmail }: { accessToken: string; initial
       await updateMyEmail(accessToken, draft.trim() ? draft.trim() : null);
       setSaved(true);
     } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : 'تعذّر حفظ البريد الإلكتروني');
+      setError(err instanceof ApiRequestError ? err.message : t.email.saveFailed);
     } finally {
       setLoading(false);
     }
@@ -369,11 +372,9 @@ function EmailCard({ accessToken, initialEmail }: { accessToken: string; initial
     <Card className="p-6">
       <h2 className="mb-1 flex items-center gap-2 text-base font-semibold text-text-primary">
         <MailIcon className="h-[18px] w-[18px] text-text-secondary" />
-        البريد الإلكتروني
+        {t.email.title}
       </h2>
-      <p className="mb-4 text-sm text-text-secondary">
-        يُستخدم لتسجيل الدخول برمز تحقق، تغيير كلمة المرور، وإشعارات حسابك.
-      </p>
+      <p className="mb-4 text-sm text-text-secondary">{t.email.description}</p>
       <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-3">
         <Input
           type="email"
@@ -384,7 +385,7 @@ function EmailCard({ accessToken, initialEmail }: { accessToken: string; initial
         />
         <FormError message={error} />
         <Button type="submit" disabled={loading} className="w-fit">
-          {loading ? 'جارٍ الحفظ...' : saved ? 'تم الحفظ ✓' : 'حفظ'}
+          {loading ? t.common.saving : saved ? t.common.saved : t.common.save}
         </Button>
       </form>
     </Card>
@@ -398,6 +399,8 @@ function EmailCard({ accessToken, initialEmail }: { accessToken: string; initial
  * نشر الموقع العام، فتُعرض هذه الرسالة عند فراغها لتوضيح السبب.
  */
 function FalLicenseCard({ accessToken, initial, canEdit }: { accessToken: string; initial: string | null; canEdit: boolean }) {
+  const { pages } = useLocale();
+  const t = pages.settings;
   const [draft, setDraft] = useState(initial ?? '');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -410,7 +413,7 @@ function FalLicenseCard({ accessToken, initial, canEdit }: { accessToken: string
 
     const result = falLicenseUpdateSchema.safeParse({ fal_license_number: draft });
     if (!result.success) {
-      setError(result.error.issues[0]?.message ?? 'تحقق من رقم الرخصة');
+      setError(result.error.issues[0]?.message ?? t.falLicense.invalidNumber);
       return;
     }
 
@@ -419,7 +422,7 @@ function FalLicenseCard({ accessToken, initial, canEdit }: { accessToken: string
       await updateFalLicense(accessToken, result.data);
       setSaved(true);
     } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : 'تعذّر حفظ رخصة فال');
+      setError(err instanceof ApiRequestError ? err.message : t.falLicense.saveFailed);
     } finally {
       setLoading(false);
     }
@@ -427,18 +430,21 @@ function FalLicenseCard({ accessToken, initial, canEdit }: { accessToken: string
 
   return (
     <Card className="p-6">
-      <h2 className="mb-1 text-base font-semibold text-text-primary">رخصة فال</h2>
+      <h2 className="mb-1 text-base font-semibold text-text-primary">{t.falLicense.title}</h2>
       <p className="mb-4 text-sm text-text-secondary">
-        {initial
-          ? 'رقم رخصتك المهنية من الهيئة العامة للعقار.'
-          : 'أدخلها لتفعيل نشر موقعك الإلكتروني العام — الحساب يعمل بكامل ميزاته الأخرى بدونها.'}
+        {initial ? t.falLicense.descriptionSet : t.falLicense.descriptionUnset}
       </p>
       {canEdit ? (
         <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-3">
-          <Input value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="رقم رخصة فال" dir="ltr" />
+          <Input
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            placeholder={t.falLicense.placeholder}
+            dir="ltr"
+          />
           <FormError message={error} />
           <Button type="submit" disabled={loading} className="w-fit">
-            {loading ? 'جارٍ الحفظ...' : saved ? 'تم الحفظ ✓' : 'حفظ'}
+            {loading ? t.common.saving : saved ? t.common.saved : t.common.save}
           </Button>
         </form>
       ) : (
@@ -453,20 +459,22 @@ function FalLicenseCard({ accessToken, initial, canEdit }: { accessToken: string
 /** حسابي (من قائمة الحساب المنسدلة أسفل الشريط الجانبي) — بيانات الحساب + حسابات التواصل الاجتماعي؛ النطاق الفرعي/الدومين المخصص انتقلا إلى /domain (عنصر قائمة مستقل، مطابق للتصميم). */
 export default function SettingsPage() {
   const { me, accessToken } = useCurrentUser();
+  const { t, pages } = useLocale();
+  const settings = pages.settings;
 
   return (
     <AppShell
-      title="الإعدادات"
+      title={settings.pageTitle}
       orgName={me.tenant.name_ar}
       accountType={me.tenant.account_type}
     >
       <div className="flex max-w-[640px] flex-col gap-5">
         <Card className="p-6">
-          <h2 className="mb-2 text-base font-semibold text-text-primary">بيانات الحساب</h2>
-          <InfoRow label="اسم الحساب" value={me.tenant.name_ar} />
-          <InfoRow label="اسمك" value={me.user.full_name} />
-          <InfoRow label="جوالك" value={me.user.phone} />
-          <InfoRow label="دورك" value={ROLE_LABELS[me.user.role]} />
+          <h2 className="mb-2 text-base font-semibold text-text-primary">{settings.accountInfo.title}</h2>
+          <InfoRow label={settings.accountInfo.accountName} value={me.tenant.name_ar} />
+          <InfoRow label={settings.accountInfo.yourName} value={me.user.full_name} />
+          <InfoRow label={settings.accountInfo.yourPhone} value={me.user.phone} />
+          <InfoRow label={settings.accountInfo.yourRole} value={t.roleLabels[me.user.role]} />
         </Card>
 
         <AccountTypeCard
@@ -502,11 +510,11 @@ export default function SettingsPage() {
         <AddressCard accessToken={accessToken} />
 
         <Card className="p-6">
-          <h2 className="mb-1 text-base font-semibold text-text-primary">النطاق الفرعي والدومين المخصص</h2>
+          <h2 className="mb-1 text-base font-semibold text-text-primary">{settings.domain.title}</h2>
           <p className="text-sm text-text-secondary">
-            إدارة النطاق الفرعي والدومين المخصص انتقلت إلى{' '}
+            {settings.domain.movedText}{' '}
             <Link href="/domain" className="font-semibold text-brand hover:underline">
-              الدومين
+              {settings.domain.linkLabel}
             </Link>
             .
           </p>

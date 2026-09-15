@@ -11,6 +11,7 @@ import { DeleteButton } from '@/components/ui/delete-button';
 import { FormError } from '@/components/ui/form-error';
 import { CardListSkeleton } from '@/components/ui/card-list-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
+import { useLocale } from '@/lib/i18n/locale-context';
 import { getCustomPages, createCustomPage, updateCustomPage, deleteCustomPage } from '@/lib/api/website';
 import { ApiRequestError } from '@/lib/api/client';
 
@@ -34,37 +35,40 @@ function PageForm({
   loading: boolean;
   submitLabel: string;
 }) {
+  const { pages } = useLocale();
+  const t = pages.website.customPages;
+
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-3">
       <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium text-text-primary">عنوان الصفحة</label>
+        <label className="text-sm font-medium text-text-primary">{t.form.titleLabel}</label>
         <Input
           value={draft.title}
           onChange={(e) => onChange({ ...draft, title: e.target.value })}
-          placeholder="مثال: سياسة الخصوصية"
+          placeholder={t.form.titlePlaceholder}
         />
       </div>
       <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium text-text-primary">رابط الصفحة</label>
+        <label className="text-sm font-medium text-text-primary">{t.form.slugLabel}</label>
         <Input value={draft.slug} onChange={(e) => onChange({ ...draft, slug: e.target.value })} placeholder="privacy-policy" dir="ltr" />
       </div>
       <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium text-text-primary">المحتوى</label>
+        <label className="text-sm font-medium text-text-primary">{t.form.contentLabel}</label>
         <Textarea
           value={draft.content}
           onChange={(e) => onChange({ ...draft, content: e.target.value })}
-          placeholder="اكتب محتوى الصفحة هنا..."
+          placeholder={t.form.contentPlaceholder}
           className="min-h-[180px]"
         />
       </div>
       <FormError message={error} />
       <div className="flex gap-2">
         <Button type="submit" disabled={loading}>
-          {loading ? 'جارٍ الحفظ...' : submitLabel}
+          {loading ? t.form.saving : submitLabel}
         </Button>
         {onCancel && (
           <Button type="button" variant="secondary" onClick={onCancel}>
-            إلغاء
+            {t.form.cancel}
           </Button>
         )}
       </div>
@@ -75,6 +79,8 @@ function PageForm({
 /** الصفحات — صفحات حرة (عنوان + محتوى) يديرها المالك/المسؤول، تُعرض عبر رابط في تذييل الموقع العام (مثل السياسات). */
 export default function CustomPagesPage() {
   const { me, accessToken } = useCurrentUser();
+  const { pages: pageLabels } = useLocale();
+  const t = pageLabels.website.customPages;
   const [pages, setPages] = useState<WebsiteCustomPage[] | null>(null);
   const [creating, setCreating] = useState(false);
   const [newDraft, setNewDraft] = useState<Draft>(EMPTY_DRAFT);
@@ -94,7 +100,7 @@ export default function CustomPagesPage() {
     setError(null);
     const result = websiteCustomPageCreateSchema.safeParse(newDraft);
     if (!result.success) {
-      setError(result.error.issues[0]?.message ?? 'تحقق من البيانات المدخلة');
+      setError(result.error.issues[0]?.message ?? t.errors.validation);
       return;
     }
     setLoading(true);
@@ -104,7 +110,7 @@ export default function CustomPagesPage() {
       setCreating(false);
       reload();
     } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : 'تعذّر إنشاء الصفحة');
+      setError(err instanceof ApiRequestError ? err.message : t.errors.create);
     } finally {
       setLoading(false);
     }
@@ -119,7 +125,7 @@ export default function CustomPagesPage() {
       setEditingId(null);
       reload();
     } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : 'تعذّر حفظ التعديلات');
+      setError(err instanceof ApiRequestError ? err.message : t.errors.update);
     } finally {
       setLoading(false);
     }
@@ -130,16 +136,14 @@ export default function CustomPagesPage() {
       await deleteCustomPage(accessToken, id);
       reload();
     } catch (err) {
-      throw new Error(err instanceof ApiRequestError ? err.message : 'تعذّر حذف الصفحة');
+      throw new Error(err instanceof ApiRequestError ? err.message : t.errors.delete);
     }
   }
 
   return (
-    <AppShell title="الصفحات" orgName={me.tenant.name_ar} accountType={me.tenant.account_type}>
+    <AppShell title={t.pageTitle} orgName={me.tenant.name_ar} accountType={me.tenant.account_type}>
       <div className="flex max-w-[640px] flex-col gap-4">
-        <p className="text-sm text-text-secondary">
-          صفحات إضافية (مثل سياسة الخصوصية) تظهر روابطها تلقائيًا في تذييل موقعك الإلكتروني.
-        </p>
+        <p className="text-sm text-text-secondary">{t.description}</p>
 
         {pages === null ? (
           <CardListSkeleton rows={3} />
@@ -155,7 +159,7 @@ export default function CustomPagesPage() {
                     onCancel={() => setEditingId(null)}
                     error={error}
                     loading={loading}
-                    submitLabel="حفظ التعديلات"
+                    submitLabel={t.saveEditLabel}
                   />
                 </Card>
               ) : (
@@ -175,13 +179,13 @@ export default function CustomPagesPage() {
                     }}
                     className="text-xs font-semibold text-brand hover:underline"
                   >
-                    تعديل
+                    {t.editLabel}
                   </button>
                   <DeleteButton
                     compact
-                    label="حذف"
-                    confirmTitle="حذف الصفحة"
-                    confirmMessage={`سيتم حذف صفحة "${page.title}" نهائيًا، وسيختفي رابطها من تذييل موقعك. لا يمكن التراجع عن هذا الإجراء.`}
+                    label={t.deleteLabel}
+                    confirmTitle={t.deleteConfirmTitle}
+                    confirmMessage={t.deleteConfirmMessage(page.title)}
                     onConfirm={() => handleDelete(page.id)}
                   />
                 </Card>
@@ -200,7 +204,7 @@ export default function CustomPagesPage() {
                   }}
                   error={error}
                   loading={loading}
-                  submitLabel="إنشاء الصفحة"
+                  submitLabel={t.createLabel}
                 />
               </Card>
             ) : (
@@ -213,7 +217,7 @@ export default function CustomPagesPage() {
                 }}
                 className="w-fit"
               >
-                + إضافة صفحة
+                {t.addButton}
               </Button>
             )}
           </>

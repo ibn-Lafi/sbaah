@@ -65,6 +65,8 @@ interface ProjectFormProps {
 }
 
 export function ProjectForm({ mode, initialValues, accessToken, onSubmit, submitLabel }: ProjectFormProps) {
+  const { pages } = useLocale();
+  const t = pages.projects;
   const [form, setForm] = useState<FormState>(
     initialValues ? toFormState(initialValues) : EMPTY_STATE,
   );
@@ -116,7 +118,7 @@ export function ProjectForm({ mode, initialValues, accessToken, onSubmit, submit
     const schema = mode === 'create' ? projectInputSchema : projectUpdateSchema;
     const result = schema.safeParse(candidate);
     if (!result.success) {
-      setError(result.error.issues[0]?.message ?? 'يرجى مراجعة بيانات المشروع');
+      setError(result.error.issues[0]?.message ?? t.form.validationError);
       return;
     }
 
@@ -124,7 +126,7 @@ export function ProjectForm({ mode, initialValues, accessToken, onSubmit, submit
     try {
       await onSubmit(result.data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'تعذّر حفظ المشروع');
+      setError(err instanceof Error ? err.message : t.form.saveError);
     } finally {
       setLoading(false);
     }
@@ -134,24 +136,24 @@ export function ProjectForm({ mode, initialValues, accessToken, onSubmit, submit
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Input
-          placeholder="اسم المشروع (عربي)"
+          placeholder={t.form.fields.nameAr}
           value={form.name_ar}
           onChange={(e) => set('name_ar', e.target.value)}
         />
         <Input
-          placeholder="اسم المشروع (إنجليزي، اختياري)"
+          placeholder={t.form.fields.nameEn}
           value={form.name_en}
           onChange={(e) => set('name_en', e.target.value)}
         />
       </div>
 
       <Textarea
-        placeholder="وصف المشروع (عربي، اختياري)"
+        placeholder={t.form.fields.descriptionAr}
         value={form.description_ar}
         onChange={(e) => set('description_ar', e.target.value)}
       />
       <Textarea
-        placeholder="وصف المشروع (إنجليزي، اختياري)"
+        placeholder={t.form.fields.descriptionEn}
         value={form.description_en}
         onChange={(e) => set('description_en', e.target.value)}
       />
@@ -161,13 +163,13 @@ export function ProjectForm({ mode, initialValues, accessToken, onSubmit, submit
           options={cities.map((city) => ({ value: city.id, label: city.name_ar }))}
           value={form.city_id}
           onChange={(value) => set('city_id', value)}
-          placeholder="اختر المدينة"
+          placeholder={t.form.fields.citySelect}
         />
         <SearchableSelect
           options={districts.map((district) => ({ value: district.id, label: district.name_ar }))}
           value={form.district_id}
           onChange={(value) => set('district_id', value)}
-          placeholder="الحي (اختياري)"
+          placeholder={t.form.fields.districtSelect}
           disabled={!form.city_id}
           clearable
           onCreate={async (name) => {
@@ -188,7 +190,7 @@ export function ProjectForm({ mode, initialValues, accessToken, onSubmit, submit
         <Select value={form.status} onChange={(e) => set('status', e.target.value)}>
           {PROPERTY_STATUSES.map((status) => (
             <option key={status} value={status}>
-              {PROPERTY_STATUS_LABELS[status]}
+              {pages.properties.statusLabels[status]}
             </option>
           ))}
         </Select>
@@ -196,7 +198,7 @@ export function ProjectForm({ mode, initialValues, accessToken, onSubmit, submit
 
       <FormError message={error} />
       <Button type="submit" disabled={loading}>
-        {loading ? 'جارٍ الحفظ...' : submitLabel}
+        {loading ? t.form.saving : submitLabel}
       </Button>
     </form>
   );

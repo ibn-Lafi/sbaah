@@ -8,17 +8,18 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BillingSkeleton } from '@/components/billing/billing-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
+import { useLocale } from '@/lib/i18n/locale-context';
 import { getBilling, startCheckout, type BillingInfo } from '@/lib/api/billing';
 import { ApiRequestError } from '@/lib/api/client';
 
-function UsageBar({ label, used, max }: { label: string; used: number; max: number | null }) {
+function UsageBar({ label, used, max, unlimitedLabel }: { label: string; used: number; max: number | null; unlimitedLabel: string }) {
   const pct = max !== null ? Math.min(100, Math.round((used / max) * 100)) : 0;
   return (
     <div>
       <div className="mb-1 flex items-center justify-between text-sm">
         <span className="text-text-secondary">{label}</span>
         <span className="font-medium text-text-primary" dir={max !== null ? 'ltr' : undefined}>
-          {max !== null ? `${used} / ${max}` : 'بلا حدود'}
+          {max !== null ? `${used} / ${max}` : unlimitedLabel}
         </span>
       </div>
       {max !== null && (
@@ -37,6 +38,8 @@ function formatDate(iso: string): string {
 
 function BillingPageContent() {
   const { me, accessToken } = useCurrentUser();
+  const { locale, pages } = useLocale();
+  const t = pages.billing;
   const searchParams = useSearchParams();
   const [billing, setBilling] = useState<BillingInfo | null>(null);
   const [renewing, setRenewing] = useState(false);
@@ -55,26 +58,26 @@ function BillingPageContent() {
       const { checkout_url } = await startCheckout(accessToken);
       window.location.href = checkout_url;
     } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : 'تعذّر بدء الدفع');
+      setError(err instanceof ApiRequestError ? err.message : t.checkout.startFailed);
       setRenewing(false);
     }
   }
 
   return (
     <AppShell
-      title="الفوترة والاشتراك"
+      title={t.pageTitle}
       orgName={me.tenant.name_ar}
       accountType={me.tenant.account_type}
     >
       <div className="flex max-w-[560px] flex-col gap-5">
         {checkoutResult === 'success' && (
           <div className="rounded-input bg-success-surface px-4 py-3 text-sm font-medium text-success">
-            جارٍ تأكيد الدفعة — قد يستغرق تحديث الباقة أدناه بضع ثوانٍ.
+            {t.checkout.success}
           </div>
         )}
         {checkoutResult === 'cancelled' && (
           <div className="rounded-input bg-warning-surface px-4 py-3 text-sm font-medium text-warning">
-            أُلغيت عملية الدفع — لم يتم أي تغيير على باقتك.
+            {t.checkout.cancelled}
           </div>
         )}
 
@@ -84,9 +87,9 @@ function BillingPageContent() {
           <>
             {billing.payment_status === 'failed' && (
               <div className="flex flex-col gap-3 rounded-input bg-danger-surface p-4">
-                <p className="text-sm font-medium text-danger">فشلت آخر عملية دفع لاشتراكك — جدّد الدفع الآن لتجنّب تعليق حسابك.</p>
+                <p className="text-sm font-medium text-danger">{t.paymentFailed.message}</p>
                 <Button type="button" variant="danger" loading={renewing} onClick={() => void handleRenew()} className="w-fit">
-                  جدّد الدفع
+                  {t.paymentFailed.renewButton}
                 </Button>
               </div>
             )}
@@ -94,26 +97,40 @@ function BillingPageContent() {
             <Card className="p-6">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-xs text-text-secondary">الباقة الحالية</p>
-                  <h2 className="mt-1 text-xl font-bold text-text-primary">{billing.plan.name_ar}</h2>
+                  <p className="text-xs text-text-secondary">{t.currentPlan.label}</p>
+                  <h2 className="mt-1 text-xl font-bold text-text-primary">
+                    {locale === 'en' ? billing.plan.name_en : billing.plan.name_ar}
+                  </h2>
                 </div>
                 {billing.payment_status === 'paid' && (
-                  <span className="rounded-full bg-success-surface px-3 py-1 text-xs font-semibold text-success">نشطة</span>
+                  <span className="rounded-full bg-success-surface px-3 py-1 text-xs font-semibold text-success">
+                    {t.currentPlan.activeBadge}
+                  </span>
                 )}
               </div>
 
               <div className="mt-5 flex flex-col gap-4">
-                <UsageBar label="العقارات المستخدمة" used={billing.usage.properties} max={billing.plan.max_properties} />
-                <UsageBar label="المستخدمون" used={billing.usage.users} max={billing.plan.max_users} />
+                <UsageBar
+                  label={t.currentPlan.propertiesUsage}
+                  used={billing.usage.properties}
+                  max={billing.plan.max_properties}
+                  unlimitedLabel={t.unlimited}
+                />
+                <UsageBar
+                  label={t.currentPlan.usersUsage}
+                  used={billing.usage.users}
+                  max={billing.plan.max_users}
+                  unlimitedLabel={t.unlimited}
+                />
               </div>
 
               <div className="mt-5 flex items-center justify-between gap-3">
                 <p className="text-xs text-text-secondary" dir="ltr">
-                  {billing.next_renewal_at ? `التجديد القادم: ${formatDate(billing.next_renewal_at)}` : ''}
+                  {billing.next_renewal_at ? t.currentPlan.nextRenewal(formatDate(billing.next_renewal_at)) : ''}
                 </p>
                 <Link href="/billing/plans">
                   <Button type="button" className="w-fit">
-                    تغيير الباقة
+                    {t.currentPlan.changePlanButton}
                   </Button>
                 </Link>
               </div>

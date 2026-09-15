@@ -1,3 +1,7 @@
+'use client';
+
+import { useLocale } from '@/lib/i18n/locale-context';
+
 function CheckIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -32,8 +36,11 @@ interface RegistrationStepperProps {
  * `dir="rtl"` page, matching reading order without extra logic.
  */
 export function RegistrationStepper({ labels, currentIndex }: RegistrationStepperProps) {
+  const { pages } = useLocale();
+  const t = pages.auth.register.stepper;
+
   return (
-    <ol className="mb-6 flex items-center" aria-label="خطوات إنشاء الحساب">
+    <ol className="mb-6 flex items-center" aria-label={t.ariaLabel}>
       {labels.map((label, index) => {
         const isDone = index < currentIndex;
         const isCurrent = index === currentIndex;
@@ -43,7 +50,7 @@ export function RegistrationStepper({ labels, currentIndex }: RegistrationSteppe
           <li key={label} className={`flex items-center ${isLast ? 'flex-none' : 'flex-1'}`}>
             <div
               role="img"
-              aria-label={`${index + 1}. ${label}${isCurrent ? ' (الخطوة الحالية)' : isDone ? ' (مكتملة)' : ''}`}
+              aria-label={`${index + 1}. ${label}${isCurrent ? t.current : isDone ? t.done : ''}`}
               className={`flex h-7 w-7 flex-none items-center justify-center rounded-full text-xs font-semibold transition-colors ${
                 isDone
                   ? 'bg-brand text-white'

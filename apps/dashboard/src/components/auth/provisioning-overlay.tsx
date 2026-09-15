@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { BrandMark } from '@/components/ui/brand-mark';
+import { useLocale } from '@/lib/i18n/locale-context';
 
 /**
  * Full-screen "نجهز موقعك" curtain shown while the last registration
@@ -13,6 +14,8 @@ import { BrandMark } from '@/components/ui/brand-mark';
  * navigating away.
  */
 export function ProvisioningOverlay({ active, done }: { active: boolean; done: boolean }) {
+  const { pages } = useLocale();
+  const t = pages.auth.register.provisioning;
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
@@ -42,7 +45,7 @@ export function ProvisioningOverlay({ active, done }: { active: boolean; done: b
             style={{ width: `${Math.min(progress, 100)}%` }}
           />
         </div>
-        <p className="text-text-secondary text-center text-sm font-medium">نجهز موقعك...</p>
+        <p className="text-text-secondary text-center text-sm font-medium">{t.preparingSite}</p>
       </div>
     </div>
   );
