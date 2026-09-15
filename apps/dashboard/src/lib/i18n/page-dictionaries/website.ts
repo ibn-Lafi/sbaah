@@ -45,6 +45,7 @@ export const websiteAr = {
     desktopView: 'عرض كمبيوتر',
     mobileView: 'عرض جوال',
     sitePreviewTitle: 'معاينة الموقع',
+    noPublishedPropertyForPreview: 'لا يوجد عقار منشور بعد لعرض معاينة صفحة تفاصيل العقار — انشر عقارًا أولًا من صفحة العقارات',
     errors: {
       saveColor: 'تعذّر حفظ اللون',
       saveFont: 'تعذّر حفظ الخط',
@@ -176,6 +177,7 @@ export const websiteEn: typeof websiteAr = {
     desktopView: 'Desktop view',
     mobileView: 'Mobile view',
     sitePreviewTitle: 'Website preview',
+    noPublishedPropertyForPreview: 'No published property yet to preview the property detail page — publish a property first from the Properties page',
     errors: {
       saveColor: 'Failed to save the color',
       saveFont: 'Failed to save the font',
