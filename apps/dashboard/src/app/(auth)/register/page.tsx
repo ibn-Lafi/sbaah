@@ -119,7 +119,7 @@ export default function RegisterPage() {
 
     const phoneCheck = saudiPhoneSchema.safeParse(phone);
     if (!phoneCheck.success) {
-      setError(phoneCheck.error.issues[0]?.message ?? 'رقم جوال غير صحيح');
+      setError(phoneCheck.error.issues[0]?.message ?? t.shared.invalidPhoneFallback);
       return;
     }
 
@@ -154,7 +154,7 @@ export default function RegisterPage() {
 
     const codeCheck = otpCodeSchema.safeParse(code);
     if (!codeCheck.success) {
-      setError(codeCheck.error.issues[0]?.message ?? 'رمز غير صحيح');
+      setError(codeCheck.error.issues[0]?.message ?? t.shared.invalidOtpCodeFallback);
       return;
     }
 
@@ -180,12 +180,12 @@ export default function RegisterPage() {
     }
     const emailCheck = emailSchema.safeParse(email);
     if (!emailCheck.success) {
-      setError(emailCheck.error.issues[0]?.message ?? 'بريد إلكتروني غير صحيح');
+      setError(emailCheck.error.issues[0]?.message ?? t.shared.invalidEmailFallback);
       return;
     }
     const passwordCheck = passwordSchema.safeParse(password);
     if (!passwordCheck.success) {
-      setError(passwordCheck.error.issues[0]?.message ?? 'كلمة مرور غير صحيحة');
+      setError(passwordCheck.error.issues[0]?.message ?? t.shared.invalidPasswordFallback);
       return;
     }
     if (password !== passwordConfirm) {

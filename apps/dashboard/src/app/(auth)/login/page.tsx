@@ -89,20 +89,20 @@ export default function LoginPage() {
 
     const passwordCheck = passwordSchema.safeParse(password);
     if (!passwordCheck.success) {
-      setError(passwordCheck.error.issues[0]?.message ?? 'كلمة مرور غير صحيحة');
+      setError(passwordCheck.error.issues[0]?.message ?? t.shared.invalidPasswordFallback);
       return;
     }
 
     if (channel === 'sms') {
       const phoneCheck = saudiPhoneSchema.safeParse(phone);
       if (!phoneCheck.success) {
-        setError(phoneCheck.error.issues[0]?.message ?? 'رقم جوال غير صحيح');
+        setError(phoneCheck.error.issues[0]?.message ?? t.shared.invalidPhoneFallback);
         return;
       }
     } else {
       const emailCheck = emailSchema.safeParse(email);
       if (!emailCheck.success) {
-        setError(emailCheck.error.issues[0]?.message ?? 'بريد إلكتروني غير صحيح');
+        setError(emailCheck.error.issues[0]?.message ?? t.shared.invalidEmailFallback);
         return;
       }
     }
@@ -128,14 +128,14 @@ export default function LoginPage() {
     if (channel === 'sms') {
       const check = saudiPhoneSchema.safeParse(phone);
       if (!check.success) {
-        setError(check.error.issues[0]?.message ?? 'رقم جوال غير صحيح');
+        setError(check.error.issues[0]?.message ?? t.shared.invalidPhoneFallback);
         return null;
       }
       return { phone };
     }
     const check = emailSchema.safeParse(email);
     if (!check.success) {
-      setError(check.error.issues[0]?.message ?? 'بريد إلكتروني غير صحيح');
+      setError(check.error.issues[0]?.message ?? t.shared.invalidEmailFallback);
       return null;
     }
     return { email: check.data };
@@ -173,7 +173,7 @@ export default function LoginPage() {
 
     const codeCheck = otpCodeSchema.safeParse(code);
     if (!codeCheck.success) {
-      setError(codeCheck.error.issues[0]?.message ?? 'رمز غير صحيح');
+      setError(codeCheck.error.issues[0]?.message ?? t.shared.invalidOtpCodeFallback);
       return;
     }
     const identifier = channel === 'sms' ? { phone } : { email };

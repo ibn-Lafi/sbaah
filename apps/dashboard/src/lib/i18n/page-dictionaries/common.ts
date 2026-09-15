@@ -33,6 +33,7 @@ export const commonAr = {
   cancel: 'إلغاء',
   deletePermanently: 'حذف نهائيًا',
   deleteFailed: 'تعذّر الحذف',
+  unknownPersonInitial: '؟',
 };
 
 export const commonEn: typeof commonAr = {
@@ -69,4 +70,5 @@ export const commonEn: typeof commonAr = {
   cancel: 'Cancel',
   deletePermanently: 'Delete permanently',
   deleteFailed: 'Failed to delete',
+  unknownPersonInitial: '?',
 };

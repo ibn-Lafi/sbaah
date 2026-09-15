@@ -19,6 +19,11 @@ export const authAr = {
     resendCode: 'إعادة إرسال الرمز',
     otpSendFailedFallback: 'تعذّر إرسال رمز التحقق',
     otpVerifyFailedFallback: 'تعذّر التحقق من الرمز',
+    /** Local fallbacks for when a Zod check fails with no `.issues[0].message` at all (every schema here always supplies one, so this branch is effectively unreachable — kept translated anyway rather than left as a silent Arabic gap). */
+    invalidPasswordFallback: 'كلمة مرور غير صحيحة',
+    invalidPhoneFallback: 'رقم جوال غير صحيح',
+    invalidEmailFallback: 'بريد إلكتروني غير صحيح',
+    invalidOtpCodeFallback: 'رمز غير صحيح',
     panel: {
       heading: 'موقعك العقاري ولوحة متابعة عملائك، في مكان واحد',
       subheading:
@@ -123,6 +128,10 @@ export const authEn: typeof authAr = {
     resendCode: 'Resend code',
     otpSendFailedFallback: 'Failed to send verification code',
     otpVerifyFailedFallback: 'Failed to verify code',
+    invalidPasswordFallback: 'Invalid password',
+    invalidPhoneFallback: 'Invalid phone number',
+    invalidEmailFallback: 'Invalid email address',
+    invalidOtpCodeFallback: 'Invalid code',
     panel: {
       heading: 'Your real-estate website and lead pipeline, in one place',
       subheading:
