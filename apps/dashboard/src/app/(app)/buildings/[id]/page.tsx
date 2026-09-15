@@ -9,7 +9,6 @@ import { DeleteButton } from '@/components/ui/delete-button';
 import { BuildingForm } from '@/components/hierarchy/building-form';
 import { FormPageSkeleton } from '@/components/ui/form-page-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
-import { ROLE_LABELS } from '@/lib/auth/role-labels';
 import { deleteBuilding, getBuilding, updateBuilding } from '@/lib/api/hierarchy';
 import { ApiRequestError } from '@/lib/api/client';
 
@@ -51,7 +50,6 @@ export default function EditBuildingPage({ params }: { params: Promise<{ id: str
         title="عمارة غير موجودة"
         orgName={me.tenant.name_ar}
         accountType={me.tenant.account_type}
-        roleLabel={ROLE_LABELS[me.user.role]}
       >
         <p className="text-text-secondary">العمارة غير موجودة.</p>
       </AppShell>
@@ -63,7 +61,6 @@ export default function EditBuildingPage({ params }: { params: Promise<{ id: str
       title={building?.name_ar ?? 'تعديل عمارة'}
       orgName={me.tenant.name_ar}
       accountType={me.tenant.account_type}
-      roleLabel={ROLE_LABELS[me.user.role]}
     >
       {!building ? (
         <FormPageSkeleton fields={3} />

@@ -14,7 +14,6 @@ import { PropertyMediaManager } from '@/components/properties/property-media-man
 import { RentalForm } from '@/components/rentals/rental-form';
 import { FormPageSkeleton } from '@/components/ui/form-page-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
-import { ROLE_LABELS } from '@/lib/auth/role-labels';
 import { deleteProperty, getProperty, updateProperty, type PropertyWithMedia } from '@/lib/api/properties';
 import { createRental, listRentals } from '@/lib/api/rentals';
 import { RENTAL_STATUS_LABELS } from '@/lib/rental/labels';
@@ -71,7 +70,6 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
         title="عقار غير موجود"
         orgName={me.tenant.name_ar}
         accountType={me.tenant.account_type}
-        roleLabel={ROLE_LABELS[me.user.role]}
       >
         <p className="text-text-secondary">العقار غير موجود.</p>
       </AppShell>
@@ -83,7 +81,6 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
       title={property?.title_ar ?? 'تعديل عقار'}
       orgName={me.tenant.name_ar}
       accountType={me.tenant.account_type}
-      roleLabel={ROLE_LABELS[me.user.role]}
     >
       {!property ? (
         <FormPageSkeleton fields={6} extraCards={2} />

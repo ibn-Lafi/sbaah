@@ -8,7 +8,6 @@ import { FormError } from '@/components/ui/form-error';
 import { ThemeGallerySkeleton } from '@/components/website/theme-gallery-skeleton';
 import { ThemeGallery } from '@/components/website/theme-gallery';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
-import { ROLE_LABELS } from '@/lib/auth/role-labels';
 import { getWebsite, updateWebsite } from '@/lib/api/website';
 import { listThemes } from '@/lib/api/reference-data';
 import { ApiRequestError } from '@/lib/api/client';
@@ -41,7 +40,6 @@ export default function ThemeStorePage() {
         title="متجر الثيمات"
         orgName={me.tenant.name_ar}
         accountType={me.tenant.account_type}
-        roleLabel={ROLE_LABELS[me.user.role]}
       >
         <ThemeGallerySkeleton />
       </AppShell>
@@ -53,7 +51,6 @@ export default function ThemeStorePage() {
       title="متجر الثيمات"
       orgName={me.tenant.name_ar}
       accountType={me.tenant.account_type}
-      roleLabel={ROLE_LABELS[me.user.role]}
     >
       <div className="flex max-w-[1100px] flex-col gap-6">
         <FormError message={error} />

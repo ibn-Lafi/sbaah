@@ -442,7 +442,6 @@ export default function SettingsPage() {
       title="الإعدادات"
       orgName={me.tenant.name_ar}
       accountType={me.tenant.account_type}
-      roleLabel={ROLE_LABELS[me.user.role]}
     >
       <div className="flex max-w-[640px] flex-col gap-5">
         <Card className="p-6">

@@ -12,7 +12,6 @@ import { Card } from '@/components/ui/card';
 import { Modal } from '@/components/ui/modal';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
-import { ROLE_LABELS } from '@/lib/auth/role-labels';
 import { listProjects, createProject } from '@/lib/api/hierarchy';
 import { PROPERTY_STATUS_LABELS } from '@/lib/property/labels';
 
@@ -39,7 +38,6 @@ export default function ProjectsPage() {
       title="المشاريع"
       orgName={me.tenant.name_ar}
       accountType={me.tenant.account_type}
-      roleLabel={ROLE_LABELS[me.user.role]}
     >
       <div className="mb-5 flex items-center justify-end">
         {canManage && <Button onClick={() => setShowCreate(true)}>+ إضافة مشروع</Button>}

@@ -12,7 +12,6 @@ import { FormError } from '@/components/ui/form-error';
 import { SegmentedToggle } from '@/components/ui/segmented-toggle';
 import { DomainSkeleton } from '@/components/domain/domain-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
-import { ROLE_LABELS } from '@/lib/auth/role-labels';
 import { getPlatformRootDomain } from '@/lib/env/platform-root-domain';
 import {
   getDomain,
@@ -291,7 +290,6 @@ export default function DomainPage() {
       title="الدومين"
       orgName={me.tenant.name_ar}
       accountType={me.tenant.account_type}
-      roleLabel={ROLE_LABELS[me.user.role]}
     >
       <div className="flex max-w-[560px] flex-col gap-4">
         {domain === null ? (

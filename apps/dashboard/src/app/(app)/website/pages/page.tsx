@@ -11,7 +11,6 @@ import { DeleteButton } from '@/components/ui/delete-button';
 import { FormError } from '@/components/ui/form-error';
 import { CardListSkeleton } from '@/components/ui/card-list-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
-import { ROLE_LABELS } from '@/lib/auth/role-labels';
 import { getCustomPages, createCustomPage, updateCustomPage, deleteCustomPage } from '@/lib/api/website';
 import { ApiRequestError } from '@/lib/api/client';
 
@@ -136,7 +135,7 @@ export default function CustomPagesPage() {
   }
 
   return (
-    <AppShell title="الصفحات" orgName={me.tenant.name_ar} accountType={me.tenant.account_type} roleLabel={ROLE_LABELS[me.user.role]}>
+    <AppShell title="الصفحات" orgName={me.tenant.name_ar} accountType={me.tenant.account_type}>
       <div className="flex max-w-[640px] flex-col gap-4">
         <p className="text-sm text-text-secondary">
           صفحات إضافية (مثل سياسة الخصوصية) تظهر روابطها تلقائيًا في تذييل موقعك الإلكتروني.

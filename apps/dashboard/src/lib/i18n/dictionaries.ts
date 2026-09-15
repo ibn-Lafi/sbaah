@@ -52,6 +52,12 @@ export interface ChromeDictionary {
     switchToLight: string;
     switchToDark: string;
   };
+  /** Shown in the sidebar/mobile-nav account switcher (PRODUCT_SPEC section 8) — same 3 values previously threaded in as an untranslated `roleLabel` prop from every page (`lib/auth/role-labels.ts`, still Arabic-only and still used for genuine page content like settings' "دورك" field and the team role picker). */
+  roleLabels: {
+    owner: string;
+    admin: string;
+    agent: string;
+  };
 }
 
 export const dictionaries: Record<Locale, ChromeDictionary> = {
@@ -107,6 +113,11 @@ export const dictionaries: Record<Locale, ChromeDictionary> = {
       switchToLight: 'التبديل إلى الوضع الفاتح',
       switchToDark: 'التبديل إلى الوضع الداكن',
     },
+    roleLabels: {
+      owner: 'مالك الحساب',
+      admin: 'صلاحية كاملة',
+      agent: 'وسيط',
+    },
   },
   en: {
     nav: {
@@ -158,6 +169,11 @@ export const dictionaries: Record<Locale, ChromeDictionary> = {
       themeLabel: 'Theme',
       switchToLight: 'Switch to light mode',
       switchToDark: 'Switch to dark mode',
+    },
+    roleLabels: {
+      owner: 'Account Owner',
+      admin: 'Full Access',
+      agent: 'Agent',
     },
   },
 };

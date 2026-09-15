@@ -11,7 +11,6 @@ import { Card } from '@/components/ui/card';
 import { Modal } from '@/components/ui/modal';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
-import { ROLE_LABELS } from '@/lib/auth/role-labels';
 import { listBuildings, createBuilding } from '@/lib/api/hierarchy';
 
 /** عنصر فرعي بمجموعة "العقارات" بالشريط — كانت تبويبًا داخل /properties، أصبحت صفحتها الخاصة. */
@@ -37,7 +36,6 @@ export default function BuildingsPage() {
       title="العمارات"
       orgName={me.tenant.name_ar}
       accountType={me.tenant.account_type}
-      roleLabel={ROLE_LABELS[me.user.role]}
     >
       <div className="mb-5 flex items-center justify-end">
         {canManage && <Button onClick={() => setShowCreate(true)}>+ إضافة عمارة</Button>}

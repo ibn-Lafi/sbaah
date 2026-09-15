@@ -13,7 +13,6 @@ interface AppShellProps {
   title: string;
   orgName: string;
   accountType: AccountType;
-  roleLabel: string;
   children: React.ReactNode;
 }
 
@@ -32,7 +31,7 @@ function daysRemaining(iso: string): number {
  * enforced server-side (RLS, migration 0019), this just tells the user why
  * their next edit will fail before they attempt it.
  */
-export function AppShell({ title, orgName, accountType, roleLabel, children }: AppShellProps) {
+export function AppShell({ title, orgName, accountType, children }: AppShellProps) {
   const { me } = useCurrentUser();
   const { t } = useLocale();
   const status = me.tenant.status;
@@ -58,7 +57,7 @@ export function AppShell({ title, orgName, accountType, roleLabel, children }: A
     // `dvh` (not `vh`) so mobile Safari's collapsing address bar doesn't
     // leave a gap or clip content at the bottom.
     <div className="flex h-dvh overflow-hidden">
-      <Sidebar orgName={orgName} accountType={accountType} roleLabel={roleLabel} />
+      <Sidebar orgName={orgName} accountType={accountType} />
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         <Topbar title={title} siteUrl={siteUrl} accountType={accountType} />
         {/* Mobile: the page content is a rounded-top sheet that overlaps UP into the purple header by -mt-5 (founder's Zid reference, red-circled) — the header stays a plain square rectangle behind it; the curve itself, and the small light notches it cuts into the header's own bottom corners, come entirely from this card's corner radius sitting on top. Desktop is untouched (no radius, no overlap, transparent). */}
@@ -87,7 +86,7 @@ export function AppShell({ title, orgName, accountType, roleLabel, children }: A
           <div className="flex-1 overflow-auto overscroll-contain p-4 pb-28 md:p-7">{children}</div>
         </div>
       </div>
-      <MobileNav orgName={orgName} accountType={accountType} roleLabel={roleLabel} />
+      <MobileNav orgName={orgName} accountType={accountType} />
     </div>
   );
 }

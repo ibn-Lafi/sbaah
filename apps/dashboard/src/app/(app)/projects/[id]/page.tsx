@@ -12,7 +12,6 @@ import { BuildingForm } from '@/components/hierarchy/building-form';
 import { ProjectForm } from '@/components/hierarchy/project-form';
 import { FormPageSkeleton } from '@/components/ui/form-page-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
-import { ROLE_LABELS } from '@/lib/auth/role-labels';
 import { createBuilding, deleteProject, getProject, listBuildings, updateProject } from '@/lib/api/hierarchy';
 import { ApiRequestError } from '@/lib/api/client';
 
@@ -60,7 +59,6 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
         title="مشروع غير موجود"
         orgName={me.tenant.name_ar}
         accountType={me.tenant.account_type}
-        roleLabel={ROLE_LABELS[me.user.role]}
       >
         <p className="text-text-secondary">المشروع غير موجود.</p>
       </AppShell>
@@ -72,7 +70,6 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
       title={project?.name_ar ?? 'تعديل مشروع'}
       orgName={me.tenant.name_ar}
       accountType={me.tenant.account_type}
-      roleLabel={ROLE_LABELS[me.user.role]}
     >
       {!project ? (
         <FormPageSkeleton fields={4} />

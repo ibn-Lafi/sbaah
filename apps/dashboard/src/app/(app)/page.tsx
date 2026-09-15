@@ -6,7 +6,6 @@ import { AppShell } from '@/components/layout/app-shell';
 import { Badge } from '@/components/ui/badge';
 import { DashboardHomeSkeleton } from '@/components/dashboard/dashboard-home-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
-import { ROLE_LABELS } from '@/lib/auth/role-labels';
 import { getDashboardSummary, type DashboardSummary } from '@/lib/api/dashboard';
 import { LEAD_SOURCE_LABELS, LEAD_STATUS_LABELS } from '@/lib/lead/labels';
 
@@ -43,7 +42,7 @@ export default function DashboardHomePage() {
   const maxCount = Math.max(1, ...bars.map((b) => b.count));
 
   return (
-    <AppShell title="لوحة القيادة" orgName={me.tenant.name_ar} accountType={me.tenant.account_type} roleLabel={ROLE_LABELS[me.user.role]}>
+    <AppShell title="لوحة القيادة" orgName={me.tenant.name_ar} accountType={me.tenant.account_type}>
       {summary === null ? (
         <DashboardHomeSkeleton />
       ) : (

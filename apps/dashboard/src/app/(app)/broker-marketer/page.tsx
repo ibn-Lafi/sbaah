@@ -11,7 +11,6 @@ import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { SegmentedToggle } from '@/components/ui/segmented-toggle';
 import { CreateBrokerMarketerForm } from '@/components/broker-marketer/create-broker-marketer-form';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
-import { ROLE_LABELS } from '@/lib/auth/role-labels';
 import {
   listBrokerMarketerApplications,
   type BrokerMarketerApplicationWithRelations,
@@ -64,7 +63,6 @@ export default function BrokerMarketerPage() {
       title="الوسطاء والمسوقين"
       orgName={me.tenant.name_ar}
       accountType={me.tenant.account_type}
-      roleLabel={ROLE_LABELS[me.user.role]}
     >
       <div className="mb-5">
         <SegmentedToggle className="mx-auto max-w-[320px]" value={tab} onChange={setTab} options={TABS} />

@@ -2,11 +2,15 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { dictionaries, type ChromeDictionary } from './dictionaries';
+import { pageDictionaries, type PageDictionaries } from './page-dictionaries';
 import { DEFAULT_LOCALE, LOCALE_STORAGE_KEY, dirFor, type Locale } from './locale';
 
 interface LocaleContextValue {
   locale: Locale;
+  /** Persistent chrome strings (sidebar/topbar/mobile-nav/app-shell) — unchanged since before per-page translation existed. */
   t: ChromeDictionary;
+  /** Per-page strings, one namespace per route (`pages.leads`, `pages.settings`, ...) — kept separate from `t` so translating one page never touches the same dictionary file as another. */
+  pages: PageDictionaries;
   setLocale: (locale: Locale) => void;
   toggleLocale: () => void;
 }
@@ -37,7 +41,7 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
   const toggleLocale = useCallback(() => setLocaleState((current) => (current === 'ar' ? 'en' : 'ar')), []);
 
   const value = useMemo<LocaleContextValue>(
-    () => ({ locale, t: dictionaries[locale], setLocale, toggleLocale }),
+    () => ({ locale, t: dictionaries[locale], pages: pageDictionaries[locale], setLocale, toggleLocale }),
     [locale, setLocale, toggleLocale],
   );
 

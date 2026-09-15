@@ -13,7 +13,6 @@ import { Modal } from '@/components/ui/modal';
 import { Select } from '@/components/ui/select';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
-import { ROLE_LABELS } from '@/lib/auth/role-labels';
 import { listProperties, createProperty } from '@/lib/api/properties';
 import {
   LISTING_TYPE_LABELS,
@@ -51,7 +50,6 @@ export default function PropertiesPage() {
       title="العقارات"
       orgName={me.tenant.name_ar}
       accountType={me.tenant.account_type}
-      roleLabel={ROLE_LABELS[me.user.role]}
     >
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <Select

@@ -9,7 +9,6 @@ import { DeleteButton } from '@/components/ui/delete-button';
 import { FormPageSkeleton } from '@/components/ui/form-page-skeleton';
 import { RentalForm } from '@/components/rentals/rental-form';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
-import { ROLE_LABELS } from '@/lib/auth/role-labels';
 import { deleteRental, getRental, updateRental } from '@/lib/api/rentals';
 import { ApiRequestError } from '@/lib/api/client';
 
@@ -49,7 +48,6 @@ export default function EditRentalPage({ params }: { params: Promise<{ id: strin
         title="إيجار غير موجود"
         orgName={me.tenant.name_ar}
         accountType={me.tenant.account_type}
-        roleLabel={ROLE_LABELS[me.user.role]}
       >
         <p className="text-text-secondary">الإيجار غير موجود.</p>
       </AppShell>
@@ -61,7 +59,6 @@ export default function EditRentalPage({ params }: { params: Promise<{ id: strin
       title={rental ? `إيجار — ${rental.tenant_name}` : 'تعديل إيجار'}
       orgName={me.tenant.name_ar}
       accountType={me.tenant.account_type}
-      roleLabel={ROLE_LABELS[me.user.role]}
     >
       {!rental ? (
         <FormPageSkeleton fields={5} />

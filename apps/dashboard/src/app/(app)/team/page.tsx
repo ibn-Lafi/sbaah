@@ -43,7 +43,6 @@ export default function TeamPage() {
       title="الفريق"
       orgName={me.tenant.name_ar}
       accountType={me.tenant.account_type}
-      roleLabel={ROLE_LABELS[me.user.role]}
     >
       <div className="mb-5 flex items-center justify-end">
         <Button onClick={() => setShowInvite(true)}>+ دعوة عضو</Button>

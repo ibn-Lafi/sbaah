@@ -8,7 +8,6 @@ import { LoadingState } from '@/components/ui/loading-state';
 import { PlanCycleToggle } from '@/components/billing/plan-cycle-toggle';
 import { PlanCard } from '@/components/billing/plan-card';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
-import { ROLE_LABELS } from '@/lib/auth/role-labels';
 import { getBilling, startCheckout, type BillingInfo } from '@/lib/api/billing';
 import { listPlans } from '@/lib/api/reference-data';
 import { groupPlansByTier, planForCycle, type PlanTier } from '@/lib/billing/plan-tiers';
@@ -48,7 +47,6 @@ export default function ChangePlanPage() {
       title="الفوترة والاشتراك"
       orgName={me.tenant.name_ar}
       accountType={me.tenant.account_type}
-      roleLabel={ROLE_LABELS[me.user.role]}
     >
       <div className="mx-auto flex max-w-[820px] flex-col gap-6">
         <BackButton href="/billing" label="رجوع للفوترة" className="self-start" />

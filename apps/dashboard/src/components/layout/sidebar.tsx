@@ -14,16 +14,15 @@ import type { AccountType } from '@sbaah/shared';
 interface SidebarProps {
   orgName: string;
   accountType: AccountType;
-  /** e.g. "صلاحية كاملة" for Owner — varies by role (PRODUCT_SPEC section 8), never hardcoded here. */
-  roleLabel: string;
 }
 
 /** Matches the founder's mockup (216px, icon nav, expandable groups like "الموقع الالكتروني", account switcher with a حسابي/الفوترة/خروج dropdown). */
-export function Sidebar({ orgName, accountType, roleLabel }: SidebarProps) {
+export function Sidebar({ orgName, accountType }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { me } = useCurrentUser();
   const { t } = useLocale();
+  const roleLabel = t.roleLabels[me.user.role];
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
   const visibleItems = getNavItems(t).filter((item) => !item.roles || item.roles.includes(me.user.role));

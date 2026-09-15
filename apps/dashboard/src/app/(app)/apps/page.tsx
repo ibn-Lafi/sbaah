@@ -4,7 +4,6 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { AppShell } from '@/components/layout/app-shell';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
-import { ROLE_LABELS } from '@/lib/auth/role-labels';
 
 /**
  * سوق التطبيقات — شبكة بطاقات (نفس نمط تصميم المؤسس: أيقونة الشعار الرسمي +
@@ -174,7 +173,6 @@ export default function AppsPage() {
       title="سوق التطبيقات"
       orgName={me.tenant.name_ar}
       accountType={me.tenant.account_type}
-      roleLabel={ROLE_LABELS[me.user.role]}
     >
       <div className="border-border-default mb-5 flex h-12 items-center gap-2 rounded-full border px-5">
         <input

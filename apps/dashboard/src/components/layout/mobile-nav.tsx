@@ -14,7 +14,6 @@ import { useLocale } from '@/lib/i18n/locale-context';
 interface MobileNavProps {
   orgName: string;
   accountType: AccountType;
-  roleLabel: string;
 }
 
 /**
@@ -68,11 +67,12 @@ function getPinnedItems(items: NavEntry[]): PinnedNavItem[] {
  * in the topbar's own account popover on mobile instead (topbar.tsx) —
  * not duplicated here.
  */
-export function MobileNav({ orgName, accountType, roleLabel }: MobileNavProps) {
+export function MobileNav({ orgName, accountType }: MobileNavProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { me } = useCurrentUser();
   const { t } = useLocale();
+  const roleLabel = t.roleLabels[me.user.role];
   const [sheetOpen, setSheetOpen] = useState(false);
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
   const visibleItems = getNavItems(t).filter((item) => !item.roles || item.roles.includes(me.user.role));

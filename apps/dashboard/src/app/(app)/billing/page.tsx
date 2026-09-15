@@ -8,7 +8,6 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BillingSkeleton } from '@/components/billing/billing-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
-import { ROLE_LABELS } from '@/lib/auth/role-labels';
 import { getBilling, startCheckout, type BillingInfo } from '@/lib/api/billing';
 import { ApiRequestError } from '@/lib/api/client';
 
@@ -66,7 +65,6 @@ function BillingPageContent() {
       title="الفوترة والاشتراك"
       orgName={me.tenant.name_ar}
       accountType={me.tenant.account_type}
-      roleLabel={ROLE_LABELS[me.user.role]}
     >
       <div className="flex max-w-[560px] flex-col gap-5">
         {checkoutResult === 'success' && (
