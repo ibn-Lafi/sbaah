@@ -18,11 +18,14 @@ const SCROLL_THRESHOLD = 24;
  * صورة خلفية؛ الارتباط بين الرقمين (h-20 هنا و-mt-20 هناك) مقصود ويجب
  * أن يبقيا متطابقين إذا تغيّر ارتفاع الهيدر مستقبلًا.
  *
- * قائمة الجوال (`sm:hidden`) تفتح/تغلق روابط التنقل + تبديل اللغة داخل
- * لوحة منسدلة بيضاء واحدة — لا زر "تواصل معنا" (حُذف بالكامل، حسب طلب
- * المؤسس)، ولا رابط تنقل ثابت مستقل على الجوال إطلاقًا خارج هذه القائمة.
+ * قائمة الجوال (`sm:hidden`) تفتح/تغلق روابط التنقل داخل لوحة منسدلة
+ * بيضاء واحدة — لا زر "تواصل معنا" (حُذف بالكامل، حسب طلب المؤسس)، ولا
+ * رابط تنقل ثابت مستقل على الجوال إطلاقًا خارج هذه القائمة. لا زر تبديل
+ * لغة أيضًا (حُذف، طلب المؤسس) — الثيم الأساسي بلغة عربية واحدة فقط، لا
+ * محتوى مؤلَّف ثنائي اللغة. `otherLocaleHref` يبقى جزءًا من عقد الهيدر
+ * المشترك بين الثيمات (`HeaderProps`) لكن هذا الثيم تحديدًا لا يستخدمه.
  */
-export function Header({ locale, dict, website, tenantName, otherLocaleHref }: HeaderProps) {
+export function Header({ locale, dict, website, tenantName }: HeaderProps) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -64,9 +67,6 @@ export function Header({ locale, dict, website, tenantName, otherLocaleHref }: H
                 {label}
               </Link>
             ))}
-            <Link href={otherLocaleHref} className="rounded-full bg-white/15 px-3 py-1.5 text-xs font-semibold hover:bg-white/25">
-              {dict.languageSwitch}
-            </Link>
           </nav>
 
           <button
@@ -89,9 +89,6 @@ export function Header({ locale, dict, website, tenantName, otherLocaleHref }: H
                 {label}
               </Link>
             ))}
-            <Link href={otherLocaleHref} onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-2.5 hover:bg-black/5">
-              {dict.languageSwitch}
-            </Link>
           </div>
         )}
       </div>
