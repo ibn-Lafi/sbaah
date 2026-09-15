@@ -1,3 +1,5 @@
+import type { WebsiteSectionType } from '@sbaah/shared';
+
 type IconProps = { className?: string };
 
 function Svg({ children, className }: { children: React.ReactNode; className?: string }) {
@@ -44,6 +46,46 @@ export function MobileIcon({ className }: IconProps) {
     <Svg className={className}>
       <rect x="7" y="2.5" width="10" height="19" rx="2" />
       <path d="M11 18.5h2" />
+    </Svg>
+  );
+}
+
+/** تعديل محتوى القسم — قلم رصاص، مطابق لصف القسم بمرجع الجوال. */
+export function PencilIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
+      <path d="M14.5 5.5l3 3" />
+    </Svg>
+  );
+}
+
+/** إخفاء القسم عن الصفحة (يعيده لقائمة "إضافة قسم") — عين مشطوبة، بديل عن مفتاح Switch بشكل يطابق صف القسم بمرجع الجوال. */
+export function EyeOffIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M3 3l18 18" />
+      <path d="M10.6 5.1A10.9 10.9 0 0 1 12 5c5 0 9 4 10 7-.4 1.2-1.4 2.7-2.8 4M6.7 6.7C4.5 8.1 3 10 2 12c1 3 5 7 10 7 1.4 0 2.7-.3 3.9-.8" />
+      <path d="M9.5 9.8a3 3 0 0 0 4.2 4.2" />
+    </Svg>
+  );
+}
+
+/** إضافة قسم جديد للصفحة — علامة زائد بسيطة. */
+export function PlusIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M12 5v14M5 12h14" />
+    </Svg>
+  );
+}
+
+/** بحث باسم القسم في نافذة "إضافة قسم". */
+export function SearchIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <circle cx="10.5" cy="10.5" r="6.5" />
+      <path d="M20 20l-4.8-4.8" />
     </Svg>
   );
 }
@@ -161,4 +203,79 @@ export function LocationIcon({ className }: IconProps) {
       <circle cx="12" cy="9" r="2.4" />
     </Svg>
   );
+}
+
+function HeroSectionIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <rect x="3" y="5" width="18" height="14" rx="2" />
+      <path d="M3 15l5-4 4 3 5-5 4 3" />
+    </Svg>
+  );
+}
+
+function GridSectionIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <rect x="3" y="3" width="8" height="8" rx="1.3" />
+      <rect x="13" y="3" width="8" height="8" rx="1.3" />
+      <rect x="3" y="13" width="8" height="8" rx="1.3" />
+      <rect x="13" y="13" width="8" height="8" rx="1.3" />
+    </Svg>
+  );
+}
+
+function DocumentSectionIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <rect x="5" y="3" width="14" height="18" rx="2" />
+      <path d="M8.5 8h7M8.5 12h7M8.5 16h4" />
+    </Svg>
+  );
+}
+
+function InfoSectionIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 11v5.5" />
+      <circle cx="12" cy="7.7" r=".9" fill="currentColor" stroke="none" />
+    </Svg>
+  );
+}
+
+function StarSectionIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M12 3.5l2.6 5.6 6 .7-4.4 4.2 1.1 6-5.3-3-5.3 3 1.1-6-4.4-4.2 6-.7z" />
+    </Svg>
+  );
+}
+
+function FooterSectionIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <rect x="3" y="3" width="18" height="18" rx="2" />
+      <path d="M3 16h18" />
+    </Svg>
+  );
+}
+
+const SECTION_TYPE_ICONS: Record<WebsiteSectionType, (props: IconProps) => React.ReactNode> = {
+  hero: HeroSectionIcon,
+  property_grid: GridSectionIcon,
+  project_grid: GridSectionIcon,
+  property_detail: DocumentSectionIcon,
+  about: InfoSectionIcon,
+  why_us: StarSectionIcon,
+  contact: CallIcon,
+  broker_marketer_form: DocumentSectionIcon,
+  map: LocationIcon,
+  footer: FooterSectionIcon,
+};
+
+/** أيقونة صغيرة لكل نوع قسم — تُستخدم في صفوف الأقسام وقائمة "إضافة قسم" بمحرر الجوال. */
+export function SectionTypeIcon({ type, className }: IconProps & { type: WebsiteSectionType }) {
+  const Icon = SECTION_TYPE_ICONS[type];
+  return <Icon className={className} />;
 }

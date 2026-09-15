@@ -13,7 +13,7 @@ interface SectionListProps {
   onChange: (sections: WebsiteSection[]) => void;
 }
 
-const EDITABLE_TYPES: WebsiteSection['type'][] = ['hero', 'about', 'why_us', 'contact'];
+export const EDITABLE_TYPES: WebsiteSection['type'][] = ['hero', 'about', 'why_us', 'contact'];
 
 /**
  * Native HTML5 drag-and-drop (no new dependency) — a plain vertical list
