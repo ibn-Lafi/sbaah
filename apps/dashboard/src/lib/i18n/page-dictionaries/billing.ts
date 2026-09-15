@@ -28,7 +28,7 @@ export const billingAr = {
     },
   },
   planCard: {
-    cycleLabel: (cycle: 'monthly' | 'annual') => (cycle === 'annual' ? 'سنويًا' : 'شهريًا'),
+    cycleLabel: (cycle: 'monthly' | 'annual'): string => (cycle === 'annual' ? 'سنويًا' : 'شهريًا'),
     savingsLabel: (months: number) => {
       if (months === 1) return 'وفّر شهرًا';
       if (months === 2) return 'وفّر شهرين';

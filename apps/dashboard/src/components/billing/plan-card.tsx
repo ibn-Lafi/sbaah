@@ -58,7 +58,9 @@ export function PlanCard({
   selectDisabled,
   showIntroPricing = false,
 }: PlanCardProps) {
-  const cycleLabel = plan.billing_cycle === 'annual' ? 'سنويًا' : 'شهريًا';
+  const { locale, pages } = useLocale();
+  const t = pages.billing.planCard;
+  const cycleLabel = t.cycleLabel(plan.billing_cycle);
   const savingsMonths =
     plan.billing_cycle === 'annual' && monthlyEquivalent ? annualSavingsMonths(monthlyEquivalent, plan) : 0;
   const hasIntroPrice = showIntroPricing && plan.intro_price != null && plan.intro_months != null;
@@ -70,16 +72,18 @@ export function PlanCard({
       <div className="flex min-h-[22px] items-center justify-between">
         {savingsMonths > 0 && (
           <span className="rounded-full bg-success-surface px-3 py-1 text-xs font-semibold text-success">
-            {savingsLabel(savingsMonths)}
+            {t.savingsLabel(savingsMonths)}
           </span>
         )}
         {isCurrent && (
-          <span className="rounded-full bg-brand-surface px-3 py-1 text-xs font-semibold text-brand">باقتك الحالية</span>
+          <span className="rounded-full bg-brand-surface px-3 py-1 text-xs font-semibold text-brand">
+            {t.currentPlanBadge}
+          </span>
         )}
       </div>
 
       <div>
-        <h3 className="text-lg font-bold text-text-primary">{plan.name_ar}</h3>
+        <h3 className="text-lg font-bold text-text-primary">{locale === 'en' ? plan.name_en : plan.name_ar}</h3>
         {plan.description_ar && <p className="mt-1 text-sm text-text-secondary">{plan.description_ar}</p>}
       </div>
 
@@ -88,48 +92,50 @@ export function PlanCard({
           <>
             <p className="flex items-baseline gap-1.5" dir="ltr">
               <span className="text-3xl font-bold text-text-primary">{plan.intro_price!.toLocaleString('en-US')}</span>
-              <span className="text-sm text-text-secondary">ريال</span>
+              <span className="text-sm text-text-secondary">{t.currency}</span>
             </p>
             <p className="text-xs text-text-secondary">
-              / {cycleLabel} لـ{introMonthsLabel(plan.intro_months!)}، ثم {plan.price.toLocaleString('en-US')} ريال / {cycleLabel}
+              {t.introPriceNote(cycleLabel, t.introMonthsLabel(plan.intro_months!), plan.price.toLocaleString('en-US'))}
             </p>
           </>
         ) : (
           <>
             <p className="flex items-baseline gap-1.5" dir="ltr">
               <span className="text-3xl font-bold text-text-primary">{plan.price.toLocaleString('en-US')}</span>
-              <span className="text-sm text-text-secondary">ريال</span>
+              <span className="text-sm text-text-secondary">{t.currency}</span>
             </p>
-            <p className="text-xs text-text-secondary">/ {cycleLabel}</p>
+            <p className="text-xs text-text-secondary">{t.regularPriceNote(cycleLabel)}</p>
           </>
         )}
-        <p className="mt-1 text-[11px] text-text-placeholder">شامل ضريبة القيمة المضافة 15%</p>
+        <p className="mt-1 text-[11px] text-text-placeholder">{t.vatNote}</p>
       </div>
 
       <div className="h-px bg-border-subtle" />
 
       <ul className="flex flex-col gap-2.5 text-sm">
         <li className="flex items-center justify-between">
-          <span className="text-text-secondary">حد العقارات</span>
+          <span className="text-text-secondary">{t.propertiesLimitLabel}</span>
           <span className="font-medium text-text-primary">
-            {plan.max_properties != null ? `${plan.max_properties.toLocaleString('en-US')} عقار` : 'بلا حدود'}
+            {plan.max_properties != null
+              ? t.propertiesCount(plan.max_properties.toLocaleString('en-US'))
+              : pages.billing.unlimited}
           </span>
         </li>
         <li className="flex items-center justify-between">
-          <span className="text-text-secondary">حد المستخدمين</span>
+          <span className="text-text-secondary">{t.usersLimitLabel}</span>
           <span className="font-medium text-text-primary">
-            {plan.max_users != null ? usersLabel(plan.max_users) : 'بلا حدود'}
+            {plan.max_users != null ? t.usersLabel(plan.max_users) : pages.billing.unlimited}
           </span>
         </li>
         <li className="flex items-center justify-between">
-          <span className="text-text-secondary">دومين مخصص</span>
+          <span className="text-text-secondary">{t.customDomainLabel}</span>
           {plan.custom_domain_allowed ? (
             <span className="flex items-center gap-1 font-medium text-success">
               <CheckIcon className="h-4 w-4" />
-              مسموح
+              {t.allowedLabel}
             </span>
           ) : (
-            <span className="font-medium text-text-primary">دومين فرعي</span>
+            <span className="font-medium text-text-primary">{t.subdomainLabel}</span>
           )}
         </li>
       </ul>
@@ -142,7 +148,7 @@ export function PlanCard({
         onClick={onSelect}
         className="w-full"
       >
-        {isCurrent ? 'باقتك الحالية' : 'اختيار هذه الباقة'}
+        {isCurrent ? t.currentPlanBadge : t.selectButton}
       </Button>
     </Card>
   );
