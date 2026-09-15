@@ -11,11 +11,14 @@ import { FormPageSkeleton } from '@/components/ui/form-page-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { deleteBuilding, getBuilding, updateBuilding } from '@/lib/api/hierarchy';
 import { ApiRequestError } from '@/lib/api/client';
+import { useLocale } from '@/lib/i18n/locale-context';
 
 export default function EditBuildingPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
   const { me, accessToken } = useCurrentUser();
+  const { pages } = useLocale();
+  const t = pages.buildings;
   const [building, setBuilding] = useState<Building | null>(null);
   const [notFound, setNotFound] = useState(false);
 

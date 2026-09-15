@@ -111,7 +111,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
       setLead({ ...lead, lead_notes: [note, ...lead.lead_notes] });
       setNoteText('');
     } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : 'تعذّر إضافة الملاحظة');
+      setError(err instanceof ApiRequestError ? err.message : t.detail.errors.addNote);
     } finally {
       setNoteLoading(false);
     }
@@ -122,25 +122,25 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
       await deleteLead(accessToken, id);
       router.push('/leads');
     } catch (err) {
-      throw new Error(err instanceof ApiRequestError ? err.message : 'تعذّر حذف العميل المحتمل');
+      throw new Error(err instanceof ApiRequestError ? err.message : t.detail.errors.delete);
     }
   }
 
   if (notFound) {
     return (
       <AppShell
-        title="عميل محتمل غير موجود"
+        title={t.detail.notFoundTitle}
         orgName={me.tenant.name_ar}
         accountType={me.tenant.account_type}
       >
-        <p className="text-text-secondary">العميل المحتمل غير موجود.</p>
+        <p className="text-text-secondary">{t.detail.notFoundMessage}</p>
       </AppShell>
     );
   }
 
   return (
     <AppShell
-      title={lead?.full_name ?? 'تفاصيل العميل المحتمل'}
+      title={lead?.full_name ?? t.detail.defaultTitle}
       orgName={me.tenant.name_ar}
       accountType={me.tenant.account_type}
     >
@@ -149,12 +149,12 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
       ) : (
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
-            <BackButton href="/leads" label="رجوع لقائمة الطلبات" />
+            <BackButton href="/leads" label={t.detail.backLabel} />
             {canManage && (
               <DeleteButton
-                label="حذف"
-                confirmTitle="حذف العميل المحتمل"
-                confirmMessage="سيتم حذف هذا العميل المحتمل وكل ملاحظاته نهائيًا، ولا يمكن التراجع عن هذا الإجراء."
+                label={t.detail.deleteLabel}
+                confirmTitle={t.detail.deleteConfirmTitle}
+                confirmMessage={t.detail.deleteConfirmMessage}
                 onConfirm={handleDelete}
               />
             )}
@@ -164,20 +164,20 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
 
           <div className="grid items-start gap-6 md:grid-cols-2">
             <Card className="order-2 p-8 md:order-1">
-              <h2 className="mb-4 text-base font-semibold text-text-primary">سجل الملاحظات</h2>
+              <h2 className="mb-4 text-base font-semibold text-text-primary">{t.detail.notesTitle}</h2>
               <form onSubmit={handleAddNote} className="mb-5 flex gap-2">
                 <Input
-                  placeholder="أضف ملاحظة عن المكالمة أو الزيارة..."
+                  placeholder={t.detail.notePlaceholder}
                   value={noteText}
                   onChange={(e) => setNoteText(e.target.value)}
                   className="flex-1"
                 />
                 <Button type="submit" disabled={noteLoading} className="flex-none">
-                  {noteLoading ? 'جارٍ الإضافة...' : 'إضافة'}
+                  {noteLoading ? t.detail.addingNote : t.detail.addNote}
                 </Button>
               </form>
               {lead.lead_notes.length === 0 ? (
-                <p className="text-sm text-text-secondary">لا ملاحظات بعد.</p>
+                <p className="text-sm text-text-secondary">{t.detail.noNotes}</p>
               ) : (
                 <ul className="flex flex-col gap-4">
                   {lead.lead_notes.map((note) => (
@@ -207,7 +207,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
               {lead.phone && (
                 <div className="mb-5 flex gap-2">
                   <a href={`tel:${lead.phone}`} className={`${ACTION_LINK_CLASSES} bg-brand text-white hover:bg-brand-hover`}>
-                    اتصال
+                    {t.detail.callAction}
                   </a>
                   <a
                     href={`https://wa.me/${lead.phone.replace(/^\+/, '')}`}
@@ -215,25 +215,25 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
                     rel="noreferrer"
                     className={`${ACTION_LINK_CLASSES} border border-border-default bg-surface-card text-text-primary hover:bg-surface-subtle`}
                   >
-                    واتساب
+                    {t.detail.whatsappAction}
                   </a>
                 </div>
               )}
 
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-1">
-                  <label className="text-xs text-text-secondary">حالة الطلب</label>
+                  <label className="text-xs text-text-secondary">{t.detail.statusLabel}</label>
                   <Select value={lead.status} onChange={(e) => void saveStatus(e.target.value)}>
                     {LEAD_STATUSES.map((status) => (
                       <option key={status} value={status}>
-                        {LEAD_STATUS_LABELS[status]}
+                        {t.statusLabels[status]}
                       </option>
                     ))}
                   </Select>
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label className="text-xs text-text-secondary">تاريخ المتابعة القادمة</label>
+                  <label className="text-xs text-text-secondary">{t.detail.followUpLabel}</label>
                   <DateTimePicker
                     value={isoToDatetimeLocal(lead.follow_up_at)}
                     onChange={(value) => void saveFollowUp(value)}
@@ -242,9 +242,9 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
 
                 {canManage && (
                   <div className="flex flex-col gap-1">
-                    <label className="text-xs text-text-secondary">المسؤول عن المتابعة</label>
+                    <label className="text-xs text-text-secondary">{t.detail.assignedAgentLabel}</label>
                     <Select defaultValue={lead.assigned_agent_id ?? ''} onChange={(e) => void saveAssignedAgent(e.target.value)}>
-                      <option value="">بلا مسؤول</option>
+                      <option value="">{t.detail.noAgent}</option>
                       {team.map((member) => (
                         <option key={member.id} value={member.id}>
                           {member.full_name}
@@ -255,7 +255,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
                 )}
 
                 <div className="flex flex-col gap-1">
-                  <label className="text-xs text-text-secondary">العقار المرتبط</label>
+                  <label className="text-xs text-text-secondary">{t.detail.propertyLabel}</label>
                   {property ? (
                     <Link
                       href={`/properties/${property.id}`}
@@ -265,13 +265,13 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
                       <p className="text-xs text-text-secondary">{PROPERTY_TYPE_LABELS[property.property_type]}</p>
                     </Link>
                   ) : (
-                    <p className="rounded-input border border-border-default px-4 py-3 text-sm text-text-secondary">بلا عقار محدد</p>
+                    <p className="rounded-input border border-border-default px-4 py-3 text-sm text-text-secondary">{t.detail.noProperty}</p>
                   )}
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label className="text-xs text-text-secondary">المصدر</label>
-                  <p className="text-sm text-text-primary">{LEAD_SOURCE_LABELS[lead.source]}</p>
+                  <label className="text-xs text-text-secondary">{t.detail.sourceLabel}</label>
+                  <p className="text-sm text-text-primary">{t.sourceLabels[lead.source]}</p>
                 </div>
               </div>
             </Card>

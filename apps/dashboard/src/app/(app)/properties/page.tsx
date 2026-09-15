@@ -14,15 +14,16 @@ import { Select } from '@/components/ui/select';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { listProperties, createProperty } from '@/lib/api/properties';
-import {
-  LISTING_TYPE_LABELS,
-  PROPERTY_STATUS_LABELS,
-  PROPERTY_TYPE_LABELS,
-} from '@/lib/property/labels';
+import { getListingTypeLabels, getPropertyTypeLabels } from '@/lib/property/labels';
+import { useLocale } from '@/lib/i18n/locale-context';
 
 /** "العقارات" هي أول عنصر فرعي بمجموعة "العقارات" بالشريط (نفس نمط مجموعة "الموقع الالكتروني") — العمارات/المشاريع/الإيجارات أصبحت صفحاتها الخاصة (buildings/page.tsx، projects/page.tsx، rentals/page.tsx). */
 export default function PropertiesPage() {
   const { me, accessToken } = useCurrentUser();
+  const { locale, pages } = useLocale();
+  const t = pages.properties;
+  const propertyTypeLabels = getPropertyTypeLabels(locale);
+  const listingTypeLabels = getListingTypeLabels(locale);
   const router = useRouter();
   const [properties, setProperties] = useState<Property[] | null>(null);
   const [statusFilter, setStatusFilter] = useState<PropertyStatus | ''>('');
@@ -47,7 +48,7 @@ export default function PropertiesPage() {
 
   return (
     <AppShell
-      title="العقارات"
+      title={t.list.title}
       orgName={me.tenant.name_ar}
       accountType={me.tenant.account_type}
     >
@@ -58,22 +59,22 @@ export default function PropertiesPage() {
           className="w-[140px]"
           compact
         >
-          <option value="">كل الحالات</option>
-          {Object.entries(PROPERTY_STATUS_LABELS).map(([value, label]) => (
+          <option value="">{t.list.statusFilterAll}</option>
+          {Object.entries(t.statusLabels).map(([value, label]) => (
             <option key={value} value={value}>
               {label}
             </option>
           ))}
         </Select>
-        {canManage && <Button onClick={() => setShowCreate(true)}>+ إضافة عقار</Button>}
+        {canManage && <Button onClick={() => setShowCreate(true)}>{t.list.addButton}</Button>}
       </div>
       {showCreate && (
-        <Modal title="إضافة عقار" onClose={() => setShowCreate(false)}>
+        <Modal title={t.list.createModalTitle} onClose={() => setShowCreate(false)}>
           <PropertyForm
             mode="create"
             accessToken={accessToken}
             role={me.user.role}
-            submitLabel="إضافة العقار"
+            submitLabel={t.list.createSubmitLabel}
             onSubmit={async (input) => {
               const { property } = await createProperty(accessToken, input as PropertyInput);
               router.push(`/properties/${property.id}`);
@@ -85,16 +86,16 @@ export default function PropertiesPage() {
         {properties === null ? (
           <TableSkeleton columns={4} />
         ) : properties.length === 0 ? (
-          <p className="text-text-secondary p-6 text-center">لا توجد عقارات بعد</p>
+          <p className="text-text-secondary p-6 text-center">{t.list.emptyState}</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[640px] text-sm">
               <thead className="bg-surface-header text-text-secondary text-right">
                 <tr>
-                  <th className="px-5 py-3 font-medium">العنوان</th>
-                  <th className="px-5 py-3 font-medium">النوع</th>
-                  <th className="px-5 py-3 font-medium">السعر</th>
-                  <th className="px-5 py-3 font-medium">الحالة</th>
+                  <th className="px-5 py-3 font-medium">{t.list.table.title}</th>
+                  <th className="px-5 py-3 font-medium">{t.list.table.type}</th>
+                  <th className="px-5 py-3 font-medium">{t.list.table.price}</th>
+                  <th className="px-5 py-3 font-medium">{t.list.table.status}</th>
                 </tr>
               </thead>
               <tbody>
@@ -109,16 +110,16 @@ export default function PropertiesPage() {
                       </Link>
                     </td>
                     <td className="text-text-secondary px-5 py-3">
-                      {PROPERTY_TYPE_LABELS[property.property_type]} ·{' '}
-                      {LISTING_TYPE_LABELS[property.listing_type]}
+                      {propertyTypeLabels[property.property_type]} ·{' '}
+                      {listingTypeLabels[property.listing_type]}
                     </td>
                     <td className="text-text-secondary px-5 py-3" dir="ltr">
-                      {property.price.toLocaleString('en-US')} ر.س
+                      {t.list.priceValue(property.price)}
                     </td>
                     <td className="px-5 py-3">
                       <Badge
                         status={property.status}
-                        label={PROPERTY_STATUS_LABELS[property.status]}
+                        label={t.statusLabels[property.status]}
                       />
                     </td>
                   </tr>

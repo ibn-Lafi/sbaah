@@ -12,10 +12,13 @@ import { Modal } from '@/components/ui/modal';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { listBuildings, createBuilding } from '@/lib/api/hierarchy';
+import { useLocale } from '@/lib/i18n/locale-context';
 
 /** عنصر فرعي بمجموعة "العقارات" بالشريط — كانت تبويبًا داخل /properties، أصبحت صفحتها الخاصة. */
 export default function BuildingsPage() {
   const { me, accessToken } = useCurrentUser();
+  const { pages } = useLocale();
+  const t = pages.buildings;
   const router = useRouter();
   const [buildings, setBuildings] = useState<Building[] | null>(null);
   const [showCreate, setShowCreate] = useState(false);
@@ -33,19 +36,19 @@ export default function BuildingsPage() {
 
   return (
     <AppShell
-      title="العمارات"
+      title={t.list.title}
       orgName={me.tenant.name_ar}
       accountType={me.tenant.account_type}
     >
       <div className="mb-5 flex items-center justify-end">
-        {canManage && <Button onClick={() => setShowCreate(true)}>+ إضافة عمارة</Button>}
+        {canManage && <Button onClick={() => setShowCreate(true)}>{t.list.addButton}</Button>}
       </div>
       {showCreate && (
-        <Modal title="إضافة عمارة" onClose={() => setShowCreate(false)}>
+        <Modal title={t.list.createModalTitle} onClose={() => setShowCreate(false)}>
           <BuildingForm
             mode="create"
             accessToken={accessToken}
-            submitLabel="إضافة العمارة"
+            submitLabel={t.list.createSubmitLabel}
             onSubmit={async (input) => {
               const { building } = await createBuilding(accessToken, input as BuildingInput);
               router.push(`/buildings/${building.id}`);
@@ -57,14 +60,14 @@ export default function BuildingsPage() {
         {buildings === null ? (
           <TableSkeleton columns={2} />
         ) : buildings.length === 0 ? (
-          <p className="text-text-secondary p-6 text-center">لا توجد عمارات بعد</p>
+          <p className="text-text-secondary p-6 text-center">{t.list.emptyState}</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[420px] text-sm">
               <thead className="bg-surface-header text-text-secondary text-right">
                 <tr>
-                  <th className="px-5 py-3 font-medium">اسم العمارة</th>
-                  <th className="px-5 py-3 font-medium">عدد الطوابق</th>
+                  <th className="px-5 py-3 font-medium">{t.list.table.name}</th>
+                  <th className="px-5 py-3 font-medium">{t.list.table.floorsCount}</th>
                 </tr>
               </thead>
               <tbody>

@@ -7,13 +7,11 @@ import { Badge } from '@/components/ui/badge';
 import { DashboardHomeSkeleton } from '@/components/dashboard/dashboard-home-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { getDashboardSummary, type DashboardSummary } from '@/lib/api/dashboard';
-import { LEAD_SOURCE_LABELS, LEAD_STATUS_LABELS } from '@/lib/lead/labels';
+import { useLocale } from '@/lib/i18n/locale-context';
 
-const WEEKDAY_AR = ['أحد', 'إثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة', 'سبت'];
-
-function dayLabel(dateIso: string, range: 7 | 30): string {
+function dayLabel(dateIso: string, range: 7 | 30, weekdayShort: readonly string[]): string {
   const d = new Date(dateIso + 'T00:00:00Z');
-  return range === 7 ? (WEEKDAY_AR[d.getUTCDay()] ?? '') : String(d.getUTCDate());
+  return range === 7 ? (weekdayShort[d.getUTCDay()] ?? '') : String(d.getUTCDate());
 }
 
 function KpiCard({ label, value, delta, deltaTone }: { label: string; value: string; delta: string; deltaTone: 'success' | 'warning' | 'muted' }) {
@@ -31,6 +29,8 @@ function KpiCard({ label, value, delta, deltaTone }: { label: string; value: str
 
 export default function DashboardHomePage() {
   const { me, accessToken } = useCurrentUser();
+  const { pages } = useLocale();
+  const t = pages.dashboardHome;
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [range, setRange] = useState<7 | 30>(7);
 
@@ -42,41 +42,41 @@ export default function DashboardHomePage() {
   const maxCount = Math.max(1, ...bars.map((b) => b.count));
 
   return (
-    <AppShell title="لوحة القيادة" orgName={me.tenant.name_ar} accountType={me.tenant.account_type}>
+    <AppShell title={t.title} orgName={me.tenant.name_ar} accountType={me.tenant.account_type}>
       {summary === null ? (
         <DashboardHomeSkeleton />
       ) : (
         <div className="flex flex-col gap-5">
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             <KpiCard
-              label="العقارات المنشورة"
+              label={t.kpis.publishedProperties}
               value={summary.properties.published.toLocaleString('en-US')}
-              delta={`+${summary.properties.published_this_month} هذا الشهر`}
+              delta={t.kpis.publishedThisMonth(summary.properties.published_this_month)}
               deltaTone="success"
             />
             <KpiCard
-              label="المشاهدات (٣٠ يومًا)"
+              label={t.kpis.views}
               value={summary.property_views ? summary.property_views.total.toLocaleString('en-US') : '—'}
               delta={
                 summary.property_views?.delta_pct !== null && summary.property_views?.delta_pct !== undefined
-                  ? `${summary.property_views.delta_pct >= 0 ? '+' : ''}${summary.property_views.delta_pct}% مقابل الأسبوع السابق`
-                  : 'لا تتوفر بيانات كافية بعد'
+                  ? t.kpis.viewsDelta(summary.property_views.delta_pct)
+                  : t.kpis.viewsNotEnoughData
               }
               deltaTone={summary.property_views && (summary.property_views.delta_pct ?? 0) >= 0 ? 'success' : 'warning'}
             />
             <KpiCard
-              label="العملاء المحتملون"
+              label={t.kpis.leads}
               value={summary.leads.total.toLocaleString('en-US')}
-              delta={`+${summary.leads.this_month} هذا الشهر`}
+              delta={t.kpis.leadsThisMonth(summary.leads.this_month)}
               deltaTone="warning"
             />
-            <KpiCard label="معدل التحويل" value={`${summary.leads.conversion_rate}%`} delta="من إجمالي العملاء المحتملين" deltaTone="muted" />
+            <KpiCard label={t.kpis.conversionRate} value={`${summary.leads.conversion_rate}%`} delta={t.kpis.ofAllLeads} deltaTone="muted" />
           </div>
 
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.4fr_1fr]">
             <div className="flex flex-col gap-[18px] rounded-[18px] bg-surface-card p-[22px] shadow-[0_2px_12px_rgba(31,29,34,.06)]">
               <div className="flex items-center justify-between">
-                <h2 className="text-base font-semibold text-text-primary">المشاهدات</h2>
+                <h2 className="text-base font-semibold text-text-primary">{t.viewsChart.title}</h2>
                 {summary.property_views && (
                   <div className="flex gap-0.5 rounded-full bg-surface-subtle-3 p-[3px]">
                     {([7, 30] as const).map((r) => (
@@ -88,7 +88,7 @@ export default function DashboardHomePage() {
                           range === r ? 'bg-surface-card text-text-primary shadow-sm' : 'text-text-secondary'
                         }`}
                       >
-                        {r === 7 ? '٧ أيام' : '٣٠ يومًا'}
+                        {r === 7 ? t.viewsChart.range7Days : t.viewsChart.range30Days}
                       </button>
                     ))}
                   </div>
@@ -104,24 +104,24 @@ export default function DashboardHomePage() {
                         style={{ height: `${Math.max(3, (b.count / maxCount) * 100)}%` }}
                         title={`${b.date}: ${b.count}`}
                       />
-                      <span className="text-[11px] text-text-placeholder">{dayLabel(b.date, range)}</span>
+                      <span className="text-[11px] text-text-placeholder">{dayLabel(b.date, range, t.weekdayShort)}</span>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-text-secondary">إحصائيات المشاهدات غير متاحة لصلاحيتك.</p>
+                <p className="text-sm text-text-secondary">{t.viewsChart.unavailable}</p>
               )}
             </div>
 
             <div className="flex flex-col gap-3 rounded-[18px] bg-surface-card p-[22px] shadow-[0_2px_12px_rgba(31,29,34,.06)]">
               <div className="flex items-center justify-between">
-                <h2 className="text-base font-semibold text-text-primary">آخر العملاء المحتملين</h2>
+                <h2 className="text-base font-semibold text-text-primary">{t.latestLeads.title}</h2>
                 <Link href="/leads" className="text-xs font-semibold text-brand">
-                  عرض الكل
+                  {t.latestLeads.viewAll}
                 </Link>
               </div>
               {summary.latest_leads.length === 0 ? (
-                <p className="text-sm text-text-secondary">لا يوجد عملاء محتملون بعد.</p>
+                <p className="text-sm text-text-secondary">{t.latestLeads.emptyState}</p>
               ) : (
                 <div className="flex flex-col">
                   {summary.latest_leads.map((lead) => (
@@ -135,9 +135,9 @@ export default function DashboardHomePage() {
                       </span>
                       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                         <span className="truncate text-[13px] font-medium text-text-primary">{lead.full_name}</span>
-                        <span className="text-[11px] text-text-secondary">{LEAD_SOURCE_LABELS[lead.source]}</span>
+                        <span className="text-[11px] text-text-secondary">{pages.leads.sourceLabels[lead.source]}</span>
                       </div>
-                      <Badge status={lead.status} label={LEAD_STATUS_LABELS[lead.status]} />
+                      <Badge status={lead.status} label={pages.leads.statusLabels[lead.status]} />
                     </Link>
                   ))}
                 </div>

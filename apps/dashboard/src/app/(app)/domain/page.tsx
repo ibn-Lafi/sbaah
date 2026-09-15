@@ -12,6 +12,7 @@ import { FormError } from '@/components/ui/form-error';
 import { SegmentedToggle } from '@/components/ui/segmented-toggle';
 import { DomainSkeleton } from '@/components/domain/domain-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
+import { useLocale } from '@/lib/i18n/locale-context';
 import { getPlatformRootDomain } from '@/lib/env/platform-root-domain';
 import {
   getDomain,
@@ -39,13 +40,15 @@ function CustomDomainCard({
   const [loading, setLoading] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [notVerifiedYet, setNotVerifiedYet] = useState(false);
+  const { pages } = useLocale();
+  const t = pages.domain;
 
   async function handleSet(event: FormEvent) {
     event.preventDefault();
     setError(null);
     const result = customDomainInputSchema.safeParse({ custom_domain: input });
     if (!result.success) {
-      setError(result.error.issues[0]?.message ?? 'صيغة الدومين غير صحيحة');
+      setError(result.error.issues[0]?.message ?? t.customDomain.invalidFormat);
       return;
     }
     setLoading(true);
@@ -54,7 +57,7 @@ function CustomDomainCard({
       setInput('');
       onChanged();
     } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : 'تعذّر ربط الدومين');
+      setError(err instanceof ApiRequestError ? err.message : t.customDomain.connectFailed);
     } finally {
       setLoading(false);
     }
@@ -82,7 +85,7 @@ function CustomDomainCard({
         setNotVerifiedYet(true);
       }
     } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : 'تعذّر التحقق من الربط');
+      setError(err instanceof ApiRequestError ? err.message : t.customDomain.verifyFailed);
     } finally {
       setVerifying(false);
     }
@@ -90,8 +93,8 @@ function CustomDomainCard({
 
   return (
     <Card className="p-6">
-      <h2 className="text-text-primary mb-1 text-base font-semibold">الدومين المخصص</h2>
-      <p className="text-text-secondary mb-4 text-sm">اربط دومينك الخاص بموقعك بدل النطاق الفرعي</p>
+      <h2 className="text-text-primary mb-1 text-base font-semibold">{t.customDomain.title}</h2>
+      <p className="text-text-secondary mb-4 text-sm">{t.customDomain.subtitle}</p>
 
       {domain.custom_domain ? (
         <div className="flex flex-col gap-4">
@@ -113,7 +116,11 @@ function CustomDomainCard({
             </span>
             <Badge
               status={domain.custom_domain_status === 'verified' ? 'active' : 'draft'}
-              label={domain.custom_domain_status === 'verified' ? 'مُفعّل' : 'بانتظار ربط DNS'}
+              label={
+                domain.custom_domain_status === 'verified'
+                  ? t.customDomain.statusVerified
+                  : t.customDomain.statusPending
+              }
             />
           </div>
           {domain.custom_domain_status === 'pending' && domain.dns_records.length > 0 && (
@@ -139,10 +146,7 @@ function CustomDomainCard({
                   </div>
                 ))}
               </div>
-              <p className="text-text-secondary text-xs">
-                أضِف كلا السجلين لدى مزوّد الدومين — CNAME للربط وTXT لإثبات الملكية، كلاهما مطلوب
-                قبل تفعيل الشهادة.
-              </p>
+              <p className="text-text-secondary text-xs">{t.customDomain.dnsInstructions}</p>
               <Button
                 type="button"
                 variant="secondary"
@@ -150,13 +154,10 @@ function CustomDomainCard({
                 onClick={() => void handleVerify()}
                 className="w-fit"
               >
-                اختبار الربط
+                {t.customDomain.verifyConnection}
               </Button>
               {notVerifiedYet && (
-                <p className="text-warning text-sm">
-                  لم يتم رصد الربط بعد — تأكد من إضافة السجلين أعلاه بالضبط لدى مزوّد الدومين، وقد
-                  يستغرق انتشارها حتى ساعات قليلة قبل إعادة المحاولة.
-                </p>
+                <p className="text-warning text-sm">{t.customDomain.notVerifiedYet}</p>
               )}
             </>
           )}
@@ -166,13 +167,13 @@ function CustomDomainCard({
             disabled={loading}
             className="text-danger w-fit text-sm font-medium"
           >
-            إلغاء ربط الدومين
+            {t.customDomain.removeDomain}
           </button>
         </div>
       ) : (
         <form onSubmit={handleSet} className="flex flex-col gap-3 sm:flex-row sm:items-end">
           <div className="flex min-w-0 flex-1 flex-col gap-2">
-            <label className="text-text-primary text-sm font-medium">اسم الدومين</label>
+            <label className="text-text-primary text-sm font-medium">{t.customDomain.domainNameLabel}</label>
             <Input
               placeholder="example.com"
               value={input}
@@ -182,7 +183,7 @@ function CustomDomainCard({
             />
           </div>
           <Button type="submit" disabled={loading} className="sm:w-fit">
-            {loading ? 'جارٍ الربط...' : 'ربط الدومين'}
+            {loading ? t.customDomain.connecting : t.customDomain.connectDomain}
           </Button>
         </form>
       )}
@@ -206,13 +207,15 @@ function SubdomainCard({
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const rootDomain = getPlatformRootDomain();
+  const { pages } = useLocale();
+  const t = pages.domain;
 
   async function handleSave(event: FormEvent) {
     event.preventDefault();
     setError(null);
     const result = subdomainInputSchema.safeParse({ subdomain: input });
     if (!result.success) {
-      setError(result.error.issues[0]?.message ?? 'نطاق فرعي غير صحيح');
+      setError(result.error.issues[0]?.message ?? t.subdomain.invalidFormat);
       return;
     }
     setLoading(true);
@@ -220,19 +223,19 @@ function SubdomainCard({
       await updateSubdomain(accessToken, result.data.subdomain);
       window.location.reload();
     } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : 'تعذّر تحديث النطاق الفرعي');
+      setError(err instanceof ApiRequestError ? err.message : t.subdomain.updateFailed);
       setLoading(false);
     }
   }
 
   return (
     <Card className="p-6">
-      <h2 className="text-text-primary mb-1 text-base font-semibold">النطاق الفرعي</h2>
-      <p className="text-text-secondary mb-4 text-sm">عنوان موقعك الأساسي على سبعة</p>
+      <h2 className="text-text-primary mb-1 text-base font-semibold">{t.subdomain.title}</h2>
+      <p className="text-text-secondary mb-4 text-sm">{t.subdomain.subtitle}</p>
 
       {canEdit ? (
         <form onSubmit={handleSave} className="flex flex-col gap-3">
-          <label className="text-text-primary text-sm font-medium">اسم المستخدم</label>
+          <label className="text-text-primary text-sm font-medium">{t.subdomain.usernameLabel}</label>
           <div
             className="rounded-input border-border-default flex max-w-[400px] items-stretch overflow-hidden border"
             dir="ltr"
@@ -252,14 +255,14 @@ function SubdomainCard({
           </p>
           <FormError message={error} />
           <Button type="submit" disabled={loading} className="w-fit">
-            {loading ? 'جارٍ الحفظ...' : 'حفظ التغييرات'}
+            {loading ? t.subdomain.saving : t.subdomain.saveChanges}
           </Button>
           {showUpsell && (
             <Link
               href="/billing"
               className="rounded-input bg-brand-surface text-brand px-4 py-3 text-sm hover:underline"
             >
-              رقّي باقتك لربط دومين مخصص بدل النطاق الفرعي
+              {t.subdomain.upsell}
             </Link>
           )}
         </form>
@@ -275,6 +278,8 @@ function SubdomainCard({
 /** الدومين — عنصر قائمة مستقل (مطابق للتصميم)، يجمع النطاق الفرعي والدومين المخصص بدل تفرقتهما بين الإعدادات ومحرر الموقع كما كان سابقًا. */
 export default function DomainPage() {
   const { me, accessToken } = useCurrentUser();
+  const { pages } = useLocale();
+  const t = pages.domain;
   const [domain, setDomainState] = useState<DomainInfo | null>(null);
   const [mode, setMode] = useState<DomainMode>('custom');
   const canEdit = me.user.role === 'owner';
@@ -287,7 +292,7 @@ export default function DomainPage() {
 
   return (
     <AppShell
-      title="الدومين"
+      title={t.pageTitle}
       orgName={me.tenant.name_ar}
       accountType={me.tenant.account_type}
     >
@@ -308,8 +313,8 @@ export default function DomainPage() {
               value={mode}
               onChange={setMode}
               options={[
-                { value: 'custom', label: 'الدومين المخصص' },
-                { value: 'subdomain', label: 'النطاق الفرعي' },
+                { value: 'custom', label: t.modeToggle.custom },
+                { value: 'subdomain', label: t.modeToggle.subdomain },
               ]}
             />
             {mode === 'custom' ? (

@@ -13,14 +13,16 @@ import { Modal } from '@/components/ui/modal';
 import { Select } from '@/components/ui/select';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
+import { useLocale } from '@/lib/i18n/locale-context';
 import { listProperties } from '@/lib/api/properties';
 import { listRentals, createRental } from '@/lib/api/rentals';
-import { RENTAL_STATUS_LABELS } from '@/lib/rental/labels';
 import { formatDate } from '@/lib/format/date';
 
 /** عنصر فرعي بمجموعة "العقارات" بالشريط — كانت تبويبًا داخل /properties، أصبحت صفحتها الخاصة. */
 export default function RentalsPage() {
   const { me, accessToken } = useCurrentUser();
+  const { pages } = useLocale();
+  const t = pages.rentals;
   const router = useRouter();
   const [rentals, setRentals] = useState<Rental[] | null>(null);
   const [properties, setProperties] = useState<Record<string, Property>>({});
@@ -52,7 +54,7 @@ export default function RentalsPage() {
 
   return (
     <AppShell
-      title="الإيجارات"
+      title={t.pageTitle}
       orgName={me.tenant.name_ar}
       accountType={me.tenant.account_type}
     >
@@ -63,21 +65,21 @@ export default function RentalsPage() {
           className="w-[140px]"
           compact
         >
-          <option value="">كل الحالات</option>
-          {Object.entries(RENTAL_STATUS_LABELS).map(([value, label]) => (
+          <option value="">{t.allStatuses}</option>
+          {Object.entries(t.statusLabels).map(([value, label]) => (
             <option key={value} value={value}>
               {label}
             </option>
           ))}
         </Select>
-        <Button onClick={() => setShowCreate(true)}>+ إضافة إيجار</Button>
+        <Button onClick={() => setShowCreate(true)}>{t.addRental}</Button>
       </div>
       {showCreate && (
-        <Modal title="إضافة إيجار" onClose={() => setShowCreate(false)}>
+        <Modal title={t.createModalTitle} onClose={() => setShowCreate(false)}>
           <RentalForm
             mode="create"
             accessToken={accessToken}
-            submitLabel="إضافة الإيجار"
+            submitLabel={t.createSubmitLabel}
             onSubmit={async (input) => {
               const { rental } = await createRental(accessToken, input as RentalInput);
               router.push(`/rentals/${rental.id}`);
@@ -89,17 +91,17 @@ export default function RentalsPage() {
         {rentals === null ? (
           <TableSkeleton columns={5} />
         ) : rentals.length === 0 ? (
-          <p className="text-text-secondary p-6 text-center">لا توجد عقود إيجار بعد</p>
+          <p className="text-text-secondary p-6 text-center">{t.emptyState}</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[700px] text-sm">
               <thead className="bg-surface-header text-text-secondary text-right">
                 <tr>
-                  <th className="px-5 py-3 font-medium">العقار</th>
-                  <th className="px-5 py-3 font-medium">المستأجر</th>
-                  <th className="px-5 py-3 font-medium">الإيجار</th>
-                  <th className="px-5 py-3 font-medium">نهاية العقد</th>
-                  <th className="px-5 py-3 font-medium">الحالة</th>
+                  <th className="px-5 py-3 font-medium">{t.table.property}</th>
+                  <th className="px-5 py-3 font-medium">{t.table.tenant}</th>
+                  <th className="px-5 py-3 font-medium">{t.table.rent}</th>
+                  <th className="px-5 py-3 font-medium">{t.table.contractEnd}</th>
+                  <th className="px-5 py-3 font-medium">{t.table.status}</th>
                 </tr>
               </thead>
               <tbody>
@@ -115,13 +117,13 @@ export default function RentalsPage() {
                     </td>
                     <td className="text-text-secondary px-5 py-3">{rental.tenant_name}</td>
                     <td className="text-text-secondary px-5 py-3" dir="ltr">
-                      {rental.rent_amount.toLocaleString('en-US')} ر.س
+                      {rental.rent_amount.toLocaleString('en-US')} {t.table.currencySuffix}
                     </td>
                     <td className="text-text-secondary px-5 py-3" dir="ltr">
                       {formatDate(rental.contract_end_date)}
                     </td>
                     <td className="px-5 py-3">
-                      <Badge status={rental.status} label={RENTAL_STATUS_LABELS[rental.status]} />
+                      <Badge status={rental.status} label={t.statusLabels[rental.status]} />
                     </td>
                   </tr>
                 ))}

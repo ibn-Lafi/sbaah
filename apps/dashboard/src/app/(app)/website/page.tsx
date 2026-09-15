@@ -8,6 +8,7 @@ import { FormError } from '@/components/ui/form-error';
 import { ThemeGallerySkeleton } from '@/components/website/theme-gallery-skeleton';
 import { ThemeGallery } from '@/components/website/theme-gallery';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
+import { useLocale } from '@/lib/i18n/locale-context';
 import { getWebsite, updateWebsite } from '@/lib/api/website';
 import { listThemes } from '@/lib/api/reference-data';
 import { ApiRequestError } from '@/lib/api/client';
@@ -15,6 +16,8 @@ import { ApiRequestError } from '@/lib/api/client';
 /** متجر الثيمات — theme selection only. Content editing (أقسام/صفحات/ألوان) is a separate screen, reached via the selected theme's "تخصيص الثيم" button — see /website/editor. Domain management moved to its own top-level nav item, /domain. */
 export default function ThemeStorePage() {
   const { me, accessToken } = useCurrentUser();
+  const { pages } = useLocale();
+  const t = pages.website;
   const [website, setWebsite] = useState<Website | null>(null);
   const [themes, setThemes] = useState<Theme[]>([]);
   const [error, setError] = useState<string | null>(null);
