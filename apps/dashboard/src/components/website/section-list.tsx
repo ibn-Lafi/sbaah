@@ -1,12 +1,11 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import type { Website, WebsiteSection } from '@sbaah/shared';
+import type { WebsiteSection } from '@sbaah/shared';
 import { SectionRowMenu } from './section-row-menu';
 import { useLocale } from '@/lib/i18n/locale-context';
 import { reorderSections } from '@/lib/api/website';
-import { SectionConfigEditor } from './section-config-editor';
-import { Modal } from '@/components/ui/modal';
+import { PencilIcon } from './editor-icons';
 
 interface SectionListProps {
   /** أقسام مُفعَّلة (ظاهرة) فقط — الإخفاء يُزيل القسم من هذه القائمة عائدًا لمكتبة "إضافة قسم" (onHide/onDuplicate، مُدارتان بصفحة المحرر نفسها ككل الأقسام معًا، بما فيها المخفية). */
@@ -15,8 +14,8 @@ interface SectionListProps {
   onChange: (sections: WebsiteSection[]) => void;
   onHide: (section: WebsiteSection) => void;
   onDuplicate: (section: WebsiteSection) => void;
-  website: Website;
-  onWebsiteUpdate: (website: Website) => void;
+  /** "تحرير المحتوى" يُعرض بلوحة الصفحة نفسها (بديلة عن قائمة الأقسام)، لا هنا — صفحة المحرر تملك تلك الحالة. */
+  onEdit: (sectionId: string) => void;
 }
 
 export const EDITABLE_TYPES: WebsiteSection['type'][] = ['hero', 'about', 'why_us', 'contact'];
@@ -26,11 +25,10 @@ export const EDITABLE_TYPES: WebsiteSection['type'][] = ['hero', 'about', 'why_u
  * reorder doesn't need a full DnD library. Each drop persists the whole
  * new order in one call (sectionReorderSchema, PRODUCT_SPEC section 6).
  */
-export function SectionList({ sections, accessToken, onChange, onHide, onDuplicate, website, onWebsiteUpdate }: SectionListProps) {
+export function SectionList({ sections, accessToken, onChange, onHide, onDuplicate, onEdit }: SectionListProps) {
   const { pages } = useLocale();
   const t = pages.website;
   const [ordered, setOrdered] = useState(sections);
-  const [editingId, setEditingId] = useState<string | null>(null);
   const dragIndex = useRef<number | null>(null);
 
   // "sections" يتغيّر من خارج هذا المكوّن أيضًا الآن (إضافة/إخفاء قسم من
@@ -55,13 +53,6 @@ export function SectionList({ sections, accessToken, onChange, onHide, onDuplica
     ).then((result) => onChange(result.sections));
   }
 
-  function handleConfigSaved(updated: WebsiteSection) {
-    const next = ordered.map((item) => (item.id === updated.id ? updated : item));
-    setOrdered(next);
-    onChange(next);
-    setEditingId(null);
-  }
-
   return (
     <div className="flex flex-col gap-2">
       {ordered.map((section, index) => (
@@ -83,34 +74,18 @@ export function SectionList({ sections, accessToken, onChange, onHide, onDuplica
             {EDITABLE_TYPES.includes(section.type) && (
               <button
                 type="button"
-                onClick={() => setEditingId(section.id)}
-                className="text-xs font-semibold text-brand hover:underline"
+                onClick={() => onEdit(section.id)}
+                aria-label={t.sectionList.editContent}
+                title={t.sectionList.editContent}
+                className="text-text-secondary hover:text-brand"
               >
-                {t.sectionList.editContent}
+                <PencilIcon className="h-[16px] w-[16px]" />
               </button>
             )}
             <SectionRowMenu onHide={() => onHide(section)} onDuplicate={() => onDuplicate(section)} />
           </div>
         </div>
       ))}
-
-      {/* "تحرير المحتوى" بنافذة منبثقة (طلب المؤسس) بدل التمدد ضمن القائمة. */}
-      {editingId &&
-        (() => {
-          const editingSection = ordered.find((s) => s.id === editingId);
-          if (!editingSection) return null;
-          return (
-            <Modal title={t.sectionTypeLabels[editingSection.type]} onClose={() => setEditingId(null)}>
-              <SectionConfigEditor
-                section={editingSection}
-                accessToken={accessToken}
-                onSaved={handleConfigSaved}
-                website={website}
-                onWebsiteUpdate={onWebsiteUpdate}
-              />
-            </Modal>
-          );
-        })()}
     </div>
   );
 }

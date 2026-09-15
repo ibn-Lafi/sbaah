@@ -74,7 +74,7 @@ export default function WebsiteEditorPage() {
     content: true,
     bottom: true,
   });
-  const [mobileEditingId, setMobileEditingId] = useState<string | null>(null);
+  const [editingSectionId, setEditingSectionId] = useState<string | null>(null);
   const [addSectionOpen, setAddSectionOpen] = useState(false);
   const [addSectionQuery, setAddSectionQuery] = useState('');
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
@@ -99,6 +99,7 @@ export default function WebsiteEditorPage() {
   // كنفاس حر")، فـ"الإضافة" هنا تعني تفعيل قسم مخفٍ لا إنشاء نوع جديد.
   const visibleContentSections = contentSections.filter((s) => s.is_visible);
   const hiddenContentSections = contentSections.filter((s) => !s.is_visible);
+  const editingSection = visibleContentSections.find((s) => s.id === editingSectionId) ?? null;
   const selectedAddSection = hiddenContentSections.find((s) => s.id === selectedSectionId);
   const filteredHiddenSections = hiddenContentSections.filter((s) =>
     t.sectionTypeLabels[s.type].toLowerCase().includes(addSectionQuery.trim().toLowerCase()),
@@ -184,6 +185,16 @@ export default function WebsiteEditorPage() {
     await patchSection(section.id, { is_visible: !section.is_visible });
   }
 
+  /** بعد حفظ "تحرير المحتوى" (لوحة الصفحة، جوال وكمبيوتر معًا) — تحديث حالة الصفحة وإغلاق لوحة التحرير عائدًا لقائمة الأقسام. */
+  function handleSectionSaved(updated: WebsiteSection) {
+    if (!activePage) return;
+    mergeSections(activePage.id, [
+      ...visibleContentSections.map((s) => (s.id === updated.id ? updated : s)),
+      ...hiddenContentSections,
+    ]);
+    setEditingSectionId(null);
+  }
+
   /** بند "تكرار القسم" بقائمة SectionRowMenu — ينسخ الصف عبر duplicateSection API، ويضيفه لحالة الصفحة النشطة. */
   async function duplicateSectionHandler(section: WebsiteSection) {
     if (!activePage) return;
@@ -240,7 +251,7 @@ export default function WebsiteEditorPage() {
             onChange={(e) => {
               setActivePageKey(e.target.value as WebsitePageKey);
               setPanelView('sections');
-              setMobileEditingId(null);
+              setEditingSectionId(null);
             }}
             className="bg-surface-subtle-3 !h-9 flex-1 !rounded-full border-0 px-4 text-sm"
           >
@@ -253,7 +264,32 @@ export default function WebsiteEditorPage() {
         </div>
 
         <div className="flex-1 overflow-auto">
-          {panelView === 'sections' ? (
+          {editingSection ? (
+            <>
+              {/* "تحرير المحتوى" يستبدل قائمة الأقسام بنفس اللوحة (طلب المؤسس) بدل نافذة منبثقة منفصلة — تمامًا كتبديل لوحة "إعدادات الصفحة". */}
+              <div className="flex items-center justify-between px-4 pt-4">
+                <h1 className="text-text-primary text-base font-semibold">{t.sectionTypeLabels[editingSection.type]}</h1>
+                <button
+                  type="button"
+                  onClick={() => setEditingSectionId(null)}
+                  aria-label={t.sectionList.closeEdit}
+                  title={t.sectionList.closeEdit}
+                  className="text-text-secondary hover:text-brand"
+                >
+                  <CloseIcon className="h-[18px] w-[18px]" />
+                </button>
+              </div>
+              <div className="px-4 py-4">
+                <SectionConfigEditor
+                  section={editingSection}
+                  accessToken={accessToken}
+                  website={website}
+                  onWebsiteUpdate={(updated) => setWebsite(updated)}
+                  onSaved={handleSectionSaved}
+                />
+              </div>
+            </>
+          ) : panelView === 'sections' ? (
             <>
               <div className="flex items-center justify-between px-4 pt-4">
                 <h1 className="text-text-primary text-base font-semibold">
@@ -336,7 +372,7 @@ export default function WebsiteEditorPage() {
                           {EDITABLE_TYPES.includes(section.type) && (
                             <button
                               type="button"
-                              onClick={() => setMobileEditingId(section.id)}
+                              onClick={() => setEditingSectionId(section.id)}
                               aria-label={t.sectionList.editContent}
                               title={t.sectionList.editContent}
                               className="text-text-secondary hover:text-brand"
@@ -363,31 +399,6 @@ export default function WebsiteEditorPage() {
                   </div>
                 )}
               </div>
-
-              {/* "تحرير المحتوى" (جوال) بنافذة منبثقة (طلب المؤسس) بدل التمدد ضمن القائمة. */}
-              {mobileEditingId &&
-                (() => {
-                  const editingSection = visibleContentSections.find((s) => s.id === mobileEditingId);
-                  if (!editingSection) return null;
-                  return (
-                    <Modal title={t.sectionTypeLabels[editingSection.type]} onClose={() => setMobileEditingId(null)}>
-                      <SectionConfigEditor
-                        section={editingSection}
-                        accessToken={accessToken}
-                        website={website}
-                        onWebsiteUpdate={(updated) => setWebsite(updated)}
-                        onSaved={(updated) => {
-                          if (!activePage) return;
-                          mergeSections(activePage.id, [
-                            ...visibleContentSections.map((s) => (s.id === updated.id ? updated : s)),
-                            ...hiddenContentSections,
-                          ]);
-                          setMobileEditingId(null);
-                        }}
-                      />
-                    </Modal>
-                  );
-                })()}
 
               {/* أسفل الصفحة */}
               <div className="border-border-subtle border-t px-4 py-4">
@@ -560,7 +571,32 @@ export default function WebsiteEditorPage() {
         {/* Panel + preview — panel first in DOM so it renders on the right under RTL, matching the reference tool. */}
         <div className="flex min-h-0 flex-1">
           <div className="border-border-subtle bg-surface-card flex w-[360px] flex-none flex-col overflow-auto border-e">
-            {panelView === 'sections' ? (
+            {editingSection ? (
+              <>
+                {/* "تحرير المحتوى" يستبدل قائمة الأقسام بنفس اللوحة (طلب المؤسس) بدل نافذة منبثقة منفصلة — تمامًا كتبديل لوحة "إعدادات الصفحة". */}
+                <div className="border-border-subtle flex h-14 flex-none items-center justify-between border-b px-4">
+                  <h2 className="text-text-primary text-sm font-semibold">{t.sectionTypeLabels[editingSection.type]}</h2>
+                  <button
+                    type="button"
+                    onClick={() => setEditingSectionId(null)}
+                    aria-label={t.sectionList.closeEdit}
+                    title={t.sectionList.closeEdit}
+                    className="text-text-secondary hover:text-brand"
+                  >
+                    <CloseIcon className="h-[17px] w-[17px]" />
+                  </button>
+                </div>
+                <div className="flex-1 overflow-auto p-4">
+                  <SectionConfigEditor
+                    section={editingSection}
+                    accessToken={accessToken}
+                    website={website}
+                    onWebsiteUpdate={(updated) => setWebsite(updated)}
+                    onSaved={handleSectionSaved}
+                  />
+                </div>
+              </>
+            ) : panelView === 'sections' ? (
               <>
                 <div className="border-border-subtle flex h-14 flex-none items-center justify-between border-b px-4">
                   <h2 className="text-text-primary text-sm font-semibold">
@@ -643,8 +679,7 @@ export default function WebsiteEditorPage() {
                             }
                             onHide={(section) => void toggleSectionVisibility(section)}
                             onDuplicate={(section) => void duplicateSectionHandler(section)}
-                            website={website}
-                            onWebsiteUpdate={(updated) => setWebsite(updated)}
+                            onEdit={(sectionId) => setEditingSectionId(sectionId)}
                           />
                         )}
                         <button
@@ -751,6 +786,7 @@ export default function WebsiteEditorPage() {
                 onChange={(e) => {
                   setActivePageKey(e.target.value as WebsitePageKey);
                   setPanelView('sections');
+                  setEditingSectionId(null);
                 }}
                 className="bg-surface-subtle-3 !h-10 w-[170px] !rounded-full border-0 px-4 text-sm"
               >
