@@ -62,8 +62,9 @@ function getPinnedItems(items: NavEntry[]): PinnedNavItem[] {
  * Mobile-only bottom nav (md:hidden) — the sidebar (sidebar.tsx) is fixed-
  * width and desktop-only, so phones need their own chrome. Matches the
  * founder's Zid reference screenshots: a floating pill bar with the 3
- * most-used pages plus a 4th pinned "الإعدادات" entry, and a circular
- * button that opens a partial-width sheet listing every other page.
+ * most-used pages, and a circular button that opens a partial-width sheet
+ * listing every other page, with "الإعدادات" pinned in its own row below
+ * that list rather than sharing the bottom pill bar.
  * حسابي/إدارة الموظفين/الفوترة/تسجيل الخروج all live inside /settings now
  * (its tabbed shell) — topbar.tsx no longer has a mobile account popover.
  */
@@ -76,14 +77,8 @@ export function MobileNav({ orgName, accountType }: MobileNavProps) {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
   const visibleItems = getNavItems(t).filter((item) => !item.roles || item.roles.includes(me.user.role));
-  // الإعدادات ليست ضمن nav-items.ts (تعيش هناك فقط في قائمة الحساب بالشريط
-  // الجانبي لسطح المكتب)، فتُضاف هنا مباشرة بدل تمريرها عبر PINNED_KEYS —
-  // هذه أيقونتها الوحيدة على الجوال الآن، تحل محل زر الحساب المنبثق الذي
-  // كان بالهيدر (topbar.tsx لم يعد يعرضه على الجوال إطلاقًا).
-  const pinnedItems: PinnedNavItem[] = [
-    ...getPinnedItems(visibleItems),
-    { key: 'settings', href: '/settings', label: t.mobileNav.settings, icon: SettingsIcon, activeHrefs: ['/settings'] },
-  ];
+  const pinnedItems: PinnedNavItem[] = getPinnedItems(visibleItems);
+  const settingsActive = pathname === '/settings';
 
   useEffect(() => {
     if (!sheetOpen) return;
@@ -171,10 +166,7 @@ export function MobileNav({ orgName, accountType }: MobileNavProps) {
           </button>
         </div>
 
-        <div
-          className="flex-1 overflow-auto overscroll-contain p-3"
-          style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 12px)' }}
-        >
+        <div className="flex-1 overflow-auto overscroll-contain p-3">
           <div className="bg-surface-subtle flex items-center gap-[9px] rounded-[14px] px-3 py-3">
             <AccountAvatar accountType={accountType} />
             <div className="flex min-w-0 flex-1 flex-col gap-px">
@@ -252,6 +244,24 @@ export function MobileNav({ orgName, accountType }: MobileNavProps) {
               );
             })}
           </nav>
+        </div>
+
+        <div
+          className="border-border-subtle flex-none border-t p-3"
+          style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 12px)' }}
+        >
+          <Link
+            href="/settings"
+            onClick={(e) => handleNavigate(e, '/settings')}
+            className={`border-border-subtle flex h-11 flex-none items-center gap-2 rounded-[10px] border px-[10px] text-[15px] ${
+              settingsActive
+                ? 'bg-brand-surface text-brand font-semibold'
+                : 'text-text-primary font-normal'
+            }`}
+          >
+            <SettingsIcon className="h-[17px] w-[17px] flex-none" />
+            {t.mobileNav.settings}
+          </Link>
         </div>
       </div>
     </div>
