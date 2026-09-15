@@ -177,12 +177,7 @@ export function BuildingForm({
           disabled={!form.city_id}
           clearable
           onCreate={async (name) => {
-            const district = await createDistrict(accessToken, {
-              city_id: form.city_id,
-              name_ar: name,
-              lat: form.location?.lat ?? null,
-              lng: form.location?.lng ?? null,
-            });
+            const district = await createDistrict(accessToken, { city_id: form.city_id, name_ar: name });
             setDistricts((prev) => [...prev, district]);
             return { value: district.id, label: district.name_ar };
           }}
