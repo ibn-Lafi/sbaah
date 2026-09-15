@@ -34,11 +34,12 @@ function PaletteIcon({ className }: { className?: string }) {
 /**
  * "متجر الثيمات" — one card per theme from `GET /v1/public/themes`
  * (already `is_active`-filtered + ordered server-side). شكل الكرت يطابق
- * مرجعًا أرسله المؤسس: صورة معاينة، شارة "منشور" (للثيم المُفعَّل فقط)،
- * اسم الثيم، ثم زرّا "معاينة" (يفتح الموقع الحي مباشرة بتبويب جديد) و
- * "تخصيص الثيم" (→ `/website/editor`) — بدل قائمة "..." لأن هذا المنتج
- * لا يملك إجراءات إضافية (نسخ رابط/تكرار/إعادة تسمية) تستحق قائمة منفصلة؛
- * زرّان مباشران أوضح وأسرع هنا.
+ * مرجعًا أرسله المؤسس: الصورة تملأ الكرت كاملًا (لا صندوق صورة منفصل عن
+ * محتوى نصي أسفله)، وتدرّج داكن أسفل الكرت فقط تُعرض فوقه شارة "منشور"
+ * (للثيم المُفعَّل فقط)، اسم الثيم، ثم زرّا "معاينة" (يفتح الموقع الحي
+ * مباشرة بتبويب جديد) و"تخصيص الثيم" (→ `/website/editor`) — بدل قائمة
+ * "..." لأن هذا المنتج لا يملك إجراءات إضافية (نسخ رابط/تكرار/إعادة
+ * تسمية) تستحق قائمة منفصلة؛ زرّان مباشران أوضح وأسرع هنا.
  *
  * الثيم غير المُفعَّل ليس له موقع حيّ يُعرض ("معاينة" تعني معاينة الموقع
  * الفعلي، لا الثيم نفسه بمعزل عنه) — فبطاقته تعرض زر "اختيار" وحيدًا بدل
@@ -67,20 +68,23 @@ export function ThemeGallery({
         return (
           <div
             key={theme.id}
-            className={`flex flex-col overflow-hidden rounded-2xl border bg-surface-card shadow-sm ${selected ? 'border-brand' : 'border-border-default'}`}
+            className={`group relative aspect-[4/3] overflow-hidden rounded-2xl border shadow-sm ${selected ? 'border-brand' : 'border-border-default'}`}
           >
             <button
               type="button"
               onClick={() => onSelect(theme.id)}
               disabled={selected}
-              className={`group aspect-[4/3] w-full overflow-hidden text-start ${!selected ? 'cursor-pointer' : ''}`}
+              className={`absolute inset-0 h-full w-full overflow-hidden text-start ${!selected ? 'cursor-pointer' : ''}`}
             >
               <div className="h-full w-full transition-transform duration-300 group-hover:scale-105">
                 <ThemePreview themeKey={theme.key} primaryColor={primaryColor} previewImageUrl={theme.preview_image_url} />
               </div>
             </button>
 
-            <div className="flex flex-col gap-1.5 p-2.5 sm:gap-2 sm:p-4">
+            {/* الصورة تملأ الكرت كاملًا (طلب المؤسس، مرجع "Image Scale Effect") — تدرّج داكن أسفل الكرت فقط حتى تبقى الشارة/الاسم/الأزرار واضحة فوق أي صورة، دون تعتيم الصورة كلها. */}
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/85 via-black/40 to-transparent" />
+
+            <div className="absolute inset-x-0 bottom-0 flex flex-col gap-1.5 p-2.5 sm:gap-2 sm:p-4">
               {selected && (
                 <div className="flex items-center gap-1.5">
                   <span className="inline-flex items-center gap-1 rounded-full bg-success-surface px-[9px] py-[3px] text-[10px] font-medium text-success sm:px-[11px] sm:py-[5px] sm:text-[11px]">
@@ -91,7 +95,7 @@ export function ThemeGallery({
                 </div>
               )}
 
-              <span className="truncate text-xs font-semibold text-text-primary sm:text-sm">{theme.name_ar}</span>
+              <span className="truncate text-xs font-semibold text-white sm:text-sm">{theme.name_ar}</span>
 
               {selected ? (
                 <div className="flex items-center gap-1.5 sm:gap-2">
@@ -101,13 +105,13 @@ export function ThemeGallery({
                     rel="noopener noreferrer"
                     aria-label={t.themeStore.previewTheme}
                     title={t.themeStore.previewTheme}
-                    className="border-border-default text-text-secondary hover:border-brand hover:text-brand flex h-8 w-8 flex-none items-center justify-center rounded-full border sm:h-9 sm:w-9"
+                    className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-white/90 text-text-primary backdrop-blur hover:bg-white sm:h-9 sm:w-9"
                   >
                     <EyeIcon className="h-4 w-4" />
                   </a>
                   <Link
                     href="/website/editor"
-                    className="bg-brand-surface text-brand flex h-8 flex-1 items-center justify-center gap-1.5 rounded-full text-xs font-semibold hover:opacity-90 sm:h-9 sm:text-sm"
+                    className="text-brand flex h-8 flex-1 items-center justify-center gap-1.5 rounded-full bg-white text-xs font-semibold hover:bg-white/90 sm:h-9 sm:text-sm"
                   >
                     <PaletteIcon className="h-3.5 w-3.5" />
                     {t.themeStore.customizeTheme}
@@ -117,7 +121,7 @@ export function ThemeGallery({
                 <button
                   type="button"
                   onClick={() => onSelect(theme.id)}
-                  className="border-border-default text-text-secondary hover:border-brand hover:text-brand flex h-8 items-center justify-center rounded-full border text-xs font-semibold sm:h-9 sm:text-sm"
+                  className="text-text-primary flex h-8 items-center justify-center rounded-full bg-white/90 text-xs font-semibold backdrop-blur hover:bg-white sm:h-9 sm:text-sm"
                 >
                   {t.themeStore.selectTheme}
                 </button>
