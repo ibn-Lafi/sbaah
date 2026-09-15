@@ -8,6 +8,7 @@ import { LoadingState } from '@/components/ui/loading-state';
 import { PlanCycleToggle } from '@/components/billing/plan-cycle-toggle';
 import { PlanCard } from '@/components/billing/plan-card';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
+import { useLocale } from '@/lib/i18n/locale-context';
 import { getBilling, startCheckout, type BillingInfo } from '@/lib/api/billing';
 import { listPlans } from '@/lib/api/reference-data';
 import { groupPlansByTier, planForCycle, type PlanTier } from '@/lib/billing/plan-tiers';
@@ -15,6 +16,8 @@ import { ApiRequestError } from '@/lib/api/client';
 
 export default function ChangePlanPage() {
   const { me, accessToken } = useCurrentUser();
+  const { pages } = useLocale();
+  const t = pages.billing;
   const [billing, setBilling] = useState<BillingInfo | null>(null);
   const [plans, setPlans] = useState<Plan[] | null>(null);
   const [cycle, setCycle] = useState<BillingCycle>('annual');
@@ -35,7 +38,7 @@ export default function ChangePlanPage() {
       const { checkout_url } = await startCheckout(accessToken, plan.id);
       window.location.href = checkout_url;
     } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : 'تعذّر بدء الدفع');
+      setError(err instanceof ApiRequestError ? err.message : t.checkout.startFailed);
       setSelectingPlanId(null);
     }
   }
@@ -44,16 +47,16 @@ export default function ChangePlanPage() {
 
   return (
     <AppShell
-      title="الفوترة والاشتراك"
+      title={t.pageTitle}
       orgName={me.tenant.name_ar}
       accountType={me.tenant.account_type}
     >
       <div className="mx-auto flex max-w-[820px] flex-col gap-6">
-        <BackButton href="/billing" label="رجوع للفوترة" className="self-start" />
+        <BackButton href="/billing" label={t.plans.backButton} className="self-start" />
 
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-text-primary">اختر باقتك</h1>
-          <p className="mt-1 text-sm text-text-secondary">يمكنك تغيير الباقة في أي وقت من صفحة الفوترة.</p>
+          <h1 className="text-2xl font-bold text-text-primary">{t.plans.heading}</h1>
+          <p className="mt-1 text-sm text-text-secondary">{t.plans.subheading}</p>
         </div>
 
         <PlanCycleToggle value={cycle} onChange={setCycle} />

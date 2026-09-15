@@ -1,15 +1,18 @@
 import type { BillingCycle } from '@sbaah/shared';
-
-const OPTIONS: { value: BillingCycle; label: string }[] = [
-  { value: 'annual', label: 'سنوي' },
-  { value: 'monthly', label: 'شهري' },
-];
+import { useLocale } from '@/lib/i18n/locale-context';
 
 /** Same pill-switcher pattern as domain/page.tsx's custom-domain/subdomain toggle. */
 export function PlanCycleToggle({ value, onChange }: { value: BillingCycle; onChange: (cycle: BillingCycle) => void }) {
+  const { pages } = useLocale();
+  const t = pages.billing.plans.cycleToggle;
+  const options: { value: BillingCycle; label: string }[] = [
+    { value: 'annual', label: t.annual },
+    { value: 'monthly', label: t.monthly },
+  ];
+
   return (
     <div className="mx-auto flex w-[220px] gap-1 rounded-full bg-surface-subtle-3 p-1">
-      {OPTIONS.map((option) => (
+      {options.map((option) => (
         <button
           key={option.value}
           type="button"

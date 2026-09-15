@@ -1,6 +1,7 @@
 import type { Plan } from '@sbaah/shared';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { useLocale } from '@/lib/i18n/locale-context';
 
 function CheckIcon({ className }: { className?: string }) {
   return (
@@ -16,22 +17,6 @@ function annualSavingsMonths(monthly: Plan, annual: Plan): number {
   const saved = monthly.price * 12 - annual.price;
   if (saved <= 0) return 0;
   return Math.round(saved / monthly.price);
-}
-
-function savingsLabel(months: number): string {
-  if (months === 1) return 'وفّر شهرًا';
-  if (months === 2) return 'وفّر شهرين';
-  return `وفّر ${months} أشهر`;
-}
-
-function usersLabel(maxUsers: number): string {
-  return maxUsers === 1 ? 'مستخدم واحد' : `${maxUsers} مستخدمين`;
-}
-
-function introMonthsLabel(months: number): string {
-  if (months === 1) return 'أول شهر';
-  if (months === 2) return 'أول شهرين';
-  return `أول ${months} أشهر`;
 }
 
 interface PlanCardProps {
