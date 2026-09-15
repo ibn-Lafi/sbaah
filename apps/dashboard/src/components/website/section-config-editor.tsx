@@ -34,11 +34,12 @@ interface SectionConfigEditorProps {
 /**
  * public-site (task 35/42) renders these fields for real — this is the
  * editing side task 28/42 deliberately deferred ("لا تحرير حر لمحتوى
- * نصي داخل الأقسام... يحتاج قرارًا منفصلًا"). Arabic required/English
- * optional, same convention as every bilingual field already in the
- * product (e.g. property title_ar/title_en). `footer`/`property_grid`
- * have no free-text content worth editing here — `property_grid` shows
- * real listings, `footer` is just the tenant name + the fixed سبعة badge.
+ * نصي داخل الأقسام... يحتاج قرارًا منفصلًا"). حقل واحد لكل معنى (عنوان/
+ * عنوان فرعي/نص) بلا نسخة إنجليزية — الثيم الأساسي بلغة عربية واحدة فقط
+ * (طلب المؤسس)، خلافًا لحقول أخرى ثنائية اللغة فعليًا بالمنتج (مثل
+ * عنوان العقار). `footer`/`property_grid` لا محتوى حر يستحق تحريرًا هنا
+ * — `property_grid` يعرض عقارات حقيقية، و`footer` فقط اسم المستأجر
+ * + شارة سبعة الثابتة.
  *
  * قسم hero فقط يضيف شكل القسم (HERO_VARIANTS) + رفع الصورة أو الفيديو
  * المناسب للشكل المختار — طلب المؤسس (ترتيب أقسام الصفحة الرئيسية، ثيم
@@ -53,11 +54,8 @@ export function SectionConfigEditor({ section, accessToken, onSaved, website, on
   const config = section.config as HeroSectionConfig & AboutSectionConfig;
 
   const [titleAr, setTitleAr] = useState(config.title_ar ?? '');
-  const [titleEn, setTitleEn] = useState(config.title_en ?? '');
   const [subtitleAr, setSubtitleAr] = useState(config.subtitle_ar ?? '');
-  const [subtitleEn, setSubtitleEn] = useState(config.subtitle_en ?? '');
   const [bodyAr, setBodyAr] = useState(config.body_ar ?? '');
-  const [bodyEn, setBodyEn] = useState(config.body_en ?? '');
   const [variant, setVariant] = useState<HeroVariant>(config.variant ?? 'image_search');
   const [loading, setLoading] = useState(false);
 
@@ -66,11 +64,8 @@ export function SectionConfigEditor({ section, accessToken, onSaved, website, on
     try {
       const nextConfig: Record<string, string> = {};
       if (titleAr) nextConfig.title_ar = titleAr;
-      if (titleEn) nextConfig.title_en = titleEn;
       if (isHero && subtitleAr) nextConfig.subtitle_ar = subtitleAr;
-      if (isHero && subtitleEn) nextConfig.subtitle_en = subtitleEn;
       if (hasBody && bodyAr) nextConfig.body_ar = bodyAr;
-      if (hasBody && bodyEn) nextConfig.body_en = bodyEn;
       if (isHero) nextConfig.variant = variant;
 
       const { section: updated } = await updateSection(accessToken, section.id, { config: nextConfig });
@@ -85,23 +80,14 @@ export function SectionConfigEditor({ section, accessToken, onSaved, website, on
 
   return (
     <div className="flex flex-col gap-3 rounded-input border border-border-subtle bg-surface-subtle p-4">
-      <div className="grid grid-cols-2 gap-3">
-        <Input placeholder={t.sectionConfigEditor.titleAr} value={titleAr} onChange={(e) => setTitleAr(e.target.value)} />
-        <Input placeholder={t.sectionConfigEditor.titleEn} value={titleEn} onChange={(e) => setTitleEn(e.target.value)} />
-      </div>
+      <Input placeholder={t.sectionConfigEditor.title} value={titleAr} onChange={(e) => setTitleAr(e.target.value)} />
 
       {isHero && (
-        <div className="grid grid-cols-2 gap-3">
-          <Input placeholder={t.sectionConfigEditor.subtitleAr} value={subtitleAr} onChange={(e) => setSubtitleAr(e.target.value)} />
-          <Input placeholder={t.sectionConfigEditor.subtitleEn} value={subtitleEn} onChange={(e) => setSubtitleEn(e.target.value)} />
-        </div>
+        <Input placeholder={t.sectionConfigEditor.subtitle} value={subtitleAr} onChange={(e) => setSubtitleAr(e.target.value)} />
       )}
 
       {hasBody && (
-        <div className="grid grid-cols-2 gap-3">
-          <Textarea placeholder={t.sectionConfigEditor.bodyAr} value={bodyAr} onChange={(e) => setBodyAr(e.target.value)} />
-          <Textarea placeholder={t.sectionConfigEditor.bodyEn} value={bodyEn} onChange={(e) => setBodyEn(e.target.value)} />
-        </div>
+        <Textarea placeholder={t.sectionConfigEditor.body} value={bodyAr} onChange={(e) => setBodyAr(e.target.value)} />
       )}
 
       {isHero && (

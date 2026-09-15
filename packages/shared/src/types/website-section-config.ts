@@ -25,23 +25,26 @@
 export const HERO_VARIANTS = ['image', 'image_search', 'video', 'video_search'] as const;
 export type HeroVariant = (typeof HERO_VARIANTS)[number];
 
+/**
+ * `_ar` فقط، بلا `_en` مقابل — الثيم الأساسي بلغة عربية واحدة فقط، لا
+ * محتوى مؤلَّف ثنائي اللغة (طلب المؤسس). المفتاح أبقي بلاحقة `_ar` رغم
+ * عدم وجود `_en` مقابل لتفادي أي migration لبيانات مخزَّنة فعليًا بهذا
+ * الاسم — لا فرق ظاهر للمستخدم، تسمية داخلية فقط.
+ */
+
 export interface HeroSectionConfig {
   title_ar?: string;
-  title_en?: string;
   subtitle_ar?: string;
-  subtitle_en?: string;
   variant?: HeroVariant;
 }
 
 export interface PropertyGridSectionConfig {
   title_ar?: string;
-  title_en?: string;
 }
 
 /** Same shape as PropertyGridSectionConfig, for the /projects page's listing anchor. */
 export interface ProjectGridSectionConfig {
   title_ar?: string;
-  title_en?: string;
 }
 
 /** No editable fields — the property detail page's content (gallery/price/specs/contact) is entirely data-driven, not authorable. This type only exists so a tenant can toggle/reposition it among that page's other sections (a hero banner above it, for example). */
@@ -50,14 +53,11 @@ export type PropertyDetailSectionConfig = Record<string, never>;
 /** Also used for `why_us` — same shape (title + one body of text), not a separate multi-item feature-list editor (kept deliberately simple). */
 export interface AboutSectionConfig {
   title_ar?: string;
-  title_en?: string;
   body_ar?: string;
-  body_en?: string;
 }
 
 export interface ContactSectionConfig {
   title_ar?: string;
-  title_en?: string;
 }
 
 /** No editable fields — the footer's only content is the tenant name (auto) and the mandatory سبعة badge (fixed, never from config). */

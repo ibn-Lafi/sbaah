@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import type { Locale } from '@/lib/i18n/locales';
-import { pickLocalized } from '@/lib/i18n/localized-field';
 import { listPublicProperties } from '@/lib/api/public-properties';
 import { listCities } from '@/lib/api/reference-data';
 import { PropertyCard } from '@/components/properties/property-card';
@@ -12,8 +11,9 @@ const EMPTY_LABEL: Record<Locale, string> = { ar: 'لا توجد عقارات م
 
 const FEATURED_COUNT = 6;
 
+// لا نموذج ثنائي اللغة للعنوان (الثيم الأساسي بلغة عربية واحدة فقط، طلب المؤسس).
 export async function PropertyGridSection({ locale, config }: PropertyGridSectionProps) {
-  const title = pickLocalized(locale, config.title_ar || DEFAULT_SECTION_TITLE.property_grid.ar, config.title_en ?? null) || DEFAULT_SECTION_TITLE.property_grid[locale];
+  const title = config.title_ar || DEFAULT_SECTION_TITLE.property_grid.ar;
   const propertiesHref = locale === 'ar' ? '/properties' : '/en/properties';
 
   const [cities, { properties }] = await Promise.all([listCities(), listPublicProperties({ page: 1 })]);

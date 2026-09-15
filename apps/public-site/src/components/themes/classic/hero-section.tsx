@@ -1,4 +1,3 @@
-import { pickLocalized } from '@/lib/i18n/localized-field';
 import { listCities } from '@/lib/api/reference-data';
 import type { HeroSectionProps } from '../types';
 import { PropertySearchBar } from '@/components/properties/property-search-bar';
@@ -19,10 +18,14 @@ import { PropertySearchBar } from '@/components/properties/property-search-bar';
  *
  * `bannerUrl`/فيديو يسحبان القسم للأعلى (`-mt-20`) خلف الهيدر الشفاف
  * فقط عند وجود خلفية فعلية — نفس تعليق `header.tsx`، لم يتغيّر.
+ *
+ * لا نموذج ثنائي اللغة هنا (الثيم الأساسي بلغة عربية واحدة فقط، طلب
+ * المؤسس) ولا احتياط باسم المستأجر عند غياب العنوان — قسم بلا عنوان/
+ * عنوان فرعي مكتوبين يعرض الخلفية والبحث فقط، بلا نص بديل.
  */
-export async function HeroSection({ locale, config, bannerUrl, bannerVideoUrl, tenantName }: HeroSectionProps) {
-  const title = pickLocalized(locale, config.title_ar || tenantName, config.title_en ?? null) || tenantName;
-  const subtitle = pickLocalized(locale, config.subtitle_ar ?? '', config.subtitle_en ?? null);
+export async function HeroSection({ locale, config, bannerUrl, bannerVideoUrl }: HeroSectionProps) {
+  const title = config.title_ar ?? '';
+  const subtitle = config.subtitle_ar ?? '';
   const variant = config.variant ?? 'image_search';
   const showSearch = variant === 'image_search' || variant === 'video_search';
   const useVideo = (variant === 'video' || variant === 'video_search') && Boolean(bannerVideoUrl);
@@ -47,7 +50,9 @@ export async function HeroSection({ locale, config, bannerUrl, bannerVideoUrl, t
       )}
       {hasBackground && <div className="absolute inset-0 bg-black/40" />}
       <div className="relative flex flex-col items-center gap-4">
-        <h1 className={`text-3xl font-bold md:text-4xl ${hasBackground ? 'text-white' : 'text-tenant-primary'}`}>{title}</h1>
+        {title && (
+          <h1 className={`text-3xl font-bold md:text-4xl ${hasBackground ? 'text-white' : 'text-tenant-primary'}`}>{title}</h1>
+        )}
         {subtitle && <p className={`max-w-xl text-lg ${hasBackground ? 'text-white/90' : 'text-black/70'}`}>{subtitle}</p>}
       </div>
       {showSearch && (

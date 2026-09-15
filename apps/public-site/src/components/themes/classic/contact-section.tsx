@@ -1,10 +1,10 @@
-import { pickLocalized } from '@/lib/i18n/localized-field';
 import { DEFAULT_SECTION_TITLE } from '@/lib/website/section-labels';
 import { WhatsappButton } from '@/components/properties/whatsapp-button';
 import type { ContactSectionProps } from '../types';
 
+// لا نموذج ثنائي اللغة للعنوان (الثيم الأساسي بلغة عربية واحدة فقط، طلب المؤسس).
 export function ContactSection({ locale, config, whatsappPhone, tenantId }: ContactSectionProps) {
-  const title = pickLocalized(locale, config.title_ar || DEFAULT_SECTION_TITLE.contact.ar, config.title_en ?? null) || DEFAULT_SECTION_TITLE.contact[locale];
+  const title = config.title_ar || DEFAULT_SECTION_TITLE.contact.ar;
 
   return (
     <section id="contact" className="mx-auto flex max-w-3xl flex-col items-center gap-4 px-6 py-12 text-center">
