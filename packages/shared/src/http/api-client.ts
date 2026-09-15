@@ -57,6 +57,10 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
       method: options.method ?? 'GET',
       headers,
       body,
+      // لا تخزين مؤقت لأي طلب مطلقًا — بيانات لوحة التحكم/الأدمن حيّة
+      // دائمًا (مثال: صورة معاينة ثيم يرفعها الأدمن يجب أن تظهر فورًا
+      // بمتجر الثيمات، لا بعد انتهاء أي ذاكرة تخزين مؤقت للمتصفح).
+      cache: 'no-store',
     });
     return await handleResponse<T>(response);
   } catch (err) {
