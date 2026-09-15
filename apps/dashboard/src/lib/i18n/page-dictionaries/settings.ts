@@ -80,6 +80,10 @@ export const settingsAr = {
     brandingTitle: 'ألوان وشعار المتجر',
     logoFooterNote: 'يظهر هذا الشعار أيضًا في تذييل موقعك الإلكتروني.',
   },
+  languageThemeCard: {
+    englishBetaLabel: 'English (Beta)',
+    darkModeLabel: 'الوضع الليلي',
+  },
   signOut: 'تسجيل الخروج',
 };
 
@@ -164,6 +168,10 @@ export const settingsEn: typeof settingsAr = {
   websiteData: {
     brandingTitle: 'Store Colors & Logo',
     logoFooterNote: 'This logo also appears in your website footer.',
+  },
+  languageThemeCard: {
+    englishBetaLabel: 'English (Beta)',
+    darkModeLabel: 'Dark Mode',
   },
   signOut: 'Sign Out',
 };

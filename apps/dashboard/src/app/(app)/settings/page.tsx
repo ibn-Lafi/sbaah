@@ -16,6 +16,7 @@ import { SegmentedToggle } from '@/components/ui/segmented-toggle';
 import { TeamManagementPanel } from '@/components/team/team-management-panel';
 import { BillingPanel } from '@/components/billing/billing-panel';
 import { WebsiteBrandingCard } from '@/components/website/website-branding-card';
+import { LanguageThemeSwitchCard } from '@/components/layout/language-theme-switch-card';
 import {
   InstagramIcon,
   TiktokIcon,
@@ -494,6 +495,8 @@ function AccountTab({ accessToken }: { accessToken: string }) {
       </Card>
 
       <EmailCard accessToken={accessToken} initialEmail={me.user.email} />
+
+      <LanguageThemeSwitchCard />
 
       <Card className="p-6">
         <button
