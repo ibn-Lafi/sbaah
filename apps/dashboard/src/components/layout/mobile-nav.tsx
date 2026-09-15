@@ -6,9 +6,10 @@ import { usePathname, useRouter } from 'next/navigation';
 import type { AccountType } from '@sbaah/shared';
 import { AccountAvatar } from '@/components/ui/account-avatar';
 import { BrandMark } from '@/components/ui/brand-mark';
-import { NAV_ITEMS, isNavGroup, type NavEntry, type NavLeaf } from './nav-items';
+import { getNavItems, isNavGroup, type NavEntry, type NavLeaf } from './nav-items';
 import { ChevronIcon, CloseIcon, MenuIcon } from './nav-icons';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
+import { useLocale } from '@/lib/i18n/locale-context';
 
 interface MobileNavProps {
   orgName: string;
@@ -71,9 +72,10 @@ export function MobileNav({ orgName, accountType, roleLabel }: MobileNavProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { me } = useCurrentUser();
+  const { t } = useLocale();
   const [sheetOpen, setSheetOpen] = useState(false);
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
-  const visibleItems = NAV_ITEMS.filter((item) => !item.roles || item.roles.includes(me.user.role));
+  const visibleItems = getNavItems(t).filter((item) => !item.roles || item.roles.includes(me.user.role));
   const pinnedItems = getPinnedItems(visibleItems);
 
   useEffect(() => {
@@ -106,8 +108,8 @@ export function MobileNav({ orgName, accountType, roleLabel }: MobileNavProps) {
         <button
           type="button"
           onClick={() => setSheetOpen(true)}
-          aria-label="بقية الصفحات"
-          title="بقية الصفحات"
+          aria-label={t.mobileNav.morePages}
+          title={t.mobileNav.morePages}
           className="bg-brand flex h-12 w-12 flex-none items-center justify-center rounded-full text-white shadow-[0_10px_30px_rgba(104,69,138,.4)]"
         >
           <MenuIcon className="h-5 w-5" />
@@ -155,7 +157,7 @@ export function MobileNav({ orgName, accountType, roleLabel }: MobileNavProps) {
           <button
             type="button"
             onClick={() => setSheetOpen(false)}
-            aria-label="إغلاق"
+            aria-label={t.mobileNav.close}
             className="text-text-tertiary hover:bg-surface-subtle flex h-9 w-9 items-center justify-center rounded-full"
           >
             <CloseIcon className="h-5 w-5" />

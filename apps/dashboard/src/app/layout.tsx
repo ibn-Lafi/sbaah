@@ -2,6 +2,10 @@ import type { Metadata } from 'next';
 import { IBM_Plex_Sans_Arabic } from 'next/font/google';
 import './globals.css';
 import { ServiceWorkerRegister } from '@/components/pwa/service-worker-register';
+import { LocaleProvider } from '@/lib/i18n/locale-context';
+import { LOCALE_STORAGE_KEY } from '@/lib/i18n/locale';
+import { ThemeProvider } from '@/lib/theme/theme-context';
+import { THEME_STORAGE_KEY } from '@/lib/theme/theme';
 
 /**
  * Self-hosted via next/font (no runtime request to Google, no
@@ -23,13 +27,30 @@ export const metadata: Metadata = {
 
 export const viewport = { themeColor: '#68458A' };
 
-/** Dashboard is Arabic-first RTL, per PRODUCT_SPEC section 4. */
+/**
+ * Runs before hydration (blocking, inline in <head>) so the very first
+ * paint already reflects a returning visitor's saved language/theme
+ * instead of always starting Arabic+light and flashing to their choice a
+ * tick later. LocaleProvider/ThemeProvider read these same <html>
+ * attributes back on mount instead of the hardcoded defaults below, so
+ * client state stays in sync with what's already on screen.
+ */
+const themeAndLocaleInitScript = `(function(){try{var l=localStorage.getItem('${LOCALE_STORAGE_KEY}');if(l==='en'||l==='ar'){document.documentElement.lang=l;document.documentElement.dir=l==='ar'?'rtl':'ltr';}var t=localStorage.getItem('${THEME_STORAGE_KEY}');if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();`;
+
+/** Dashboard defaults to Arabic-first RTL + light mode (PRODUCT_SPEC section 4); a returning visitor's saved language/theme is applied on top by the script above and by LocaleProvider/ThemeProvider. */
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ar" dir="rtl" className={ibmPlexSansArabic.variable}>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeAndLocaleInitScript }} />
+      </head>
       <body>
-        {children}
-        <ServiceWorkerRegister />
+        <LocaleProvider>
+          <ThemeProvider>
+            {children}
+            <ServiceWorkerRegister />
+          </ThemeProvider>
+        </LocaleProvider>
       </body>
     </html>
   );

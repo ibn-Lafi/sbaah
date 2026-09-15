@@ -6,7 +6,10 @@ import { useRouter } from 'next/navigation';
 import type { AccountType } from '@sbaah/shared';
 import { AccountAvatar } from '@/components/ui/account-avatar';
 import { BrandMark } from '@/components/ui/brand-mark';
+import { LanguageToggle } from './language-toggle';
+import { ThemeToggle } from './theme-toggle';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
+import { useLocale } from '@/lib/i18n/locale-context';
 import { signOut } from '@/lib/auth/session';
 
 interface TopbarProps {
@@ -29,6 +32,7 @@ interface TopbarProps {
 export function Topbar({ title, siteUrl, accountType }: TopbarProps) {
   const router = useRouter();
   const { me } = useCurrentUser();
+  const { t } = useLocale();
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
 
   function handleSignOut() {
@@ -50,16 +54,18 @@ export function Topbar({ title, siteUrl, accountType }: TopbarProps) {
         <span className="border-text-secondary h-[14px] w-[14px] flex-none rounded-full border-[1.6px]" />
         <input
           type="text"
-          placeholder="بحث..."
+          placeholder={t.topbar.searchPlaceholder}
           className="text-text-primary flex-1 border-none bg-transparent text-[13px] outline-none"
         />
       </div>
+      <ThemeToggle />
+      <LanguageToggle />
       <a
         href={siteUrl}
         target="_blank"
         rel="noreferrer"
-        aria-label="زيارة الموقع"
-        title="زيارة الموقع"
+        aria-label={t.topbar.visitSite}
+        title={t.topbar.visitSite}
         className="md:bg-surface-subtle flex h-9 w-9 flex-none items-center justify-center rounded-full bg-white/15 text-white md:h-[42px] md:w-[42px] md:text-text-primary"
       >
         <svg
@@ -77,8 +83,8 @@ export function Topbar({ title, siteUrl, accountType }: TopbarProps) {
         <button
           type="button"
           onClick={() => setAccountMenuOpen((open) => !open)}
-          aria-label="حسابي"
-          title="حسابي"
+          aria-label={t.topbar.myAccount}
+          title={t.topbar.myAccount}
           className="flex h-9 w-9 flex-none items-center justify-center rounded-full"
         >
           <AccountAvatar accountType={accountType} size={36} />
@@ -94,7 +100,7 @@ export function Topbar({ title, siteUrl, accountType }: TopbarProps) {
                   onClick={() => setAccountMenuOpen(false)}
                   className="text-text-primary hover:bg-surface-subtle rounded-[10px] px-[14px] py-[11px] text-[13px] font-medium"
                 >
-                  حسابي
+                  {t.accountMenu.settings}
                 </Link>
               )}
               {(me.user.role === 'owner' || me.user.role === 'admin') && (
@@ -103,7 +109,7 @@ export function Topbar({ title, siteUrl, accountType }: TopbarProps) {
                   onClick={() => setAccountMenuOpen(false)}
                   className="text-text-primary hover:bg-surface-subtle rounded-[10px] px-[14px] py-[11px] text-[13px] font-medium"
                 >
-                  إدارة الموظفين
+                  {t.accountMenu.team}
                 </Link>
               )}
               {me.user.role === 'owner' && (
@@ -112,7 +118,7 @@ export function Topbar({ title, siteUrl, accountType }: TopbarProps) {
                   onClick={() => setAccountMenuOpen(false)}
                   className="text-text-primary hover:bg-surface-subtle rounded-[10px] px-[14px] py-[11px] text-[13px] font-medium"
                 >
-                  الفوترة والاشتراك
+                  {t.accountMenu.billing}
                 </Link>
               )}
               <div className="bg-surface-subtle my-0.5 h-px" />
@@ -121,7 +127,7 @@ export function Topbar({ title, siteUrl, accountType }: TopbarProps) {
                 onClick={handleSignOut}
                 className="text-danger hover:bg-danger-surface rounded-[10px] px-[14px] py-[11px] text-start text-[13px] font-medium"
               >
-                تسجيل الخروج
+                {t.accountMenu.signOut}
               </button>
             </div>
           </>

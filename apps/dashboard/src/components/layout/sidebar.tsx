@@ -5,8 +5,9 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { BrandMark } from '@/components/ui/brand-mark';
 import { AccountAvatar } from '@/components/ui/account-avatar';
-import { NAV_ITEMS, isNavGroup } from './nav-items';
+import { getNavItems, isNavGroup } from './nav-items';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
+import { useLocale } from '@/lib/i18n/locale-context';
 import { signOut } from '@/lib/auth/session';
 import type { AccountType } from '@sbaah/shared';
 
@@ -22,9 +23,10 @@ export function Sidebar({ orgName, accountType, roleLabel }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { me } = useCurrentUser();
+  const { t } = useLocale();
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
-  const visibleItems = NAV_ITEMS.filter((item) => !item.roles || item.roles.includes(me.user.role));
+  const visibleItems = getNavItems(t).filter((item) => !item.roles || item.roles.includes(me.user.role));
 
   function handleSignOut() {
     void signOut().then(() => router.replace('/login'));
@@ -120,7 +122,7 @@ export function Sidebar({ orgName, accountType, roleLabel }: SidebarProps) {
                 onClick={() => setAccountMenuOpen(false)}
                 className="text-text-primary hover:bg-surface-subtle rounded-[10px] px-[14px] py-[11px] text-[13px] font-medium"
               >
-                حسابي
+                {t.accountMenu.settings}
               </Link>
             )}
             {(me.user.role === 'owner' || me.user.role === 'admin') && (
@@ -129,7 +131,7 @@ export function Sidebar({ orgName, accountType, roleLabel }: SidebarProps) {
                 onClick={() => setAccountMenuOpen(false)}
                 className="text-text-primary hover:bg-surface-subtle rounded-[10px] px-[14px] py-[11px] text-[13px] font-medium"
               >
-                إدارة الموظفين
+                {t.accountMenu.team}
               </Link>
             )}
             {me.user.role === 'owner' && (
@@ -138,7 +140,7 @@ export function Sidebar({ orgName, accountType, roleLabel }: SidebarProps) {
                 onClick={() => setAccountMenuOpen(false)}
                 className="text-text-primary hover:bg-surface-subtle rounded-[10px] px-[14px] py-[11px] text-[13px] font-medium"
               >
-                الفوترة والاشتراك
+                {t.accountMenu.billing}
               </Link>
             )}
             <div className="bg-surface-subtle my-0.5 h-px" />
@@ -147,7 +149,7 @@ export function Sidebar({ orgName, accountType, roleLabel }: SidebarProps) {
               onClick={handleSignOut}
               className="text-danger hover:bg-danger-surface rounded-[10px] px-[14px] py-[11px] text-start text-[13px] font-medium"
             >
-              تسجيل الخروج
+              {t.accountMenu.signOut}
             </button>
           </div>
         )}

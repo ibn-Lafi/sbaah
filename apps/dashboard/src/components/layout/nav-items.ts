@@ -19,6 +19,7 @@
  */
 import type { ComponentType } from 'react';
 import type { UserRole } from '@sbaah/shared';
+import type { ChromeDictionary } from '@/lib/i18n/dictionaries';
 import {
   AppsIcon,
   BrokerMarketerIcon,
@@ -59,32 +60,35 @@ export function isNavGroup(entry: NavEntry): entry is NavGroup {
   return 'children' in entry;
 }
 
-export const NAV_ITEMS: NavEntry[] = [
-  { href: '/', label: 'لوحة القيادة', icon: DashboardIcon },
-  { href: '/leads', label: 'إدارة العملاء', icon: ClientsIcon },
-  {
-    group: 'properties',
-    label: 'العقارات',
-    icon: PropertiesIcon,
-    children: [
-      { href: '/properties', label: 'الوحدات', icon: PropertiesIcon },
-      { href: '/buildings', label: 'العمارات', icon: BuildingsIcon },
-      { href: '/projects', label: 'المشاريع', icon: ProjectsIcon },
-      { href: '/rentals', label: 'الإيجارات', icon: RentalsIcon },
-    ],
-  },
-  { href: '/broker-marketer', label: 'الوسطاء والمسوقين', icon: BrokerMarketerIcon, roles: ['owner', 'admin'] },
-  {
-    group: 'website',
-    label: 'الموقع الالكتروني',
-    icon: WebsiteIcon,
-    roles: ['owner', 'admin'],
-    children: [
-      { href: '/website/editor', label: 'تخصيص الثيم', icon: ThemeCustomizeIcon },
-      { href: '/website', label: 'متجر الثيمات', icon: ThemeStoreIcon },
-      { href: '/website/pages', label: 'الصفحات', icon: PagesIcon },
-      { href: '/domain', label: 'الدومين', icon: DomainIcon },
-    ],
-  },
-  { href: '/apps', label: 'التطبيقات', icon: AppsIcon, roles: ['owner', 'admin'] },
-];
+/** Same hrefs/icons/roles regardless of language — only `label` comes from the active dictionary (`t`), so a language switch relabels the existing nav instead of needing a second, parallel list. */
+export function getNavItems(t: ChromeDictionary): NavEntry[] {
+  return [
+    { href: '/', label: t.nav.dashboard, icon: DashboardIcon },
+    { href: '/leads', label: t.nav.leads, icon: ClientsIcon },
+    {
+      group: 'properties',
+      label: t.nav.propertiesGroup.label,
+      icon: PropertiesIcon,
+      children: [
+        { href: '/properties', label: t.nav.propertiesGroup.units, icon: PropertiesIcon },
+        { href: '/buildings', label: t.nav.propertiesGroup.buildings, icon: BuildingsIcon },
+        { href: '/projects', label: t.nav.propertiesGroup.projects, icon: ProjectsIcon },
+        { href: '/rentals', label: t.nav.propertiesGroup.rentals, icon: RentalsIcon },
+      ],
+    },
+    { href: '/broker-marketer', label: t.nav.brokerMarketer, icon: BrokerMarketerIcon, roles: ['owner', 'admin'] },
+    {
+      group: 'website',
+      label: t.nav.website.label,
+      icon: WebsiteIcon,
+      roles: ['owner', 'admin'],
+      children: [
+        { href: '/website/editor', label: t.nav.website.themeEditor, icon: ThemeCustomizeIcon },
+        { href: '/website', label: t.nav.website.themeStore, icon: ThemeStoreIcon },
+        { href: '/website/pages', label: t.nav.website.pages, icon: PagesIcon },
+        { href: '/domain', label: t.nav.website.domain, icon: DomainIcon },
+      ],
+    },
+    { href: '/apps', label: t.nav.apps, icon: AppsIcon, roles: ['owner', 'admin'] },
+  ];
+}

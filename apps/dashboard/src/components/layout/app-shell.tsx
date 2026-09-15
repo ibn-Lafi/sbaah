@@ -6,6 +6,7 @@ import { Sidebar } from './sidebar';
 import { Topbar } from './topbar';
 import { MobileNav } from './mobile-nav';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
+import { useLocale } from '@/lib/i18n/locale-context';
 import { getPlatformRootDomain } from '@/lib/env/platform-root-domain';
 
 interface AppShellProps {
@@ -15,12 +16,6 @@ interface AppShellProps {
   roleLabel: string;
   children: React.ReactNode;
 }
-
-const SUSPENDED_MESSAGE: Record<'suspended' | 'cancelled', string> = {
-  suspended:
-    'حسابك معلَّق حاليًا — البيانات معروضة للقراءة فقط، ولا يمكن إجراء أي تعديل حتى تجديد اشتراكك.',
-  cancelled: 'تم إلغاء هذا الحساب — البيانات معروضة للقراءة فقط.',
-};
 
 /** Whole days left until `iso` — 0 on its final calendar day, never negative (callers check expiry separately). */
 function daysRemaining(iso: string): number {
@@ -39,6 +34,7 @@ function daysRemaining(iso: string): number {
  */
 export function AppShell({ title, orgName, accountType, roleLabel, children }: AppShellProps) {
   const { me } = useCurrentUser();
+  const { t } = useLocale();
   const status = me.tenant.status;
   // Always the subdomain URL, never the (possibly unverified/not-yet-
   // DNS-configured) custom domain — this link must always actually load.
@@ -69,25 +65,22 @@ export function AppShell({ title, orgName, accountType, roleLabel, children }: A
         <div className="bg-surface-page relative z-10 -mt-5 flex min-h-0 flex-1 flex-col rounded-t-[28px] md:mt-0 md:rounded-none md:bg-transparent">
           {status !== 'active' && (
             <div className="bg-warning-surface text-warning px-4 py-3 text-sm font-medium md:px-7">
-              {SUSPENDED_MESSAGE[status]}
+              {status === 'suspended' ? t.appShell.suspended : t.appShell.cancelled}
             </div>
           )}
           {status === 'active' && trialExpired && (
             <div className="bg-warning-surface text-warning flex flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm font-medium md:px-7">
-              <span>انتهت تجربتك المجانية — البيانات معروضة للقراءة فقط، اشترك بباقة لمواصلة استخدام حسابك.</span>
+              <span>{t.appShell.trialExpired}</span>
               <Link href="/billing" className="font-semibold whitespace-nowrap underline">
-                الاشتراك الآن
+                {t.appShell.subscribeNow}
               </Link>
             </div>
           )}
           {status === 'active' && !trialExpired && trialEndsAt && (
             <div className="bg-brand-surface text-brand flex flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm font-medium md:px-7">
-              <span>
-                باقي على انتهاء تجربتك المجانية {daysRemaining(trialEndsAt)}{' '}
-                {daysRemaining(trialEndsAt) === 1 ? 'يوم' : 'أيام'}.
-              </span>
+              <span>{t.appShell.trialDaysRemaining(daysRemaining(trialEndsAt))}</span>
               <Link href="/billing" className="font-semibold whitespace-nowrap underline">
-                الاشتراك الآن
+                {t.appShell.subscribeNow}
               </Link>
             </div>
           )}
