@@ -185,18 +185,16 @@ export default function WebsiteEditorPage() {
       {/* The drag-and-drop-style editor (side panel + live device preview) genuinely needs desktop width to work — same tradeoff Wix/Shopify's own site editors make. Phones get a plain notice instead of a squeezed, broken copy of this screen. */}
       <div className="bg-surface-page flex h-screen flex-col items-center justify-center gap-4 px-6 text-center md:hidden">
         <AdjustmentsIcon className="text-text-placeholder h-8 w-8" />
-        <p className="text-text-secondary text-sm">
-          تخصيص تصميم الموقع يحتاج شاشة أكبر — يُرجى فتح هذه الصفحة من جهاز كمبيوتر أو تابلت.
-        </p>
+        <p className="text-text-secondary text-sm">{t.editor.mobileNotice}</p>
         <Link href="/website" className="text-brand text-sm font-semibold hover:underline">
-          رجوع لمتجر الثيمات
+          {t.editor.backToThemeStore}
         </Link>
       </div>
 
       <div className="bg-surface-page hidden h-screen flex-col md:flex">
         {/* Toolbar */}
         <div className="border-border-subtle bg-surface-card flex h-14 flex-none items-center gap-2 border-b px-4">
-          <BackButton href="/website" label="رجوع لمتجر الثيمات" />
+          <BackButton href="/website" label={t.editor.backToThemeStore} />
         </div>
 
         {/* Panel + preview — panel first in DOM so it renders on the right under RTL, matching the reference tool. */}
@@ -206,13 +204,13 @@ export default function WebsiteEditorPage() {
               <>
                 <div className="border-border-subtle flex h-14 flex-none items-center justify-between border-b px-4">
                   <h2 className="text-text-primary text-sm font-semibold">
-                    أقسام {WEBSITE_PAGE_LABELS[activePageKey]}
+                    {t.editor.sectionsFor(t.pageTabLabels[activePageKey])}
                   </h2>
                   <button
                     type="button"
                     onClick={() => setPanelView('settings')}
-                    aria-label="إعدادات الصفحة"
-                    title="إعدادات الصفحة"
+                    aria-label={t.editor.pageSettings}
+                    title={t.editor.pageSettings}
                     className="text-text-secondary hover:text-brand"
                   >
                     <AdjustmentsIcon className="h-[17px] w-[17px]" />
@@ -230,7 +228,7 @@ export default function WebsiteEditorPage() {
                       onClick={() => toggleZone('top')}
                       className="text-text-primary flex w-full items-center justify-between text-sm font-semibold"
                     >
-                      أعلى الصفحة
+                      {t.editor.topOfPage}
                       <ChevronIcon
                         open={openZones.top}
                         className="text-text-secondary h-[14px] w-[14px]"
@@ -239,7 +237,7 @@ export default function WebsiteEditorPage() {
                     {openZones.top && (
                       <div className="mt-4 flex flex-col gap-4">
                         <AssetUploader
-                          label="الشعار (مقاس 250×100)"
+                          label={t.editor.logoLabel}
                           currentUrl={website.logo_url}
                           onUpload={async (file) => {
                             const { website: updated } = await uploadLogo(accessToken, file);
@@ -258,7 +256,7 @@ export default function WebsiteEditorPage() {
                         />
                         <div className="flex flex-col gap-2">
                           <label className="text-text-secondary text-xs">
-                            الشريط (نص إعلاني أعلى الصفحة)
+                            {t.editor.announcementBarLabel}
                           </label>
                           <Input
                             value={textDraft.announcement}
@@ -266,7 +264,7 @@ export default function WebsiteEditorPage() {
                               setTextDraft((c) => ({ ...c, announcement: e.target.value }))
                             }
                             onBlur={() => void saveAnnouncementBar(textDraft.announcement)}
-                            placeholder="مثال: عروض نهاية الأسبوع سارية الآن"
+                            placeholder={t.editor.announcementBarPlaceholder}
                             className="h-10"
                           />
                         </div>
@@ -281,7 +279,7 @@ export default function WebsiteEditorPage() {
                       onClick={() => toggleZone('content')}
                       className="text-text-primary flex w-full items-center justify-between text-sm font-semibold"
                     >
-                      محتوى الصفحة
+                      {t.editor.pageContent}
                       <ChevronIcon
                         open={openZones.content}
                         className="text-text-secondary h-[14px] w-[14px]"
@@ -308,7 +306,7 @@ export default function WebsiteEditorPage() {
                       onClick={() => toggleZone('bottom')}
                       className="text-text-primary flex w-full items-center justify-between text-sm font-semibold"
                     >
-                      أسفل الصفحة
+                      {t.editor.bottomOfPage}
                       <ChevronIcon
                         open={openZones.bottom}
                         className="text-text-secondary h-[14px] w-[14px]"
@@ -319,7 +317,7 @@ export default function WebsiteEditorPage() {
                         {footerSection && (
                           <div className="rounded-input border-border-default flex items-center justify-between border px-4 py-3">
                             <span className="text-text-primary text-sm">
-                              إظهار الفوتر في هذه الصفحة
+                              {t.editor.showFooterOnPage}
                             </span>
                             <Switch
                               checked={footerSection.is_visible}
@@ -328,13 +326,11 @@ export default function WebsiteEditorPage() {
                           </div>
                         )}
 
-                        <p className="text-text-tertiary text-xs">
-                          يظهر نفس الشعار الموجود أعلى الصفحة (250×100) في الفوتر أيضًا.
-                        </p>
+                        <p className="text-text-tertiary text-xs">{t.editor.footerLogoNote}</p>
 
                         <div className="flex flex-col gap-2">
                           <label className="text-text-secondary text-xs">
-                            التعريف الذي يظهر في الفوتر
+                            {t.editor.footerDescriptionLabel}
                           </label>
                           <Textarea
                             value={textDraft.footerDescription}
@@ -342,7 +338,7 @@ export default function WebsiteEditorPage() {
                               setTextDraft((c) => ({ ...c, footerDescription: e.target.value }))
                             }
                             onBlur={() => void saveFooterDescription(textDraft.footerDescription)}
-                            placeholder="نبذة قصيرة عن الحساب تظهر في تذييل الموقع"
+                            placeholder={t.editor.footerDescriptionPlaceholder}
                             className="min-h-[80px]"
                           />
                         </div>
@@ -354,7 +350,7 @@ export default function WebsiteEditorPage() {
             ) : (
               <>
                 <div className="border-border-subtle flex h-14 flex-none items-center justify-between border-b px-4">
-                  <h2 className="text-text-primary text-sm font-semibold">إعدادات الصفحة</h2>
+                  <h2 className="text-text-primary text-sm font-semibold">{t.editor.pageSettings}</h2>
                   <button
                     type="button"
                     onClick={() => setPanelView('sections')}
@@ -370,7 +366,7 @@ export default function WebsiteEditorPage() {
                     onClick={() => setColorsOpen((v) => !v)}
                     className="text-text-primary flex w-full items-center justify-between py-2 text-sm font-semibold"
                   >
-                    الألوان والهوية
+                    {t.editor.colorsAndIdentity}
                     <ChevronIcon
                       open={colorsOpen}
                       className="text-text-secondary h-[14px] w-[14px]"
@@ -379,7 +375,7 @@ export default function WebsiteEditorPage() {
                   {colorsOpen && (
                     <div className="flex flex-col gap-4 pb-4">
                       <div className="flex flex-col gap-2">
-                        <label className="text-text-secondary text-xs">اللون الأساسي</label>
+                        <label className="text-text-secondary text-xs">{t.editor.primaryColor}</label>
                         <div className="flex items-center gap-2">
                           <input
                             type="color"

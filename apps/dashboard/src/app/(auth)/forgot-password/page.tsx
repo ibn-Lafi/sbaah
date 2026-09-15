@@ -122,7 +122,7 @@ export default function ForgotPasswordPage() {
       await resetPassword({ reset_token: resetToken, new_password: newPassword });
       router.push('/login');
     } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : 'تعذّر تحديث كلمة المرور');
+      setError(err instanceof ApiRequestError ? err.message : t.forgotPassword.updateFailedFallback);
     } finally {
       setLoading(false);
     }
@@ -135,11 +135,11 @@ export default function ForgotPasswordPage() {
 
   return (
     <Card className="p-8">
-      <h1 className="mb-1 text-2xl font-bold text-text-primary">استعادة كلمة المرور</h1>
+      <h1 className="mb-1 text-2xl font-bold text-text-primary">{t.forgotPassword.title}</h1>
       <p className="mb-6 text-sm text-text-secondary">
-        {step === 'identify' && 'أدخل رقم جوالك أو بريدك الإلكتروني المسجّل'}
-        {step === 'otp' && `أدخل الرمز المرسل إلى ${channel === 'sms' ? phone : email}`}
-        {step === 'new_password' && 'أدخل كلمة المرور الجديدة'}
+        {step === 'identify' && t.forgotPassword.identifySubtitle}
+        {step === 'otp' && t.shared.otpSentTo(channel === 'sms' ? phone : email)}
+        {step === 'new_password' && t.forgotPassword.newPasswordSubtitle}
       </p>
 
       {step === 'identify' && (
@@ -150,14 +150,14 @@ export default function ForgotPasswordPage() {
               onClick={() => switchChannel('sms')}
               className={`font-semibold ${channel === 'sms' ? 'text-brand' : 'text-text-secondary'}`}
             >
-              عبر الجوال
+              {t.shared.channelPhone}
             </button>
             <button
               type="button"
               onClick={() => switchChannel('email')}
               className={`font-semibold ${channel === 'email' ? 'text-brand' : 'text-text-secondary'}`}
             >
-              عبر البريد الإلكتروني
+              {t.shared.channelEmail}
             </button>
           </div>
           <form onSubmit={handleSendOtp} className="flex flex-col gap-4">
@@ -174,7 +174,7 @@ export default function ForgotPasswordPage() {
             )}
             <FormError message={error} />
             <Button type="submit" disabled={loading}>
-              {loading ? 'جارٍ الإرسال...' : 'إرسال رمز التحقق'}
+              {loading ? t.shared.sendingOtp : t.shared.sendOtp}
             </Button>
           </form>
         </div>
@@ -185,7 +185,7 @@ export default function ForgotPasswordPage() {
           <OtpInput value={code} onChange={setCode} disabled={loading} />
           <FormError message={error} />
           <Button type="submit" disabled={loading}>
-            {loading ? 'جارٍ التحقق...' : 'تأكيد'}
+            {loading ? t.shared.verifying : t.shared.verify}
           </Button>
           <button
             type="button"
@@ -193,7 +193,7 @@ export default function ForgotPasswordPage() {
             onClick={() => void sendResetOtp()}
             className="text-sm text-brand hover:underline disabled:cursor-not-allowed disabled:text-text-placeholder"
           >
-            {resend.secondsLeft > 0 ? `إعادة الإرسال بعد ${resend.secondsLeft} ثانية` : 'إعادة إرسال الرمز'}
+            {resend.secondsLeft > 0 ? t.shared.resendIn(resend.secondsLeft) : t.shared.resendCode}
           </button>
         </form>
       )}
@@ -201,22 +201,22 @@ export default function ForgotPasswordPage() {
       {step === 'new_password' && (
         <form onSubmit={handleSubmitNewPassword} className="flex flex-col gap-4">
           <PasswordInput
-            placeholder="كلمة المرور الجديدة"
+            placeholder={t.forgotPassword.newPasswordPlaceholder}
             value={newPassword}
             onChange={(event) => setNewPassword(event.target.value)}
           />
           <PasswordStrengthMeter password={newPassword} />
           <FormError message={error} />
           <Button type="submit" disabled={loading}>
-            {loading ? 'جارٍ التحديث...' : 'تحديث كلمة المرور'}
+            {loading ? t.forgotPassword.updatingButton : t.forgotPassword.updatePasswordButton}
           </Button>
         </form>
       )}
 
       <p className="mt-6 text-center text-sm text-text-secondary">
-        تذكّرت كلمة المرور؟{' '}
+        {t.forgotPassword.rememberedPasswordPrompt}{' '}
         <Link href="/login" className="font-semibold text-brand hover:underline">
-          تسجيل الدخول
+          {t.shared.signIn}
         </Link>
       </p>
     </Card>

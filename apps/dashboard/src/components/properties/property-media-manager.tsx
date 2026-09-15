@@ -7,6 +7,7 @@ import { DeleteButton } from '@/components/ui/delete-button';
 import { FormError } from '@/components/ui/form-error';
 import { deletePropertyMedia, uploadPropertyMedia } from '@/lib/api/properties';
 import { ApiRequestError } from '@/lib/api/client';
+import { useLocale } from '@/lib/i18n/locale-context';
 
 interface PropertyMediaManagerProps {
   propertyId: string;
@@ -17,6 +18,8 @@ interface PropertyMediaManagerProps {
 
 /** Limits (15 images / 2 videos / 50MB per video) are enforced server-side (apps/api/src/lib/property/media-limits.ts) — this only surfaces the resulting error, doesn't duplicate the check. */
 export function PropertyMediaManager({ propertyId, accessToken, media, onChange }: PropertyMediaManagerProps) {
+  const { pages } = useLocale();
+  const t = pages.properties.media;
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -32,7 +35,7 @@ export function PropertyMediaManager({ propertyId, accessToken, media, onChange 
       const { media: newMedia } = await uploadPropertyMedia(accessToken, propertyId, file);
       onChange([...media, newMedia]);
     } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : 'تعذّر رفع الملف');
+      setError(err instanceof ApiRequestError ? err.message : t.uploadError);
     } finally {
       setUploading(false);
     }
@@ -43,7 +46,7 @@ export function PropertyMediaManager({ propertyId, accessToken, media, onChange 
       await deletePropertyMedia(accessToken, propertyId, mediaId);
       onChange(media.filter((item) => item.id !== mediaId));
     } catch (err) {
-      throw new Error(err instanceof ApiRequestError ? err.message : 'تعذّر حذف الملف');
+      throw new Error(err instanceof ApiRequestError ? err.message : t.deleteError);
     }
   }
 
@@ -60,9 +63,9 @@ export function PropertyMediaManager({ propertyId, accessToken, media, onChange 
             )}
             <div className="absolute left-1 top-1 opacity-0 transition-opacity group-hover:opacity-100">
               <DeleteButton
-                label="حذف"
-                confirmTitle="حذف الوسائط"
-                confirmMessage="سيتم حذف هذا الملف نهائيًا، ولا يمكن التراجع عن هذا الإجراء."
+                label={t.deleteLabel}
+                confirmTitle={t.deleteConfirmTitle}
+                confirmMessage={t.deleteConfirmMessage}
                 onConfirm={() => handleDelete(item.id)}
                 compact
               />
@@ -87,7 +90,7 @@ export function PropertyMediaManager({ propertyId, accessToken, media, onChange 
         onClick={() => fileInputRef.current?.click()}
         className="w-fit"
       >
-        {uploading ? 'جارٍ الرفع...' : '+ إضافة صورة أو فيديو'}
+        {uploading ? t.uploading : t.addButton}
       </Button>
     </div>
   );

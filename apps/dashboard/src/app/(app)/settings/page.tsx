@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import type { AccountType } from '@sbaah/shared';
-import { ACCOUNT_TYPE_LABELS, accountTypeUpdateSchema, falLicenseUpdateSchema, socialLinksUpdateSchema } from '@sbaah/shared';
+import { accountTypeUpdateSchema, falLicenseUpdateSchema, socialLinksUpdateSchema } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -52,7 +52,11 @@ interface AccountTypeInitial {
  * الحفظ لتحديث شارة النوع/الاسم المعروض في AppShell بلا حاجة لآلية
  * refresh مخصصة لـ me (نفس نمط صفحة الدومين).
  */
+const ACCOUNT_TYPES: AccountType[] = ['individual', 'institution', 'company'];
+
 function AccountTypeCard({ accessToken, initial, canEdit }: { accessToken: string; initial: AccountTypeInitial; canEdit: boolean }) {
+  const { pages } = useLocale();
+  const t = pages.settings;
   const [editing, setEditing] = useState(false);
   const [accountType, setAccountType] = useState<AccountType>(initial.account_type);
   const [fullName, setFullName] = useState(initial.name_ar);
@@ -83,7 +87,7 @@ function AccountTypeCard({ accessToken, initial, canEdit }: { accessToken: strin
 
     const result = accountTypeUpdateSchema.safeParse(payload);
     if (!result.success) {
-      setError(result.error.issues[0]?.message ?? 'تحقق من البيانات المدخلة');
+      setError(result.error.issues[0]?.message ?? t.common.invalidData);
       return;
     }
 
@@ -92,7 +96,7 @@ function AccountTypeCard({ accessToken, initial, canEdit }: { accessToken: strin
       await updateAccountType(accessToken, result.data);
       window.location.reload();
     } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : 'تعذّر تبديل نوع الحساب');
+      setError(err instanceof ApiRequestError ? err.message : t.accountType.switchFailed);
       setLoading(false);
     }
   }
@@ -102,12 +106,12 @@ function AccountTypeCard({ accessToken, initial, canEdit }: { accessToken: strin
       <Card className="p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="mb-1 text-base font-semibold text-text-primary">نوع الحساب</h2>
-            <p className="text-sm text-text-secondary">{ACCOUNT_TYPE_LABELS[initial.account_type]}</p>
+            <h2 className="mb-1 text-base font-semibold text-text-primary">{t.accountType.title}</h2>
+            <p className="text-sm text-text-secondary">{t.accountType.options[initial.account_type].label}</p>
           </div>
           {canEdit && (
             <Button type="button" variant="secondary" onClick={() => setEditing(true)}>
-              تبديل النوع
+              {t.accountType.switchButton}
             </Button>
           )}
         </div>
@@ -117,11 +121,12 @@ function AccountTypeCard({ accessToken, initial, canEdit }: { accessToken: strin
 
   return (
     <Card className="p-6">
-      <h2 className="mb-1 text-base font-semibold text-text-primary">تبديل نوع الحساب</h2>
-      <p className="mb-4 text-sm text-text-secondary">يحدّد النوع الحقول المطلوبة وشكل صفحة &quot;من نحن&quot; في موقعك.</p>
+      <h2 className="mb-1 text-base font-semibold text-text-primary">{t.accountType.editTitle}</h2>
+      <p className="mb-4 text-sm text-text-secondary">{t.accountType.editDescription}</p>
       <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-4">
         <div className="flex flex-col gap-3">
-          {ACCOUNT_TYPE_OPTIONS.map(({ type, label, description }) => {
+          {ACCOUNT_TYPES.map((type) => {
+            const { label, description } = t.accountType.options[type];
             const selected = accountType === type;
             return (
               <button
@@ -143,26 +148,44 @@ function AccountTypeCard({ accessToken, initial, canEdit }: { accessToken: strin
         </div>
 
         {accountType === 'individual' ? (
-          <Input placeholder="الاسم الثلاثي" value={fullName} onChange={(e) => setFullName(e.target.value)} />
+          <Input
+            placeholder={t.accountType.fullNamePlaceholder}
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+          />
         ) : (
           <>
             <Input
-              placeholder={accountType === 'institution' ? 'اسم المؤسسة' : 'اسم الشركة'}
+              placeholder={
+                accountType === 'institution'
+                  ? t.accountType.institutionNamePlaceholder
+                  : t.accountType.companyNamePlaceholder
+              }
               value={nameAr}
               onChange={(e) => setNameAr(e.target.value)}
             />
-            <Input placeholder="رقم السجل التجاري" value={crNumber} onChange={(e) => setCrNumber(e.target.value)} dir="ltr" />
-            <Input placeholder="الرقم الضريبي" value={taxNumber} onChange={(e) => setTaxNumber(e.target.value)} dir="ltr" />
+            <Input
+              placeholder={t.accountType.crNumberPlaceholder}
+              value={crNumber}
+              onChange={(e) => setCrNumber(e.target.value)}
+              dir="ltr"
+            />
+            <Input
+              placeholder={t.accountType.taxNumberPlaceholder}
+              value={taxNumber}
+              onChange={(e) => setTaxNumber(e.target.value)}
+              dir="ltr"
+            />
           </>
         )}
 
         <FormError message={error} />
         <div className="flex gap-2">
           <Button type="submit" disabled={loading}>
-            {loading ? 'جارٍ الحفظ...' : 'حفظ'}
+            {loading ? t.common.saving : t.common.save}
           </Button>
           <Button type="button" variant="secondary" onClick={cancel} disabled={loading}>
-            إلغاء
+            {t.common.cancel}
           </Button>
         </div>
       </form>

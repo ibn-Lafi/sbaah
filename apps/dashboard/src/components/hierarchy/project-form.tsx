@@ -19,7 +19,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { FormError } from '@/components/ui/form-error';
 import { LocationPicker, type LocationPickerValue } from '@/components/ui/location-picker';
 import { createDistrict, listCities, listDistricts } from '@/lib/api/reference-data';
-import { PROPERTY_STATUS_LABELS } from '@/lib/property/labels';
+import { useLocale } from '@/lib/i18n/locale-context';
 
 type FormState = {
   name_ar: string;

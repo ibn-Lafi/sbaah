@@ -33,41 +33,23 @@ import { groupPlansByTier, planForCycle, type PlanTier } from '@/lib/billing/pla
 import { ApiRequestError } from '@/lib/api/client';
 import { adoptSession } from '@/lib/auth/session';
 import { useResendCooldown } from '@/lib/auth/use-resend-cooldown';
+import { useLocale } from '@/lib/i18n/locale-context';
+import type { PageDictionaries } from '@/lib/i18n/page-dictionaries';
 
 const STEPS = ['phone', 'otp', 'account', 'account_type', 'plan'] as const;
 type Step = (typeof STEPS)[number];
 
-const STEP_TITLES: Record<Step, string> = {
-  phone: 'رقم الجوال',
-  otp: 'رمز التحقق',
-  account: 'بيانات الحساب',
-  account_type: 'ما نوع حسابك؟',
-  plan: 'اختر باقتك',
-};
-
-const STEPPER_LABELS: Record<Step, string> = {
-  phone: 'الجوال',
-  otp: 'التحقق',
-  account: 'الحساب',
-  account_type: 'النوع',
-  plan: 'الباقة',
-};
-
-const ACCOUNT_TYPE_OPTIONS: { type: AccountType; label: string; description: string }[] = [
-  { type: 'individual', label: 'فرد', description: 'وسيط مستقل يعمل باسمه برخصة فال' },
-  { type: 'institution', label: 'مؤسسة', description: 'مؤسسة فردية لها سجل تجاري ورقم ضريبي' },
-  { type: 'company', label: 'شركة', description: 'شركة عقارية بفريق ووسطاء متعددين' },
-];
+const ACCOUNT_TYPES: AccountType[] = ['individual', 'institution', 'company'];
 
 /** التسجيل متوقف مؤقتًا (packages/shared/src/config.ts) ريثما تُبنى خطوة اختيار الباقة والدفع عبر StreamPay. */
-function RegistrationClosedNotice() {
+function RegistrationClosedNotice({ t }: { t: PageDictionaries['auth'] }) {
   return (
     <Card className="p-8">
-      <h1 className="text-text-primary mb-2 text-2xl font-bold">التسجيل متوقف مؤقتًا</h1>
+      <h1 className="text-text-primary mb-2 text-2xl font-bold">{t.register.closedNotice.title}</h1>
       <p className="text-text-secondary text-sm">
-        نعمل حاليًا على تحديث خطوات إنشاء الحساب، وسنعيد فتح التسجيل قريبًا. لديك حساب بالفعل؟{' '}
+        {t.register.closedNotice.body}{' '}
         <Link href="/login" className="text-brand font-semibold hover:underline">
-          تسجيل الدخول
+          {t.shared.signIn}
         </Link>
         .
       </p>
@@ -84,6 +66,8 @@ function RegistrationClosedNotice() {
  * (register() + إما دخول مباشر للتجربة المجانية أو startCheckout()).
  */
 export default function RegisterPage() {
+  const { pages } = useLocale();
+  const t = pages.auth;
   const [step, setStep] = useState<Step>('phone');
   const [phone, setPhone] = useState('');
   const [code, setCode] = useState('');
@@ -145,7 +129,7 @@ export default function RegisterPage() {
       setStep('otp');
       resend.start();
     } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : 'تعذّر إرسال رمز التحقق');
+      setError(err instanceof ApiRequestError ? err.message : t.shared.otpSendFailedFallback);
     } finally {
       setLoading(false);
     }
@@ -158,7 +142,7 @@ export default function RegisterPage() {
       await sendOtp(phone, 'register');
       resend.start();
     } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : 'تعذّر إرسال رمز التحقق');
+      setError(err instanceof ApiRequestError ? err.message : t.shared.otpSendFailedFallback);
     } finally {
       setLoading(false);
     }

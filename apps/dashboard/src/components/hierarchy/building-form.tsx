@@ -19,6 +19,7 @@ import { FormError } from '@/components/ui/form-error';
 import { LocationPicker, type LocationPickerValue } from '@/components/ui/location-picker';
 import { createDistrict, listCities, listDistricts } from '@/lib/api/reference-data';
 import { listProjects } from '@/lib/api/hierarchy';
+import { useLocale } from '@/lib/i18n/locale-context';
 
 type FormState = {
   project_id: string;
@@ -70,6 +71,8 @@ export function BuildingForm({
   onSubmit,
   submitLabel,
 }: BuildingFormProps) {
+  const { pages } = useLocale();
+  const t = pages.buildings;
   const [form, setForm] = useState<FormState>(
     initialValues
       ? toFormState(initialValues)
@@ -124,7 +127,7 @@ export function BuildingForm({
     const schema = mode === 'create' ? buildingInputSchema : buildingUpdateSchema;
     const result = schema.safeParse(candidate);
     if (!result.success) {
-      setError(result.error.issues[0]?.message ?? 'يرجى مراجعة بيانات العمارة');
+      setError(result.error.issues[0]?.message ?? t.form.validationError);
       return;
     }
 
@@ -132,7 +135,7 @@ export function BuildingForm({
     try {
       await onSubmit(result.data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'تعذّر حفظ العمارة');
+      setError(err instanceof Error ? err.message : t.form.saveError);
     } finally {
       setLoading(false);
     }
@@ -141,7 +144,7 @@ export function BuildingForm({
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <Select value={form.project_id} onChange={(e) => set('project_id', e.target.value)}>
-        <option value="">بلا مشروع (عمارة مستقلة)</option>
+        <option value="">{t.form.fields.noProject}</option>
         {projects.map((project) => (
           <option key={project.id} value={project.id}>
             {project.name_ar}
@@ -151,12 +154,12 @@ export function BuildingForm({
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Input
-          placeholder="اسم العمارة (عربي)"
+          placeholder={t.form.fields.nameAr}
           value={form.name_ar}
           onChange={(e) => set('name_ar', e.target.value)}
         />
         <Input
-          placeholder="اسم العمارة (إنجليزي، اختياري)"
+          placeholder={t.form.fields.nameEn}
           value={form.name_en}
           onChange={(e) => set('name_en', e.target.value)}
         />
@@ -167,13 +170,13 @@ export function BuildingForm({
           options={cities.map((city) => ({ value: city.id, label: city.name_ar }))}
           value={form.city_id}
           onChange={(value) => set('city_id', value)}
-          placeholder="اختر المدينة"
+          placeholder={t.form.fields.citySelect}
         />
         <SearchableSelect
           options={districts.map((district) => ({ value: district.id, label: district.name_ar }))}
           value={form.district_id}
           onChange={(value) => set('district_id', value)}
-          placeholder="الحي (اختياري)"
+          placeholder={t.form.fields.districtSelect}
           disabled={!form.city_id}
           clearable
           onCreate={async (name) => {
@@ -186,7 +189,7 @@ export function BuildingForm({
 
       <Input
         type="number"
-        placeholder="عدد الطوابق (اختياري)"
+        placeholder={t.form.fields.floorsCount}
         value={form.floors_count}
         onChange={(e) => set('floors_count', e.target.value)}
       />
@@ -199,7 +202,7 @@ export function BuildingForm({
 
       <FormError message={error} />
       <Button type="submit" disabled={loading}>
-        {loading ? 'جارٍ الحفظ...' : submitLabel}
+        {loading ? t.form.saving : submitLabel}
       </Button>
     </form>
   );
