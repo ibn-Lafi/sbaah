@@ -71,6 +71,39 @@ export function EyeOffIcon({ className }: IconProps) {
   );
 }
 
+/** زر فتح قائمة إجراءات القسم (إخفاء/تكرار/حذف) — ثلاث نقاط رأسية، بديل عن أيقونة العين المشطوبة المباشرة. */
+export function KebabIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
+      <circle cx="12" cy="5" r="1.8" />
+      <circle cx="12" cy="12" r="1.8" />
+      <circle cx="12" cy="19" r="1.8" />
+    </svg>
+  );
+}
+
+/** تكرار القسم — نسخ صف بمحتوى مطابق يُضاف بنهاية ترتيب الصفحة (بند "تكرار القسم" بقائمة KebabIcon). */
+export function DuplicateIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <rect x="8" y="8" width="12" height="12" rx="1.5" />
+      <path d="M16 8V5.5A1.5 1.5 0 0 0 14.5 4H5.5A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8" />
+    </Svg>
+  );
+}
+
+/** حذف القسم — سلة، بند بقائمة KebabIcon (غير نهائي فعليًا: يُخفي القسم ويُعيده لمكتبة "إضافة قسم"، مطابقًا لـ"إخفاء"، إذ لا حذف حر لنوع قسم "منسّق" أصلًا بهذا المنتج). */
+export function TrashIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M4 7h16" />
+      <path d="M9 7V4.8c0-.4.4-.8.9-.8h4.2c.5 0 .9.4.9.8V7" />
+      <path d="M6 7l.8 12.2c0 .8.7 1.4 1.5 1.4h7.4c.8 0 1.5-.6 1.5-1.4L18 7" />
+      <path d="M10 11v5M14 11v5" />
+    </Svg>
+  );
+}
+
 /** إضافة قسم جديد للصفحة — علامة زائد بسيطة. */
 export function PlusIcon({ className }: IconProps) {
   return (

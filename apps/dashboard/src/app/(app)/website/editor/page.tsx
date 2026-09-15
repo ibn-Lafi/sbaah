@@ -21,6 +21,7 @@ import { EditorSkeleton } from '@/components/website/editor-skeleton';
 import { BackButton } from '@/components/ui/back-button';
 import { SectionList, EDITABLE_TYPES } from '@/components/website/section-list';
 import { SectionConfigEditor } from '@/components/website/section-config-editor';
+import { SectionRowMenu } from '@/components/website/section-row-menu';
 import { SitePreview, type Device } from '@/components/website/site-preview';
 import {
   AdjustmentsIcon,
@@ -29,7 +30,6 @@ import {
   MobileIcon,
   ChevronIcon,
   PencilIcon,
-  EyeOffIcon,
   PlusIcon,
   SearchIcon,
   SectionTypeIcon,
@@ -43,6 +43,7 @@ import {
   getWebsite,
   updateWebsite,
   updateSection,
+  duplicateSection,
   type WebsitePageWithSections,
 } from '@/lib/api/website';
 import { ApiRequestError } from '@/lib/api/client';
@@ -180,9 +181,18 @@ export default function WebsiteEditorPage() {
     );
   }
 
-  /** مفتاح الفوتر بالطريقة القديمة، وأزرار الإخفاء بمحرري الجوال والكمبيوتر. */
+  /** مفتاح الفوتر بالطريقة القديمة، وبند "إخفاء/حذف القسم" بقائمة SectionRowMenu بمحرري الجوال والكمبيوتر. */
   async function toggleSectionVisibility(section: WebsiteSection) {
     await patchSection(section.id, { is_visible: !section.is_visible });
+  }
+
+  /** بند "تكرار القسم" بقائمة SectionRowMenu — ينسخ الصف عبر duplicateSection API، ويضيفه لحالة الصفحة النشطة. */
+  async function duplicateSectionHandler(section: WebsiteSection) {
+    if (!activePage) return;
+    const { section: created } = await duplicateSection(accessToken, section.id);
+    setPages((current) =>
+      current.map((p) => (p.id === activePage.id ? { ...p, website_sections: [...p.website_sections, created] } : p)),
+    );
   }
 
   function closeAddSectionSheet() {
@@ -336,15 +346,10 @@ export default function WebsiteEditorPage() {
                               <PencilIcon className="h-[16px] w-[16px]" />
                             </button>
                           )}
-                          <button
-                            type="button"
-                            onClick={() => void toggleSectionVisibility(section)}
-                            aria-label={t.editor.hideSection}
-                            title={t.editor.hideSection}
-                            className="text-text-secondary hover:text-danger"
-                          >
-                            <EyeOffIcon className="h-[16px] w-[16px]" />
-                          </button>
+                          <SectionRowMenu
+                            onHide={() => void toggleSectionVisibility(section)}
+                            onDuplicate={() => void duplicateSectionHandler(section)}
+                          />
                         </div>
                         {mobileEditingId === section.id && (
                           <SectionConfigEditor
@@ -641,6 +646,7 @@ export default function WebsiteEditorPage() {
                               mergeSections(activePage.id, [...updatedVisible, ...hiddenContentSections])
                             }
                             onHide={(section) => void toggleSectionVisibility(section)}
+                            onDuplicate={(section) => void duplicateSectionHandler(section)}
                             website={website}
                             onWebsiteUpdate={(updated) => setWebsite(updated)}
                           />

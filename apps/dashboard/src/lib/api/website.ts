@@ -35,6 +35,11 @@ export function reorderSections(
   return apiPatch<{ sections: WebsiteSection[] }>('/website/sections/reorder', { sections }, accessToken);
 }
 
+/** ينسخ قسمًا (نفس النوع/المحتوى) كصف جديد بنهاية ترتيب صفحته — لا حذف نهائي مقابله، انظر تعليق مسار API. */
+export function duplicateSection(accessToken: string, sectionId: string): Promise<{ section: WebsiteSection }> {
+  return apiPost<{ section: WebsiteSection }>(`/website/sections/${sectionId}/duplicate`, {}, accessToken);
+}
+
 function uploadAsset(accessToken: string, path: '/website/logo' | '/website/banner' | '/website/banner-video', file: File) {
   const formData = new FormData();
   formData.append('file', file);

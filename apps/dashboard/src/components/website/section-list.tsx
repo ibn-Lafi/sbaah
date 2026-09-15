@@ -2,17 +2,18 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { Website, WebsiteSection } from '@sbaah/shared';
-import { EyeOffIcon } from './editor-icons';
+import { SectionRowMenu } from './section-row-menu';
 import { useLocale } from '@/lib/i18n/locale-context';
 import { reorderSections } from '@/lib/api/website';
 import { SectionConfigEditor } from './section-config-editor';
 
 interface SectionListProps {
-  /** أقسام مُفعَّلة (ظاهرة) فقط — الإخفاء يُزيل القسم من هذه القائمة عائدًا لمكتبة "إضافة قسم" (onHide، مُدارة بصفحة المحرر نفسها ككل الأقسام معًا، بما فيها المخفية). */
+  /** أقسام مُفعَّلة (ظاهرة) فقط — الإخفاء يُزيل القسم من هذه القائمة عائدًا لمكتبة "إضافة قسم" (onHide/onDuplicate، مُدارتان بصفحة المحرر نفسها ككل الأقسام معًا، بما فيها المخفية). */
   sections: WebsiteSection[];
   accessToken: string;
   onChange: (sections: WebsiteSection[]) => void;
   onHide: (section: WebsiteSection) => void;
+  onDuplicate: (section: WebsiteSection) => void;
   website: Website;
   onWebsiteUpdate: (website: Website) => void;
 }
@@ -24,7 +25,7 @@ export const EDITABLE_TYPES: WebsiteSection['type'][] = ['hero', 'about', 'why_u
  * reorder doesn't need a full DnD library. Each drop persists the whole
  * new order in one call (sectionReorderSchema, PRODUCT_SPEC section 6).
  */
-export function SectionList({ sections, accessToken, onChange, onHide, website, onWebsiteUpdate }: SectionListProps) {
+export function SectionList({ sections, accessToken, onChange, onHide, onDuplicate, website, onWebsiteUpdate }: SectionListProps) {
   const { pages } = useLocale();
   const t = pages.website;
   const [ordered, setOrdered] = useState(sections);
@@ -87,15 +88,7 @@ export function SectionList({ sections, accessToken, onChange, onHide, website, 
                 {editingId === section.id ? t.sectionList.closeEdit : t.sectionList.editContent}
               </button>
             )}
-            <button
-              type="button"
-              onClick={() => onHide(section)}
-              aria-label={t.editor.hideSection}
-              title={t.editor.hideSection}
-              className="text-text-secondary hover:text-danger flex-none"
-            >
-              <EyeOffIcon className="h-[16px] w-[16px]" />
-            </button>
+            <SectionRowMenu onHide={() => onHide(section)} onDuplicate={() => onDuplicate(section)} />
           </div>
           {editingId === section.id && (
             <SectionConfigEditor
