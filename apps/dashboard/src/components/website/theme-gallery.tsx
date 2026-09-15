@@ -62,7 +62,7 @@ export function ThemeGallery({
   const t = pages.website;
 
   return (
-    <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3">
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 md:grid-cols-3">
       {themes.map((theme) => {
         const selected = theme.id === selectedThemeId;
         return (
@@ -111,14 +111,10 @@ export function ThemeGallery({
                   </a>
                   <Link
                     href="/website/editor"
-                    aria-label={t.themeStore.customizeTheme}
-                    title={t.themeStore.customizeTheme}
                     className="text-brand flex h-8 flex-1 items-center justify-center gap-1.5 rounded-full bg-white text-xs font-semibold hover:bg-white/90 sm:h-9 sm:text-sm"
                   >
                     <PaletteIcon className="h-3.5 w-3.5 flex-none" />
-                    {/* الاسم الكامل يحتاج سطرين بعرض كرت الجوال الضيق (شبكة عمودين) —
-                        أيقونة فقط هنا، والنص الكامل يظهر من sm: فصاعدًا حيث تتّسع الكروت. */}
-                    <span className="hidden truncate sm:inline">{t.themeStore.customizeTheme}</span>
+                    <span className="truncate">{t.themeStore.customizeTheme}</span>
                   </Link>
                 </div>
               ) : (
