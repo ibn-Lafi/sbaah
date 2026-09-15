@@ -5,6 +5,8 @@ import Link from 'next/link';
 import {
   SUPPORTED_WEBSITE_FONTS,
   WEBSITE_PAGE_KEYS,
+  HERO_VARIANTS,
+  type HeroVariant,
   type Website,
   type WebsitePageKey,
   type WebsiteSection,
@@ -76,6 +78,7 @@ export default function WebsiteEditorPage() {
   const [addSectionOpen, setAddSectionOpen] = useState(false);
   const [addSectionQuery, setAddSectionQuery] = useState('');
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
+  const [addSectionHeroVariant, setAddSectionHeroVariant] = useState<HeroVariant>('image_search');
 
   const siteUrl = `https://${me.tenant.subdomain}.${getPlatformRootDomain()}`;
   const activePage = pages.find((p) => p.key === activePageKey);
@@ -97,6 +100,7 @@ export default function WebsiteEditorPage() {
   // كنفاس حر")، فـ"الإضافة" هنا تعني تفعيل قسم مخفٍ لا إنشاء نوع جديد.
   const visibleContentSections = contentSections.filter((s) => s.is_visible);
   const hiddenContentSections = contentSections.filter((s) => !s.is_visible);
+  const selectedAddSection = hiddenContentSections.find((s) => s.id === selectedSectionId);
   const filteredHiddenSections = hiddenContentSections.filter((s) =>
     t.sectionTypeLabels[s.type].toLowerCase().includes(addSectionQuery.trim().toLowerCase()),
   );
@@ -160,12 +164,10 @@ export default function WebsiteEditorPage() {
     );
   }
 
-  /** يُستخدم لتفعيل/إخفاء أي قسم — مفتاح الفوتر بالطريقة القديمة، وأزرار الإضافة/الإخفاء بمحرر الجوال. */
-  async function toggleSectionVisibility(section: WebsiteSection) {
+  /** يُحدّث قسمًا واحدًا (رؤية و/أو محتوى) في حالة الصفحة النشطة دفعة واحدة. */
+  async function patchSection(sectionId: string, input: { is_visible?: boolean; config?: Record<string, unknown> }) {
     if (!activePage) return;
-    const { section: updated } = await updateSection(accessToken, section.id, {
-      is_visible: !section.is_visible,
-    });
+    const { section: updated } = await updateSection(accessToken, sectionId, input);
     setPages((current) =>
       current.map((p) =>
         p.id === activePage.id
@@ -178,16 +180,32 @@ export default function WebsiteEditorPage() {
     );
   }
 
+  /** مفتاح الفوتر بالطريقة القديمة، وأزرار الإخفاء بمحرري الجوال والكمبيوتر. */
+  async function toggleSectionVisibility(section: WebsiteSection) {
+    await patchSection(section.id, { is_visible: !section.is_visible });
+  }
+
   function closeAddSectionSheet() {
     setAddSectionOpen(false);
     setAddSectionQuery('');
     setSelectedSectionId(null);
+    setAddSectionHeroVariant('image_search');
   }
 
   function confirmAddSection() {
     const section = hiddenContentSections.find((s) => s.id === selectedSectionId);
     if (!section) return;
-    void toggleSectionVisibility(section);
+    // قسم الهيرو له عدة نماذج (صورة/فيديو، مع/بلا فلتر بحث) — يُختار
+    // النموذج هنا مباشرة عند الإضافة بدل الاضطرار لفتح "تحرير المحتوى"
+    // كخطوة ثانية منفصلة بعد التفعيل.
+    if (section.type === 'hero') {
+      void patchSection(section.id, {
+        is_visible: true,
+        config: { ...section.config, variant: addSectionHeroVariant },
+      });
+    } else {
+      void toggleSectionVisibility(section);
+    }
     closeAddSectionSheet();
   }
 
@@ -500,6 +518,23 @@ export default function WebsiteEditorPage() {
                     })}
                   </div>
                 )}
+
+                {selectedAddSection?.type === 'hero' && (
+                  <div className="mt-3 flex flex-col gap-2">
+                    <label className="text-text-secondary text-xs">{t.sectionConfigEditor.heroVariantLabel}</label>
+                    <Select
+                      value={addSectionHeroVariant}
+                      onChange={(e) => setAddSectionHeroVariant(e.target.value as HeroVariant)}
+                      className="h-10"
+                    >
+                      {HERO_VARIANTS.map((variant) => (
+                        <option key={variant} value={variant}>
+                          {t.sectionConfigEditor.heroVariants[variant]}
+                        </option>
+                      ))}
+                    </Select>
+                  </div>
+                )}
               </div>
 
               <div className="border-border-subtle flex flex-none items-center gap-2 border-t p-4">
@@ -802,6 +837,23 @@ export default function WebsiteEditorPage() {
                       </button>
                     );
                   })}
+                </div>
+              )}
+
+              {selectedAddSection?.type === 'hero' && (
+                <div className="flex flex-col gap-2">
+                  <label className="text-text-secondary text-xs">{t.sectionConfigEditor.heroVariantLabel}</label>
+                  <Select
+                    value={addSectionHeroVariant}
+                    onChange={(e) => setAddSectionHeroVariant(e.target.value as HeroVariant)}
+                    className="h-10"
+                  >
+                    {HERO_VARIANTS.map((variant) => (
+                      <option key={variant} value={variant}>
+                        {t.sectionConfigEditor.heroVariants[variant]}
+                      </option>
+                    ))}
+                  </Select>
                 </div>
               )}
 
