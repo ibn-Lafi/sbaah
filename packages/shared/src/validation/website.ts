@@ -17,6 +17,7 @@ export const websiteUpdateSchema = z.object({
   banner_image_url: z.string().url().optional().nullable(),
   announcement_bar_text: z.string().max(200).optional().nullable(),
   footer_description: z.string().max(2000).optional().nullable(),
+  address: z.string().max(500).optional().nullable(),
 });
 export type WebsiteUpdateInput = z.infer<typeof websiteUpdateSchema>;
 

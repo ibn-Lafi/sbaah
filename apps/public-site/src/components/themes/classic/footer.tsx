@@ -52,6 +52,7 @@ export function Footer({ locale, dict, tenant, website, customPages }: FooterPro
           ) : (
             <span className="text-lg font-semibold text-white">{tenantName}</span>
           )}
+          {website.footer_description && <p className="text-white/60">{website.footer_description}</p>}
           {socialLinks.length > 0 && (
             <div className="flex items-center gap-4">
               {socialLinks.map(({ key, href, Icon }) => (
@@ -97,14 +98,14 @@ export function Footer({ locale, dict, tenant, website, customPages }: FooterPro
               </span>
             </a>
           )}
-          {website.footer_description && (
+          {website.address && (
             <div className="flex items-start gap-3">
               <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-white/10 text-tenant-primary">
                 <LocationIcon className="h-[16px] w-[16px]" />
               </span>
               <span className="flex flex-col">
                 <span className="text-xs text-white/40">{dict.address}</span>
-                <span className="text-white">{website.footer_description}</span>
+                <span className="text-white">{website.address}</span>
               </span>
             </div>
           )}

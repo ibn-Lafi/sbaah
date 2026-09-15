@@ -34,15 +34,12 @@ import {
   updateWebsite,
   updateSection,
   uploadBanner,
-  uploadLogo,
   type WebsitePageWithSections,
 } from '@/lib/api/website';
 import { ApiRequestError } from '@/lib/api/client';
 
 type PanelView = 'sections' | 'settings';
 type ZoneKey = 'top' | 'content' | 'bottom';
-
-const HEX_PATTERN = /^#[0-9A-Fa-f]{6}$/;
 
 /**
  * تخصيص الثيم — شاشة كاملة (بدون AppShell، الرجوع عبر سهم) مطابقة لأداة
@@ -57,7 +54,6 @@ export default function WebsiteEditorPage() {
   const t = pageLabels.website;
   const [website, setWebsite] = useState<Website | null>(null);
   const [pages, setPages] = useState<WebsitePageWithSections[]>([]);
-  const [colorDraft, setColorDraft] = useState({ primary: '', secondary: '' });
   const [textDraft, setTextDraft] = useState({ announcement: '', footerDescription: '' });
   const [error, setError] = useState<string | null>(null);
   const [panelView, setPanelView] = useState<PanelView>('sections');
@@ -89,10 +85,6 @@ export default function WebsiteEditorPage() {
     void getWebsite(accessToken).then((result) => {
       setWebsite(result.website);
       setPages(result.pages);
-      setColorDraft({
-        primary: result.website.primary_color,
-        secondary: result.website.secondary_color,
-      });
       setTextDraft({
         announcement: result.website.announcement_bar_text ?? '',
         footerDescription: result.website.footer_description ?? '',
@@ -102,17 +94,6 @@ export default function WebsiteEditorPage() {
 
   function toggleZone(zone: ZoneKey) {
     setOpenZones((current) => ({ ...current, [zone]: !current[zone] }));
-  }
-
-  async function saveColor(field: 'primary_color' | 'secondary_color', value: string) {
-    if (!HEX_PATTERN.test(value)) return;
-    setError(null);
-    try {
-      const { website: updated } = await updateWebsite(accessToken, { [field]: value });
-      setWebsite((current) => (current ? { ...current, ...updated } : current));
-    } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : t.editor.errors.saveColor);
-    }
   }
 
   async function saveFont(font: string) {
@@ -236,24 +217,6 @@ export default function WebsiteEditorPage() {
                     </button>
                     {openZones.top && (
                       <div className="mt-4 flex flex-col gap-4">
-                        <AssetUploader
-                          label={t.editor.logoLabel}
-                          currentUrl={website.logo_url}
-                          onUpload={async (file) => {
-                            const { website: updated } = await uploadLogo(accessToken, file);
-                            setWebsite((current) =>
-                              current ? { ...current, ...updated } : current,
-                            );
-                          }}
-                          onRemove={async () => {
-                            const { website: updated } = await updateWebsite(accessToken, {
-                              logo_url: null,
-                            });
-                            setWebsite((current) =>
-                              current ? { ...current, ...updated } : current,
-                            );
-                          }}
-                        />
                         <div className="flex flex-col gap-2">
                           <label className="text-text-secondary text-xs">
                             {t.editor.announcementBarLabel}
@@ -326,8 +289,6 @@ export default function WebsiteEditorPage() {
                           </div>
                         )}
 
-                        <p className="text-text-tertiary text-xs">{t.editor.footerLogoNote}</p>
-
                         <div className="flex flex-col gap-2">
                           <label className="text-text-secondary text-xs">
                             {t.editor.footerDescriptionLabel}
@@ -374,52 +335,6 @@ export default function WebsiteEditorPage() {
                   </button>
                   {colorsOpen && (
                     <div className="flex flex-col gap-4 pb-4">
-                      <div className="flex flex-col gap-2">
-                        <label className="text-text-secondary text-xs">{t.editor.primaryColor}</label>
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="color"
-                            value={colorDraft.primary}
-                            onChange={(e) =>
-                              setColorDraft((c) => ({ ...c, primary: e.target.value }))
-                            }
-                            onBlur={() => void saveColor('primary_color', colorDraft.primary)}
-                            className="rounded-input border-border-default h-10 w-10 shrink-0 cursor-pointer border"
-                          />
-                          <Input
-                            value={colorDraft.primary}
-                            onChange={(e) =>
-                              setColorDraft((c) => ({ ...c, primary: e.target.value }))
-                            }
-                            onBlur={() => void saveColor('primary_color', colorDraft.primary)}
-                            dir="ltr"
-                            className="h-10 min-w-0 flex-1"
-                          />
-                        </div>
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <label className="text-text-secondary text-xs">{t.editor.secondaryColor}</label>
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="color"
-                            value={colorDraft.secondary}
-                            onChange={(e) =>
-                              setColorDraft((c) => ({ ...c, secondary: e.target.value }))
-                            }
-                            onBlur={() => void saveColor('secondary_color', colorDraft.secondary)}
-                            className="rounded-input border-border-default h-10 w-10 shrink-0 cursor-pointer border"
-                          />
-                          <Input
-                            value={colorDraft.secondary}
-                            onChange={(e) =>
-                              setColorDraft((c) => ({ ...c, secondary: e.target.value }))
-                            }
-                            onBlur={() => void saveColor('secondary_color', colorDraft.secondary)}
-                            dir="ltr"
-                            className="h-10 min-w-0 flex-1"
-                          />
-                        </div>
-                      </div>
                       <div className="flex flex-col gap-2">
                         <label className="text-text-secondary text-xs">{t.editor.font}</label>
                         <Select

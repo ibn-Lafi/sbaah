@@ -1,7 +1,7 @@
 'use client';
 
-import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import type { AccountType } from '@sbaah/shared';
 import { accountTypeUpdateSchema, falLicenseUpdateSchema, socialLinksUpdateSchema } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
@@ -12,6 +12,10 @@ import { PhoneInput } from '@/components/ui/phone-input';
 import { Button } from '@/components/ui/button';
 import { FormError } from '@/components/ui/form-error';
 import { VerifiedBadge } from '@/components/ui/verified-badge';
+import { SegmentedToggle } from '@/components/ui/segmented-toggle';
+import { TeamManagementPanel } from '@/components/team/team-management-panel';
+import { BillingPanel } from '@/components/billing/billing-panel';
+import { WebsiteBrandingCard } from '@/components/website/website-branding-card';
 import {
   InstagramIcon,
   TiktokIcon,
@@ -26,7 +30,10 @@ import { useLocale } from '@/lib/i18n/locale-context';
 import { updateSocialLinks, updateAccountType, updateFalLicense, type SocialLinks } from '@/lib/api/tenant';
 import { getWebsite, updateWebsite } from '@/lib/api/website';
 import { updateMyEmail } from '@/lib/api/auth';
+import { signOut } from '@/lib/auth/session';
 import { ApiRequestError } from '@/lib/api/client';
+
+type SettingsTab = 'account' | 'team' | 'billing' | 'websiteData';
 
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
@@ -47,10 +54,10 @@ interface AccountTypeInitial {
 }
 
 /**
- * نوع الحساب — قابل للتبديل بأي اتجاه (فرد↔مؤسسة↔شركة) من داخل حسابي،
- * Owner فقط (assertOwner بنفس تقييد الدومين). يعيد تحميل الصفحة بعد
- * الحفظ لتحديث شارة النوع/الاسم المعروض في AppShell بلا حاجة لآلية
- * refresh مخصصة لـ me (نفس نمط صفحة الدومين).
+ * نوع الحساب — قابل للتبديل بأي اتجاه (فرد↔مؤسسة↔شركة) من داخل تبويب
+ * "بيانات الموقع" بالإعدادات، Owner فقط (assertOwner بنفس تقييد الدومين).
+ * يعيد تحميل الصفحة بعد الحفظ لتحديث شارة النوع/الاسم المعروض في AppShell
+ * بلا حاجة لآلية refresh مخصصة لـ me (نفس نمط صفحة الدومين).
  */
 const ACCOUNT_TYPES: AccountType[] = ['individual', 'institution', 'company'];
 
@@ -277,13 +284,29 @@ function SocialLinksCard({ accessToken, initial }: { accessToken: string; initia
 }
 
 /**
- * العنوان — نفس `website.footer_description` (كان يُعدَّل من محرر الموقع
- * فقط) أصبح متاحًا من هنا أيضًا لسهولة الوصول، بنفس أيقونة الموقع
- * المستخدمة في تذييل الموقع العام؛ يظهر هناك مع "تواصل معنا".
+ * حقل نصي على `websites` (العنوان/وصف الموقع) — نفس الشكل والسلوك لكلا
+ * الحقلين (يظهران دائمًا في تذييل الموقع العام)، فقط يختلف الحقل المستهدَف
+ * والنصوص المعروضة؛ مكوّن واحد بدل تكرار نفس منطق الجلب/الحفظ مرتين.
  */
-function AddressCard({ accessToken }: { accessToken: string }) {
+function WebsiteTextFieldCard({
+  accessToken,
+  field,
+  icon,
+  title,
+  description,
+  placeholder,
+  saveFailedMessage,
+}: {
+  accessToken: string;
+  field: 'address' | 'footer_description';
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  placeholder: string;
+  saveFailedMessage: string;
+}) {
   const { pages } = useLocale();
-  const t = pages.settings;
+  const t = pages.settings.common;
   const [value, setValue] = useState<string | null>(null);
   const [draft, setDraft] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -292,10 +315,10 @@ function AddressCard({ accessToken }: { accessToken: string }) {
 
   useEffect(() => {
     void getWebsite(accessToken).then(({ website }) => {
-      setValue(website.footer_description ?? '');
-      setDraft(website.footer_description ?? '');
+      setValue(website[field] ?? '');
+      setDraft(website[field] ?? '');
     });
-  }, [accessToken]);
+  }, [accessToken, field]);
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -303,11 +326,11 @@ function AddressCard({ accessToken }: { accessToken: string }) {
     setSaved(false);
     setLoading(true);
     try {
-      const { website: updated } = await updateWebsite(accessToken, { footer_description: draft || null });
-      setValue(updated.footer_description ?? '');
+      const { website: updated } = await updateWebsite(accessToken, { [field]: draft || null });
+      setValue(updated[field] ?? '');
       setSaved(true);
     } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : t.address.saveFailed);
+      setError(err instanceof ApiRequestError ? err.message : saveFailedMessage);
     } finally {
       setLoading(false);
     }
@@ -320,20 +343,15 @@ function AddressCard({ accessToken }: { accessToken: string }) {
   return (
     <Card className="p-6">
       <h2 className="mb-1 flex items-center gap-2 text-base font-semibold text-text-primary">
-        <LocationIcon className="h-[18px] w-[18px] text-text-secondary" />
-        {t.address.title}
+        {icon}
+        {title}
       </h2>
-      <p className="mb-4 text-sm text-text-secondary">{t.address.description}</p>
+      <p className="mb-4 text-sm text-text-secondary">{description}</p>
       <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-3">
-        <Textarea
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          placeholder={t.address.placeholder}
-          className="min-h-[80px]"
-        />
+        <Textarea value={draft} onChange={(e) => setDraft(e.target.value)} placeholder={placeholder} className="min-h-[80px]" />
         <FormError message={error} />
         <Button type="submit" disabled={loading} className="w-fit">
-          {loading ? t.common.saving : saved ? t.common.saved : t.common.save}
+          {loading ? t.saving : saved ? t.saved : t.save}
         </Button>
       </form>
     </Card>
@@ -456,69 +474,133 @@ function FalLicenseCard({ accessToken, initial, canEdit }: { accessToken: string
   );
 }
 
-/** حسابي (من قائمة الحساب المنسدلة أسفل الشريط الجانبي) — بيانات الحساب + حسابات التواصل الاجتماعي؛ النطاق الفرعي/الدومين المخصص انتقلا إلى /domain (عنصر قائمة مستقل، مطابق للتصميم). */
-export default function SettingsPage() {
-  const { me, accessToken } = useCurrentUser();
+function AccountTab({ accessToken }: { accessToken: string }) {
+  const { me } = useCurrentUser();
   const { t, pages } = useLocale();
   const settings = pages.settings;
+  const router = useRouter();
+
+  function handleSignOut() {
+    void signOut().then(() => router.replace('/login'));
+  }
 
   return (
-    <AppShell
-      title={settings.pageTitle}
-      orgName={me.tenant.name_ar}
-      accountType={me.tenant.account_type}
-    >
+    <>
+      <Card className="p-6">
+        <h2 className="mb-2 text-base font-semibold text-text-primary">{settings.accountInfo.title}</h2>
+        <InfoRow label={settings.accountInfo.yourName} value={me.user.full_name} />
+        <InfoRow label={settings.accountInfo.yourPhone} value={me.user.phone} />
+        <InfoRow label={settings.accountInfo.yourRole} value={t.roleLabels[me.user.role]} />
+      </Card>
+
+      <EmailCard accessToken={accessToken} initialEmail={me.user.email} />
+
+      <Card className="p-6">
+        <button
+          type="button"
+          onClick={handleSignOut}
+          className="text-sm font-semibold text-danger hover:underline"
+        >
+          {settings.signOut}
+        </button>
+      </Card>
+    </>
+  );
+}
+
+function WebsiteDataTab({ accessToken }: { accessToken: string }) {
+  const { me } = useCurrentUser();
+  const { pages } = useLocale();
+  const settings = pages.settings;
+  const canEdit = me.user.role === 'owner';
+
+  return (
+    <>
+      <Card className="p-6">
+        <h2 className="mb-2 text-base font-semibold text-text-primary">{settings.accountInfo.title}</h2>
+        <InfoRow label={settings.accountInfo.accountName} value={me.tenant.name_ar} />
+      </Card>
+
+      <AccountTypeCard
+        accessToken={accessToken}
+        canEdit={canEdit}
+        initial={{
+          account_type: me.tenant.account_type,
+          name_ar: me.tenant.name_ar,
+          cr_number: me.tenant.cr_number,
+          tax_number: me.tenant.tax_number,
+        }}
+      />
+
+      <FalLicenseCard accessToken={accessToken} canEdit={canEdit} initial={me.tenant.fal_license_number} />
+
+      <SocialLinksCard
+        accessToken={accessToken}
+        initial={{
+          social_instagram: me.tenant.social_instagram,
+          social_tiktok: me.tenant.social_tiktok,
+          social_whatsapp: me.tenant.social_whatsapp,
+          social_snapchat: me.tenant.social_snapchat,
+          social_phone: me.tenant.social_phone,
+        }}
+      />
+
+      <WebsiteTextFieldCard
+        accessToken={accessToken}
+        field="address"
+        icon={<LocationIcon className="h-[18px] w-[18px] text-text-secondary" />}
+        title={settings.address.title}
+        description={settings.address.description}
+        placeholder={settings.address.placeholder}
+        saveFailedMessage={settings.address.saveFailed}
+      />
+
+      <WebsiteTextFieldCard
+        accessToken={accessToken}
+        field="footer_description"
+        icon={<MailIcon className="h-[18px] w-[18px] text-text-secondary" />}
+        title={settings.websiteDescription.title}
+        description={settings.websiteDescription.description}
+        placeholder={settings.websiteDescription.placeholder}
+        saveFailedMessage={settings.websiteDescription.saveFailed}
+      />
+
+      <WebsiteBrandingCard accessToken={accessToken} />
+    </>
+  );
+}
+
+/** حسابي (من الشريط السفلي بعرض الجوال، وقائمة الحساب المنسدلة بالشريط الجانبي على سطح المكتب) — شريط تبويب موحّد (بنفس شكل الدومين المخصص/الفرعي بصفحة الدومين) يجمع الحساب الشخصي، إدارة الموظفين، الفوترة والاشتراك، وبيانات الموقع في صفحة واحدة بدل ثلاث صفحات منفصلة. /team و/billing يبقيان يعملان (نفس المكوّنات بالضبط). */
+export default function SettingsPage() {
+  const { me, accessToken } = useCurrentUser();
+  const { pages } = useLocale();
+  const settings = pages.settings;
+  const canSeeTeam = me.user.role === 'owner' || me.user.role === 'admin';
+  const canSeeBilling = me.user.role === 'owner';
+  const canSeeWebsiteData = me.user.role === 'owner' || me.user.role === 'admin';
+
+  const tabOptions = [
+    { value: 'account' as const, label: settings.tabs.account },
+    ...(canSeeTeam ? [{ value: 'team' as const, label: settings.tabs.team }] : []),
+    ...(canSeeBilling ? [{ value: 'billing' as const, label: settings.tabs.billing }] : []),
+    ...(canSeeWebsiteData ? [{ value: 'websiteData' as const, label: settings.tabs.websiteData }] : []),
+  ];
+  const [tab, setTab] = useState<SettingsTab>('account');
+
+  return (
+    <AppShell title={settings.pageTitle} orgName={me.tenant.name_ar} accountType={me.tenant.account_type}>
       <div className="flex max-w-[640px] flex-col gap-5">
-        <Card className="p-6">
-          <h2 className="mb-2 text-base font-semibold text-text-primary">{settings.accountInfo.title}</h2>
-          <InfoRow label={settings.accountInfo.accountName} value={me.tenant.name_ar} />
-          <InfoRow label={settings.accountInfo.yourName} value={me.user.full_name} />
-          <InfoRow label={settings.accountInfo.yourPhone} value={me.user.phone} />
-          <InfoRow label={settings.accountInfo.yourRole} value={t.roleLabels[me.user.role]} />
-        </Card>
+        {tabOptions.length > 1 && <SegmentedToggle value={tab} onChange={setTab} options={tabOptions} />}
 
-        <AccountTypeCard
-          accessToken={accessToken}
-          canEdit={me.user.role === 'owner'}
-          initial={{
-            account_type: me.tenant.account_type,
-            name_ar: me.tenant.name_ar,
-            cr_number: me.tenant.cr_number,
-            tax_number: me.tenant.tax_number,
-          }}
-        />
-
-        <FalLicenseCard
-          accessToken={accessToken}
-          canEdit={me.user.role === 'owner'}
-          initial={me.tenant.fal_license_number}
-        />
-
-        <EmailCard accessToken={accessToken} initialEmail={me.user.email} />
-
-        <SocialLinksCard
-          accessToken={accessToken}
-          initial={{
-            social_instagram: me.tenant.social_instagram,
-            social_tiktok: me.tenant.social_tiktok,
-            social_whatsapp: me.tenant.social_whatsapp,
-            social_snapchat: me.tenant.social_snapchat,
-            social_phone: me.tenant.social_phone,
-          }}
-        />
-
-        <AddressCard accessToken={accessToken} />
-
-        <Card className="p-6">
-          <h2 className="mb-1 text-base font-semibold text-text-primary">{settings.domain.title}</h2>
-          <p className="text-sm text-text-secondary">
-            {settings.domain.movedText}{' '}
-            <Link href="/domain" className="font-semibold text-brand hover:underline">
-              {settings.domain.linkLabel}
-            </Link>
-            .
-          </p>
-        </Card>
+        {tab === 'account' && <AccountTab accessToken={accessToken} />}
+        {tab === 'team' && (canSeeTeam ? <TeamManagementPanel /> : null)}
+        {tab === 'billing' &&
+          (canSeeBilling ? (
+            <Suspense fallback={null}>
+              <BillingPanel />
+            </Suspense>
+          ) : null)}
+        {tab === 'websiteData' && (canSeeWebsiteData ? <WebsiteDataTab accessToken={accessToken} /> : null)}
       </div>
     </AppShell>
   );

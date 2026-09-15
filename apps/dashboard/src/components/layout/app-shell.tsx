@@ -59,7 +59,7 @@ export function AppShell({ title, orgName, accountType, children }: AppShellProp
     <div className="flex h-dvh overflow-hidden">
       <Sidebar orgName={orgName} accountType={accountType} />
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-        <Topbar title={title} siteUrl={siteUrl} accountType={accountType} />
+        <Topbar title={title} siteUrl={siteUrl} />
         {/* Mobile: the page content is a rounded-top sheet that overlaps UP into the purple header by -mt-5 (founder's Zid reference, red-circled) — the header stays a plain square rectangle behind it; the curve itself, and the small light notches it cuts into the header's own bottom corners, come entirely from this card's corner radius sitting on top. Desktop is untouched (no radius, no overlap, transparent). */}
         <div className="bg-surface-page relative z-10 -mt-5 flex min-h-0 flex-1 flex-col rounded-t-[28px] md:mt-0 md:rounded-none md:bg-transparent">
           {status !== 'active' && (

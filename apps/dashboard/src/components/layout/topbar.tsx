@@ -1,21 +1,13 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import type { AccountType } from '@sbaah/shared';
-import { AccountAvatar } from '@/components/ui/account-avatar';
 import { BrandMark } from '@/components/ui/brand-mark';
 import { LanguageToggle } from './language-toggle';
 import { ThemeToggle } from './theme-toggle';
-import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { useLocale } from '@/lib/i18n/locale-context';
-import { signOut } from '@/lib/auth/session';
 
 interface TopbarProps {
   title: string;
   siteUrl: string;
-  accountType: AccountType;
 }
 
 /**
@@ -23,22 +15,14 @@ interface TopbarProps {
  * founder's own reference (Zid's purple, curved-bottom mobile header): brand
  * color, rounded bottom corners, and the سبعة logo (sidebar.tsx carries the
  * same mark on desktop, so it's mobile-only here) — search pill hides there
- * too (bottom nav's page list covers navigation instead). Mobile also gets
- * its own account icon (next to "زيارة الموقع") opening a small anchored
- * popover for حسابي/إدارة الموظفين/الفوترة — these normally live in the
- * desktop sidebar's bottom account-switcher dropdown, which doesn't exist on
- * phones (sidebar.tsx is `hidden md:flex`).
+ * too (bottom nav's page list covers navigation instead). The language/theme
+ * toggles and account icon used to also show on mobile here; both are
+ * desktop-only now — mobile reaches all of that (plus تسجيل الخروج) through
+ * the bottom nav's new "الإعدادات" entry instead (mobile-nav.tsx), which
+ * now owns account-level actions on phones.
  */
-export function Topbar({ title, siteUrl, accountType }: TopbarProps) {
-  const router = useRouter();
-  const { me } = useCurrentUser();
+export function Topbar({ title, siteUrl }: TopbarProps) {
   const { t } = useLocale();
-  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
-
-  function handleSignOut() {
-    setAccountMenuOpen(false);
-    void signOut().then(() => router.replace('/login'));
-  }
 
   return (
     <div className="bg-brand md:border-border-subtle md:bg-surface-card flex h-20 flex-none items-center gap-2 px-4 pb-5 md:h-[72px] md:gap-4 md:border-b md:px-7 md:pb-0">
@@ -58,8 +42,10 @@ export function Topbar({ title, siteUrl, accountType }: TopbarProps) {
           className="text-text-primary flex-1 border-none bg-transparent text-[13px] outline-none"
         />
       </div>
-      <ThemeToggle />
-      <LanguageToggle />
+      <div className="hidden items-center gap-4 md:flex">
+        <ThemeToggle />
+        <LanguageToggle />
+      </div>
       <a
         href={siteUrl}
         target="_blank"
@@ -78,61 +64,6 @@ export function Topbar({ title, siteUrl, accountType }: TopbarProps) {
           <path d="M14 4h6v6M10 14 20 4M13 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-6" />
         </svg>
       </a>
-
-      <div className="relative md:hidden">
-        <button
-          type="button"
-          onClick={() => setAccountMenuOpen((open) => !open)}
-          aria-label={t.topbar.myAccount}
-          title={t.topbar.myAccount}
-          className="flex h-9 w-9 flex-none items-center justify-center rounded-full"
-        >
-          <AccountAvatar accountType={accountType} size={36} />
-        </button>
-
-        {accountMenuOpen && (
-          <>
-            <div className="fixed inset-0 z-40" onClick={() => setAccountMenuOpen(false)} />
-            <div className="border-border-subtle bg-surface-card absolute end-0 top-full z-50 mt-2 flex w-48 flex-col gap-0.5 rounded-[14px] border p-1.5 shadow-[0_10px_30px_rgba(31,29,34,.18)]">
-              {(me.user.role === 'owner' || me.user.role === 'admin') && (
-                <Link
-                  href="/settings"
-                  onClick={() => setAccountMenuOpen(false)}
-                  className="text-text-primary hover:bg-surface-subtle rounded-[10px] px-[14px] py-[11px] text-[13px] font-medium"
-                >
-                  {t.accountMenu.settings}
-                </Link>
-              )}
-              {(me.user.role === 'owner' || me.user.role === 'admin') && (
-                <Link
-                  href="/team"
-                  onClick={() => setAccountMenuOpen(false)}
-                  className="text-text-primary hover:bg-surface-subtle rounded-[10px] px-[14px] py-[11px] text-[13px] font-medium"
-                >
-                  {t.accountMenu.team}
-                </Link>
-              )}
-              {me.user.role === 'owner' && (
-                <Link
-                  href="/billing"
-                  onClick={() => setAccountMenuOpen(false)}
-                  className="text-text-primary hover:bg-surface-subtle rounded-[10px] px-[14px] py-[11px] text-[13px] font-medium"
-                >
-                  {t.accountMenu.billing}
-                </Link>
-              )}
-              <div className="bg-surface-subtle my-0.5 h-px" />
-              <button
-                type="button"
-                onClick={handleSignOut}
-                className="text-danger hover:bg-danger-surface rounded-[10px] px-[14px] py-[11px] text-start text-[13px] font-medium"
-              >
-                {t.accountMenu.signOut}
-              </button>
-            </div>
-          </>
-        )}
-      </div>
     </div>
   );
 }

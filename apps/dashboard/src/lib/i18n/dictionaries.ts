@@ -36,6 +36,7 @@ export interface ChromeDictionary {
   mobileNav: {
     morePages: string;
     close: string;
+    settings: string;
   };
   appShell: {
     suspended: string;
@@ -96,6 +97,7 @@ export const dictionaries: Record<Locale, ChromeDictionary> = {
     mobileNav: {
       morePages: 'بقية الصفحات',
       close: 'إغلاق',
+      settings: 'الإعدادات',
     },
     appShell: {
       suspended:
@@ -154,6 +156,7 @@ export const dictionaries: Record<Locale, ChromeDictionary> = {
     mobileNav: {
       morePages: 'More Pages',
       close: 'Close',
+      settings: 'Settings',
     },
     appShell: {
       suspended: 'Your account is currently suspended — data is read-only until you renew your subscription.',

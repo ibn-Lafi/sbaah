@@ -147,6 +147,8 @@ export interface Website {
   announcement_bar_text: string | null;
   /** أسفل الصفحة — نص تعريفي في الفوتر (منفصل عن الشعار/الألوان). */
   footer_description: string | null;
+  /** العنوان — سطر عنوان يظهر في تذييل الموقع العام (migration 0048)، منفصل عن footer_description. */
+  address: string | null;
 }
 
 /** الصفحات — صفحة يكتبها المالك/المسؤول (عنوان + محتوى)، تُعرض عبر رابط في تذييل الموقع (مثل سياسة الخصوصية). */

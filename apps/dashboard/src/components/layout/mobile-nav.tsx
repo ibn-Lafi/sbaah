@@ -7,7 +7,7 @@ import type { AccountType } from '@sbaah/shared';
 import { AccountAvatar } from '@/components/ui/account-avatar';
 import { BrandMark } from '@/components/ui/brand-mark';
 import { getNavItems, isNavGroup, type NavEntry, type NavLeaf } from './nav-items';
-import { ChevronIcon, CloseIcon, MenuIcon } from './nav-icons';
+import { ChevronIcon, CloseIcon, MenuIcon, SettingsIcon } from './nav-icons';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { useLocale } from '@/lib/i18n/locale-context';
 
@@ -62,10 +62,10 @@ function getPinnedItems(items: NavEntry[]): PinnedNavItem[] {
  * Mobile-only bottom nav (md:hidden) — the sidebar (sidebar.tsx) is fixed-
  * width and desktop-only, so phones need their own chrome. Matches the
  * founder's Zid reference screenshots: a floating pill bar with the 3
- * most-used pages, plus a circular button that opens a partial-width sheet
- * listing every other page. حسابي/إدارة الموظفين/الفوترة/تسجيل الخروج live
- * in the topbar's own account popover on mobile instead (topbar.tsx) —
- * not duplicated here.
+ * most-used pages plus a 4th pinned "الإعدادات" entry, and a circular
+ * button that opens a partial-width sheet listing every other page.
+ * حسابي/إدارة الموظفين/الفوترة/تسجيل الخروج all live inside /settings now
+ * (its tabbed shell) — topbar.tsx no longer has a mobile account popover.
  */
 export function MobileNav({ orgName, accountType }: MobileNavProps) {
   const pathname = usePathname();
@@ -76,7 +76,14 @@ export function MobileNav({ orgName, accountType }: MobileNavProps) {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
   const visibleItems = getNavItems(t).filter((item) => !item.roles || item.roles.includes(me.user.role));
-  const pinnedItems = getPinnedItems(visibleItems);
+  // الإعدادات ليست ضمن nav-items.ts (تعيش هناك فقط في قائمة الحساب بالشريط
+  // الجانبي لسطح المكتب)، فتُضاف هنا مباشرة بدل تمريرها عبر PINNED_KEYS —
+  // هذه أيقونتها الوحيدة على الجوال الآن، تحل محل زر الحساب المنبثق الذي
+  // كان بالهيدر (topbar.tsx لم يعد يعرضه على الجوال إطلاقًا).
+  const pinnedItems: PinnedNavItem[] = [
+    ...getPinnedItems(visibleItems),
+    { key: 'settings', href: '/settings', label: t.mobileNav.settings, icon: SettingsIcon, activeHrefs: ['/settings'] },
+  ];
 
   useEffect(() => {
     if (!sheetOpen) return;

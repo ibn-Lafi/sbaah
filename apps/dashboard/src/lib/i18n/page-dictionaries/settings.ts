@@ -1,5 +1,11 @@
 export const settingsAr = {
   pageTitle: 'الإعدادات',
+  tabs: {
+    account: 'الحساب',
+    team: 'الموظفين',
+    billing: 'الفوترة والاشتراك',
+    websiteData: 'بيانات الموقع',
+  },
   common: {
     save: 'حفظ',
     saving: 'جارٍ الحفظ...',
@@ -61,18 +67,30 @@ export const settingsAr = {
   address: {
     title: 'العنوان',
     description: 'يظهر مع تواصل معنا في تذييل موقعك الإلكتروني.',
-    placeholder: 'نبذة قصيرة أو عنوان الحساب يظهر في تذييل الموقع',
+    placeholder: 'مثال: الرياض، حي العليا، شارع الملك فهد',
     saveFailed: 'تعذّر حفظ العنوان',
   },
-  domain: {
-    title: 'النطاق الفرعي والدومين المخصص',
-    movedText: 'إدارة النطاق الفرعي والدومين المخصص انتقلت إلى',
-    linkLabel: 'الدومين',
+  websiteDescription: {
+    title: 'وصف الموقع',
+    description: 'نص يظهر دائمًا في تذييل موقعك الإلكتروني.',
+    placeholder: 'نبذة قصيرة عن نشاطك تظهر في تذييل الموقع',
+    saveFailed: 'تعذّر حفظ وصف الموقع',
   },
+  websiteData: {
+    brandingTitle: 'ألوان وشعار المتجر',
+    logoFooterNote: 'يظهر هذا الشعار أيضًا في تذييل موقعك الإلكتروني.',
+  },
+  signOut: 'تسجيل الخروج',
 };
 
 export const settingsEn: typeof settingsAr = {
   pageTitle: 'Settings',
+  tabs: {
+    account: 'Account',
+    team: 'Team',
+    billing: 'Billing & Subscription',
+    websiteData: 'Website Data',
+  },
   common: {
     save: 'Save',
     saving: 'Saving...',
@@ -134,12 +152,18 @@ export const settingsEn: typeof settingsAr = {
   address: {
     title: 'Address',
     description: 'Appears with contact info in your website footer.',
-    placeholder: 'A short bio or address shown in your site footer',
+    placeholder: 'e.g. Riyadh, Al Olaya District, King Fahd Road',
     saveFailed: 'Failed to save address',
   },
-  domain: {
-    title: 'Subdomain & Custom Domain',
-    movedText: 'Subdomain and custom domain management has moved to',
-    linkLabel: 'Domain',
+  websiteDescription: {
+    title: 'Website Description',
+    description: 'Text that always appears in your website footer.',
+    placeholder: 'A short blurb about your business shown in the site footer',
+    saveFailed: 'Failed to save website description',
   },
+  websiteData: {
+    brandingTitle: 'Store Colors & Logo',
+    logoFooterNote: 'This logo also appears in your website footer.',
+  },
+  signOut: 'Sign Out',
 };

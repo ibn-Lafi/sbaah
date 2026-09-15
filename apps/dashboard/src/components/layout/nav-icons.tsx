@@ -153,6 +153,18 @@ export function DomainIcon({ className }: IconProps) {
   );
 }
 
+/** الشريط السفلي بعرض الجوال — أيقونة "الإعدادات" المثبّتة (شكل مقابض ضبط تقليدي). */
+export function SettingsIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h13" />
+      <circle cx="16" cy="6" r="2" />
+      <circle cx="8" cy="12" r="2" />
+      <circle cx="17" cy="18" r="2" />
+    </Svg>
+  );
+}
+
 /** الشريط السفلي بعرض الجوال — الزر الدائري الذي يفتح قائمة بقية الصفحات. */
 export function MenuIcon({ className }: IconProps) {
   return (
