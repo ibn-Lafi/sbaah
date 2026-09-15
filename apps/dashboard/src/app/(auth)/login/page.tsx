@@ -11,6 +11,7 @@ import { PasswordInput } from '@/components/ui/password-input';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { OtpInput } from '@/components/ui/otp-input';
 import { FormError } from '@/components/ui/form-error';
+import { SegmentedToggle } from '@/components/ui/segmented-toggle';
 import {
   loginWithPasswordByEmail,
   sendOtp,
@@ -227,26 +228,15 @@ export default function LoginPage() {
       </div>
 
       {!(mode === 'otp' && otpSent) && (
-        <div className="mb-6 flex items-center justify-center gap-0.5 rounded-full bg-surface-subtle p-[5px]">
-          <button
-            type="button"
-            onClick={() => switchChannel('sms')}
-            className={`flex h-8 flex-1 items-center justify-center rounded-full px-3 text-xs transition-colors ${
-              channel === 'sms' ? 'bg-brand-surface text-brand font-semibold' : 'text-text-secondary font-normal'
-            }`}
-          >
-            عبر الجوال
-          </button>
-          <button
-            type="button"
-            onClick={() => switchChannel('email')}
-            className={`flex h-8 flex-1 items-center justify-center rounded-full px-3 text-xs transition-colors ${
-              channel === 'email' ? 'bg-brand-surface text-brand font-semibold' : 'text-text-secondary font-normal'
-            }`}
-          >
-            عبر البريد الإلكتروني
-          </button>
-        </div>
+        <SegmentedToggle
+          className="mb-6"
+          value={channel}
+          onChange={switchChannel}
+          options={[
+            { value: 'sms', label: 'عبر الجوال' },
+            { value: 'email', label: 'عبر البريد الإلكتروني' },
+          ]}
+        />
       )}
 
       {mode === 'password' && (

@@ -9,6 +9,7 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { FormError } from '@/components/ui/form-error';
+import { SegmentedToggle } from '@/components/ui/segmented-toggle';
 import { DomainSkeleton } from '@/components/domain/domain-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { ROLE_LABELS } from '@/lib/auth/role-labels';
@@ -304,22 +305,15 @@ export default function DomainPage() {
           />
         ) : domain.custom_domain_allowed ? (
           <>
-            <div className="bg-surface-subtle-3 flex w-full max-w-[320px] gap-1 rounded-full p-1">
-              <button
-                type="button"
-                onClick={() => setMode('custom')}
-                className={`h-10 flex-1 rounded-full text-[13px] font-semibold ${mode === 'custom' ? 'bg-surface-card text-text-primary shadow-sm' : 'text-text-secondary'}`}
-              >
-                الدومين المخصص
-              </button>
-              <button
-                type="button"
-                onClick={() => setMode('subdomain')}
-                className={`h-10 flex-1 rounded-full text-[13px] font-semibold ${mode === 'subdomain' ? 'bg-surface-card text-text-primary shadow-sm' : 'text-text-secondary'}`}
-              >
-                النطاق الفرعي
-              </button>
-            </div>
+            <SegmentedToggle
+              className="max-w-[320px]"
+              value={mode}
+              onChange={setMode}
+              options={[
+                { value: 'custom', label: 'الدومين المخصص' },
+                { value: 'subdomain', label: 'النطاق الفرعي' },
+              ]}
+            />
             {mode === 'custom' ? (
               <CustomDomainCard accessToken={accessToken} domain={domain} onChanged={reload} />
             ) : (

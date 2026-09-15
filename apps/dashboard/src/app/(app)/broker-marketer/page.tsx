@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Modal } from '@/components/ui/modal';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
+import { SegmentedToggle } from '@/components/ui/segmented-toggle';
 import { CreateBrokerMarketerForm } from '@/components/broker-marketer/create-broker-marketer-form';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { ROLE_LABELS } from '@/lib/auth/role-labels';
@@ -17,9 +18,9 @@ import {
 } from '@/lib/api/broker-marketer';
 import { formatDate } from '@/lib/format/date';
 
-const TABS: { type: BrokerMarketerApplicantType; label: string }[] = [
-  { type: 'broker', label: 'وسيط' },
-  { type: 'marketer', label: 'مسوّق' },
+const TABS: { value: BrokerMarketerApplicantType; label: string }[] = [
+  { value: 'broker', label: 'وسيط' },
+  { value: 'marketer', label: 'مسوّق' },
 ];
 
 /**
@@ -66,22 +67,7 @@ export default function BrokerMarketerPage() {
       roleLabel={ROLE_LABELS[me.user.role]}
     >
       <div className="mb-5">
-        <div className="bg-surface-card mx-auto flex max-w-[640px] items-center justify-center gap-0.5 rounded-full p-[5px] shadow-[0_1px_6px_rgba(31,29,34,.08)]">
-          {TABS.map((item) => (
-            <button
-              key={item.type}
-              type="button"
-              onClick={() => setTab(item.type)}
-              className={`flex h-[34px] flex-1 items-center justify-center rounded-full px-[18px] text-[13px] ${
-                tab === item.type
-                  ? 'bg-brand-surface text-brand font-semibold'
-                  : 'text-text-secondary font-normal'
-              }`}
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
+        <SegmentedToggle className="mx-auto max-w-[320px]" value={tab} onChange={setTab} options={TABS} />
       </div>
 
       {canManage && (
