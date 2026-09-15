@@ -6,7 +6,6 @@ import { getTenantSitePage } from '@/lib/tenant/get-tenant-site';
 import { listCities, listDistricts } from '@/lib/api/reference-data';
 import { formatPrice, getListingTypeLabel, getPropertyTypeLabel } from '@/lib/property/labels';
 import { PropertyGallery } from '@/components/properties/property-gallery';
-import { WhatsappButton } from '@/components/properties/whatsapp-button';
 import { InquiryForm } from '@/components/properties/inquiry-form';
 import { getThemeComponents } from '@/components/themes/registry';
 import { renderThemedSection } from '@/lib/website/render-section';
@@ -26,9 +25,11 @@ interface PageProps {
  * banner around the property's own detail view, but the detail view
  * itself (`property_detail`-type anchor) keeps its existing, unthemed
  * layout — see that page's own comment for why. `contact`-type sections
- * are filtered out unconditionally (founder's explicit call — the
- * inline WhatsApp button below is already property-specific contact,
- * and the footer covers the tenant's general contact info).
+ * are filtered out unconditionally (founder's explicit call — the inline
+ * InquiryForm below is already property-specific contact, and the footer
+ * covers the tenant's general contact info). No WhatsApp button anywhere
+ * on this site anymore (founder's explicit call, removed across the theme
+ * — see contact-section.tsx's comment).
  */
 export default async function PropertyDetailPage({ params }: PageProps) {
   const { locale: rawLocale, id } = await params;
@@ -118,13 +119,6 @@ export default async function PropertyDetailPage({ params }: PageProps) {
             </div>
 
             <div className="flex flex-col gap-4">
-              <WhatsappButton
-                locale={locale}
-                phone={site.whatsapp_phone}
-                propertyTitle={title}
-                tenantId={property.tenant_id}
-                propertyId={property.id}
-              />
               <InquiryForm locale={locale} tenantId={property.tenant_id} propertyId={property.id} />
             </div>
           </div>
