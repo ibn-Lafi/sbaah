@@ -23,6 +23,7 @@ import { VerifiedBadge } from '@/components/ui/verified-badge';
 import { LoadingState } from '@/components/ui/loading-state';
 import { PasswordStrengthMeter } from '@/components/auth/password-strength-meter';
 import { ProvisioningOverlay } from '@/components/auth/provisioning-overlay';
+import { RegistrationStepper } from '@/components/auth/registration-stepper';
 import { PlanCycleToggle } from '@/components/billing/plan-cycle-toggle';
 import { PlanCard } from '@/components/billing/plan-card';
 import { register, sendOtp, verifyRegisterOtp } from '@/lib/api/auth';
@@ -42,6 +43,14 @@ const STEP_TITLES: Record<Step, string> = {
   account: 'بيانات الحساب',
   account_type: 'ما نوع حسابك؟',
   plan: 'اختر باقتك',
+};
+
+const STEPPER_LABELS: Record<Step, string> = {
+  phone: 'الجوال',
+  otp: 'التحقق',
+  account: 'الحساب',
+  account_type: 'النوع',
+  plan: 'الباقة',
 };
 
 const ACCOUNT_TYPE_OPTIONS: { type: AccountType; label: string; description: string }[] = [
@@ -254,9 +263,7 @@ export default function RegisterPage() {
     <>
       <ProvisioningOverlay active={provisioning} done={provisioningDone} />
       <Card className="p-8">
-        <div className="text-brand mb-1 text-xs font-semibold">
-          الخطوة {stepIndex + 1} من {STEPS.length}
-        </div>
+        <RegistrationStepper labels={STEPS.map((s) => STEPPER_LABELS[s])} currentIndex={stepIndex} />
         <h1 className="text-text-primary mb-1 text-2xl font-bold">
           {step === 'phone' || step === 'otp' ? 'إنشاء حساب جديد' : STEP_TITLES[step]}
         </h1>
