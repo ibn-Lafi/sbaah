@@ -146,20 +146,24 @@ function AccountTypeCard({ accessToken, initial, canEdit }: { accessToken: strin
 }
 
 /**
- * بيانات الجهة — اسم الموقع + السجل التجاري + الرقم الضريبي، لحسابات
- * مؤسسة/شركة القائمة بالفعل فقط (تُخفى تمامًا لحساب فرد — رخصة فال تبقى
- * وحدها). "اسم الموقع" هنا هو نفس حقل tenant.name_ar المعروض في بطاقة
- * "بيانات الحساب" أعلى الصفحة (InfoRow)، لا نسخة مستقلة عنه.
+ * بيانات الجهة — اسم الموقع + السجل التجاري + الرقم الضريبي، ورخصة فال
+ * بداخل نفس البطاقة (FalLicenseFields، لا بطاقتها المنفصلة) — لحسابات
+ * مؤسسة/شركة القائمة بالفعل فقط (تُخفى تمامًا لحساب فرد، حيث تبقى رخصة
+ * فال ببطاقتها المستقلة FalLicenseCard). "اسم الموقع" هنا هو نفس حقل
+ * tenant.name_ar المعروض سابقًا ببطاقة "بيانات الحساب" (أُزيلت — لا فائدة
+ * منها بوجود هذا الحقل هنا).
  */
 function OrganizationInfoCard({
   accessToken,
   accountType,
   initial,
+  falLicense,
   canEdit,
 }: {
   accessToken: string;
   accountType: 'institution' | 'company';
   initial: { name_ar: string; cr_number: string | null; tax_number: string | null };
+  falLicense: string | null;
   canEdit: boolean;
 }) {
   const { pages } = useLocale();
@@ -237,6 +241,10 @@ function OrganizationInfoCard({
           <InfoRow label={t.organizationInfo.taxNumberLabel} value={initial.tax_number ?? '—'} />
         </>
       )}
+
+      <div className="my-5 h-px bg-border-subtle" />
+
+      <FalLicenseFields accessToken={accessToken} initial={falLicense} canEdit={canEdit} />
     </Card>
   );
 }
@@ -452,12 +460,14 @@ function EmailCard({ accessToken, initialEmail }: { accessToken: string; initial
 }
 
 /**
- * رخصة فال — بطاقتها الخاصة، منفصلة عن "نوع الحساب" لأنها لا تتغيّر
- * بتبديله (migration 0047: لم تعد تُطلب أثناء التسجيل، تُدخل هنا أول
- * مرة أو تُعدَّل لاحقًا). غيابها لا يعطّل شيئًا في الحساب — يمنع فقط
- * نشر الموقع العام، فتُعرض هذه الرسالة عند فراغها لتوضيح السبب.
+ * رخصة فال — منفصلة عن "نوع الحساب" لأنها لا تتغيّر بتبديله (migration
+ * 0047: لم تعد تُطلب أثناء التسجيل، تُدخل هنا أول مرة أو تُعدَّل لاحقًا).
+ * غيابها لا يعطّل شيئًا في الحساب — يمنع فقط نشر الموقع العام، فتُعرض
+ * هذه الرسالة عند فراغها لتوضيح السبب. بلا `<Card>` خاص بها — تُستخدم إما
+ * وحدها (FalLicenseCard، حساب فرد) أو مدمجة داخل بطاقة "بيانات الجهة"
+ * (OrganizationInfoCard، حساب مؤسسة/شركة).
  */
-function FalLicenseCard({ accessToken, initial, canEdit }: { accessToken: string; initial: string | null; canEdit: boolean }) {
+function FalLicenseFields({ accessToken, initial, canEdit }: { accessToken: string; initial: string | null; canEdit: boolean }) {
   const { pages } = useLocale();
   const t = pages.settings;
   const [draft, setDraft] = useState(initial ?? '');
@@ -488,7 +498,7 @@ function FalLicenseCard({ accessToken, initial, canEdit }: { accessToken: string
   }
 
   return (
-    <Card className="p-6">
+    <>
       <h2 className="mb-1 text-base font-semibold text-text-primary">{t.falLicense.title}</h2>
       <p className="mb-4 text-sm text-text-secondary">
         {initial ? t.falLicense.descriptionSet : t.falLicense.descriptionUnset}
@@ -511,6 +521,15 @@ function FalLicenseCard({ accessToken, initial, canEdit }: { accessToken: string
           {initial ?? '—'}
         </p>
       )}
+    </>
+  );
+}
+
+/** رخصة فال بطاقتها الخاصة — لحساب فرد فقط (مؤسسة/شركة تعرضها مدمجة داخل OrganizationInfoCard). */
+function FalLicenseCard({ accessToken, initial, canEdit }: { accessToken: string; initial: string | null; canEdit: boolean }) {
+  return (
+    <Card className="p-6">
+      <FalLicenseFields accessToken={accessToken} initial={initial} canEdit={canEdit} />
     </Card>
   );
 }
@@ -559,14 +578,11 @@ function WebsiteDataTab({ accessToken }: { accessToken: string }) {
 
   return (
     <>
-      <Card className="p-6">
-        <h2 className="mb-2 text-base font-semibold text-text-primary">{settings.accountInfo.title}</h2>
-        <InfoRow label={settings.accountInfo.websiteName} value={me.tenant.name_ar} />
-      </Card>
-
       <AccountTypeCard accessToken={accessToken} canEdit={canEdit} initial={me.tenant.account_type} />
 
-      {me.tenant.account_type !== 'individual' && (
+      {me.tenant.account_type === 'individual' ? (
+        <FalLicenseCard accessToken={accessToken} canEdit={canEdit} initial={me.tenant.fal_license_number} />
+      ) : (
         <OrganizationInfoCard
           accessToken={accessToken}
           canEdit={canEdit}
@@ -576,10 +592,9 @@ function WebsiteDataTab({ accessToken }: { accessToken: string }) {
             cr_number: me.tenant.cr_number,
             tax_number: me.tenant.tax_number,
           }}
+          falLicense={me.tenant.fal_license_number}
         />
       )}
-
-      <FalLicenseCard accessToken={accessToken} canEdit={canEdit} initial={me.tenant.fal_license_number} />
 
       <SocialLinksCard
         accessToken={accessToken}

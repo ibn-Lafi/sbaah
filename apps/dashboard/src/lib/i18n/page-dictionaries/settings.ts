@@ -15,7 +15,6 @@ export const settingsAr = {
   },
   accountInfo: {
     title: 'بيانات الحساب',
-    websiteName: 'اسم الموقع',
     yourName: 'اسمك',
     yourPhone: 'جوالك',
     yourRole: 'دورك',
@@ -111,7 +110,6 @@ export const settingsEn: typeof settingsAr = {
   },
   accountInfo: {
     title: 'Account Information',
-    websiteName: 'Website name',
     yourName: 'Your name',
     yourPhone: 'Your phone',
     yourRole: 'Your role',
