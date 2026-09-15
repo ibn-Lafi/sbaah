@@ -30,7 +30,9 @@ import {
   PlusIcon,
   SearchIcon,
   SectionTypeIcon,
+  RadioIcon,
 } from '@/components/website/editor-icons';
+import { Button } from '@/components/ui/button';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { useLocale } from '@/lib/i18n/locale-context';
 import { getPlatformRootDomain } from '@/lib/env/platform-root-domain';
@@ -72,6 +74,7 @@ export default function WebsiteEditorPage() {
   const [mobileEditingId, setMobileEditingId] = useState<string | null>(null);
   const [addSectionOpen, setAddSectionOpen] = useState(false);
   const [addSectionQuery, setAddSectionQuery] = useState('');
+  const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
 
   const siteUrl = `https://${me.tenant.subdomain}.${getPlatformRootDomain()}`;
   const activePage = pages.find((p) => p.key === activePageKey);
@@ -172,6 +175,19 @@ export default function WebsiteEditorPage() {
           : p,
       ),
     );
+  }
+
+  function closeAddSectionSheet() {
+    setAddSectionOpen(false);
+    setAddSectionQuery('');
+    setSelectedSectionId(null);
+  }
+
+  function confirmAddSection() {
+    const section = hiddenContentSections.find((s) => s.id === selectedSectionId);
+    if (!section) return;
+    void toggleSectionVisibility(section);
+    closeAddSectionSheet();
   }
 
   if (!website) {
@@ -417,12 +433,17 @@ export default function WebsiteEditorPage() {
           )}
         </div>
 
-        {/* نافذة "إضافة قسم" — كل الأقسام المخفية أصلًا بهذه الصفحة، لا نوع قسم جديد. */}
+        {/*
+          نافذة "إضافة قسم" — كل الأقسام المخفية أصلًا بهذه الصفحة، لا نوع
+          قسم جديد. تحديد (راديو) أولًا، ثم تأكيد بزر "إضافة" أسفل القائمة
+          — لا إضافة فورية بمجرد الضغط على الصف — مطابقةً لمرجع الجوال
+          (اختيار يبقي النافذة مفتوحة، ثم "إضافة"/"إلغاء" صريحان).
+        */}
         {addSectionOpen && (
           <>
             <div
               aria-hidden="true"
-              onClick={() => setAddSectionOpen(false)}
+              onClick={closeAddSectionSheet}
               className="fixed inset-0 z-50 bg-black/45"
             />
             <div
@@ -434,7 +455,7 @@ export default function WebsiteEditorPage() {
                 <h2 className="text-text-primary text-sm font-semibold">{t.editor.addSectionTitle}</h2>
                 <button
                   type="button"
-                  onClick={() => setAddSectionOpen(false)}
+                  onClick={closeAddSectionSheet}
                   aria-label={t.sectionList.closeEdit}
                   className="text-text-secondary hover:bg-surface-subtle flex h-9 w-9 items-center justify-center rounded-full"
                 >
@@ -457,26 +478,36 @@ export default function WebsiteEditorPage() {
                   <p className="text-text-secondary py-6 text-center text-sm">{t.editor.noHiddenSections}</p>
                 ) : (
                   <div className="flex flex-col gap-2">
-                    {filteredHiddenSections.map((section) => (
-                      <button
-                        key={section.id}
-                        type="button"
-                        onClick={() => {
-                          void toggleSectionVisibility(section);
-                          setAddSectionOpen(false);
-                          setAddSectionQuery('');
-                        }}
-                        className="rounded-input border-border-default flex items-center gap-3 border px-4 py-3 text-start"
-                      >
-                        <SectionTypeIcon type={section.type} className="text-text-secondary h-[16px] w-[16px] flex-none" />
-                        <span className="flex-1 text-sm font-medium text-text-primary">
-                          {t.sectionTypeLabels[section.type]}
-                        </span>
-                        <PlusIcon className="text-brand h-[16px] w-[16px] flex-none" />
-                      </button>
-                    ))}
+                    {filteredHiddenSections.map((section) => {
+                      const selected = selectedSectionId === section.id;
+                      return (
+                        <button
+                          key={section.id}
+                          type="button"
+                          onClick={() => setSelectedSectionId(section.id)}
+                          className={`rounded-input flex items-center gap-3 border px-4 py-3 text-start ${
+                            selected ? 'border-brand ring-brand ring-1' : 'border-border-default'
+                          }`}
+                        >
+                          <SectionTypeIcon type={section.type} className="text-text-secondary h-[16px] w-[16px] flex-none" />
+                          <span className="flex-1 text-sm font-medium text-text-primary">
+                            {t.sectionTypeLabels[section.type]}
+                          </span>
+                          <RadioIcon selected={selected} className="text-brand h-[18px] w-[18px] flex-none" />
+                        </button>
+                      );
+                    })}
                   </div>
                 )}
+              </div>
+
+              <div className="border-border-subtle flex flex-none items-center gap-2 border-t p-4">
+                <Button type="button" onClick={confirmAddSection} disabled={!selectedSectionId} className="flex-1">
+                  {t.editor.addSectionConfirm}
+                </Button>
+                <Button type="button" variant="secondary" onClick={closeAddSectionSheet} className="flex-1">
+                  {t.editor.addSectionCancel}
+                </Button>
               </div>
             </div>
           </>

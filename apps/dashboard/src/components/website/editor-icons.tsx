@@ -90,6 +90,16 @@ export function SearchIcon({ className }: IconProps) {
   );
 }
 
+/** اختيار قسم من قائمة "إضافة قسم" — حلقة فارغة/معبّأة، لا تُضيف بمجرد الضغط (تحديد فقط، الإضافة الفعلية بزر "إضافة" أسفل القائمة). */
+export function RadioIcon({ selected, className }: IconProps & { selected: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className={className}>
+      <circle cx="12" cy="12" r="9" />
+      {selected && <circle cx="12" cy="12" r="4.5" fill="currentColor" stroke="none" />}
+    </svg>
+  );
+}
+
 export function ChevronIcon({ open, className }: IconProps & { open: boolean }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className={`${className} transition-transform ${open ? 'rotate-180' : ''}`}>
