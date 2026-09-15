@@ -2,13 +2,13 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { BrandMark } from '@/components/ui/brand-mark';
 import { AccountAvatar } from '@/components/ui/account-avatar';
 import { getNavItems, isNavGroup } from './nav-items';
-import { SettingsIcon } from './nav-icons';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { useLocale } from '@/lib/i18n/locale-context';
+import { signOut } from '@/lib/auth/session';
 import type { AccountType } from '@sbaah/shared';
 
 interface SidebarProps {
@@ -18,21 +18,25 @@ interface SidebarProps {
 
 /**
  * Matches the founder's mockup (216px, icon nav, expandable groups like
- * "الموقع الالكتروني"). "الإعدادات" هو نفس مدخل الجوال (mobile-nav.tsx) —
- * رابط أيقونة واحد يقود لصفحة /settings المُبوَّبة (الحساب/الموظفين/
- * الفوترة/بيانات الموقع)، بدل القائمة المنسدلة القديمة (حسابي/إدارة
- * الموظفين/الفوترة/تسجيل الخروج كروابط منفصلة) — تسجيل الخروج انتقل
- * لتبويب "الحساب" داخل /settings نفسها. أزرار تبديل اللغة/الوضع تبقى في
- * الهيدر (topbar.tsx) كما هي، بلا تغيير.
+ * "الموقع الالكتروني"). الضغط على بطاقة الحساب أسفل الشريط يفتح نافذة
+ * صغيرة ملتصقة بها بعنصرين فقط (الإعدادات - تسجيل الخروج) — إدارة
+ * الموظفين/الفوترة لم تعودا بحاجة رابط مستقل هنا بعد أن أصبحتا تبويبين
+ * داخل صفحة /settings نفسها. أزرار تبديل اللغة/الوضع تبقى في الهيدر
+ * (topbar.tsx) كما هي، بلا تغيير.
  */
 export function Sidebar({ orgName, accountType }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const { me } = useCurrentUser();
-  const { t } = useLocale();
+  const { t, pages } = useLocale();
   const roleLabel = t.roleLabels[me.user.role];
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
   const visibleItems = getNavItems(t).filter((item) => !item.roles || item.roles.includes(me.user.role));
-  const settingsActive = pathname === '/settings';
+
+  function handleSignOut() {
+    void signOut().then(() => router.replace('/login'));
+  }
 
   return (
     <div className="border-border-subtle bg-surface-card hidden w-[216px] flex-none flex-col border-e p-[10px_10px_18px] md:flex">
@@ -103,24 +107,38 @@ export function Sidebar({ orgName, accountType }: SidebarProps) {
         })}
       </nav>
 
-      <div className="border-border-subtle mt-auto flex flex-col gap-px border-t pt-[10px]">
-        <Link
-          href="/settings"
-          className={`flex h-[38px] flex-none items-center gap-2 rounded-[9px] px-[10px] text-[15px] ${
-            settingsActive ? 'bg-brand-surface text-brand font-semibold' : 'text-text-tertiary font-normal'
-          }`}
+      <div className="border-border-subtle relative mt-auto border-t pt-[10px]">
+        <button
+          type="button"
+          onClick={() => setAccountMenuOpen((open) => !open)}
+          className="flex w-full items-center gap-[9px] px-2 py-[2px] text-start"
         >
-          <SettingsIcon className="h-[16px] w-[16px] flex-none" />
-          <span className="min-w-0 flex-1 truncate">{t.settingsNavLabel}</span>
-        </Link>
-
-        <div className="flex items-center gap-[9px] px-2 pt-2">
           <AccountAvatar accountType={accountType} />
           <div className="flex min-w-0 flex-1 flex-col gap-px">
             <div className="text-text-primary truncate text-xs font-semibold">{orgName}</div>
             <div className="text-text-secondary text-[11px]">{roleLabel}</div>
           </div>
-        </div>
+        </button>
+
+        {accountMenuOpen && (
+          <div className="bg-surface-card absolute inset-x-2 bottom-full z-20 mb-2 flex flex-col gap-0.5 rounded-[14px] p-1.5 shadow-[0_10px_30px_rgba(31,29,34,.18)]">
+            <Link
+              href="/settings"
+              onClick={() => setAccountMenuOpen(false)}
+              className="text-text-primary hover:bg-surface-subtle rounded-[10px] px-[14px] py-[11px] text-[13px] font-medium"
+            >
+              {t.settingsNavLabel}
+            </Link>
+            <div className="bg-surface-subtle my-0.5 h-px" />
+            <button
+              type="button"
+              onClick={handleSignOut}
+              className="text-danger hover:bg-danger-surface rounded-[10px] px-[14px] py-[11px] text-start text-[13px] font-medium"
+            >
+              {pages.settings.signOut}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
