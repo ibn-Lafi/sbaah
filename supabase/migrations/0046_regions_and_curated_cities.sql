@@ -30,15 +30,18 @@
 -- أدناه** (قرية/حي صغير حقًا، لا مدينة معروفة) — ستفشل الخطوة الأخيرة
 -- بخطأ foreign key بدل حذف صامت، وعندها أخبرني بالاسم الظاهر بالخطأ
 -- لأضيفه للقائمة أو أعالجه يدويًا.
+--
+-- (لا جداول مؤقتة temp هنا عمدًا — محرر SQL بسوبابيس لا يضمن بقاءها بين
+-- عبارات الملف نفسه، جرّبت ذلك فعليًا وفشل بخطأ "relation does not
+-- exist". بدلًا منها: تمييز المدن القديمة عن الجديدة داخل جدول cities
+-- نفسه عبر region_id — فارغ للقديمة إلى أن تُحذف، مضبوط للجديدة فور
+-- إدراجها.)
 -- =============================================================================
 
 -- الملف كله معاملة واحدة (begin/commit): فشل أي خطوة (كخطأ foreign key
 -- بالخطوة الأخيرة) يتراجع عن كل شيء تلقائيًا — لا حالة وسطى (مناطق/مدن
 -- جديدة مُدرجة لكن قديمة لم تُحذف بعد) تبقى بقاعدة البيانات.
 begin;
-
-create temporary table _old_cities_backup as select id, name_ar from cities;
-create temporary table _old_districts_backup as select id from districts;
 
 -- ---------------------------------------------------------------------------
 -- regions — بيانات مرجعية ثابتة على مستوى المنصة (كالمدن)، لا شاشة إدارة
@@ -166,31 +169,31 @@ insert into cities (name_ar, name_en, lat, lng, region_id) values
 -- ---------------------------------------------------------------------------
 update properties p
 set city_id = new_c.id
-from _old_cities_backup old_c
+from cities old_c
 join cities new_c on new_c.name_ar = old_c.name_ar and new_c.region_id is not null
-where p.city_id = old_c.id;
+where old_c.region_id is null and p.city_id = old_c.id;
 
 update projects pr
 set city_id = new_c.id
-from _old_cities_backup old_c
+from cities old_c
 join cities new_c on new_c.name_ar = old_c.name_ar and new_c.region_id is not null
-where pr.city_id = old_c.id;
+where old_c.region_id is null and pr.city_id = old_c.id;
 
 update buildings b
 set city_id = new_c.id
-from _old_cities_backup old_c
+from cities old_c
 join cities new_c on new_c.name_ar = old_c.name_ar and new_c.region_id is not null
-where b.city_id = old_c.id;
+where old_c.region_id is null and b.city_id = old_c.id;
 
-update properties set district_id = null where district_id in (select id from _old_districts_backup);
-update projects set district_id = null where district_id in (select id from _old_districts_backup);
-update buildings set district_id = null where district_id in (select id from _old_districts_backup);
+-- كل الأحياء الحالية (قبل هذا السطر) قديمة بالضرورة — لم يُدرَج أي حي
+-- جديد بهذه الهجرة بعد. إفراغ المرجع قبل حذفها لأن district_id يقبل
+-- NULL خلافًا لـcity_id.
+update properties set district_id = null where district_id is not null;
+update projects set district_id = null where district_id is not null;
+update buildings set district_id = null where district_id is not null;
 
-delete from districts where id in (select id from _old_districts_backup);
-delete from cities where id in (select id from _old_cities_backup);
-
-drop table _old_cities_backup;
-drop table _old_districts_backup;
+delete from districts;
+delete from cities where region_id is null;
 
 alter table cities alter column region_id set not null;
 
