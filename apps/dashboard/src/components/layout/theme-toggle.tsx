@@ -20,11 +20,26 @@ function MoonIcon({ className }: { className?: string }) {
   );
 }
 
-/** Same round icon-button treatment as the topbar's visit-site/account buttons — swaps sun/moon to show the mode it switches *to*, same pattern as `LanguageToggle`. */
-export function ThemeToggle({ className = '' }: { className?: string }) {
+/**
+ * Same round icon-button treatment as the topbar's visit-site/account
+ * buttons — swaps sun/moon to show the mode it switches *to*, same
+ * pattern as `LanguageToggle` (see its `variant` doc — same two options
+ * here, for the same reason).
+ */
+export function ThemeToggle({
+  className = '',
+  variant = 'header',
+}: {
+  className?: string;
+  variant?: 'header' | 'surface';
+}) {
   const { theme, toggleTheme } = useTheme();
   const { t } = useLocale();
   const title = theme === 'light' ? t.toggles.switchToDark : t.toggles.switchToLight;
+  const variantClasses =
+    variant === 'header'
+      ? 'md:bg-surface-subtle h-9 w-9 bg-white/15 text-white md:h-[42px] md:w-[42px] md:text-text-primary'
+      : 'bg-surface-subtle text-text-primary h-[42px] w-[42px]';
 
   return (
     <button
@@ -32,7 +47,7 @@ export function ThemeToggle({ className = '' }: { className?: string }) {
       onClick={toggleTheme}
       aria-label={title}
       title={title}
-      className={`md:bg-surface-subtle flex h-9 w-9 flex-none items-center justify-center rounded-full bg-white/15 text-white md:h-[42px] md:w-[42px] md:text-text-primary ${className}`}
+      className={`flex flex-none items-center justify-center rounded-full ${variantClasses} ${className}`}
     >
       {theme === 'light' ? (
         <MoonIcon className="h-[17px] w-[17px] md:h-[19px] md:w-[19px]" />
