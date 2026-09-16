@@ -48,13 +48,21 @@ export type OrganizationInfoUpdateInput = z.infer<typeof organizationInfoUpdateS
 
 export type AccountTypeUpdateInput = AccountTypeSwitchInput | OrganizationInfoUpdateInput;
 
-/** PRODUCT_SPEC section 4.3 — partially self-service custom domain. Bare hostname, no protocol/path. */
+/**
+ * PRODUCT_SPEC section 4.3 — partially self-service custom domain. Bare
+ * hostname, no protocol/path. Normalized to lowercase here (the one place
+ * this value ever enters the system) — domains are case-insensitive, but
+ * without this a tenant typing `WWW.Example.COM` would have that exact
+ * casing stored and later reused verbatim as a redirect target and in DNS
+ * record instructions, which is sloppy even though it still resolves.
+ */
 export const customDomainInputSchema = z.object({
   custom_domain: z
     .string()
     .min(3)
     .max(253)
-    .regex(/^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i, 'صيغة الدومين غير صحيحة (مثال: example.com)'),
+    .regex(/^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i, 'صيغة الدومين غير صحيحة (مثال: example.com)')
+    .transform((value) => value.toLowerCase()),
 });
 export type CustomDomainInput = z.infer<typeof customDomainInputSchema>;
 

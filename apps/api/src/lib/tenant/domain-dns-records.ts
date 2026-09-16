@@ -35,12 +35,24 @@ export function dnsRecordsFor(customDomain: string, cloudflareHostname: Cloudfla
  * `dnsRecordsFor` first runs (Cloudflare fills them in shortly after
  * creating the hostname), so `verify/route.ts` calls this on every check to
  * pick them up once Cloudflare has them, replacing any earlier (possibly
- * stale or empty) set of validation records rather than duplicating them.
+ * stale) set of validation records rather than duplicating them.
+ *
+ * Deliberately a no-op when `sslValidationRecords` is empty — Cloudflare's
+ * own docs say that array "may be empty for a short period" even for a
+ * hostname that already has records from an earlier check. Overwriting
+ * unconditionally would erase DNS instructions an owner already saw (and
+ * may have already copied into their provider) the moment a single "test
+ * connection" click happens to land during that gap — replacing them only
+ * when Cloudflare actually returns something keeps whatever was last known
+ * good instead of flashing it away.
  */
 export function withSslValidationRecords(
   baseRecords: DnsRecord[],
   sslValidationRecords: { name: string; value: string }[],
 ): DnsRecord[] {
+  if (sslValidationRecords.length === 0) {
+    return baseRecords;
+  }
   const withoutOldValidationRecords = baseRecords.filter((record) => !record.name.startsWith('_acme-challenge.'));
   return [
     ...withoutOldValidationRecords,

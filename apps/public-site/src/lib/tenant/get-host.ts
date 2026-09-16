@@ -12,18 +12,21 @@ import { headers } from 'next/headers';
  * header independently of TLS/SNI routing, and rejects any hostname not
  * explicitly registered for the service (404, `x-railway-fallback: true`).
  * A tenant custom domain (e.g. `www.manshoori.com`) is only ever known to
- * Cloudflare's Custom Hostname layer, never to Railway — so a Cloudflare
- * Origin Rule must rewrite the `Host` sent to Railway's origin to our own
- * registered `.up.railway.app` domain before Railway will accept the
- * request at all (see the founder-facing setup notes for this rule). Once
- * that rewrite happens, the ORIGINAL hostname is gone from `Host` — a
- * Cloudflare Transform Rule (configured to run first) captures it into
- * `X-Tenant-Host` instead, which is what this function actually needs.
- * Deliberately not `X-Forwarded-Host` — Railway is documented to rewrite
- * that header itself, which would erase it before it reaches this app.
- * Falls back to `Host` for anything not yet going through that Cloudflare
- * setup (local dev, or platform subdomains, whose real `Host` already
- * satisfies Railway's check without any rewrite).
+ * Cloudflare's Custom Hostname layer, never to Railway.
+ *
+ * Fixed with a Cloudflare Worker (`custom-domain-proxy`, zone-level —
+ * Origin Rules' Host-header-rewrite action would have been the more direct
+ * fix but is Enterprise-plan-only) sitting on a catch-all Workers Route
+ * (every host, every path), with `sbaah.com/*` and `*.sbaah.com/*`
+ * explicitly excluded so it only ever handles genuine external
+ * custom-domain traffic. The Worker forwards the
+ * request to Railway's own registered domain (satisfying its Host check)
+ * while setting `X-Tenant-Host` to the real incoming hostname itself —
+ * deliberately not `X-Forwarded-Host`, which Railway is documented to
+ * rewrite on its own, erasing it before it reaches this app. Falls back to
+ * `Host` for anything not routed through that Worker (local dev, or
+ * platform subdomains, whose real `Host` already satisfies Railway's
+ * check without any rewrite).
  */
 export const getHost = cache(async (): Promise<string | null> => {
   const requestHeaders = await headers();
