@@ -21,6 +21,55 @@
    */
   --color-brand: #68458a;
   --color-danger: #dc2626;
+
+  /**
+   * بقية هوية سبعة (docs/DASHBOARD_DESIGN_SYSTEM.md) — نفس القيم
+   * الحرفية المُعتمَدة في apps/dashboard، مُضافة هنا فقط لصفحة الهبوط
+   * التسويقية (marketing-home.tsx وما تحتها) حتى لا تخترع نمطًا بصريًا
+   * منفصلًا عن باقي المنصة. لا علاقة لها بألوان الثيمات الخاصة بمواقع
+   * المستأجرين (--tenant-* أعلاه) ولا تُستخدم هناك.
+   */
+  --color-brand-hover: #4f3269;
+  --color-brand-surface: #f3eef7;
+  --color-brand-surface-2: #e0d3ea;
+  --color-brand-surface-3: #c4abd6;
+
+  --color-text-primary: #1f1d22;
+  --color-text-secondary: #6f6b74;
+  --color-text-tertiary: #4a454f;
+  --color-text-muted: #8b8792;
+  --color-text-placeholder: #a5a1ab;
+
+  --color-border-default: #dddbe1;
+  --color-border-subtle: #eae8ed;
+
+  --color-surface-page: #efedf1;
+  --color-surface-card: #ffffff;
+  --color-surface-subtle: #f4f2f6;
+  --color-surface-subtle-2: #f7f6f8;
+
+  --color-success: #0e7a4d;
+  --color-success-surface: #e6f4ec;
+
+  --radius-control: 12px;
+  --radius-input: 14px;
+  --radius-card: 20px;
+
+  /** خط "ثمانية" — للعناوين الكبيرة فقط بصفحة الهبوط؛ انظر lib/fonts/thmanyah-serif-display.ts. */
+  --font-display: var(--font-thmanyah-serif-display), Georgia, serif;
+
+  /** حركة خلفية Hero الزخرفية فقط (marketing/hero.tsx) — بطيئة وخفيفة جدًا حتى لا تُشتّت الانتباه عن المحتوى. */
+  --animate-drift-slow: drift-slow 12s ease-in-out infinite;
+}
+
+@keyframes drift-slow {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(0, -1.5rem) scale(1.05);
+  }
 }
 
 body {

@@ -8,6 +8,7 @@ import { getDictionary } from '@/lib/i18n/dictionary';
 import { getTenantSiteResult } from '@/lib/tenant/get-tenant-site';
 import { isMarketingHost } from '@/lib/tenant/get-host';
 import { resolveWebsiteFont } from '@/lib/theme/fonts';
+import { thmanyahSerifDisplay } from '@/lib/fonts/thmanyah-serif-display';
 import { SuspendedPage } from '@/components/suspended-page';
 import { MarketingChrome } from '@/components/marketing-chrome';
 import { MARKETING_CONTENT } from '@/lib/marketing/content';
@@ -52,7 +53,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   if (await isMarketingHost()) {
     return (
       <html lang={locale} dir={dir}>
-        <body className={marketingFont.className}>
+        <body className={`${marketingFont.className} ${thmanyahSerifDisplay.variable}`}>
           <MarketingChrome locale={locale}>{children}</MarketingChrome>
           <ServiceWorkerRegister />
         </body>

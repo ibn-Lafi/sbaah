@@ -32,7 +32,12 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Skip static assets, images, and Next.js internals — only page routes
-  // need a locale segment.
-  matcher: ['/((?!_next/|api/|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|webp|ico)$).*)'],
+  // Skip static assets, images, PWA files (sw.js/manifest.webmanifest/
+  // offline.html — كانت تُعاد كتابتها خطأً إلى `/ar/sw.js` وما شابه، وهو
+  // مسار غير موجود يُسقط الطلب بخطأ 500 لأن `not-found.tsx` بلا root
+  // layout في هذا التطبيق أصلًا؛ اكتُشف هذا أثناء اختبار Playwright
+  // لصفحة الهبوط الجديدة، غير مرتبط بها لكنه عطل حقيقي كان يمنع تسجيل
+  // الـService Worker وملف الـmanifest فعليًا على كل صفحات public-site)،
+  // و Next.js الداخلية — فقط مسارات الصفحات تحتاج مقطع لغة.
+  matcher: ['/((?!_next/|api/|favicon.ico|sw\\.js$|manifest\\.webmanifest$|offline\\.html$|.*\\.(?:svg|png|jpg|jpeg|webp|ico)$).*)'],
 };
