@@ -200,14 +200,15 @@ function CustomDomainCard({
               )}
             </>
           )}
-          <button
+          <Button
             type="button"
+            variant="danger"
             onClick={handleRemove}
             disabled={loading}
-            className="text-danger w-fit text-sm font-medium"
+            className="border-danger/30 hover:border-danger/50 w-fit border"
           >
             {t.customDomain.removeDomain}
-          </button>
+          </Button>
         </div>
       ) : (
         <form onSubmit={handleSet} className="flex flex-col gap-3 sm:flex-row sm:items-end">

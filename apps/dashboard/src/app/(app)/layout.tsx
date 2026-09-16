@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getMe, type MeResponse } from '@/lib/api/auth';
 import { getAccessToken } from '@/lib/auth/session';
+import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import { CurrentUserProvider } from '@/lib/auth/current-user-context';
 import { DashboardShellSkeleton } from '@/components/layout/dashboard-shell-skeleton';
 
@@ -38,8 +39,31 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     }
 
     void load();
+
+    // supabase-js already refreshes the underlying JWT in the background
+    // (autoRefreshToken, on by default) for as long as the tab stays
+    // open — but `state.accessToken` above was only ever set once, at
+    // mount, so any page left open past the token's lifetime (exactly
+    // what happens during a long DNS-troubleshooting session, for
+    // example) kept sending that stale token and got a real "session
+    // invalid" 401 back despite the browser's actual session being fine.
+    // Following this event keeps the token every page reads via
+    // useCurrentUser() current without each of them re-fetching it.
+    const {
+      data: { subscription },
+    } = getSupabaseBrowserClient().auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT') {
+        router.replace('/login');
+        return;
+      }
+      if (session) {
+        setState((current) => (current ? { ...current, accessToken: session.access_token } : current));
+      }
+    });
+
     return () => {
       cancelled = true;
+      subscription.unsubscribe();
     };
   }, [router]);
 
