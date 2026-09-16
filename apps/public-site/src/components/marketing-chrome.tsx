@@ -23,6 +23,14 @@ function GlobeIcon({ className }: { className?: string }) {
   );
 }
 
+function LoginIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M11 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h5M16 15l4-3-4-3M20 12H9" />
+    </svg>
+  );
+}
+
 /** px past the top before the header switches from fully transparent to its solid brand-color card — same pattern/threshold as themes/classic/header.tsx. */
 const SCROLL_THRESHOLD = 24;
 
@@ -42,10 +50,13 @@ const SCROLL_THRESHOLD = 24;
  * يسحب نفسه للأعلى بهامش سالب مطابق (`-mt-20`) خلفه.
  *
  * الشريط على الجوال (أقل من `sm`) يُظهر مباشرة، بلا حاجة لفتح القائمة:
- * رابط تسجيل الدخول، تبديل اللغة، وتبديل الوضع الداكن/الفاتح — بنفس ما
- * يظهر على سطح المكتب، فقط كأيقونات مدمجة بدل نص لضيق المساحة. زر
- * "أنشئ حسابك" وروابط الأقسام يبقيان داخل قائمة الجوال المنسدلة فقط (لا
- * تتسع لهما المساحة المدمجة).
+ * تسجيل الدخول (كرت أبيض بأيقونة)، تبديل اللغة وتبديل الوضع (أيقونتان
+ * دائريتان متجاورتان بنفس المقاس) — نفس ترتيب الصورة المرجعية التي
+ * أرسلها المؤسس: الشعار وزر القائمة معًا في طرف الشريط، وتسجيل
+ * الدخول+الأيقونتان معًا في الطرف الآخر (بدل تفرقهما بمسافة `justify-
+ * between` لو بقي زر القائمة داخل نفس مجموعة الأيقونات). زر "أنشئ
+ * حسابك" وروابط الأقسام يبقيان داخل قائمة الجوال المنسدلة فقط (لا تتسع
+ * لهما المساحة المدمجة).
  *
  * قائمة الجوال (`mobileMenuOpen`) والوضع الداكن (`ThemeToggle`) هما سبب
  * كون هذا مكوّن عميل — بقية المحتوى ثابت مترجم بلا جلب بيانات.
@@ -80,9 +91,19 @@ export function MarketingChrome({ locale, children }: { locale: Locale; children
             scrolled ? 'bg-brand/95 shadow-lg backdrop-blur' : 'bg-transparent'
           }`}
         >
-          <Link href={homeHref} className="flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
-            <BrandMark label={t.brand} invert />
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link href={homeHref} className="flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
+              <BrandMark label={t.brand} invert />
+            </Link>
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen((v) => !v)}
+              aria-label={mobileMenuOpen ? t.nav.menuClose : t.nav.menuOpen}
+              className="flex h-9 w-9 flex-none items-center justify-center text-white sm:hidden"
+            >
+              {mobileMenuOpen ? <CloseIcon className="h-5 w-5" /> : <MenuIcon className="h-5 w-5" />}
+            </button>
+          </div>
 
           <nav className="hidden items-center gap-6 text-sm font-medium text-white/90 sm:flex">
             {navLinks.map((link) => (
@@ -112,29 +133,27 @@ export function MarketingChrome({ locale, children }: { locale: Locale; children
             )}
           </div>
 
-          <div className="flex items-center gap-2 sm:hidden">
+          <div className="flex items-center gap-3 sm:hidden">
             {dashboardUrl && (
-              <a href={`${dashboardUrl}/login`} className="text-sm font-medium text-white hover:text-white/80">
+              <a
+                href={`${dashboardUrl}/login`}
+                className="flex h-9 flex-none items-center gap-1.5 rounded-full bg-white px-3.5 text-xs font-semibold text-brand"
+              >
                 {t.nav.login}
+                <LoginIcon className="h-[15px] w-[15px]" />
               </a>
             )}
-            <Link
-              href={otherLocaleHref}
-              aria-label={t.nav.languageSwitch}
-              title={t.nav.languageSwitch}
-              className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/25"
-            >
-              <GlobeIcon className="h-[17px] w-[17px]" />
-            </Link>
-            <ThemeToggle labels={t.nav} className="h-9 w-9" />
-            <button
-              type="button"
-              onClick={() => setMobileMenuOpen((v) => !v)}
-              aria-label={mobileMenuOpen ? t.nav.menuClose : t.nav.menuOpen}
-              className="flex h-9 w-9 flex-none items-center justify-center text-white"
-            >
-              {mobileMenuOpen ? <CloseIcon className="h-5 w-5" /> : <MenuIcon className="h-5 w-5" />}
-            </button>
+            <div className="flex flex-none items-center gap-1.5">
+              <Link
+                href={otherLocaleHref}
+                aria-label={t.nav.languageSwitch}
+                title={t.nav.languageSwitch}
+                className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/25"
+              >
+                <GlobeIcon className="h-[17px] w-[17px]" />
+              </Link>
+              <ThemeToggle labels={t.nav} className="h-9 w-9" />
+            </div>
           </div>
         </div>
 
