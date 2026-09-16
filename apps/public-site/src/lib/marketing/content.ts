@@ -60,19 +60,7 @@ export const MARKETING_CONTENT = {
       title: 'كل أدوات عملك العقاري، في شاشة واحدة',
       subtitle:
         'موقعك، عقاراتك، عملاؤك المحتملون، وفريقك — كلها مترابطة تلقائيًا بلا نسخ بيانات يدوي بين أدوات متفرقة.',
-      labels: {
-        sidebar: ['لوحة القيادة', 'العقارات', 'العملاء المحتملون', 'موقعي', 'الفريق'],
-        statCards: [
-          { label: 'زيارات الموقع', value: '+٢٤٪' },
-          { label: 'عملاء محتملون جدد', value: '١٨' },
-          { label: 'عقارات منشورة', value: '٣٢' },
-        ],
-        leadRows: [
-          { name: 'عميل مهتم بشقة', status: 'جديد' },
-          { name: 'استفسار عن فيلا', status: 'تم التواصل' },
-          { name: 'طلب معاينة أرض', status: 'مؤهل' },
-        ],
-      },
+      imageAlt: 'لقطة من لوحة تحكم سبعة تعرض مؤشرات الأداء، رسم زيارات الموقع، وقائمة أحدث العملاء المحتملين',
     },
     features: {
       title: 'كل ما يحتاجه عملك العقاري',
@@ -217,19 +205,7 @@ export const MARKETING_CONTENT = {
       eyebrow: 'One dashboard',
       title: 'Every tool your real estate business needs, on one screen',
       subtitle: 'Your site, properties, leads, and team — all connected automatically, no manual copying between scattered tools.',
-      labels: {
-        sidebar: ['Dashboard', 'Properties', 'Leads', 'My Website', 'Team'],
-        statCards: [
-          { label: 'Site visits', value: '+24%' },
-          { label: 'New leads', value: '18' },
-          { label: 'Published listings', value: '32' },
-        ],
-        leadRows: [
-          { name: 'Interested in an apartment', status: 'New' },
-          { name: 'Villa inquiry', status: 'Contacted' },
-          { name: 'Land viewing request', status: 'Qualified' },
-        ],
-      },
+      imageAlt: "A screenshot of sbaah's dashboard showing performance metrics, a site-visits chart, and the latest leads list",
     },
     features: {
       title: 'Everything your real estate business needs',
