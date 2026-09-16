@@ -112,25 +112,25 @@ export function MobileNav({ orgName, accountType }: MobileNavProps) {
           onClick={() => setSheetOpen(true)}
           aria-label={t.mobileNav.morePages}
           title={t.mobileNav.morePages}
-          className="bg-brand flex h-12 w-12 flex-none items-center justify-center rounded-full text-white shadow-[0_10px_30px_rgba(104,69,138,.4)]"
+          className="bg-brand flex h-14 w-14 flex-none items-center justify-center rounded-full text-white shadow-[0_10px_30px_rgba(104,69,138,.4)]"
         >
-          <MenuIcon className="h-5 w-5" />
+          <MenuIcon className="h-6 w-6" />
         </button>
 
-        <nav className="border-border-subtle bg-surface-card flex h-12 flex-none items-center gap-1 rounded-full border px-2 shadow-[0_10px_30px_rgba(31,29,34,.16)]">
+        <nav className="border-border-subtle bg-surface-card flex h-14 flex-none items-center gap-1 rounded-full border px-2.5 shadow-[0_10px_30px_rgba(31,29,34,.16)]">
           {pinnedItems.map(({ key, href, label, icon: ItemIcon, activeHrefs }) => {
             const active = activeHrefs.includes(pathname);
             return (
               <Link
                 key={key}
                 href={href}
-                className={`flex flex-none flex-col items-center justify-center gap-0.5 rounded-2xl px-2.5 py-1 text-[10px] leading-none ${
+                className={`flex flex-none flex-col items-center justify-center gap-0.5 rounded-2xl px-3 py-1.5 text-[11px] leading-none ${
                   active
                     ? 'bg-brand-surface text-brand font-semibold'
                     : 'text-text-tertiary font-normal'
                 }`}
               >
-                <ItemIcon className="h-[17px] w-[17px]" />
+                <ItemIcon className="h-[19px] w-[19px]" />
                 {label}
               </Link>
             );
