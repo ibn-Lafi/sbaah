@@ -16,18 +16,17 @@ interface StreamPayWebhookEvent {
  * browser simply *returning* from StreamPay's hosted page (a closed tab,
  * a flaky redirect, or a forged success_url hit would all lie).
  *
- * Signature header name isn't confirmed (see streampay-client.ts's file
- * comment) — tries every header StreamPay plausibly uses; if none
- * verify, the request is rejected. `request.text()` (not `.json()`) so
- * the exact raw bytes are available for HMAC verification before
- * parsing.
+ * Signature header confirmed as `X-Webhook-Signature` (see
+ * streampay-client.ts's file comment) — the previous guesses
+ * (stream-signature/x-stream-signature/signature) never matched, so
+ * every real webhook delivery was silently rejected regardless of
+ * whether the underlying payment actually succeeded. `request.text()`
+ * (not `.json()`) so the exact raw bytes are available for HMAC
+ * verification before parsing.
  */
 export const POST = withErrorHandling(async (request: NextRequest) => {
   const rawBody = await request.text();
-  const signatureHeader =
-    request.headers.get('stream-signature') ??
-    request.headers.get('x-stream-signature') ??
-    request.headers.get('signature');
+  const signatureHeader = request.headers.get('x-webhook-signature');
 
   if (!verifyWebhookSignature(rawBody, signatureHeader)) {
     throw new ApiError(401, 'invalid_signature', 'توقيع غير صالح');
