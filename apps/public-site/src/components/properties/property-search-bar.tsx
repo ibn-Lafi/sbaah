@@ -27,10 +27,10 @@ export function PropertySearchBar({ locale, cities }: { locale: Locale; cities: 
     <form
       method="get"
       action={propertiesHref}
-      className="grid grid-cols-1 items-stretch gap-2 rounded-2xl bg-white p-2 text-start shadow-[0_8px_30px_rgba(0,0,0,.15)] sm:grid-cols-[1fr_1fr_1fr_auto] sm:gap-0 sm:divide-x sm:divide-black/10 rtl:sm:divide-x-reverse"
+      className="grid grid-cols-1 items-stretch gap-2 rounded-2xl border border-white/40 bg-white/25 p-2 text-start shadow-[0_8px_30px_rgba(0,0,0,.15)] backdrop-blur-xl sm:grid-cols-[1fr_1fr_1fr_auto] sm:gap-0 sm:divide-x sm:divide-white/30 rtl:sm:divide-x-reverse"
     >
       <label className="flex flex-col gap-1 px-2 py-1">
-        <span className="text-xs font-medium text-black/50">{t.type}</span>
+        <span className="text-xs font-medium text-black/60">{t.type}</span>
         <select name="property_type" defaultValue="" className={SELECT_CLASSES}>
           <option value="">{t.anyType}</option>
           {PROPERTY_TYPES.map((type) => (
@@ -42,7 +42,7 @@ export function PropertySearchBar({ locale, cities }: { locale: Locale; cities: 
       </label>
 
       <label className="flex flex-col gap-1 px-2 py-1">
-        <span className="text-xs font-medium text-black/50">{t.city}</span>
+        <span className="text-xs font-medium text-black/60">{t.city}</span>
         <select name="city_id" defaultValue="" className={SELECT_CLASSES}>
           <option value="">{t.anyCity}</option>
           {cities.map((city) => (
@@ -54,7 +54,7 @@ export function PropertySearchBar({ locale, cities }: { locale: Locale; cities: 
       </label>
 
       <label className="flex flex-col gap-1 px-2 py-1">
-        <span className="text-xs font-medium text-black/50">{t.listing}</span>
+        <span className="text-xs font-medium text-black/60">{t.listing}</span>
         <select name="listing_type" defaultValue="" className={SELECT_CLASSES}>
           <option value="">{t.anyListing}</option>
           {LISTING_TYPES.map((type) => (
