@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { headers } from 'next/headers';
 import { IBM_Plex_Sans_Arabic } from 'next/font/google';
 import '../globals.css';
 import { isLocale, DEFAULT_LOCALE, type Locale } from '@/lib/i18n/locales';
 import { getDictionary } from '@/lib/i18n/dictionary';
 import { getTenantSiteResult } from '@/lib/tenant/get-tenant-site';
-import { isMarketingHost } from '@/lib/tenant/get-host';
+import { isMarketingHost, getHost } from '@/lib/tenant/get-host';
 import { resolveWebsiteFont } from '@/lib/theme/fonts';
 import { thmanyahSerifDisplay } from '@/lib/fonts/thmanyah-serif-display';
 import { SuspendedPage } from '@/components/suspended-page';
@@ -104,6 +104,21 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   // have no usePathname() equivalent.
   const pathWithoutLocale = (await headers()).get('x-pathname') ?? '/';
   const otherLocaleHref = locale === 'ar' ? `/en${pathWithoutLocale === '/' ? '' : pathWithoutLocale}` : pathWithoutLocale;
+
+  // Founder's explicit choice: once a custom domain is verified, the
+  // platform subdomain no longer serves the site directly — a visitor who
+  // still arrives via it (an old bookmark, a search-engine result) is sent
+  // to the canonical custom domain instead, at this exact same page. Only
+  // reachable here (never for a suspended/incomplete-profile tenant, whose
+  // branches above return before `site` even exists) — acceptable, those
+  // visitors just see the same generic message on the subdomain either way.
+  const currentHost = (await getHost())?.replace(/:\d+$/, '').toLowerCase();
+  if (site.tenant.custom_domain && currentHost !== site.tenant.custom_domain.toLowerCase()) {
+    const currentFullPath = locale === 'ar' ? pathWithoutLocale : `/en${pathWithoutLocale === '/' ? '' : pathWithoutLocale}`;
+    // Permanent (308) — this is the tenant's canonical URL going forward,
+    // not a temporary detour, so search engines update their index too.
+    permanentRedirect(`https://${site.tenant.custom_domain}${currentFullPath}`);
+  }
 
   return (
     <html
