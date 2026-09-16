@@ -26,6 +26,39 @@ import { ApiRequestError } from '@/lib/api/client';
 
 type DomainMode = 'custom' | 'subdomain';
 
+function CopyIcon({ copied, className }: { copied: boolean; className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      {copied ? <path d="M5 12.5l4.5 4.5L19 7" /> : <><rect x="9" y="9" width="11" height="11" rx="2" /><path d="M5 15V6a2 2 0 0 1 2-2h9" /></>}
+    </svg>
+  );
+}
+
+/** Copies `value` to the clipboard, showing a checkmark for 1.5s as feedback — used for the long, easy-to-mistype CNAME/TXT values a founder must paste into their DNS provider. */
+function CopyButton({ value, label }: { value: string; label: string }) {
+  const [copied, setCopied] = useState(false);
+
+  async function handleCopy() {
+    await navigator.clipboard.writeText(value);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={() => void handleCopy()}
+      aria-label={label}
+      title={label}
+      className={`flex h-7 w-7 flex-none items-center justify-center rounded-[8px] ${
+        copied ? 'text-success' : 'text-text-secondary hover:bg-surface-subtle'
+      }`}
+    >
+      <CopyIcon copied={copied} className="h-[15px] w-[15px]" />
+    </button>
+  );
+}
+
 function CustomDomainCard({
   accessToken,
   domain,
@@ -125,24 +158,30 @@ function CustomDomainCard({
           </div>
           {domain.custom_domain_status === 'pending' && domain.dns_records.length > 0 && (
             <>
-              <div
-                className="rounded-input bg-surface-header flex flex-col gap-2 p-4 text-sm"
-                dir="ltr"
-              >
-                <div className="text-text-secondary flex justify-between text-xs">
-                  <span>Type</span>
-                  <span>Name</span>
-                  <span>Value</span>
-                </div>
-                <div className="bg-border-subtle h-px" />
+              <div className="flex flex-col gap-3">
                 {domain.dns_records.map((record) => (
-                  <div
-                    key={record.type}
-                    className="text-text-primary flex justify-between gap-3 font-semibold"
-                  >
-                    <span>{record.type}</span>
-                    <span className="truncate">{record.name}</span>
-                    <span className="truncate">{record.value}</span>
+                  <div key={record.type} className="rounded-input bg-surface-header flex flex-col gap-2.5 p-4">
+                    <span className="text-text-primary w-fit rounded-full bg-surface-subtle-3 px-2.5 py-1 text-[11px] font-semibold" dir="ltr">
+                      {record.type}
+                    </span>
+                    <div className="flex flex-col gap-1.5">
+                      <span className="text-text-secondary text-xs">{t.customDomain.dnsFieldName}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-text-primary min-w-0 flex-1 truncate text-sm font-medium" dir="ltr">
+                          {record.name}
+                        </span>
+                        <CopyButton value={record.name} label={t.customDomain.copyValue} />
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <span className="text-text-secondary text-xs">{t.customDomain.dnsFieldValue}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-text-primary min-w-0 flex-1 truncate text-sm font-medium" dir="ltr">
+                          {record.value}
+                        </span>
+                        <CopyButton value={record.value} label={t.customDomain.copyValue} />
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>

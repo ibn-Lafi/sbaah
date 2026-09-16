@@ -11,6 +11,9 @@ export const domainAr = {
     statusPending: 'بانتظار ربط DNS',
     dnsInstructions:
       'أضِف كلا السجلين لدى مزوّد الدومين — CNAME للربط وTXT لإثبات الملكية، كلاهما مطلوب قبل تفعيل الشهادة.',
+    dnsFieldName: 'الاسم (Name)',
+    dnsFieldValue: 'القيمة (Value)',
+    copyValue: 'نسخ',
     verifyConnection: 'اختبار الربط',
     notVerifiedYet:
       'لم يتم رصد الربط بعد — تأكد من إضافة السجلين أعلاه بالضبط لدى مزوّد الدومين، وقد يستغرق انتشارها حتى ساعات قليلة قبل إعادة المحاولة.',
@@ -47,6 +50,9 @@ export const domainEn: typeof domainAr = {
     statusPending: 'Awaiting DNS connection',
     dnsInstructions:
       'Add both records with your domain provider — CNAME to connect and TXT to prove ownership. Both are required before the certificate is activated.',
+    dnsFieldName: 'Name',
+    dnsFieldValue: 'Value',
+    copyValue: 'Copy',
     verifyConnection: 'Verify Connection',
     notVerifiedYet:
       'Connection not detected yet — make sure both records above are added exactly as shown with your domain provider. Propagation can take up to a few hours before trying again.',
