@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import type { BillingCycle, Plan } from '@sbaah/shared';
+import { groupPlansByTier, planForCycle, type BillingCycle, type Plan, type PlanTier } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
 import { BackButton } from '@/components/ui/back-button';
 import { LoadingState } from '@/components/ui/loading-state';
@@ -11,7 +11,6 @@ import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { useLocale } from '@/lib/i18n/locale-context';
 import { getBilling, startCheckout, type BillingInfo } from '@/lib/api/billing';
 import { listPlans } from '@/lib/api/reference-data';
-import { groupPlansByTier, planForCycle, type PlanTier } from '@/lib/billing/plan-tiers';
 import { ApiRequestError } from '@/lib/api/client';
 
 export default function ChangePlanPage() {

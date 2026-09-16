@@ -1,4 +1,4 @@
-import type { Plan } from '@sbaah/shared';
+import { annualSavingsMonths, type Plan } from '@sbaah/shared';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useLocale } from '@/lib/i18n/locale-context';
@@ -9,14 +9,6 @@ function CheckIcon({ className }: { className?: string }) {
       <path d="M20 6 9 17l-5-5" />
     </svg>
   );
-}
-
-/** Rounds to the nearest whole month saved by paying `annual.price` once instead of `monthly.price` × 12 — 0 when annual isn't actually cheaper. */
-function annualSavingsMonths(monthly: Plan, annual: Plan): number {
-  if (monthly.price <= 0) return 0;
-  const saved = monthly.price * 12 - annual.price;
-  if (saved <= 0) return 0;
-  return Math.round(saved / monthly.price);
 }
 
 interface PlanCardProps {

@@ -106,7 +106,16 @@ export const MARKETING_CONTENT = {
     pricing: {
       title: 'أسعار واضحة، بلا مفاجآت',
       subtitle: 'اشترك بالخطة المناسبة لحجم عملك، وألغِ الاشتراك متى شئت. كل الأسعار شاملة ضريبة القيمة المضافة.',
-      perMonth: 'ريال / شهريًا',
+      cycleToggle: { annual: 'سنوي', monthly: 'شهري' },
+      cycleLabel: (cycle: 'monthly' | 'annual'): string => (cycle === 'annual' ? 'سنويًا' : 'شهريًا'),
+      savingsLabel: (months: number) => {
+        if (months === 1) return 'وفّر شهرًا';
+        if (months === 2) return 'وفّر شهرين';
+        return `وفّر ${months} أشهر`;
+      },
+      currency: 'ريال',
+      priceNote: (cycleLabel: string) => `/ ${cycleLabel}`,
+      vatNote: 'شامل ضريبة القيمة المضافة',
       cta: 'اشترك الآن',
       mostPopular: 'الأكثر اختيارًا',
       propertiesLimit: 'عدد العقارات',
@@ -236,7 +245,12 @@ export const MARKETING_CONTENT = {
     pricing: {
       title: 'Clear pricing, no surprises',
       subtitle: 'Subscribe to the plan that fits your business size, cancel anytime. All prices include VAT.',
-      perMonth: 'SAR / month',
+      cycleToggle: { annual: 'Annual', monthly: 'Monthly' },
+      cycleLabel: (cycle: 'monthly' | 'annual'): string => (cycle === 'annual' ? 'annually' : 'monthly'),
+      savingsLabel: (months: number) => `Save ${months} ${months === 1 ? 'month' : 'months'}`,
+      currency: 'SAR',
+      priceNote: (cycleLabel: string) => `/ ${cycleLabel}`,
+      vatNote: 'Includes VAT',
       cta: 'Subscribe now',
       mostPopular: 'Most popular',
       propertiesLimit: 'Properties',

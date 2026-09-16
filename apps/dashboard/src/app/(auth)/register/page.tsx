@@ -8,9 +8,12 @@ import {
   passwordSchema,
   saudiPhoneSchema,
   REGISTRATION_OPEN,
+  groupPlansByTier,
+  planForCycle,
   type AccountType,
   type BillingCycle,
   type Plan,
+  type PlanTier,
 } from '@sbaah/shared';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -29,7 +32,6 @@ import { PlanCard } from '@/components/billing/plan-card';
 import { register, sendOtp, verifyRegisterOtp } from '@/lib/api/auth';
 import { startCheckout } from '@/lib/api/billing';
 import { listPlans, getTrialPlan } from '@/lib/api/reference-data';
-import { groupPlansByTier, planForCycle, type PlanTier } from '@/lib/billing/plan-tiers';
 import { ApiRequestError } from '@/lib/api/client';
 import { adoptSession } from '@/lib/auth/session';
 import { useResendCooldown } from '@/lib/auth/use-resend-cooldown';

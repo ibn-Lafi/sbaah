@@ -1,4 +1,4 @@
-import type { Plan } from '@sbaah/shared';
+import type { Plan } from '../types/database';
 
 export interface PlanTier {
   /** Groups a monthly + annual row of the same tier — `name_en` is stable and console-editable independently of `name_ar`, but both rows of one tier always share it (migration 0028's seed, and console's plan form keeps them in sync by convention). */
@@ -7,7 +7,7 @@ export interface PlanTier {
   annual?: Plan;
 }
 
-/** Used by both /billing/plans and registration step 6 so "which plan tiers exist" is computed identically everywhere. */
+/** Used everywhere "which plan tiers exist" is needed (dashboard's /billing/plans, registration step 6, public-site's marketing pricing) so tiers are computed identically. */
 export function groupPlansByTier(plans: Plan[]): PlanTier[] {
   const tiers = new Map<string, PlanTier>();
   for (const plan of plans) {
@@ -28,4 +28,12 @@ export function planForCycle(tier: PlanTier, cycle: 'monthly' | 'annual'): Plan 
     throw new Error(`Plan tier "${tier.key}" has no rows for either billing cycle`);
   }
   return plan;
+}
+
+/** Rounds to the nearest whole month saved by paying `annual.price` once instead of `monthly.price` × 12 — 0 when annual isn't actually cheaper. */
+export function annualSavingsMonths(monthly: Plan, annual: Plan): number {
+  if (monthly.price <= 0) return 0;
+  const saved = monthly.price * 12 - annual.price;
+  if (saved <= 0) return 0;
+  return Math.round(saved / monthly.price);
 }
