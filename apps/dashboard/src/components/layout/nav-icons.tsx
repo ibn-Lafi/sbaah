@@ -198,3 +198,22 @@ export function ChevronIcon({ open, className }: IconProps & { open: boolean }) 
     </svg>
   );
 }
+
+/** زر طي/توسيع الشريط الجانبي (sidebar.tsx) — لوحة جانبية مع سهم يعكس اتجاهه حسب الحالة، بلا حاجة لأصل جديد لكل حالة. */
+export function SidebarToggleIcon({ collapsed, className }: IconProps & { collapsed: boolean }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <rect x="3" y="4.5" width="18" height="15" rx="3" />
+      <path d="M9 4.5v15" />
+      <path d={collapsed ? 'M5.5 12h3M7 10.3L5.5 12l1.5 1.7' : 'M14.5 10.3L16 12l-1.5 1.7'} />
+    </svg>
+  );
+}
