@@ -112,9 +112,11 @@ function CustomDomainCard({
     setVerifying(true);
     try {
       const result = await verifyDomain(accessToken);
-      if (result.verified) {
-        onChanged();
-      } else {
+      // Refreshed either way — Cloudflare's certificate-validation DNS
+      // records (see verify/route.ts) can newly appear on a check that's
+      // still "not verified yet", and the owner needs to see those too.
+      onChanged();
+      if (!result.verified) {
         setNotVerifiedYet(true);
       }
     } catch (err) {
@@ -160,7 +162,7 @@ function CustomDomainCard({
             <>
               <div className="flex flex-col gap-3">
                 {domain.dns_records.map((record) => (
-                  <div key={record.type} className="rounded-input bg-surface-header flex flex-col gap-2.5 p-4">
+                  <div key={`${record.type}-${record.name}-${record.value}`} className="rounded-input bg-surface-header flex flex-col gap-2.5 p-4">
                     <span className="text-text-primary w-fit rounded-full bg-surface-subtle-3 px-2.5 py-1 text-[11px] font-semibold" dir="ltr">
                       {record.type}
                     </span>

@@ -3,7 +3,8 @@ import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
 import { assertOwner } from '@/lib/auth/assert-owner';
-import { getCloudflareCustomHostnameStatus } from '@/lib/tenant/cloudflare-api-client';
+import { getCloudflareCustomHostnameDetails } from '@/lib/tenant/cloudflare-api-client';
+import { withSslValidationRecords, type DnsRecord } from '@/lib/tenant/domain-dns-records';
 
 /**
  * Self-service verification (founder's explicit decision — no manual
@@ -15,6 +16,16 @@ import { getCloudflareCustomHostnameStatus } from '@/lib/tenant/cloudflare-api-c
  * that's the ground truth, not a DNS lookup we run ourselves) and flips
  * `custom_domain_status` to 'verified' the moment it does — no admin in
  * the loop at all.
+ *
+ * Also refreshes `custom_domain_dns_records` with Cloudflare's own
+ * certificate-validation TXT records (`_acme-challenge.<domain>`) on every
+ * check, even when still pending — these aren't necessarily known yet right
+ * when the domain is first added (Cloudflare fills them in shortly after),
+ * so the owner needs to see them appear here once Cloudflare has them, not
+ * just the one ownership-verification TXT captured at creation time. A real
+ * gap found in production: without this, a domain can sit "pending"
+ * forever because the owner was never shown the second set of DNS records
+ * Cloudflare actually needs before it will issue a certificate.
  */
 export const POST = withErrorHandling(async (request: NextRequest) => {
   const { supabase } = getAuthenticatedClient(request);
@@ -23,7 +34,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 
   const { data: tenant, error: loadError } = await supabase
     .from('tenants')
-    .select('custom_domain, custom_domain_status, custom_domain_cloudflare_id')
+    .select('custom_domain, custom_domain_status, custom_domain_cloudflare_id, custom_domain_dns_records')
     .eq('id', caller.tenantId)
     .single();
   if (loadError) {
@@ -37,14 +48,24 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
     return okResponse({ custom_domain_status: 'verified' as const, verified: true });
   }
 
-  const { active } = await getCloudflareCustomHostnameStatus(tenant.custom_domain_cloudflare_id);
+  const { active, sslValidationRecords } = await getCloudflareCustomHostnameDetails(tenant.custom_domain_cloudflare_id);
+  const currentRecords = (tenant.custom_domain_dns_records as DnsRecord[] | null) ?? [];
+  const refreshedRecords = withSslValidationRecords(currentRecords, sslValidationRecords);
+
   if (!active) {
+    const { error: refreshError } = await supabase
+      .from('tenants')
+      .update({ custom_domain_dns_records: refreshedRecords })
+      .eq('id', caller.tenantId);
+    if (refreshError) {
+      throw new Error(`Failed to refresh domain DNS records: ${refreshError.message}`);
+    }
     return okResponse({ custom_domain_status: 'pending' as const, verified: false });
   }
 
   const { error: updateError } = await supabase
     .from('tenants')
-    .update({ custom_domain_status: 'verified' })
+    .update({ custom_domain_status: 'verified', custom_domain_dns_records: refreshedRecords })
     .eq('id', caller.tenantId);
   if (updateError) {
     throw new Error(`Failed to mark domain verified: ${updateError.message}`);

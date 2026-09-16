@@ -27,3 +27,23 @@ export function dnsRecordsFor(customDomain: string, cloudflareHostname: Cloudfla
     { type: 'TXT', name: cloudflareHostname.ownershipVerificationName, value: cloudflareHostname.ownershipVerificationValue },
   ];
 }
+
+/**
+ * Adds/refreshes the certificate-validation TXT records (see
+ * `CloudflareCustomHostnameDetails.sslValidationRecords`'s doc comment) onto
+ * an existing record set — these normally aren't known yet at the moment
+ * `dnsRecordsFor` first runs (Cloudflare fills them in shortly after
+ * creating the hostname), so `verify/route.ts` calls this on every check to
+ * pick them up once Cloudflare has them, replacing any earlier (possibly
+ * stale or empty) set of validation records rather than duplicating them.
+ */
+export function withSslValidationRecords(
+  baseRecords: DnsRecord[],
+  sslValidationRecords: { name: string; value: string }[],
+): DnsRecord[] {
+  const withoutOldValidationRecords = baseRecords.filter((record) => !record.name.startsWith('_acme-challenge.'));
+  return [
+    ...withoutOldValidationRecords,
+    ...sslValidationRecords.map((record) => ({ type: 'TXT' as const, name: record.name, value: record.value })),
+  ];
+}

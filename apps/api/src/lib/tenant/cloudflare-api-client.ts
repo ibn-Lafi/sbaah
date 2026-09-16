@@ -102,6 +102,24 @@ export async function deleteCloudflareCustomHostname(cloudflareHostnameId: strin
   }
 }
 
+export interface CloudflareCustomHostnameDetails {
+  active: boolean;
+  /**
+   * The DNS-01 certificate-validation TXT records (`_acme-challenge.<domain>`)
+   * Cloudflare's CA needs before it will actually issue a certificate — a
+   * SEPARATE requirement from `ownership_verification`'s TXT record (which
+   * only proves domain control, not certificate issuance). Cloudflare
+   * normally requests two of these per hostname (one per certificate
+   * authority/chain, for broader browser compatibility) and — per
+   * Cloudflare's own docs — the array can be empty for a short period right
+   * after the hostname is created, filling in once Cloudflare has requested
+   * the tokens from the CA. Confirmed against Cloudflare's official API
+   * reference (developers.cloudflare.com/api/resources/custom_hostnames),
+   * not just the founder's live dashboard screenshot.
+   */
+  sslValidationRecords: { name: string; value: string }[];
+}
+
 /**
  * Ground truth for POST /v1/tenant/domain/verify — asks Cloudflare itself
  * whether it considers this hostname fully connected, instead of us
@@ -110,16 +128,21 @@ export async function deleteCloudflareCustomHostname(cloudflareHostnameId: strin
  * timing, or a stale re-check — the exact cause of a real "Cloudflare shows
  * it connected, our dashboard still shows pending" bug). `status: 'active'`
  * means Cloudflare is routing traffic for the hostname; `ssl.status:
- * 'active'` means it has actually issued the certificate (which needs the
- * `_acme-challenge` TXT records Cloudflare manages on its own side — we
- * never see or verify those ourselves, another reason not to duplicate this
- * check with our own DNS resolution).
+ * 'active'` means it has actually issued the certificate.
  */
-export async function getCloudflareCustomHostnameStatus(cloudflareHostnameId: string): Promise<{ active: boolean }> {
+export async function getCloudflareCustomHostnameDetails(
+  cloudflareHostnameId: string,
+): Promise<CloudflareCustomHostnameDetails> {
   const zoneId = requireEnv('CLOUDFLARE_ZONE_ID');
-  const result = await cloudflareFetch<{ status: string; ssl: { status: string } }>(
-    `/zones/${zoneId}/custom_hostnames/${cloudflareHostnameId}`,
-    { method: 'GET' },
-  );
-  return { active: result.status === 'active' && result.ssl.status === 'active' };
+  const result = await cloudflareFetch<{
+    status: string;
+    ssl: { status: string; validation_records?: { txt_name?: string; txt_value?: string }[] };
+  }>(`/zones/${zoneId}/custom_hostnames/${cloudflareHostnameId}`, { method: 'GET' });
+
+  return {
+    active: result.status === 'active' && result.ssl.status === 'active',
+    sslValidationRecords: (result.ssl.validation_records ?? [])
+      .filter((record) => record.txt_name && record.txt_value)
+      .map((record) => ({ name: record.txt_name as string, value: record.txt_value as string })),
+  };
 }
