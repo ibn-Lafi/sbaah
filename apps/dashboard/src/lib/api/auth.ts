@@ -1,4 +1,13 @@
-import type { AccountType, OtpPurpose, RegisterInput, ResetPasswordInput, TenantStatus, UserRole, UserStatus } from '@sbaah/shared';
+import type {
+  AccountType,
+  CustomDomainStatus,
+  OtpPurpose,
+  RegisterInput,
+  ResetPasswordInput,
+  TenantStatus,
+  UserRole,
+  UserStatus,
+} from '@sbaah/shared';
 import { apiGet, apiPatch, apiPost } from './client';
 
 export function sendOtp(phone: string, purpose: OtpPurpose) {
@@ -87,6 +96,7 @@ export interface MeResponse {
     account_type: AccountType;
     subdomain: string;
     custom_domain: string | null;
+    custom_domain_status: CustomDomainStatus | null;
     status: TenantStatus;
     /** Set only for a trial-plan signup (migration 0047) — past this, the account is read-only until the tenant subscribes to a real plan. */
     trial_ends_at: string | null;

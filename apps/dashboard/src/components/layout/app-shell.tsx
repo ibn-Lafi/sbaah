@@ -35,9 +35,14 @@ export function AppShell({ title, orgName, accountType, children }: AppShellProp
   const { me } = useCurrentUser();
   const { t } = useLocale();
   const status = me.tenant.status;
-  // Always the subdomain URL, never the (possibly unverified/not-yet-
-  // DNS-configured) custom domain — this link must always actually load.
-  const siteUrl = `https://${me.tenant.subdomain}.${getPlatformRootDomain()}`;
+  // The verified custom domain once it's actually live — otherwise the
+  // subdomain, which always loads regardless of custom-domain DNS/
+  // certificate state (an unverified custom domain here would send the
+  // owner to a link that doesn't work yet).
+  const siteUrl =
+    me.tenant.custom_domain && me.tenant.custom_domain_status === 'verified'
+      ? `https://${me.tenant.custom_domain}`
+      : `https://${me.tenant.subdomain}.${getPlatformRootDomain()}`;
 
   // trial_ends_at is only ever set for a trial-plan signup (migration
   // 0047) — an independent signal from `status`, so it needs its own

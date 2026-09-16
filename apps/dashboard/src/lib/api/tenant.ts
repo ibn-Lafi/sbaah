@@ -41,7 +41,7 @@ export interface DnsRecord {
 export interface DomainInfo {
   custom_domain: string | null;
   custom_domain_status: CustomDomainStatus | null;
-  /** One CNAME (routing) + one TXT (Railway ownership verification) record — both required before Railway issues a certificate. */
+  /** One CNAME (routing) + one TXT (Cloudflare ownership verification) record — both required before Cloudflare issues a certificate. */
   dns_records: DnsRecord[];
   custom_domain_allowed: boolean;
 }
