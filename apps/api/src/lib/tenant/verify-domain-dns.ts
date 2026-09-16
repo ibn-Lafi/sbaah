@@ -30,9 +30,10 @@ async function txtMatches(hostname: string, expectedValue: string): Promise<bool
  * Real DNS check for POST /v1/tenant/domain/verify — self-service
  * verification (founder's explicit decision: no manual console review,
  * automatic like any SaaS custom-domain flow). Checks BOTH records
- * Railway itself requires before it will issue a certificate: the CNAME
- * (routing) and the TXT ownership-verification record
- * (`_railway-verify.<domain>`) — matching what `createRailwayCustomDomain`
+ * Cloudflare requires before it will issue a certificate: the CNAME
+ * (routing, a fixed value shared by every tenant — see
+ * domain-dns-records.ts) and the TXT ownership-verification record
+ * (`_cf-custom-hostname.<domain>`) — matching what `createCloudflareCustomHostname`
  * stored in `tenants.custom_domain_dns_records`. Every failure mode
  * (domain not found, record not published yet, DNS timeout, wrong value)
  * is a plain `false` — this is polled by the owner clicking "اختبار

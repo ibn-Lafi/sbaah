@@ -5,7 +5,7 @@ import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
 import { assertOwner } from '@/lib/auth/assert-owner';
-import { createRailwayCustomDomain, deleteRailwayCustomDomain } from '@/lib/tenant/railway-api-client';
+import { createCloudflareCustomHostname, deleteCloudflareCustomHostname } from '@/lib/tenant/cloudflare-api-client';
 import { dnsRecordsFor, type DnsRecord } from '@/lib/tenant/domain-dns-records';
 
 async function loadCustomDomainAllowed(supabase: SupabaseClient, tenantId: string): Promise<boolean> {
@@ -58,14 +58,14 @@ export const PATCH = withErrorHandling(async (request: NextRequest) => {
     throw new ApiError(403, 'plan_does_not_allow_custom_domain', 'باقتك الحالية لا تشمل ربط دومين مخصص — يلزم الترقية لباقة أعلى');
   }
 
-  // Registers the domain with Railway itself first — this is what makes
-  // Railway start issuing it a real certificate once DNS is pointed
-  // correctly (see railway-api-client.ts's doc comment). Done before the
-  // database write so a Railway-side failure (e.g. misconfigured API
+  // Registers the domain with Cloudflare itself first — this is what makes
+  // Cloudflare start issuing it a real certificate once DNS is pointed
+  // correctly (see cloudflare-api-client.ts's doc comment). Done before the
+  // database write so a Cloudflare-side failure (e.g. misconfigured API
   // token) never leaves a tenant with a "pending" domain that can never
   // actually verify.
-  const railwayDomain = await createRailwayCustomDomain(custom_domain);
-  const dnsRecords = dnsRecordsFor(custom_domain, railwayDomain);
+  const cloudflareHostname = await createCloudflareCustomHostname(custom_domain);
+  const dnsRecords = dnsRecordsFor(custom_domain, cloudflareHostname);
 
   const { data, error } = await supabase
     .from('tenants')
@@ -73,7 +73,7 @@ export const PATCH = withErrorHandling(async (request: NextRequest) => {
       custom_domain,
       custom_domain_status: 'pending',
       custom_domain_dns_records: dnsRecords,
-      custom_domain_railway_id: railwayDomain.railwayDomainId,
+      custom_domain_cloudflare_id: cloudflareHostname.cloudflareHostnameId,
     })
     .eq('id', caller.tenantId)
     .select('custom_domain, custom_domain_status')
@@ -81,9 +81,9 @@ export const PATCH = withErrorHandling(async (request: NextRequest) => {
   if (error) {
     // tenants.custom_domain is globally unique — a plausible real
     // collision (another tenant already claimed this domain). Best-effort
-    // cleanup on Railway's side too, so a rejected domain doesn't linger
+    // cleanup on Cloudflare's side too, so a rejected domain doesn't linger
     // there under an account that never actually got it.
-    await deleteRailwayCustomDomain(railwayDomain.railwayDomainId);
+    await deleteCloudflareCustomHostname(cloudflareHostname.cloudflareHostnameId);
     if (error.code === '23505') {
       throw new ApiError(409, 'domain_already_taken', 'هذا الدومين مستخدَم بالفعل من حساب آخر');
     }
@@ -105,14 +105,14 @@ export const DELETE = withErrorHandling(async (request: NextRequest) => {
 
   const { data: tenant, error: loadError } = await supabase
     .from('tenants')
-    .select('custom_domain_railway_id')
+    .select('custom_domain_cloudflare_id')
     .eq('id', caller.tenantId)
     .single();
   if (loadError) {
     throw new Error(`Failed to load tenant before removing domain: ${loadError.message}`);
   }
-  if (tenant.custom_domain_railway_id) {
-    await deleteRailwayCustomDomain(tenant.custom_domain_railway_id);
+  if (tenant.custom_domain_cloudflare_id) {
+    await deleteCloudflareCustomHostname(tenant.custom_domain_cloudflare_id);
   }
 
   const { error } = await supabase
@@ -121,7 +121,7 @@ export const DELETE = withErrorHandling(async (request: NextRequest) => {
       custom_domain: null,
       custom_domain_status: null,
       custom_domain_dns_records: null,
-      custom_domain_railway_id: null,
+      custom_domain_cloudflare_id: null,
     })
     .eq('id', caller.tenantId);
   if (error) {
