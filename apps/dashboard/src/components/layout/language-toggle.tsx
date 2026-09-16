@@ -2,12 +2,24 @@
 
 import { useLocale } from '@/lib/i18n/locale-context';
 
+function GlobeIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" className={className}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M3 12h18M12 3c2.5 2.5 3.8 5.7 3.8 9s-1.3 6.5-3.8 9c-2.5-2.5-3.8-5.7-3.8-9s1.3-6.5 3.8-9z" />
+    </svg>
+  );
+}
+
 /**
- * Text pill (not an icon) since "AR"/"EN" already reads at a glance —
- * same rounded-full/bg-surface-subtle treatment as the topbar's other
- * round icon buttons (visit-site, account), just wide enough for two
- * letters. Shows the language it switches *to*, matching the mockup's
- * "visit site" pattern of labeling the action rather than the state.
+ * Text pill (not an icon) by default since "AR"/"EN" already reads at a
+ * glance — same rounded-full/bg-surface-subtle treatment as the topbar's
+ * other round icon buttons (visit-site, account), just wide enough for
+ * two letters. Shows the language it switches *to*, matching the
+ * mockup's "visit site" pattern of labeling the action rather than the
+ * state. `iconOnly` (auth pages' in-card toggle row, founder's request)
+ * swaps the "AR"/"EN" text for a plain globe icon instead — same button,
+ * same behavior, just a different glyph.
  *
  * `variant="header"` (default) assumes the topbar's purple-on-mobile/
  * white-on-desktop background (transparent white circle below md, solid
@@ -18,9 +30,11 @@ import { useLocale } from '@/lib/i18n/locale-context';
 export function LanguageToggle({
   className = '',
   variant = 'header',
+  iconOnly = false,
 }: {
   className?: string;
   variant?: 'header' | 'surface';
+  iconOnly?: boolean;
 }) {
   const { locale, toggleLocale, t } = useLocale();
   const nextLabel = locale === 'ar' ? 'EN' : 'AR';
@@ -38,7 +52,7 @@ export function LanguageToggle({
       title={title}
       className={`flex flex-none items-center justify-center rounded-full text-[13px] font-semibold ${variantClasses} ${className}`}
     >
-      {nextLabel}
+      {iconOnly ? <GlobeIcon className="h-[19px] w-[19px]" /> : nextLabel}
     </button>
   );
 }

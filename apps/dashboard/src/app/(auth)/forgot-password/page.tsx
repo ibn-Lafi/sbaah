@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { emailSchema, otpCodeSchema, passwordSchema, saudiPhoneSchema } from '@sbaah/shared';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { PasswordInput } from '@/components/ui/password-input';
 import { PhoneInput } from '@/components/ui/phone-input';
@@ -134,7 +133,7 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <Card className="p-8">
+    <>
       <h1 className="mb-1 text-2xl font-bold text-text-primary">{t.forgotPassword.title}</h1>
       <p className="mb-6 text-sm text-text-secondary">
         {step === 'identify' && t.forgotPassword.identifySubtitle}
@@ -219,6 +218,6 @@ export default function ForgotPasswordPage() {
           {t.shared.signIn}
         </Link>
       </p>
-    </Card>
+    </>
   );
 }

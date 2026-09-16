@@ -16,7 +16,6 @@ import {
   type PlanTier,
 } from '@sbaah/shared';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { PasswordInput } from '@/components/ui/password-input';
 import { PhoneInput } from '@/components/ui/phone-input';
@@ -46,7 +45,7 @@ const ACCOUNT_TYPES: AccountType[] = ['individual', 'institution', 'company'];
 /** التسجيل متوقف مؤقتًا (packages/shared/src/config.ts) ريثما تُبنى خطوة اختيار الباقة والدفع عبر StreamPay. */
 function RegistrationClosedNotice({ t }: { t: PageDictionaries['auth'] }) {
   return (
-    <Card className="p-8">
+    <>
       <h1 className="text-text-primary mb-2 text-2xl font-bold">{t.register.closedNotice.title}</h1>
       <p className="text-text-secondary text-sm">
         {t.register.closedNotice.body}{' '}
@@ -55,7 +54,7 @@ function RegistrationClosedNotice({ t }: { t: PageDictionaries['auth'] }) {
         </Link>
         .
       </p>
-    </Card>
+    </>
   );
 }
 
@@ -248,171 +247,169 @@ export default function RegisterPage() {
   return (
     <>
       <ProvisioningOverlay active={provisioning} done={provisioningDone} />
-      <Card className="p-8">
-        <RegistrationStepper labels={STEPS.map((s) => t.register.stepperLabels[s])} currentIndex={stepIndex} />
-        <h1 className="text-text-primary mb-1 text-2xl font-bold">
-          {step === 'phone' || step === 'otp' ? t.register.createAccountHeading : t.register.stepTitles[step]}
-        </h1>
-        <p className="text-text-secondary mb-6 text-sm">
-          {step === 'phone' && t.register.phoneSubtitle}
-          {step === 'otp' && t.shared.otpSentTo(phone)}
-          {step === 'account' && t.register.accountSubtitle}
-          {step === 'account_type' && t.register.accountTypeSubtitle}
-          {step === 'plan' && t.register.planSubtitle}
-        </p>
+      <RegistrationStepper labels={STEPS.map((s) => t.register.stepperLabels[s])} currentIndex={stepIndex} />
+      <h1 className="text-text-primary mb-1 text-2xl font-bold">
+        {step === 'phone' || step === 'otp' ? t.register.createAccountHeading : t.register.stepTitles[step]}
+      </h1>
+      <p className="text-text-secondary mb-6 text-sm">
+        {step === 'phone' && t.register.phoneSubtitle}
+        {step === 'otp' && t.shared.otpSentTo(phone)}
+        {step === 'account' && t.register.accountSubtitle}
+        {step === 'account_type' && t.register.accountTypeSubtitle}
+        {step === 'plan' && t.register.planSubtitle}
+      </p>
 
-        {step === 'phone' && (
-          <form onSubmit={handleSendOtp} className="flex flex-col gap-4">
-            <PhoneInput placeholder="5xxxxxxxx" value={phone} onChange={setPhone} />
-            <FormError message={error} />
-            <Button type="submit" loading={loading}>
-              {loading ? t.shared.sendingOtp : t.shared.sendOtp}
-            </Button>
-          </form>
-        )}
+      {step === 'phone' && (
+        <form onSubmit={handleSendOtp} className="flex flex-col gap-4">
+          <PhoneInput placeholder="5xxxxxxxx" value={phone} onChange={setPhone} />
+          <FormError message={error} />
+          <Button type="submit" loading={loading}>
+            {loading ? t.shared.sendingOtp : t.shared.sendOtp}
+          </Button>
+        </form>
+      )}
 
-        {step === 'otp' && (
-          <form onSubmit={handleVerifyOtp} className="flex flex-col gap-4">
-            <OtpInput value={code} onChange={setCode} disabled={loading} />
-            <FormError message={error} />
-            <Button type="submit" loading={loading}>
-              {loading ? t.shared.verifying : t.shared.verify}
-            </Button>
-            <button
-              type="button"
-              disabled={resend.secondsLeft > 0 || loading}
-              onClick={() => void resendOtp()}
-              className="text-brand disabled:text-text-placeholder text-sm hover:underline disabled:cursor-not-allowed"
-            >
-              {resend.secondsLeft > 0 ? t.shared.resendIn(resend.secondsLeft) : t.shared.resendCode}
-            </button>
-          </form>
-        )}
+      {step === 'otp' && (
+        <form onSubmit={handleVerifyOtp} className="flex flex-col gap-4">
+          <OtpInput value={code} onChange={setCode} disabled={loading} />
+          <FormError message={error} />
+          <Button type="submit" loading={loading}>
+            {loading ? t.shared.verifying : t.shared.verify}
+          </Button>
+          <button
+            type="button"
+            disabled={resend.secondsLeft > 0 || loading}
+            onClick={() => void resendOtp()}
+            className="text-brand disabled:text-text-placeholder text-sm hover:underline disabled:cursor-not-allowed"
+          >
+            {resend.secondsLeft > 0 ? t.shared.resendIn(resend.secondsLeft) : t.shared.resendCode}
+          </button>
+        </form>
+      )}
 
-        {step === 'account' && (
-          <form onSubmit={handleSubmitAccount} className="flex flex-col gap-4">
-            <Input
-              placeholder={t.register.fullNamePlaceholder}
-              value={fullName}
-              onChange={(event) => setFullName(event.target.value)}
+      {step === 'account' && (
+        <form onSubmit={handleSubmitAccount} className="flex flex-col gap-4">
+          <Input
+            placeholder={t.register.fullNamePlaceholder}
+            value={fullName}
+            onChange={(event) => setFullName(event.target.value)}
+          />
+          <Input
+            type="email"
+            placeholder={t.register.emailPlaceholder}
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            dir="ltr"
+          />
+          <div className="flex flex-col gap-2">
+            <label className="text-text-primary text-sm font-medium">{t.register.passwordLabel}</label>
+            <PasswordInput
+              placeholder="••••••••"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
             />
-            <Input
-              type="email"
-              placeholder={t.register.emailPlaceholder}
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              dir="ltr"
+            <PasswordStrengthMeter password={password} />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="text-text-primary text-sm font-medium">{t.register.confirmPasswordLabel}</label>
+            <PasswordInput
+              placeholder="••••••••"
+              value={passwordConfirm}
+              onChange={(event) => setPasswordConfirm(event.target.value)}
             />
-            <div className="flex flex-col gap-2">
-              <label className="text-text-primary text-sm font-medium">{t.register.passwordLabel}</label>
-              <PasswordInput
-                placeholder="••••••••"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-              />
-              <PasswordStrengthMeter password={password} />
-            </div>
-            <div className="flex flex-col gap-2">
-              <label className="text-text-primary text-sm font-medium">{t.register.confirmPasswordLabel}</label>
-              <PasswordInput
-                placeholder="••••••••"
-                value={passwordConfirm}
-                onChange={(event) => setPasswordConfirm(event.target.value)}
-              />
-            </div>
-            <FormError message={error} />
-            <Button type="submit" disabled={loading}>
-              {t.register.continueButton}
-            </Button>
-          </form>
-        )}
+          </div>
+          <FormError message={error} />
+          <Button type="submit" disabled={loading}>
+            {t.register.continueButton}
+          </Button>
+        </form>
+      )}
 
-        {step === 'account_type' && (
-          <form onSubmit={handleSubmitAccountType} className="flex flex-col gap-4">
-            <div className="flex flex-col gap-3">
-              {ACCOUNT_TYPES.map((type) => {
-                const selected = accountType === type;
-                const { label, description } = t.register.accountTypes[type];
-                return (
-                  <button
-                    key={type}
-                    type="button"
-                    onClick={() => setAccountType(type)}
-                    className={`rounded-input flex items-center gap-4 border p-4 text-start transition-colors ${
-                      selected
-                        ? 'border-brand ring-brand ring-1'
-                        : 'border-border-default hover:border-text-placeholder'
-                    }`}
-                  >
-                    <VerifiedBadge accountType={type} size={40} />
-                    <div className="flex flex-1 flex-col gap-0.5">
-                      <span className="text-text-primary text-sm font-semibold">{label}</span>
-                      <span className="text-text-secondary text-xs">{description}</span>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-            <FormError message={error} />
-            <Button type="submit">{t.register.continueButton}</Button>
-          </form>
-        )}
+      {step === 'account_type' && (
+        <form onSubmit={handleSubmitAccountType} className="flex flex-col gap-4">
+          <div className="flex flex-col gap-3">
+            {ACCOUNT_TYPES.map((type) => {
+              const selected = accountType === type;
+              const { label, description } = t.register.accountTypes[type];
+              return (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => setAccountType(type)}
+                  className={`rounded-input flex items-center gap-4 border p-4 text-start transition-colors ${
+                    selected
+                      ? 'border-brand ring-brand ring-1'
+                      : 'border-border-default hover:border-text-placeholder'
+                  }`}
+                >
+                  <VerifiedBadge accountType={type} size={40} />
+                  <div className="flex flex-1 flex-col gap-0.5">
+                    <span className="text-text-primary text-sm font-semibold">{label}</span>
+                    <span className="text-text-secondary text-xs">{description}</span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+          <FormError message={error} />
+          <Button type="submit">{t.register.continueButton}</Button>
+        </form>
+      )}
 
-        {step === 'plan' && (
-          <form onSubmit={(e) => void handleSubmitPlan(e)} className="flex flex-col gap-4">
-            {tiers === null ? (
-              <LoadingState className="py-6" />
-            ) : (
-              <>
-                {trialPlan && (
-                  <PlanCard
-                    plan={trialPlan}
-                    isCurrent={false}
-                    selected={selectedPlanId === trialPlan.id}
-                    selecting={false}
-                    selectDisabled={loading}
-                    onSelect={() => setSelectedPlanId(trialPlan.id)}
-                  />
-                )}
-                <PlanCycleToggle value={cycle} onChange={handleCycleChange} />
-                <div className="flex flex-col gap-3">
-                  {tiers.map((tier) => {
-                    const plan = planForCycle(tier, cycle);
-                    return (
-                      <PlanCard
-                        key={tier.key}
-                        plan={plan}
-                        monthlyEquivalent={tier.monthly}
-                        isCurrent={false}
-                        selected={selectedPlanId === plan.id}
-                        selecting={false}
-                        selectDisabled={loading}
-                        showIntroPricing
-                        onSelect={() => setSelectedPlanId(plan.id)}
-                      />
-                    );
-                  })}
-                </div>
-              </>
-            )}
-            <FormError message={error} />
-            <Button type="submit" loading={loading}>
-              {loading
-                ? t.register.preparingButton
-                : trialPlan && selectedPlanId === trialPlan.id
-                  ? t.register.startTrialButton
-                  : t.register.payAndSubscribeButton}
-            </Button>
-          </form>
-        )}
+      {step === 'plan' && (
+        <form onSubmit={(e) => void handleSubmitPlan(e)} className="flex flex-col gap-4">
+          {tiers === null ? (
+            <LoadingState className="py-6" />
+          ) : (
+            <>
+              {trialPlan && (
+                <PlanCard
+                  plan={trialPlan}
+                  isCurrent={false}
+                  selected={selectedPlanId === trialPlan.id}
+                  selecting={false}
+                  selectDisabled={loading}
+                  onSelect={() => setSelectedPlanId(trialPlan.id)}
+                />
+              )}
+              <PlanCycleToggle value={cycle} onChange={handleCycleChange} />
+              <div className="flex flex-col gap-3">
+                {tiers.map((tier) => {
+                  const plan = planForCycle(tier, cycle);
+                  return (
+                    <PlanCard
+                      key={tier.key}
+                      plan={plan}
+                      monthlyEquivalent={tier.monthly}
+                      isCurrent={false}
+                      selected={selectedPlanId === plan.id}
+                      selecting={false}
+                      selectDisabled={loading}
+                      showIntroPricing
+                      onSelect={() => setSelectedPlanId(plan.id)}
+                    />
+                  );
+                })}
+              </div>
+            </>
+          )}
+          <FormError message={error} />
+          <Button type="submit" loading={loading}>
+            {loading
+              ? t.register.preparingButton
+              : trialPlan && selectedPlanId === trialPlan.id
+                ? t.register.startTrialButton
+                : t.register.payAndSubscribeButton}
+          </Button>
+        </form>
+      )}
 
-        <p className="text-text-secondary mt-6 text-center text-sm">
-          {t.register.haveAccountPrompt}{' '}
-          <Link href="/login" className="text-brand font-semibold hover:underline">
-            {t.shared.signIn}
-          </Link>
-        </p>
-      </Card>
+      <p className="text-text-secondary mt-6 text-center text-sm">
+        {t.register.haveAccountPrompt}{' '}
+        <Link href="/login" className="text-brand font-semibold hover:underline">
+          {t.shared.signIn}
+        </Link>
+      </p>
     </>
   );
 }

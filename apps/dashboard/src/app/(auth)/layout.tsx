@@ -1,25 +1,36 @@
 import { AuthPanel } from '@/components/auth/auth-panel';
+import { Card } from '@/components/ui/card';
 import { LanguageToggle } from '@/components/layout/language-toggle';
 import { ThemeToggle } from '@/components/layout/theme-toggle';
 
 /**
  * Shared shell for /login, /register, /forgot-password — no sidebar/topbar
- * (AppShell is for authenticated screens only), so the language/theme
- * toggles that live in the topbar for authenticated pages get their own
- * fixed corner spot here instead — same order (theme, then language) as
- * the topbar, `variant="surface"` since there's no purple header behind
- * them on these pages.
+ * (AppShell is for authenticated screens only). The theme/language toggles
+ * live inside the card itself now (founder's request), as a small icon row
+ * above each page's own heading, instead of floating in a fixed page
+ * corner — same order (theme, then language) as the topbar.
+ *
+ * `h-dvh overflow-hidden` (not `min-h-screen`) is load-bearing, not
+ * cosmetic — same reasoning as AppShell: without a hard height cap the
+ * page scrolls/rubber-bands as a whole on mobile even when the card's own
+ * content would fit, and the toggle row could drift out of view mid-
+ * gesture. The card itself becomes the one scrollable region
+ * (`overflow-y-auto overscroll-contain`, capped at `max-h-full`) so a
+ * genuinely tall step (e.g. register's plan-selection step) still scrolls
+ * on its own without moving the surrounding viewport.
  */
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen">
-      <div className="fixed end-4 top-4 z-10 flex items-center gap-2">
-        <ThemeToggle variant="surface" />
-        <LanguageToggle variant="surface" />
-      </div>
+    <div className="flex h-dvh overflow-hidden">
       <AuthPanel />
-      <div className="flex min-w-0 flex-1 items-center justify-center p-6">
-        <div className="w-full max-w-[440px]">{children}</div>
+      <div className="flex min-h-0 min-w-0 flex-1 items-center justify-center p-6">
+        <Card className="flex max-h-full w-full max-w-[440px] flex-col overflow-y-auto overscroll-contain p-8">
+          <div className="mb-4 flex flex-none items-center justify-end gap-2">
+            <ThemeToggle variant="surface" />
+            <LanguageToggle variant="surface" iconOnly />
+          </div>
+          {children}
+        </Card>
       </div>
     </div>
   );

@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { emailSchema, otpCodeSchema, passwordSchema, saudiPhoneSchema } from '@sbaah/shared';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { PasswordInput } from '@/components/ui/password-input';
 import { PhoneInput } from '@/components/ui/phone-input';
@@ -205,7 +204,7 @@ export default function LoginPage() {
   }
 
   return (
-    <Card className="p-8">
+    <>
       <h1 className="mb-1 text-2xl font-bold text-text-primary">{t.shared.signIn}</h1>
       <p className="mb-6 text-sm text-text-secondary">{t.login.subtitle}</p>
 
@@ -315,6 +314,6 @@ export default function LoginPage() {
           {t.login.createAccountLink}
         </Link>
       </p>
-    </Card>
+    </>
   );
 }
