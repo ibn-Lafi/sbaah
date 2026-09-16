@@ -9,7 +9,7 @@ import { CloseIcon, MenuIcon } from './marketing/icons';
 function BrandMark({ label }: { label: string }) {
   return (
     // eslint-disable-next-line @next/next/no-img-element -- static PNG brand asset, no responsive/optimization needs
-    <img src="/brand-mark.png" alt={label} width={107} height={24} className="h-6 w-auto" />
+    <img src="/brand-mark.png" alt={label} width={55} height={24} className="h-6 w-auto" />
   );
 }
 

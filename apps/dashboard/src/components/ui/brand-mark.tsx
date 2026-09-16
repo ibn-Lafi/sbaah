@@ -1,6 +1,6 @@
-/** The سبعة logo, from /public/brand-mark.png (668×150 source, ~4.45:1). Pass `invert` for the white-on-purple auth-panel usage — the mark is solid purple, so a CSS filter is enough, no separate white asset needed. */
+/** The سبعة logo (two stacked lines, سبعة above sbaah), from /public/brand-mark.png (700×304 source, ~2.3:1). Pass `invert` for the white-on-purple auth-panel usage — the mark is solid purple, so a CSS filter is enough, no separate white asset needed. */
 export function BrandMark({
-  width = 102,
+  width = 53,
   height = 23,
   invert = false,
 }: {
