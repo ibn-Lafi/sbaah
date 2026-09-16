@@ -17,8 +17,6 @@ export interface TenantSite {
     social_whatsapp: string | null;
     social_snapchat: string | null;
     social_phone: string | null;
-    /** Set only once verified — the canonical URL a subdomain visitor should be redirected to (see [locale]/layout.tsx). */
-    custom_domain: string | null;
   };
   /** `theme_key` (e.g. 'classic') — resolved server-side by `api` from `theme_id`, what the theme registry looks components up by. */
   website: Omit<Website, 'id' | 'tenant_id' | 'theme_id'> & { theme_key: string };

@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { AccountType, CustomDomainStatus, TenantStatus } from '@sbaah/shared';
+import type { AccountType, TenantStatus } from '@sbaah/shared';
 import { ApiError } from '@/lib/http';
 
 function requireRootDomain(): string {
@@ -64,8 +64,6 @@ export interface PublicTenantChrome {
   social_whatsapp: string | null;
   social_snapchat: string | null;
   social_phone: string | null;
-  custom_domain: string | null;
-  custom_domain_status: CustomDomainStatus | null;
 }
 
 /**

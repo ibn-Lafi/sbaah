@@ -60,11 +60,6 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     social_whatsapp: chrome.social_whatsapp,
     social_snapchat: chrome.social_snapchat,
     social_phone: chrome.social_phone,
-    // A verified custom domain is the canonical URL going forward — the
-    // subdomain no longer serves the site directly, only redirects to
-    // this (see public-site's [locale]/layout.tsx). Both null when unset
-    // or still pending DNS/certificate verification.
-    custom_domain: chrome.custom_domain_status === 'verified' ? chrome.custom_domain : null,
   };
 
   const { data: website, error: websiteError } = await supabase
