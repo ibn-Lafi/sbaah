@@ -86,7 +86,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
       {!property ? (
         <FormPageSkeleton fields={6} extraCards={2} />
       ) : (
-        <div className="flex max-w-[720px] flex-col gap-6">
+        <div className="mx-auto flex max-w-[720px] flex-col gap-6">
           <Card className="p-8">
             <PropertyForm
               mode="edit"

@@ -142,7 +142,7 @@ export default function CustomPagesPage() {
 
   return (
     <AppShell title={t.pageTitle} orgName={me.tenant.name_ar} accountType={me.tenant.account_type}>
-      <div className="flex max-w-[640px] flex-col gap-4">
+      <div className="mx-auto flex max-w-[640px] flex-col gap-4">
         <p className="text-sm text-text-secondary">{t.description}</p>
 
         {pages === null ? (

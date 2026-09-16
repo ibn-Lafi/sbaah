@@ -64,7 +64,7 @@ export function BillingPanel() {
   }
 
   return (
-    <div className="flex max-w-[560px] flex-col gap-5">
+    <div className="mx-auto flex max-w-[560px] flex-col gap-5">
       {checkoutResult === 'success' && (
         <div className="rounded-input bg-success-surface px-4 py-3 text-sm font-medium text-success">
           {t.checkout.success}

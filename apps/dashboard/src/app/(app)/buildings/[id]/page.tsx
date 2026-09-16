@@ -68,7 +68,7 @@ export default function EditBuildingPage({ params }: { params: Promise<{ id: str
       {!building ? (
         <FormPageSkeleton fields={3} />
       ) : (
-        <div className="flex max-w-[720px] flex-col gap-6">
+        <div className="mx-auto flex max-w-[720px] flex-col gap-6">
           <Card className="p-8">
             <BuildingForm
               mode="edit"

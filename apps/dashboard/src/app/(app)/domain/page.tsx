@@ -296,7 +296,7 @@ export default function DomainPage() {
       orgName={me.tenant.name_ar}
       accountType={me.tenant.account_type}
     >
-      <div className="flex max-w-[560px] flex-col gap-4">
+      <div className="mx-auto flex max-w-[560px] flex-col gap-4">
         {domain === null ? (
           <DomainSkeleton />
         ) : !canEdit ? (

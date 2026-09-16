@@ -66,7 +66,7 @@ export default function EditRentalPage({ params }: { params: Promise<{ id: strin
       {!rental ? (
         <FormPageSkeleton fields={5} />
       ) : (
-        <div className="flex max-w-[720px] flex-col gap-6">
+        <div className="mx-auto flex max-w-[720px] flex-col gap-6">
           <Card className="p-8">
             <RentalForm
               mode="edit"

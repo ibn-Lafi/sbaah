@@ -4,7 +4,7 @@ import { Skeleton } from './skeleton';
 /** An entity edit page (projects/[id], buildings/[id], rentals/[id], properties/[id], leads/[id]) — a field-shaped card, optionally followed by extra generic section cards (media, notes, related lists). */
 export function FormPageSkeleton({ fields = 4, extraCards = 0 }: { fields?: number; extraCards?: number }) {
   return (
-    <div className="flex max-w-[720px] flex-col gap-6">
+    <div className="mx-auto flex max-w-[720px] flex-col gap-6">
       <Card className="p-8">
         <div className="flex flex-col gap-5">
           {Array.from({ length: fields }).map((_, i) => (
