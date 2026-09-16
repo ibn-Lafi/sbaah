@@ -37,7 +37,7 @@ export function ProvisioningOverlay({ active, done }: { active: boolean; done: b
 
   return (
     <div className="bg-surface-page fixed inset-0 z-50 flex flex-col items-center justify-center gap-8">
-      <BrandMark width={130} height={33} />
+      <BrandMark width={147} height={33} />
       <div className="flex w-full max-w-[280px] flex-col gap-3">
         <div className="bg-surface-subtle-3 h-2 w-full overflow-hidden rounded-full">
           <div

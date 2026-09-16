@@ -8,8 +8,8 @@ import { CloseIcon, MenuIcon } from './marketing/icons';
 
 function BrandMark({ label }: { label: string }) {
   return (
-    // eslint-disable-next-line @next/next/no-img-element -- static SVG brand asset, no responsive/optimization needs
-    <img src="/brand-mark.svg" alt={label} width={96} height={24} className="h-6 w-auto" />
+    // eslint-disable-next-line @next/next/no-img-element -- static PNG brand asset, no responsive/optimization needs
+    <img src="/brand-mark.png" alt={label} width={107} height={24} className="h-6 w-auto" />
   );
 }
 

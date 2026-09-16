@@ -73,7 +73,7 @@ export function AuthPanel() {
 
   return (
     <div className="hidden flex-col justify-between bg-brand p-10 text-white lg:flex lg:w-[420px] lg:shrink-0">
-      <BrandMark invert width={110} height={28} />
+      <BrandMark invert width={125} height={28} />
 
       <div className="space-y-4">
         <p className="text-2xl font-semibold leading-relaxed">{t.heading}</p>
