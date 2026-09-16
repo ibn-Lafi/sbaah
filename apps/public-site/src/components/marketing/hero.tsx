@@ -1,6 +1,7 @@
 import type { Locale } from '@/lib/i18n/locales';
 import { MARKETING_CONTENT } from '@/lib/marketing/content';
 import { CheckIcon } from './icons';
+import { HeroVideo } from './hero-video';
 
 /**
  * فيديو خلفية حقيقي (نفس نمط `themes/classic/hero-section.tsx` — video
@@ -17,12 +18,8 @@ export function Hero({ locale }: { locale: Locale }) {
 
   return (
     <section className="relative -mt-20 flex min-h-[560px] flex-col items-center justify-center gap-6 overflow-hidden px-6 pb-24 pt-40 text-center sm:min-h-[640px] sm:pb-28 md:min-h-[720px]">
-      <video
+      <HeroVideo
         src="/marketing/hero-motion.mp4"
-        autoPlay
-        muted
-        loop
-        playsInline
         className="absolute inset-0 h-full w-full object-cover"
         style={{
           maskImage: 'linear-gradient(to bottom, black 65%, transparent 100%)',

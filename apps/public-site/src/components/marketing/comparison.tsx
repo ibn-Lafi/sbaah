@@ -7,7 +7,7 @@ export function Comparison({ locale }: { locale: Locale }) {
   const t = MARKETING_CONTENT[locale].comparison;
 
   return (
-    <section className="border-t border-border-subtle px-6 py-16 sm:py-24">
+    <section className="px-6 py-16 sm:py-24">
       <Reveal className="mx-auto max-w-2xl text-center">
         <h2 className="font-display text-3xl font-semibold text-text-primary sm:text-4xl">{t.title}</h2>
         <p className="mt-3 text-lg text-text-secondary">{t.subtitle}</p>

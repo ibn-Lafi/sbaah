@@ -11,7 +11,7 @@ export function Faq({ locale }: { locale: Locale }) {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <section id="faq" className="border-t border-border-subtle bg-surface-subtle-2 px-6 py-16 sm:py-24">
+    <section id="faq" className="bg-surface-subtle-2 px-6 py-16 sm:py-24">
       <Reveal className="mx-auto max-w-2xl text-center">
         <h2 className="font-display text-3xl font-semibold text-text-primary sm:text-4xl">{t.title}</h2>
       </Reveal>

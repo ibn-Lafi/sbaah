@@ -5,11 +5,21 @@ import Link from 'next/link';
 import type { Locale } from '@/lib/i18n/locales';
 import { MARKETING_CONTENT } from '@/lib/marketing/content';
 import { CloseIcon, MenuIcon } from './marketing/icons';
+import { ThemeToggle } from './theme-toggle';
 
 function BrandMark({ label, invert = false }: { label: string; invert?: boolean }) {
   return (
     // eslint-disable-next-line @next/next/no-img-element -- static SVG brand asset, no responsive/optimization needs
     <img src={invert ? '/brand-mark-white.svg' : '/brand-mark.svg'} alt={label} width={54} height={24} className="h-6 w-auto" />
+  );
+}
+
+function GlobeIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" className={className}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M3 12h18M12 3c2.5 2.5 3.8 5.7 3.8 9s-1.3 6.5-3.8 9c-2.5-2.5-3.8-5.7-3.8-9s1.3-6.5 3.8-9z" />
+    </svg>
   );
 }
 
@@ -31,8 +41,14 @@ const SCROLL_THRESHOLD = 24;
  * الفاصل (`h-20`) يحجز مساحة الهيدر لأنه خارج تدفّق الصفحة — `hero.tsx`
  * يسحب نفسه للأعلى بهامش سالب مطابق (`-mt-20`) خلفه.
  *
- * قائمة الجوال (`mobileMenuOpen`) هي السبب الوحيد لكون هذا مكوّن عميل —
- * بقية المحتوى ثابت مترجم بلا جلب بيانات.
+ * الشريط على الجوال (أقل من `sm`) يُظهر مباشرة، بلا حاجة لفتح القائمة:
+ * رابط تسجيل الدخول، تبديل اللغة، وتبديل الوضع الداكن/الفاتح — بنفس ما
+ * يظهر على سطح المكتب، فقط كأيقونات مدمجة بدل نص لضيق المساحة. زر
+ * "أنشئ حسابك" وروابط الأقسام يبقيان داخل قائمة الجوال المنسدلة فقط (لا
+ * تتسع لهما المساحة المدمجة).
+ *
+ * قائمة الجوال (`mobileMenuOpen`) والوضع الداكن (`ThemeToggle`) هما سبب
+ * كون هذا مكوّن عميل — بقية المحتوى ثابت مترجم بلا جلب بيانات.
  */
 export function MarketingChrome({ locale, children }: { locale: Locale; children: React.ReactNode }) {
   const t = MARKETING_CONTENT[locale];
@@ -80,6 +96,7 @@ export function MarketingChrome({ locale, children }: { locale: Locale; children
             <Link href={otherLocaleHref} className="hover:text-white">
               {t.nav.languageSwitch}
             </Link>
+            <ThemeToggle labels={t.nav} className="h-9 w-9" />
             {dashboardUrl && (
               <a href={`${dashboardUrl}/login`} className="hover:text-white">
                 {t.nav.login}
@@ -95,14 +112,30 @@ export function MarketingChrome({ locale, children }: { locale: Locale; children
             )}
           </div>
 
-          <button
-            type="button"
-            onClick={() => setMobileMenuOpen((v) => !v)}
-            aria-label={mobileMenuOpen ? t.nav.menuClose : t.nav.menuOpen}
-            className="flex h-9 w-9 items-center justify-center text-white sm:hidden"
-          >
-            {mobileMenuOpen ? <CloseIcon className="h-5 w-5" /> : <MenuIcon className="h-5 w-5" />}
-          </button>
+          <div className="flex items-center gap-2 sm:hidden">
+            {dashboardUrl && (
+              <a href={`${dashboardUrl}/login`} className="text-sm font-medium text-white hover:text-white/80">
+                {t.nav.login}
+              </a>
+            )}
+            <Link
+              href={otherLocaleHref}
+              aria-label={t.nav.languageSwitch}
+              title={t.nav.languageSwitch}
+              className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/25"
+            >
+              <GlobeIcon className="h-[17px] w-[17px]" />
+            </Link>
+            <ThemeToggle labels={t.nav} className="h-9 w-9" />
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen((v) => !v)}
+              aria-label={mobileMenuOpen ? t.nav.menuClose : t.nav.menuOpen}
+              className="flex h-9 w-9 flex-none items-center justify-center text-white"
+            >
+              {mobileMenuOpen ? <CloseIcon className="h-5 w-5" /> : <MenuIcon className="h-5 w-5" />}
+            </button>
+          </div>
         </div>
 
         {mobileMenuOpen && (
@@ -113,14 +146,6 @@ export function MarketingChrome({ locale, children }: { locale: Locale; children
                   {link.label}
                 </a>
               ))}
-              <Link href={otherLocaleHref} className="py-1 hover:text-brand">
-                {t.nav.languageSwitch}
-              </Link>
-              {dashboardUrl && (
-                <a href={`${dashboardUrl}/login`} className="py-1 hover:text-brand">
-                  {t.nav.login}
-                </a>
-              )}
             </nav>
             {dashboardUrl && (
               <a
@@ -137,7 +162,7 @@ export function MarketingChrome({ locale, children }: { locale: Locale; children
 
       <main>{children}</main>
 
-      <footer className="border-t border-border-subtle bg-surface-subtle-2 px-6 py-12">
+      <footer className="bg-surface-subtle-2 px-6 py-12">
         <div className="mx-auto flex max-w-6xl flex-col gap-10 sm:flex-row sm:justify-between">
           <div className="flex max-w-xs flex-col gap-3">
             <BrandMark label={t.brand} />
@@ -173,9 +198,7 @@ export function MarketingChrome({ locale, children }: { locale: Locale; children
           </div>
         </div>
 
-        <div className="mx-auto mt-10 max-w-6xl border-t border-border-subtle pt-6 text-sm text-text-secondary">
-          {t.footer.rights}
-        </div>
+        <div className="mx-auto mt-10 max-w-6xl text-sm text-text-secondary">{t.footer.rights}</div>
       </footer>
     </>
   );

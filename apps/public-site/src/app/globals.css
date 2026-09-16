@@ -72,8 +72,45 @@
   }
 }
 
+/**
+ * لوحة الوضع الداكن — لصفحة الهبوط التسويقية فقط (marketing-chrome.tsx's
+ * ThemeToggle)، بنفس القيم والآلية الحرفية من apps/dashboard/globals.css
+ * (`:root[data-theme='dark']` يطغى على كل --color-* أعلاه دون لمس أي
+ * صنف Tailwind). مواقع المستأجرين (--color-tenant-*) لا علاقة لها بهذا
+ * إطلاقًا — لا تبديل وضع هناك، وحتى لو حاول أحدهم، localStorage معزول
+ * بالكامل حسب النطاق (origin) فلا يتسرب بين النطاق الجذر ونطاقات
+ * المستأجرين الفرعية.
+ */
+:root[data-theme='dark'] {
+  --color-brand: #8a6bb0;
+  --color-brand-hover: #9c81bd;
+  --color-brand-surface: #2c2438;
+  --color-brand-surface-2: #3c3149;
+  --color-brand-surface-3: #513f63;
+
+  --color-text-primary: #f5f3f7;
+  --color-text-secondary: #b0abb8;
+  --color-text-tertiary: #d9d5df;
+  --color-text-muted: #8e8996;
+  --color-text-placeholder: #6f6a78;
+
+  --color-border-default: #3a3542;
+  --color-border-subtle: #2d2933;
+
+  --color-surface-page: #17151a;
+  --color-surface-card: #201d24;
+  --color-surface-subtle: #2a2630;
+  --color-surface-subtle-2: #211e26;
+
+  --color-success: #4ade80;
+  --color-success-surface: #123822;
+  --color-danger: #f27069;
+}
+
 body {
   margin: 0;
+  background: var(--color-surface-page);
+  color: var(--color-text-primary);
 }
 
 * {

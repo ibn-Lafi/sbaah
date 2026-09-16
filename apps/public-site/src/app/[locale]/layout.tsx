@@ -14,6 +14,8 @@ import { MarketingChrome } from '@/components/marketing-chrome';
 import { MARKETING_CONTENT } from '@/lib/marketing/content';
 import { ServiceWorkerRegister } from '@/components/pwa/service-worker-register';
 import { getThemeComponents } from '@/components/themes/registry';
+import { ThemeProvider } from '@/lib/theme/theme-context';
+import { THEME_STORAGE_KEY } from '@/lib/theme/theme';
 
 interface LocaleLayoutProps {
   children: React.ReactNode;
@@ -24,6 +26,9 @@ export const viewport = { themeColor: '#68458A' };
 
 /** سبعة's own brand font for the marketing homepage — fixed, unlike `resolveWebsiteFont()` which picks per-tenant. */
 const marketingFont = IBM_Plex_Sans_Arabic({ subsets: ['arabic'], weight: ['400', '500', '600', '700'] });
+
+/** Runs before hydration so a returning visitor's saved dark-mode choice is already on screen at first paint instead of flashing from light — same script/mechanism as apps/dashboard's root layout.tsx. */
+const themeInitScript = `(function(){try{var t=localStorage.getItem('${THEME_STORAGE_KEY}');if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();`;
 
 /** Reads the Host header once per request (via getTenantSiteResult's cache()) so the browser tab title matches the visited tenant, not a generic "سبعة". */
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
@@ -53,9 +58,14 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   if (await isMarketingHost()) {
     return (
       <html lang={locale} dir={dir}>
+        <head>
+          <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        </head>
         <body className={`${marketingFont.className} ${thmanyahSerifDisplay.variable}`}>
-          <MarketingChrome locale={locale}>{children}</MarketingChrome>
-          <ServiceWorkerRegister />
+          <ThemeProvider>
+            <MarketingChrome locale={locale}>{children}</MarketingChrome>
+            <ServiceWorkerRegister />
+          </ThemeProvider>
         </body>
       </html>
     );

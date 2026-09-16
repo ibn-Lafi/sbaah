@@ -24,6 +24,8 @@ export const MARKETING_CONTENT = {
       languageSwitch: 'English',
       menuOpen: 'فتح القائمة',
       menuClose: 'إغلاق القائمة',
+      switchToDark: 'التبديل للوضع الداكن',
+      switchToLight: 'التبديل للوضع الفاتح',
     },
     hero: {
       eyebrow: 'منصة عقارية سعودية متكاملة',
@@ -179,6 +181,8 @@ export const MARKETING_CONTENT = {
       languageSwitch: 'العربية',
       menuOpen: 'Open menu',
       menuClose: 'Close menu',
+      switchToDark: 'Switch to dark mode',
+      switchToLight: 'Switch to light mode',
     },
     hero: {
       eyebrow: 'An integrated Saudi real estate platform',
