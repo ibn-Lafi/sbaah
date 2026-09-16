@@ -38,6 +38,10 @@ export const config = {
   // layout في هذا التطبيق أصلًا؛ اكتُشف هذا أثناء اختبار Playwright
   // لصفحة الهبوط الجديدة، غير مرتبط بها لكنه عطل حقيقي كان يمنع تسجيل
   // الـService Worker وملف الـmanifest فعليًا على كل صفحات public-site)،
-  // و Next.js الداخلية — فقط مسارات الصفحات تحتاج مقطع لغة.
-  matcher: ['/((?!_next/|api/|favicon.ico|sw\\.js$|manifest\\.webmanifest$|offline\\.html$|.*\\.(?:svg|png|jpg|jpeg|webp|ico)$).*)'],
+  // و Next.js الداخلية — فقط مسارات الصفحات تحتاج مقطع لغة. `mp4` أُضيف
+  // لاحقًا لنفس السبب بالضبط، اكتُشف عند إضافة فيديو خلفية Hero
+  // (public/marketing/hero-motion.mp4) — بلا هذا الاستثناء كان الطلب
+  // يُعاد كتابته إلى `/ar/marketing/hero-motion.mp4` (غير موجود) فيسقط
+  // بنفس عطل `not-found.tsx` أعلاه، فيمنع تشغيل الفيديو فعليًا في الإنتاج.
+  matcher: ['/((?!_next/|api/|favicon.ico|sw\\.js$|manifest\\.webmanifest$|offline\\.html$|.*\\.(?:svg|png|jpg|jpeg|webp|ico|mp4)$).*)'],
 };
