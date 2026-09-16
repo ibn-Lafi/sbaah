@@ -60,6 +60,14 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     social_whatsapp: chrome.social_whatsapp,
     social_snapchat: chrome.social_snapchat,
     social_phone: chrome.social_phone,
+    // A verified custom domain is the canonical URL going forward — the
+    // subdomain redirects to this once verified (see public-site's
+    // [locale]/layout.tsx), matching standard SaaS custom-domain practice
+    // (Shopify, Webflow, etc.): a single canonical domain avoids duplicate-
+    // content SEO penalties and keeps a paid custom domain from being
+    // silently overshadowed by the default subdomain. Both null when unset
+    // or still pending DNS/certificate verification.
+    custom_domain: chrome.custom_domain_status === 'verified' ? chrome.custom_domain : null,
   };
 
   const { data: website, error: websiteError } = await supabase
