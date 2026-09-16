@@ -101,3 +101,25 @@ export async function deleteCloudflareCustomHostname(cloudflareHostnameId: strin
     // best-effort cleanup only — see doc comment above.
   }
 }
+
+/**
+ * Ground truth for POST /v1/tenant/domain/verify — asks Cloudflare itself
+ * whether it considers this hostname fully connected, instead of us
+ * re-deriving the same fact independently via our own DNS lookup (which can
+ * diverge from Cloudflare's own edge: different resolver path, propagation
+ * timing, or a stale re-check — the exact cause of a real "Cloudflare shows
+ * it connected, our dashboard still shows pending" bug). `status: 'active'`
+ * means Cloudflare is routing traffic for the hostname; `ssl.status:
+ * 'active'` means it has actually issued the certificate (which needs the
+ * `_acme-challenge` TXT records Cloudflare manages on its own side — we
+ * never see or verify those ourselves, another reason not to duplicate this
+ * check with our own DNS resolution).
+ */
+export async function getCloudflareCustomHostnameStatus(cloudflareHostnameId: string): Promise<{ active: boolean }> {
+  const zoneId = requireEnv('CLOUDFLARE_ZONE_ID');
+  const result = await cloudflareFetch<{ status: string; ssl: { status: string } }>(
+    `/zones/${zoneId}/custom_hostnames/${cloudflareHostnameId}`,
+    { method: 'GET' },
+  );
+  return { active: result.status === 'active' && result.ssl.status === 'active' };
+}

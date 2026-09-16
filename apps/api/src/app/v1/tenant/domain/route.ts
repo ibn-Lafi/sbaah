@@ -8,6 +8,31 @@ import { assertOwner } from '@/lib/auth/assert-owner';
 import { createCloudflareCustomHostname, deleteCloudflareCustomHostname } from '@/lib/tenant/cloudflare-api-client';
 import { dnsRecordsFor, type DnsRecord } from '@/lib/tenant/domain-dns-records';
 
+/**
+ * A custom domain equal to (or a subdomain of) the platform's own root
+ * domain would never actually route through the custom-domain path anyway
+ * — `resolvePublicTenantChrome`'s `toDomainRpcParams` treats any host
+ * ending in `PLATFORM_ROOT_DOMAIN` as a platform-subdomain lookup, not a
+ * custom-domain one (see resolve-public-tenant.ts) — but storing one here
+ * unchecked would still let an owner get it into a 'verified' state (in
+ * principle; Cloudflare itself is very unlikely to let a hostname already
+ * inside our own zone be registered as a Custom Hostname) and would then
+ * feed [locale]/layout.tsx's subdomain→custom-domain redirect with a
+ * target inside our own platform, including possibly another tenant's
+ * subdomain. Rejected outright rather than relying only on that being
+ * unreachable in practice.
+ */
+function assertNotPlatformDomain(customDomain: string): void {
+  const rootDomain = process.env.PLATFORM_ROOT_DOMAIN?.toLowerCase();
+  if (!rootDomain) {
+    throw new Error('Missing required environment variable: PLATFORM_ROOT_DOMAIN');
+  }
+  const host = customDomain.toLowerCase();
+  if (host === rootDomain || host.endsWith(`.${rootDomain}`)) {
+    throw new ApiError(400, 'invalid_custom_domain', 'لا يمكن استخدام دومين المنصة نفسه كدومين مخصص');
+  }
+}
+
 async function loadCustomDomainAllowed(supabase: SupabaseClient, tenantId: string): Promise<boolean> {
   const { data, error } = await supabase
     .from('tenants')
@@ -47,6 +72,7 @@ export const PATCH = withErrorHandling(async (request: NextRequest) => {
   assertOwner(caller.role);
 
   const { custom_domain } = customDomainInputSchema.parse(await request.json());
+  assertNotPlatformDomain(custom_domain);
 
   // PRODUCT_SPEC.md section 2/9 — custom_domain_allowed is a real plan
   // feature-gate (`plans.custom_domain_allowed`, editable by the founder

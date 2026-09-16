@@ -3,18 +3,18 @@ import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
 import { assertOwner } from '@/lib/auth/assert-owner';
-import { verifyDomainDns } from '@/lib/tenant/verify-domain-dns';
-import type { DnsRecord } from '@/lib/tenant/domain-dns-records';
+import { getCloudflareCustomHostnameStatus } from '@/lib/tenant/cloudflare-api-client';
 
 /**
- * Self-service DNS verification (founder's explicit decision — no
- * manual console review, same "add domain → get DNS records → test
- * connection" flow as any SaaS custom-domain feature). The owner clicks
- * "اختبار الربط" after pointing their domain's DNS at us; this checks
- * both records Railway itself requires before it issues a certificate
- * (CNAME + TXT verification, see verify-domain-dns.ts) and flips
- * `custom_domain_status` to 'verified' the moment both resolve correctly
- * — no admin in the loop at all.
+ * Self-service verification (founder's explicit decision — no manual
+ * console review, same "add domain → get DNS records → test connection"
+ * flow as any SaaS custom-domain feature). The owner clicks "اختبار
+ * الربط" after pointing their domain's DNS at us; this asks Cloudflare
+ * itself whether it now considers the hostname fully connected (routing +
+ * certificate issued — see cloudflare-api-client.ts's doc comment on why
+ * that's the ground truth, not a DNS lookup we run ourselves) and flips
+ * `custom_domain_status` to 'verified' the moment it does — no admin in
+ * the loop at all.
  */
 export const POST = withErrorHandling(async (request: NextRequest) => {
   const { supabase } = getAuthenticatedClient(request);
@@ -23,13 +23,13 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 
   const { data: tenant, error: loadError } = await supabase
     .from('tenants')
-    .select('custom_domain, custom_domain_status, custom_domain_dns_records')
+    .select('custom_domain, custom_domain_status, custom_domain_cloudflare_id')
     .eq('id', caller.tenantId)
     .single();
   if (loadError) {
     throw new Error(`Failed to load tenant for domain verification: ${loadError.message}`);
   }
-  if (!tenant.custom_domain) {
+  if (!tenant.custom_domain || !tenant.custom_domain_cloudflare_id) {
     throw new ApiError(400, 'no_custom_domain', 'لا يوجد دومين مخصص مضاف بعد');
   }
 
@@ -37,9 +37,8 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
     return okResponse({ custom_domain_status: 'verified' as const, verified: true });
   }
 
-  const records = (tenant.custom_domain_dns_records as DnsRecord[] | null) ?? [];
-  const verified = await verifyDomainDns(records);
-  if (!verified) {
+  const { active } = await getCloudflareCustomHostnameStatus(tenant.custom_domain_cloudflare_id);
+  if (!active) {
     return okResponse({ custom_domain_status: 'pending' as const, verified: false });
   }
 
