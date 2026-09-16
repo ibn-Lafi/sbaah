@@ -8,14 +8,17 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
+import { FormError } from '@/components/ui/form-error';
 import { PlanForm } from '@/components/plans/plan-form';
 import { useCurrentAdmin } from '@/lib/auth/current-admin-context';
-import { createPlan, listPlans } from '@/lib/api/plans';
+import { createPlan, deletePlan, listPlans } from '@/lib/api/plans';
+import { ApiRequestError } from '@/lib/api/client';
 
 export default function PlansPage() {
   const { accessToken } = useCurrentAdmin();
   const [plans, setPlans] = useState<Plan[] | null>(null);
   const [showCreate, setShowCreate] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -26,6 +29,17 @@ export default function PlansPage() {
       cancelled = true;
     };
   }, [accessToken]);
+
+  async function handleDelete(plan: Plan) {
+    if (!window.confirm(`حذف باقة "${plan.name_ar}"؟`)) return;
+    setError(null);
+    try {
+      await deletePlan(accessToken, plan.id);
+      setPlans((prev) => prev && prev.filter((p) => p.id !== plan.id));
+    } catch (err) {
+      setError(err instanceof ApiRequestError ? err.message : 'تعذّر حذف الباقة');
+    }
+  }
 
   return (
     <ConsoleShell title="الباقات">
@@ -46,9 +60,11 @@ export default function PlansPage() {
         </Modal>
       )}
 
-      <Card className="overflow-hidden">
+      <FormError message={error} />
+
+      <Card className="mt-4 overflow-hidden">
         {plans === null ? (
-          <TableSkeleton columns={7} />
+          <TableSkeleton columns={8} />
         ) : plans.length === 0 ? (
           <p className="p-6 text-center text-text-secondary">لا توجد باقات بعد</p>
         ) : (
@@ -62,6 +78,7 @@ export default function PlansPage() {
                 <th className="px-5 py-3 font-medium">حد الفريق</th>
                 <th className="px-5 py-3 font-medium">نطاق مخصص</th>
                 <th className="px-5 py-3 font-medium">الحالة</th>
+                <th className="px-5 py-3 font-medium"></th>
               </tr>
             </thead>
             <tbody>
@@ -91,6 +108,11 @@ export default function PlansPage() {
                     >
                       {plan.is_active ? 'نشطة' : 'متوقفة'}
                     </span>
+                  </td>
+                  <td className="px-5 py-3 text-left">
+                    <button type="button" onClick={() => void handleDelete(plan)} className="text-danger hover:underline">
+                      حذف
+                    </button>
                   </td>
                 </tr>
               ))}
