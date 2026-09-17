@@ -4,7 +4,7 @@ import { Pricing } from './marketing/pricing';
 import { Faq } from './marketing/faq';
 
 const CTA_BANNER_SRC =
-  'https://raw.githubusercontent.com/ibn-Lafi/sbaah/claude/real-estate-saas-platform-sp7ua9/94C5E88E-C4C6-4C9A-B942-B3D8FD5D58F8.png';
+  'https://raw.githubusercontent.com/ibn-Lafi/sbaah/claude/real-estate-saas-platform-sp7ua9/94C5E88E-C4C6-4C9A-B942-B3D8FD5D58F8.jpeg';
 
 function CtaBanner() {
   return (
