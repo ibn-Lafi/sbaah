@@ -8,25 +8,80 @@ import { Faq } from './marketing/faq';
 import { FinalCta } from './marketing/final-cta';
 
 function ProblemSection({ locale }: { locale: Locale }) {
-  const ar=locale==='ar';
-  const items=ar?[['موقعك','عقاراتك ومشاريعك بهويتك.'],['عملاؤك','بيانات وطلبات مرتبة وواضحة.'],['متابعتك','كل فرصة في مسار واحد.']]:[['Your website','Properties and projects under your brand.'],['Your clients','Organized client data and requests.'],['Your follow-up','Every opportunity in one clear flow.']];
-  return <section className="bg-white px-5 py-16 sm:px-6 lg:py-20"><div className="mx-auto max-w-6xl"><div className="mx-auto max-w-2xl text-center"><span className="text-brand text-xs font-bold sm:text-sm">{ar?'بدل الأدوات المتفرقة':'Instead of scattered tools'}</span><h2 className="text-text-primary mt-2 text-2xl font-bold tracking-tight sm:text-3xl">{ar?'كل شغلك العقاري في مكان واحد':'Your real-estate work, in one place'}</h2><p className="text-text-secondary mx-auto mt-3 max-w-xl text-sm leading-7 sm:text-base">{ar?'موقعك، عقاراتك، العملاء والطلبات؛ مرتبطة معًا داخل سبعة.':'Your website, properties, clients and requests — connected inside Sbaah.'}</p></div><div className="mx-auto mt-9 grid max-w-4xl gap-3 md:grid-cols-3">{items.map(([title,body],index)=><article key={title} className="rounded-2xl border border-black/5 bg-neutral-50 p-5"><div className="text-brand mb-4 text-xs font-bold">0{index+1}</div><h3 className="text-text-primary font-bold">{title}</h3><p className="text-text-secondary mt-1 text-sm leading-6">{body}</p></article>)}</div></div></section>;
+  const ar = locale === 'ar';
+  const items = ar
+    ? [['موقعك', 'اعرض عقاراتك ومشاريعك بهويتك.'], ['عملاؤك', 'بيانات وطلبات مرتبة وواضحة.'], ['متابعتك', 'كل فرصة في مسار واحد.']]
+    : [['Your website', 'Show properties and projects under your brand.'], ['Your clients', 'Organized client data and requests.'], ['Your follow-up', 'Every opportunity in one clear flow.']];
+
+  return (
+    <section className="bg-white px-5 py-14 sm:px-6 sm:py-18">
+      <div className="mx-auto max-w-5xl">
+        <div className="max-w-2xl">
+          <span className="text-brand text-xs font-bold sm:text-sm">{ar ? 'بدل الأدوات المتفرقة' : 'Instead of scattered tools'}</span>
+          <h2 className="text-text-primary mt-2 text-2xl font-bold tracking-tight sm:text-3xl">{ar ? 'كل شغلك العقاري في مكان واحد' : 'Your real-estate work, in one place'}</h2>
+          <p className="text-text-secondary mt-3 max-w-xl text-sm leading-7 sm:text-base">{ar ? 'موقعك، عقاراتك، العملاء والطلبات؛ مرتبطة معًا داخل سبعة.' : 'Your website, properties, clients and requests — connected inside Sbaah.'}</p>
+        </div>
+        <div className="mt-9 grid gap-6 border-t border-black/8 pt-7 sm:grid-cols-3 sm:gap-8">
+          {items.map(([title, body], index) => (
+            <div key={title} className="relative ps-9 sm:ps-0">
+              <span className="text-brand absolute start-0 top-0 text-xs font-bold sm:static sm:mb-3 sm:block">0{index + 1}</span>
+              <h3 className="text-text-primary text-base font-bold">{title}</h3>
+              <p className="text-text-secondary mt-1 text-sm leading-6">{body}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
 }
 
 function WebsiteSection({ locale }: { locale: Locale }) {
-  const ar=locale==='ar';
-  const bullets=ar?['ثيمات قابلة للتخصيص','عربي وإنجليزي','دومينك الخاص','متوافق مع الجوال']:['Customizable themes','Arabic & English','Your own domain','Mobile ready'];
-  return <section className="bg-neutral-50 px-5 py-16 sm:px-6 lg:py-20"><div className="mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-2"><div><span className="text-brand text-xs font-bold sm:text-sm">{ar?'موقعك العقاري':'Your website'}</span><h2 className="text-text-primary mt-2 text-2xl font-bold tracking-tight sm:text-3xl">{ar?'موقع احترافي باسمك وهويتك':'A professional website under your brand'}</h2><p className="text-text-secondary mt-3 max-w-xl text-sm leading-7 sm:text-base">{ar?'اختر الثيم، أضف عقاراتك وانشر موقعك. بدون بناء تقني من الصفر.':'Choose a theme, add your properties and publish. No building from scratch.'}</p><div className="mt-6 grid gap-2 sm:grid-cols-2">{bullets.map(item=><div key={item} className="flex items-center gap-2 text-sm font-medium"><span className="bg-brand h-1.5 w-1.5 rounded-full"/>{item}</div>)}</div></div><div className="relative overflow-hidden rounded-[1.75rem] border border-black/5 bg-white p-4 shadow-[0_20px_60px_-35px_rgba(0,0,0,.25)] sm:p-6"><div className="rounded-2xl border border-black/5 bg-neutral-100 p-3"><div className="mb-3 flex gap-1.5"><span className="h-2 w-2 rounded-full bg-neutral-300"/><span className="h-2 w-2 rounded-full bg-neutral-300"/><span className="h-2 w-2 rounded-full bg-neutral-300"/></div><div className="relative aspect-[16/9] overflow-hidden rounded-xl bg-gradient-to-br from-[#182a36] via-[#244759] to-[#54788a] p-5 text-white"><div className="h-2.5 w-14 rounded-full bg-white/80"/><div className="mt-12 w-2/3"><div className="h-4 rounded bg-white/90"/><div className="mt-2 h-2.5 w-4/5 rounded bg-white/45"/><div className="mt-4 h-7 w-20 rounded-lg bg-white"/></div></div></div><div className="absolute -bottom-2 end-5 w-[25%] rounded-[1.2rem] border-[4px] border-neutral-900 bg-white p-1 shadow-xl"><div className="aspect-[9/16] rounded-[.9rem] bg-gradient-to-b from-[#244759] to-[#e8eef1]"/></div></div></div></section>;
+  const ar = locale === 'ar';
+  const bullets = ar ? ['ثيمات قابلة للتخصيص', 'عربي وإنجليزي', 'دومينك الخاص', 'متوافق مع الجوال'] : ['Customizable themes', 'Arabic & English', 'Your own domain', 'Mobile ready'];
+
+  return (
+    <section className="bg-neutral-50 px-5 py-14 sm:px-6 sm:py-18">
+      <div className="mx-auto max-w-5xl">
+        <div className="max-w-2xl">
+          <span className="text-brand text-xs font-bold sm:text-sm">{ar ? 'موقعك العقاري' : 'Your website'}</span>
+          <h2 className="text-text-primary mt-2 text-2xl font-bold tracking-tight sm:text-3xl">{ar ? 'موقع احترافي باسمك وهويتك' : 'A professional website under your brand'}</h2>
+          <p className="text-text-secondary mt-3 max-w-xl text-sm leading-7 sm:text-base">{ar ? 'اختر الثيم، أضف عقاراتك وانشر موقعك. بدون بناء تقني من الصفر.' : 'Choose a theme, add your properties and publish. No building from scratch.'}</p>
+        </div>
+
+        <div className="relative mt-8 overflow-hidden rounded-[1.75rem] bg-gradient-to-br from-[#eee9f3] via-white to-[#f6f3f8] px-4 pb-0 pt-6 sm:px-8 sm:pt-9">
+          <div className="mx-auto max-w-4xl rounded-t-2xl border border-black/5 bg-white p-3 shadow-[0_24px_70px_-35px_rgba(72,42,94,.35)] sm:p-4">
+            <div className="mb-3 flex gap-1.5"><span className="h-2 w-2 rounded-full bg-neutral-300"/><span className="h-2 w-2 rounded-full bg-neutral-300"/><span className="h-2 w-2 rounded-full bg-neutral-300"/></div>
+            <div className="relative aspect-[16/8] overflow-hidden rounded-xl bg-gradient-to-br from-[#182a36] via-[#244759] to-[#54788a] p-5 text-white">
+              <div className="h-2.5 w-14 rounded-full bg-white/80"/><div className="mt-8 w-2/3 sm:mt-12"><div className="h-4 rounded bg-white/90"/><div className="mt-2 h-2.5 w-4/5 rounded bg-white/45"/><div className="mt-4 h-7 w-20 rounded-lg bg-white"/></div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 flex flex-wrap gap-x-6 gap-y-3 border-b border-black/8 pb-7">
+          {bullets.map(item => <div key={item} className="flex items-center gap-2 text-sm font-medium"><span className="bg-brand h-1.5 w-1.5 rounded-full"/>{item}</div>)}
+        </div>
+      </div>
+    </section>
+  );
 }
 
-function AudienceSection({locale}:{locale:Locale}) {
-  const ar=locale==='ar';
-  const audiences=ar?[['مطور عقاري','اعرض مشاريعك وتابع الفرص.'],['مسوّق عقاري','نظّم مخزونك وعملاءك.'],['وسيط عقاري','ابنِ حضورك وأدر طلباتك.']]:[['Developer','Show projects and track opportunities.'],['Marketer','Organize inventory and clients.'],['Broker','Build your presence and manage requests.']];
-  return <section className="bg-white px-5 py-16 sm:px-6 lg:py-20"><div className="mx-auto max-w-6xl"><div className="mx-auto max-w-2xl text-center"><span className="text-brand text-xs font-bold sm:text-sm">{ar?'مصممة للعقار':'Built for real estate'}</span><h2 className="text-text-primary mt-2 text-2xl font-bold sm:text-3xl">{ar?'سبعة تناسب طريقة عملك':'Sbaah fits your workflow'}</h2></div><div className="mx-auto mt-8 grid max-w-4xl gap-3 md:grid-cols-3">{audiences.map(([title,body])=><article key={title} className="rounded-2xl border border-black/5 p-5 text-center"><h3 className="font-bold">{title}</h3><p className="text-text-secondary mt-1 text-sm leading-6">{body}</p></article>)}</div></div></section>;
+function AudienceSection({ locale }: { locale: Locale }) {
+  const ar = locale === 'ar';
+  const audiences = ar ? [['مطور عقاري', 'اعرض مشاريعك وتابع الفرص.'], ['مسوّق عقاري', 'نظّم مخزونك وعملاءك.'], ['وسيط عقاري', 'ابنِ حضورك وأدر طلباتك.']] : [['Developer', 'Show projects and track opportunities.'], ['Marketer', 'Organize inventory and clients.'], ['Broker', 'Build your presence and manage requests.']];
+  return (
+    <section className="bg-white px-5 py-14 sm:px-6 sm:py-18">
+      <div className="mx-auto max-w-5xl">
+        <span className="text-brand text-xs font-bold sm:text-sm">{ar ? 'مصممة للعقار' : 'Built for real estate'}</span>
+        <h2 className="text-text-primary mt-2 text-2xl font-bold sm:text-3xl">{ar ? 'سبعة تناسب طريقة عملك' : 'Sbaah fits your workflow'}</h2>
+        <div className="mt-8 grid border-y border-black/8 sm:grid-cols-3">
+          {audiences.map(([title, body], index) => <div key={title} className={`py-6 ${index > 0 ? 'border-t border-black/8 sm:border-s sm:border-t-0 sm:px-7' : 'sm:pe-7'}`}><h3 className="text-base font-bold">{title}</h3><p className="text-text-secondary mt-1 text-sm leading-6">{body}</p></div>)}
+        </div>
+      </div>
+    </section>
+  );
 }
 
-const ecosystemNames=[{ar:'الهيئة العامة للعقار',en:'Real Estate General Authority',short:'REGA'},{ar:'فال',en:'FAL',short:'فال'},{ar:'السجل العقاري',en:'Real Estate Registry',short:'RER'},{ar:'إيجار',en:'Ejar',short:'إيجار'},{ar:'صندوق الاستثمارات العامة',en:'Public Investment Fund',short:'PIF'},{ar:'وزارة الاتصالات وتقنية المعلومات',en:'Ministry of Communications and Information Technology',short:'MCIT'}];
-function EcosystemSection({locale}:{locale:Locale}) {const ar=locale==='ar';const Set=({copy}:{copy:number})=><div className="flex shrink-0 items-center gap-3 pe-3" aria-hidden={copy===2}>{ecosystemNames.map((item,index)=><div key={`${copy}-${index}`} className="flex h-14 w-40 shrink-0 items-center gap-2.5 rounded-xl border border-brand/10 bg-white px-3"><div className="text-brand flex h-8 min-w-8 items-center justify-center rounded-lg bg-brand/[.07] px-1.5 text-[10px] font-bold">{item.short}</div><span className="line-clamp-2 text-start text-[11px] font-semibold leading-4">{ar?item.ar:item.en}</span></div>)}</div>;return <section className="overflow-hidden border-y border-brand/10 bg-[#faf9fb] py-7"><div className="px-5 text-center"><p className="text-brand text-xs font-bold">{ar?'ضمن المنظومة العقارية السعودية':'Saudi real-estate ecosystem'}</p></div><div className="relative mt-5 overflow-hidden"><div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-12 bg-gradient-to-r from-[#faf9fb] to-transparent"/><div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-12 bg-gradient-to-l from-[#faf9fb] to-transparent"/><div className="sbaah-ecosystem-marquee flex w-max" dir="ltr"><Set copy={1}/><Set copy={2}/></div></div><style>{`@keyframes sbaahEcosystemMarquee{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}.sbaah-ecosystem-marquee{animation:sbaahEcosystemMarquee 32s linear infinite;will-change:transform}`}</style></section>}
+const ecosystemNames = [{ar:'الهيئة العامة للعقار',en:'Real Estate General Authority',short:'REGA'},{ar:'فال',en:'FAL',short:'فال'},{ar:'السجل العقاري',en:'Real Estate Registry',short:'RER'},{ar:'إيجار',en:'Ejar',short:'إيجار'},{ar:'صندوق الاستثمارات العامة',en:'Public Investment Fund',short:'PIF'},{ar:'وزارة الاتصالات وتقنية المعلومات',en:'Ministry of Communications and Information Technology',short:'MCIT'}];
+function EcosystemSection({locale}:{locale:Locale}) {const ar=locale==='ar';const Set=({copy}:{copy:number})=><div className="flex shrink-0 items-center gap-8 pe-8" aria-hidden={copy===2}>{ecosystemNames.map((item,index)=><div key={`${copy}-${index}`} className="flex h-12 shrink-0 items-center gap-2.5"><div className="text-brand text-[10px] font-bold">{item.short}</div><span className="text-start text-[11px] font-semibold">{ar?item.ar:item.en}</span></div>)}</div>;return <section className="overflow-hidden border-y border-brand/10 bg-[#faf9fb] py-6"><div className="px-5 text-center"><p className="text-brand text-xs font-bold">{ar?'ضمن المنظومة العقارية السعودية':'Saudi real-estate ecosystem'}</p></div><div className="relative mt-4 overflow-hidden"><div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-12 bg-gradient-to-r from-[#faf9fb] to-transparent"/><div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-12 bg-gradient-to-l from-[#faf9fb] to-transparent"/><div className="sbaah-ecosystem-marquee flex w-max" dir="ltr"><Set copy={1}/><Set copy={2}/></div></div><style>{`@keyframes sbaahEcosystemMarquee{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}.sbaah-ecosystem-marquee{animation:sbaahEcosystemMarquee 32s linear infinite;will-change:transform}`}</style></section>}
 
-/** Sbaah marketing homepage — intentionally concise: explain value, show product, then convert. */
 export function MarketingHome({locale}:{locale:Locale}) {return <div><Hero locale={locale}/><ProblemSection locale={locale}/><ProductShowcase locale={locale}/><WebsiteSection locale={locale}/><FeatureGrid locale={locale}/><HowItWorks locale={locale}/><AudienceSection locale={locale}/><EcosystemSection locale={locale}/><Pricing locale={locale}/><Faq locale={locale}/><FinalCta locale={locale}/></div>}
