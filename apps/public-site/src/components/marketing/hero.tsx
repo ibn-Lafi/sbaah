@@ -36,9 +36,8 @@ export function Hero({ locale }: { locale: Locale }) {
 
       <div className="absolute inset-x-0 bottom-5 z-[5] sm:bottom-7">
         <div className="mx-auto max-w-5xl px-5">
-          <div className="flex items-center justify-end gap-2 text-end">
-            <span className="text-brand text-lg font-medium">←</span>
-            <h2 className="text-text-secondary text-base font-semibold sm:text-lg">{ar?'شركاء النجاح':'Success partners'}</h2>
+          <div className="flex items-center justify-center gap-2 text-center">
+            <h2 className="text-text-secondary text-xl font-semibold sm:text-2xl">{ar?'موثوق من':'Trusted by'}</h2>
           </div>
         </div>
         <div className="relative mt-3 overflow-hidden">
