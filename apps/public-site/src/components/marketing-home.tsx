@@ -4,13 +4,13 @@ import { Pricing } from './marketing/pricing';
 import { Faq } from './marketing/faq';
 
 const CTA_BANNER_SRC =
-  'https://raw.githubusercontent.com/ibn-Lafi/sbaah/claude/real-estate-saas-platform-sp7ua9/7505A414-B2A1-4E3B-921F-A76C348F7E88.png';
+  'https://raw.githubusercontent.com/ibn-Lafi/sbaah/claude/real-estate-saas-platform-sp7ua9/94C5E88E-C4C6-4C9A-B942-B3D8FD5D58F8.png';
 
 function CtaBanner() {
   return (
-    <section className="bg-white py-8 sm:py-10">
-      <div className="mx-auto w-full max-w-7xl overflow-hidden sm:px-6">
-        <div className="relative aspect-[16/7] w-full overflow-hidden sm:rounded-[1.75rem] md:aspect-[16/5]">
+    <section className="w-full bg-white py-8 sm:py-10">
+      <div className="w-full overflow-hidden">
+        <div className="relative aspect-[16/7] w-full overflow-hidden md:aspect-[16/5]">
           <img
             src={CTA_BANNER_SRC}
             alt=""
