@@ -22,14 +22,10 @@ export function Hero({ locale }: { locale: Locale }) {
       <HeroVideo src="/marketing/hero-motion.mp4" className="absolute inset-x-0 top-0 z-0 h-[82%] w-full object-cover sm:h-[83%]" />
       <div className="pointer-events-none absolute inset-x-0 top-0 z-[1] h-[62%] bg-gradient-to-b from-black/60 via-black/30 to-transparent" />
 
-      {/* Full page white begins exactly at the video's lower edge, then fades upward into the video. */}
+      {/* White page background starts solid at the video's lower edge and dissolves upward. */}
       <div
-        className="pointer-events-none absolute inset-x-0 bottom-[18%] z-[3] h-[34%] dark:hidden sm:bottom-[17%]"
-        style={{background:'linear-gradient(to top,#fff 0%,#fff 8%,rgba(255,255,255,.98) 16%,rgba(255,255,255,.92) 27%,rgba(255,255,255,.80) 39%,rgba(255,255,255,.62) 52%,rgba(255,255,255,.42) 65%,rgba(255,255,255,.23) 77%,rgba(255,255,255,.09) 88%,rgba(255,255,255,0) 100%)'}}
-      />
-      <div
-        className="pointer-events-none absolute inset-x-0 bottom-[18%] z-[3] hidden h-[34%] dark:block sm:bottom-[17%]"
-        style={{background:'linear-gradient(to top,#0a0a0a 0%,#0a0a0a 8%,rgba(10,10,10,.98) 16%,rgba(10,10,10,.92) 27%,rgba(10,10,10,.80) 39%,rgba(10,10,10,.62) 52%,rgba(10,10,10,.42) 65%,rgba(10,10,10,.23) 77%,rgba(10,10,10,.09) 88%,rgba(10,10,10,0) 100%)'}}
+        className="pointer-events-none absolute inset-x-0 bottom-[18%] z-[3] h-[34%] sm:bottom-[17%]"
+        style={{background:'linear-gradient(to top,#ffffff 0%,#ffffff 8%,rgba(255,255,255,.98) 16%,rgba(255,255,255,.92) 27%,rgba(255,255,255,.80) 39%,rgba(255,255,255,.62) 52%,rgba(255,255,255,.42) 65%,rgba(255,255,255,.23) 77%,rgba(255,255,255,.09) 88%,rgba(255,255,255,0) 100%)'}}
       />
 
       <div className="relative z-10 mx-auto -mt-28 flex max-w-3xl flex-col items-center gap-6 sm:-mt-32">
