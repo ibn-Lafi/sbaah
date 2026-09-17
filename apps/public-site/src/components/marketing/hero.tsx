@@ -17,14 +17,13 @@ export function Hero({ locale }: { locale: Locale }) {
   const LogoSet = ({ copy }: { copy: number }) => (
     <div className="hero-partners-set flex shrink-0 items-center" aria-hidden={copy > 1}>
       {partnerLogos.map((partner, index) => (
-        <div key={`${copy}-${index}`} className="flex h-16 w-32 shrink-0 items-center justify-center px-3 sm:h-20 sm:w-44 sm:px-5">
+        <div key={`${copy}-${index}`} className="flex h-16 w-32 shrink-0 items-center justify-center px-2 sm:h-20 sm:w-44 sm:px-4">
           <img
             src={partner.src}
-            alt={partner.name}
+            alt={copy === 1 ? partner.name : ''}
             title={partner.name}
-            className="block max-h-[82%] max-w-full object-contain"
+            className="block h-auto max-h-[88%] w-auto max-w-full object-contain"
             loading="eager"
-            decoding="async"
           />
         </div>
       ))}
@@ -55,10 +54,10 @@ export function Hero({ locale }: { locale: Locale }) {
           </div>
         </div>
         <div className="relative mt-3 overflow-hidden">
-          <div className="hero-partners-marquee flex w-max" dir="ltr"><LogoSet copy={1}/><LogoSet copy={2}/></div>
+          <div className="hero-partners-marquee flex w-max" dir="ltr"><LogoSet copy={1}/><LogoSet copy={2}/><LogoSet copy={3}/><LogoSet copy={4}/></div>
         </div>
       </div>
-      <style>{`@keyframes heroPartnersMarquee{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}.hero-partners-marquee{animation:heroPartnersMarquee 15s linear infinite;will-change:transform;transform:translate3d(0,0,0)}.hero-partners-set{flex:none}@media (prefers-reduced-motion:reduce){.hero-partners-marquee{animation-duration:30s}}`}</style>
+      <style>{`@keyframes heroPartnersMarquee{from{transform:translate3d(0,0,0)}to{transform:translate3d(-25%,0,0)}}.hero-partners-marquee{animation:heroPartnersMarquee 15s linear infinite;will-change:transform;transform:translate3d(0,0,0)}.hero-partners-set{flex:none}@media (prefers-reduced-motion:reduce){.hero-partners-marquee{animation-duration:30s}}`}</style>
     </section>
   );
 }
