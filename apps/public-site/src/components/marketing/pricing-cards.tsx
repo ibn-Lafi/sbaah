@@ -8,7 +8,7 @@ import { CheckIcon } from './icons';
 
 function CycleToggle({ value, onChange, labels }: { value: BillingCycle; onChange: (cycle: BillingCycle) => void; labels: { annual: string; monthly: string } }) {
   const options: { value: BillingCycle; label: string }[] = [{ value: 'annual', label: labels.annual }, { value: 'monthly', label: labels.monthly }];
-  return <div className="mx-auto flex w-[220px] gap-1 rounded-full bg-brand/[.08] p-1 ring-1 ring-brand/15">{options.map(option=><button key={option.value} type="button" onClick={()=>onChange(option.value)} aria-pressed={value===option.value} className={`h-10 flex-1 rounded-full text-[13px] font-semibold transition-all ${value===option.value?'bg-brand text-white shadow-sm':'text-text-secondary hover:bg-white/70 hover:text-brand'}`}>{option.label}</button>)}</div>;
+  return <div className="mx-auto flex w-[220px] gap-1 rounded-full bg-brand/[.08] p-1 ring-1 ring-brand/15">{options.map(option=><button key={option.value} type="button" onClick={()=>onChange(option.value)} aria-pressed={value===option.value} className={`h-10 flex-1 rounded-full text-[13px] font-semibold transition-all ${value===option.value?'bg-brand text-white shadow-sm':'text-text-secondary hover:bg-surface-subtle hover:text-brand'}`}>{option.label}</button>)}</div>;
 }
 
 function MetallicBackdrop({ tone }: { tone: 'platinum' | 'gold' }) {
@@ -24,7 +24,7 @@ export function PricingCards({ plans, locale, dashboardUrl }: { plans: Plan[]; l
   const tiers=groupPlansByTier(plans).slice(0,2);
   const tones: Array<'platinum'|'gold'>=['platinum','gold'];
 
-  return <div className="mt-8 flex flex-col items-center gap-8 bg-white">
+  return <div className="mt-8 flex flex-col items-center gap-8 bg-surface-card">
     <CycleToggle value={cycle} onChange={setCycle} labels={t.cycleToggle}/>
     <div className="pricing-scrollbar-hidden flex w-[calc(100%+3rem)] snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-2 sm:w-full sm:max-w-[780px] sm:justify-center sm:overflow-visible sm:px-0 lg:gap-6">
       {tiers.map((tier,index)=>{
