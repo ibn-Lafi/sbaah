@@ -9,7 +9,6 @@ import { HeroVideo } from './hero-video';
  */
 export function Hero({ locale }: { locale: Locale }) {
   const t = MARKETING_CONTENT[locale].hero;
-  const dashboardUrl = process.env.NEXT_PUBLIC_DASHBOARD_URL;
 
   return (
     <section className="relative -mt-20 flex min-h-[600px] flex-col items-center justify-center gap-6 overflow-hidden px-6 pb-40 pt-40 text-center sm:min-h-[680px] sm:pb-44 md:min-h-[760px]">
@@ -30,23 +29,6 @@ export function Hero({ locale }: { locale: Locale }) {
         <h1 className="font-display text-4xl leading-[1.15] font-semibold text-white sm:text-5xl md:text-6xl">{t.title}</h1>
 
         <p className="max-w-xl text-lg text-white/85">{t.subtitle}</p>
-
-        <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
-          {dashboardUrl && (
-            <a
-              href={`${dashboardUrl}/register`}
-              className="rounded-control inline-flex h-[52px] items-center justify-center bg-brand px-8 text-base font-semibold text-white transition-colors hover:bg-brand-hover"
-            >
-              {t.primaryCta}
-            </a>
-          )}
-          <a
-            href="#how-it-works"
-            className="rounded-control inline-flex h-[52px] items-center justify-center border border-white/40 px-8 text-base font-semibold text-white transition-colors hover:border-white hover:bg-white/10"
-          >
-            {t.secondaryCta}
-          </a>
-        </div>
       </div>
     </section>
   );
