@@ -10,11 +10,11 @@ function CtaBanner() {
   return (
     <section className="w-full bg-white py-8 sm:py-10">
       <div className="w-full overflow-hidden">
-        <div className="relative aspect-[16/7] w-full overflow-hidden md:aspect-[16/5]">
+        <div className="w-full">
           <img
             src={CTA_BANNER_SRC}
             alt=""
-            className="absolute inset-0 h-full w-full object-cover object-center"
+            className="block h-auto w-full"
             loading="lazy"
           />
         </div>
