@@ -2,34 +2,45 @@ import type { Locale } from '@/lib/i18n/locales';
 import { MARKETING_CONTENT } from '@/lib/marketing/content';
 import { HeroVideo } from './hero-video';
 
-/**
- * Hero video with a long, visible bottom fade into the page background.
- * The fade is layered above the video (not behind the section) so it works
- * consistently on mobile Safari as well as desktop browsers.
- */
+const partnerLogos = [
+  {name:'إيجار',src:'https://raw.githubusercontent.com/ibn-Lafi/sbaah/acb83df10149cec7ec79ff779a99819a40ec3e17/شعار ايجار الجديد بدقة عالية svg - png.svg'},
+  {name:'فال',src:'https://raw.githubusercontent.com/ibn-Lafi/sbaah/acb83df10149cec7ec79ff779a99819a40ec3e17/شعار فال للوساطة والتسويق العقاري بدقة عالية svg - png.svg'},
+  {name:'الهيئة العامة للعقار',src:'https://raw.githubusercontent.com/ibn-Lafi/sbaah/acb83df10149cec7ec79ff779a99819a40ec3e17/شعار الهيئة العامة للعقار بدقة عالية svg - png.svg'},
+  {name:'السجل العقاري',src:'https://raw.githubusercontent.com/ibn-Lafi/sbaah/acb83df10149cec7ec79ff779a99819a40ec3e17/شعار السجل العقاري بدقة عالية svg - png.svg'},
+  {name:'المركز السعودي للتحكيم العقاري',src:'https://raw.githubusercontent.com/ibn-Lafi/sbaah/acb83df10149cec7ec79ff779a99819a40ec3e17/شعار المركز السعودي للتحكيم العقار بدقة عالية svg - png.svg'},
+  {name:'تقدم',src:'https://raw.githubusercontent.com/ibn-Lafi/sbaah/acb83df10149cec7ec79ff779a99819a40ec3e17/شعار تقدم بدقة عالية svg - png.svg'},
+];
+
 export function Hero({ locale }: { locale: Locale }) {
   const t = MARKETING_CONTENT[locale].hero;
+  const ar = locale === 'ar';
+  const LogoSet=({copy}:{copy:number})=><div className="flex shrink-0 items-center gap-8 pe-8 sm:gap-12 sm:pe-12" aria-hidden={copy===2}>{partnerLogos.map((partner,index)=><div key={`${copy}-${index}`} className="flex h-14 w-24 shrink-0 items-center justify-center sm:h-16 sm:w-32"><img src={partner.src} alt={copy===1?partner.name:''} className="block max-h-full max-w-full object-contain" loading="eager"/></div>)}</div>;
 
   return (
-    <section className="relative -mt-20 flex min-h-[600px] flex-col items-center justify-center gap-6 overflow-hidden px-6 pb-40 pt-40 text-center sm:min-h-[680px] sm:pb-44 md:min-h-[760px]">
-      <HeroVideo
-        src="/marketing/hero-motion.mp4"
-        className="absolute inset-0 z-0 h-full w-full object-cover"
-      />
-
+    <section className="relative -mt-20 flex min-h-[720px] flex-col items-center justify-center overflow-hidden px-6 pb-48 pt-40 text-center sm:min-h-[760px] sm:pb-52 md:min-h-[820px]">
+      <HeroVideo src="/marketing/hero-motion.mp4" className="absolute inset-0 z-0 h-full w-full object-cover" />
       <div className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-b from-black/60 via-black/30 to-transparent" />
 
-      {/* Long cinematic fade: video remains visible underneath while it gradually
-          dissolves into the exact light/dark page background. */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] h-[42%] bg-gradient-to-b from-transparent via-white/70 to-white dark:via-neutral-950/70 dark:to-neutral-950 sm:h-[38%]" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] h-[39%] bg-gradient-to-b from-transparent via-white/90 to-white dark:via-neutral-950/90 dark:to-neutral-950 sm:h-[36%]" />
 
-      <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center gap-6">
+      <div className="relative z-10 mx-auto -mt-20 flex max-w-3xl flex-col items-center gap-6 sm:-mt-24">
         <span className="rounded-full bg-white/15 px-4 py-1.5 text-sm font-medium text-white backdrop-blur">{t.eyebrow}</span>
-
         <h1 className="font-display text-4xl leading-[1.15] font-semibold text-white sm:text-5xl md:text-6xl">{t.title}</h1>
-
         <p className="max-w-xl text-lg text-white/85">{t.subtitle}</p>
       </div>
+
+      <div className="absolute inset-x-0 bottom-5 z-[5] sm:bottom-7">
+        <div className="mx-auto max-w-5xl px-5">
+          <div className="flex items-center justify-end gap-2 text-end">
+            <span className="text-brand text-lg font-medium">←</span>
+            <h2 className="text-text-secondary text-base font-semibold sm:text-lg">{ar?'شركاء النجاح':'Success partners'}</h2>
+          </div>
+        </div>
+        <div className="relative mt-3 overflow-hidden">
+          <div className="hero-partners-marquee flex w-max" dir="ltr"><LogoSet copy={1}/><LogoSet copy={2}/></div>
+        </div>
+      </div>
+      <style>{`@keyframes heroPartnersMarquee{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}.hero-partners-marquee{animation:heroPartnersMarquee 30s linear infinite;will-change:transform}@media (prefers-reduced-motion:reduce){.hero-partners-marquee{animation:none}}`}</style>
     </section>
   );
 }
