@@ -21,8 +21,6 @@ function WebsiteSection({ locale }: { locale: Locale }) {
 
 function AudienceSection({locale}:{locale:Locale}) { const ar=locale==='ar'; const audiences=ar?[['المطور العقاري','اعرض مشاريعك ونظّم العملاء والفرص من لوحة واحدة.'],['المسوّق العقاري','ابنِ حضورك الرقمي واعرض مخزونك وتابع العملاء المحتملين.'],['الوسيط العقاري','موقع احترافي وعقارات وطلبات عملاء في مكان واحد.']]:[['Real-estate developer','Showcase projects and organize clients and opportunities.'],['Real-estate marketer','Build your digital presence, inventory and lead workflow.'],['Real-estate broker','A professional website, properties and client requests in one place.']]; return <section className="bg-white px-5 py-20 sm:px-6 lg:py-28"><div className="mx-auto max-w-6xl"><div className="max-w-2xl"><span className="text-brand text-sm font-semibold">{ar?'لمن صُممت سبعة؟':'Who is Sbaah for?'}</span><h2 className="text-text-primary mt-3 text-3xl font-bold sm:text-4xl">{ar?'سبعة مبنية للعمل العقاري':'Built for real-estate work'}</h2><p className="text-text-secondary mt-4 leading-8">{ar?'سواء كنت تعمل بشكل فردي أو ضمن منشأة، الأدوات تتكيف مع طريقة عملك.':'Whether you work independently or within a company, the tools adapt to your workflow.'}</p></div><div className="mt-10 grid gap-4 md:grid-cols-3">{audiences.map(([title,body])=><article key={title} className="rounded-3xl border border-black/5 p-7"><div className="bg-brand/10 mb-8 h-12 w-12 rounded-2xl"/><h3 className="text-lg font-bold">{title}</h3><p className="text-text-secondary mt-2 text-sm leading-7">{body}</p></article>)}</div></div></section>; }
 
-// Direct logo assets only. Do not use domain-logo proxy services here: they are unreliable
-// and can return favicons/incorrect marks instead of the organization's actual identity.
 const ecosystemLogos = [
   { ar:'الهيئة العامة للعقار', en:'Real Estate General Authority', src:'https://alsaudieconomy.com/images/2024/05/-1715709148-0.jpg' },
   { ar:'فال', en:'FAL', src:'https://www.al-madina.com/uploads/images/2023/06/15/2197569.jpg' },
@@ -34,23 +32,25 @@ const ecosystemLogos = [
 
 function EcosystemSection({locale}:{locale:Locale}) {
   const ar=locale==='ar';
-  const logos=[...ecosystemLogos,...ecosystemLogos];
-  return <section className="overflow-hidden border-y border-black/5 bg-white py-16 sm:py-20">
+  const LogoSet=({copy}:{copy:number})=><div className="flex shrink-0 items-center gap-8 pe-8 sm:gap-12 sm:pe-12" aria-hidden={copy===2}>
+    {ecosystemLogos.map((logo,index)=><div key={`${copy}-${logo.en}-${index}`} className="flex h-16 w-36 shrink-0 items-center justify-center px-2 sm:h-20 sm:w-44">
+      {/* eslint-disable-next-line @next/next/no-img-element -- direct brand image assets */}
+      <img src={logo.src} alt={copy===1?(ar?logo.ar:logo.en):''} className="block max-h-12 max-w-[128px] object-contain sm:max-h-14 sm:max-w-[155px]" loading="eager" referrerPolicy="no-referrer" />
+    </div>)}
+  </div>;
+  return <section className="overflow-hidden border-y border-black/5 bg-white py-10 sm:py-12">
     <div className="mx-auto max-w-6xl px-5 text-center sm:px-6">
-      <span className="text-brand text-sm font-semibold">{ar?'الشركاء':'Partners'}</span>
-      <h2 className="text-text-primary mt-3 text-2xl font-bold sm:text-3xl">{ar?'شركاؤنا في المنظومة العقارية والتقنية':'Our real-estate and technology ecosystem partners'}</h2>
+      <span className="text-brand text-xs font-semibold sm:text-sm">{ar?'الشركاء':'Partners'}</span>
+      <h2 className="text-text-primary mt-2 text-xl font-bold sm:text-2xl">{ar?'شركاؤنا في المنظومة العقارية والتقنية':'Our real-estate and technology ecosystem partners'}</h2>
     </div>
-    <div className="relative mt-10 overflow-hidden">
-      <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-white to-transparent sm:w-32"/>
-      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-white to-transparent sm:w-32"/>
-      <div className="sbaah-logo-marquee flex w-max items-center gap-5 pe-5" dir="ltr">
-        {logos.map((logo,index)=><div key={`${logo.en}-${index}`} className="flex h-28 w-52 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-black/[0.06] bg-white px-6 shadow-[0_6px_24px_rgba(0,0,0,0.04)] sm:h-32 sm:w-60">
-          {/* eslint-disable-next-line @next/next/no-img-element -- remote brand marks intentionally rendered directly */}
-          <img src={logo.src} alt={ar?logo.ar:logo.en} className="block max-h-[76px] max-w-[180px] object-contain sm:max-h-[84px] sm:max-w-[200px]" loading="eager" referrerPolicy="no-referrer" />
-        </div>)}
+    <div className="relative mt-6 overflow-hidden sm:mt-8">
+      <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 bg-gradient-to-r from-white to-transparent sm:w-24"/>
+      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 bg-gradient-to-l from-white to-transparent sm:w-24"/>
+      <div className="sbaah-logo-marquee flex w-max items-center" dir="ltr">
+        <LogoSet copy={1}/><LogoSet copy={2}/>
       </div>
     </div>
-    <style>{`@keyframes sbaahLogoMarquee{from{transform:translate3d(0,0,0)}to{transform:translate3d(calc(-50% - 10px),0,0)}}.sbaah-logo-marquee{animation:sbaahLogoMarquee 30s linear infinite;will-change:transform}.sbaah-logo-marquee:hover{animation-play-state:paused}@media(prefers-reduced-motion:reduce){.sbaah-logo-marquee{animation:none}}`}</style>
+    <style>{`@keyframes sbaahLogoMarquee{0%{transform:translate3d(0,0,0)}100%{transform:translate3d(-50%,0,0)}}.sbaah-logo-marquee{animation:sbaahLogoMarquee 24s linear infinite;will-change:transform;backface-visibility:hidden}.sbaah-logo-marquee:hover{animation-play-state:paused}@media(prefers-reduced-motion:reduce){.sbaah-logo-marquee{animation-duration:60s}}`}</style>
   </section>;
 }
 
