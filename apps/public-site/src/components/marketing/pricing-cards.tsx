@@ -26,29 +26,30 @@ export function PricingCards({ plans, locale, dashboardUrl }: { plans: Plan[]; l
 
   return <div className="mt-8 flex flex-col items-center gap-8 bg-white">
     <CycleToggle value={cycle} onChange={setCycle} labels={t.cycleToggle}/>
-    <div className="grid w-full max-w-[780px] grid-cols-2 gap-2 overflow-visible px-0 pb-0 sm:gap-4 lg:gap-6">
+    <div className="pricing-scrollbar-hidden flex w-[calc(100%+3rem)] snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-2 sm:w-full sm:max-w-[780px] sm:justify-center sm:overflow-visible sm:px-0 lg:gap-6">
       {tiers.map((tier,index)=>{
         const plan=planForCycle(tier,cycle);
         const savingsMonths=cycle==='annual'&&tier.monthly&&tier.annual?annualSavingsMonths(tier.monthly,tier.annual):0;
         const tone=tones[index] ?? 'gold';
-        return <article key={tier.key} className="relative min-h-[430px] min-w-0 overflow-hidden rounded-[24px] border border-white/15 text-white shadow-[0_22px_60px_-28px_rgba(0,0,0,.75)] sm:rounded-[30px]">
+        return <article key={tier.key} className="relative min-h-[430px] w-[86vw] max-w-[390px] flex-none snap-center overflow-hidden rounded-[30px] border border-white/15 text-white shadow-[0_22px_60px_-28px_rgba(0,0,0,.75)] sm:w-[360px]">
           <MetallicBackdrop tone={tone}/>
-          <div className="relative z-10 flex min-h-[430px] flex-col p-4 sm:p-8">
-            <div className="flex items-start justify-between gap-2 sm:gap-4">
-              <div><div className="flex items-center gap-1.5 sm:gap-2"><h3 className="text-base font-bold sm:text-xl">{locale==='ar'?plan.name_ar:plan.name_en}</h3><svg viewBox="0 0 24 24" className="h-4 w-4 text-white/65 sm:h-5 sm:w-5" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 16l5-5 4 4 7-8"/><path d="M15 7h5v5"/></svg></div>{savingsMonths>0&&<span className="mt-2 inline-flex rounded-full bg-white/10 px-2 py-1 text-[9px] font-semibold text-white/75 backdrop-blur sm:px-2.5 sm:text-[11px]">{t.savingsLabel(savingsMonths)}</span>}</div>
-              <div className="text-end"><div className="font-display text-2xl font-bold tracking-tight sm:text-4xl" dir="ltr">{plan.price.toLocaleString('en-US')}</div><div className="mt-1 text-[9px] text-white/65 sm:text-xs">{t.currency} {t.priceNote(t.cycleLabel(plan.billing_cycle))}</div></div>
+          <div className="relative z-10 flex min-h-[430px] flex-col p-7 sm:p-8">
+            <div className="flex items-start justify-between gap-4">
+              <div><div className="flex items-center gap-2"><h3 className="text-xl font-bold">{locale==='ar'?plan.name_ar:plan.name_en}</h3><svg viewBox="0 0 24 24" className="h-5 w-5 text-white/65" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 16l5-5 4 4 7-8"/><path d="M15 7h5v5"/></svg></div>{savingsMonths>0&&<span className="mt-2 inline-flex rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-white/75 backdrop-blur">{t.savingsLabel(savingsMonths)}</span>}</div>
+              <div className="text-end"><div className="font-display text-4xl font-bold tracking-tight" dir="ltr">{plan.price.toLocaleString('en-US')}</div><div className="mt-1 text-xs text-white/65">{t.currency} {t.priceNote(t.cycleLabel(plan.billing_cycle))}</div></div>
             </div>
-            <div className="my-5 h-px bg-white/65 sm:my-7"/>
-            <ul className="flex flex-1 flex-col gap-3 text-[11px] text-white/90 sm:gap-4 sm:text-[14px]">
-              <li className="flex items-center justify-between gap-2 sm:gap-3"><span className="flex items-center gap-1.5 sm:gap-2"><CheckIcon className="h-3.5 w-3.5 flex-none text-white sm:h-4 sm:w-4"/>{t.propertiesLimit}</span><strong dir={plan.max_properties!=null?'ltr':undefined}>{plan.max_properties!=null?plan.max_properties.toLocaleString('en-US'):t.unlimited}</strong></li>
-              <li className="flex items-center justify-between gap-2 sm:gap-3"><span className="flex items-center gap-1.5 sm:gap-2"><CheckIcon className="h-3.5 w-3.5 flex-none text-white sm:h-4 sm:w-4"/>{t.usersLimit}</span><strong dir={plan.max_users!=null?'ltr':undefined}>{plan.max_users!=null?plan.max_users.toLocaleString('en-US'):t.unlimited}</strong></li>
-              <li className="flex items-center gap-1.5 sm:gap-2"><CheckIcon className="h-3.5 w-3.5 flex-none text-white sm:h-4 sm:w-4"/>{plan.custom_domain_allowed?t.customDomainYes:t.customDomainNo}</li>
+            <div className="my-7 h-px bg-white/65"/>
+            <ul className="flex flex-1 flex-col gap-4 text-[14px] text-white/90">
+              <li className="flex items-center justify-between gap-3"><span className="flex items-center gap-2"><CheckIcon className="h-4 w-4 flex-none text-white"/>{t.propertiesLimit}</span><strong dir={plan.max_properties!=null?'ltr':undefined}>{plan.max_properties!=null?plan.max_properties.toLocaleString('en-US'):t.unlimited}</strong></li>
+              <li className="flex items-center justify-between gap-3"><span className="flex items-center gap-2"><CheckIcon className="h-4 w-4 flex-none text-white"/>{t.usersLimit}</span><strong dir={plan.max_users!=null?'ltr':undefined}>{plan.max_users!=null?plan.max_users.toLocaleString('en-US'):t.unlimited}</strong></li>
+              <li className="flex items-center gap-2"><CheckIcon className="h-4 w-4 flex-none text-white"/>{plan.custom_domain_allowed?t.customDomainYes:t.customDomainNo}</li>
             </ul>
-            <p className="mt-5 text-[9px] text-white/55 sm:text-[11px]">{t.vatNote}</p>
-            {dashboardUrl&&<a href={`${dashboardUrl}/register`} className="mt-5 flex h-11 items-center justify-center rounded-xl border border-white/35 bg-white/10 px-2 text-xs font-semibold text-white backdrop-blur-md transition-all hover:bg-white hover:text-neutral-950 sm:h-12 sm:rounded-2xl sm:text-sm">{t.cta}</a>}
+            <p className="mt-5 text-[11px] text-white/55">{t.vatNote}</p>
+            {dashboardUrl&&<a href={`${dashboardUrl}/register`} className="mt-5 flex h-12 items-center justify-center rounded-2xl border border-white/35 bg-white/10 text-sm font-semibold text-white backdrop-blur-md transition-all hover:bg-white hover:text-neutral-950">{t.cta}</a>}
           </div>
         </article>;
       })}
+      <style>{`.pricing-scrollbar-hidden{-ms-overflow-style:none;scrollbar-width:none}.pricing-scrollbar-hidden::-webkit-scrollbar{display:none}`}</style>
     </div>
   </div>;
 }
