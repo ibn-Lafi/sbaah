@@ -2,19 +2,20 @@ import type { Locale } from '@/lib/i18n/locales';
 import { MARKETING_CONTENT } from '@/lib/marketing/content';
 import { HeroVideo } from './hero-video';
 
+const partnerLogoBase = 'https://raw.githubusercontent.com/ibn-Lafi/sbaah/acb83df10149cec7ec79ff779a99819a40ec3e17/';
 const partnerLogos = [
-  {name:'إيجار',src:'https://raw.githubusercontent.com/ibn-Lafi/sbaah/acb83df10149cec7ec79ff779a99819a40ec3e17/شعار ايجار الجديد بدقة عالية svg - png.svg'},
-  {name:'فال',src:'https://raw.githubusercontent.com/ibn-Lafi/sbaah/acb83df10149cec7ec79ff779a99819a40ec3e17/شعار فال للوساطة والتسويق العقاري بدقة عالية svg - png.svg'},
-  {name:'الهيئة العامة للعقار',src:'https://raw.githubusercontent.com/ibn-Lafi/sbaah/acb83df10149cec7ec79ff779a99819a40ec3e17/شعار الهيئة العامة للعقار بدقة عالية svg - png.svg'},
-  {name:'السجل العقاري',src:'https://raw.githubusercontent.com/ibn-Lafi/sbaah/acb83df10149cec7ec79ff779a99819a40ec3e17/شعار السجل العقاري بدقة عالية svg - png.svg'},
-  {name:'المركز السعودي للتحكيم العقاري',src:'https://raw.githubusercontent.com/ibn-Lafi/sbaah/acb83df10149cec7ec79ff779a99819a40ec3e17/شعار المركز السعودي للتحكيم العقار بدقة عالية svg - png.svg'},
-  {name:'تقدم',src:'https://raw.githubusercontent.com/ibn-Lafi/sbaah/acb83df10149cec7ec79ff779a99819a40ec3e17/شعار تقدم بدقة عالية svg - png.svg'},
-];
+  {name:'إيجار',file:'شعار منصة إيجار - SVG.svg'},
+  {name:'الهيئة العامة للعقار',file:'شعار الهيئة العامة للعقار الجديد - Real Estate General Authority Logo - PNG - SVG.svg'},
+  {name:'صندوق الاستثمارات العامة',file:'شعار صندوق الاستثمارات العامة  الجديد بدقة عالية - PNG - SVG PIF Logo.svg'},
+  {name:'صندوق التنمية العقارية',file:'شعار صندوق التنمية العقارية - SVG.svg'},
+  {name:'روشن',file:'شعار مجموعة روشن الجديد بدقة عالية PNG - SVG.svg'},
+  {name:'المركز السعودي للتحكيم العقاري',file:'شعار المركز السعودي للتحكيم العقار بدقة عالية svg - png.svg'},
+].map(partner=>({...partner,src:`${partnerLogoBase}${encodeURIComponent(partner.file)}`}));
 
 export function Hero({ locale }: { locale: Locale }) {
   const t = MARKETING_CONTENT[locale].hero;
   const ar = locale === 'ar';
-  const LogoSet=({copy}:{copy:number})=><div className="flex shrink-0 items-center gap-8 pe-8 sm:gap-12 sm:pe-12" aria-hidden={copy>1}>{partnerLogos.map((partner,index)=><div key={`${copy}-${index}`} className="flex h-14 w-24 shrink-0 items-center justify-center sm:h-16 sm:w-32"><img src={partner.src} alt={copy===1?partner.name:''} className="block max-h-full max-w-full object-contain" loading="eager"/></div>)}</div>;
+  const LogoSet=({copy}:{copy:number})=><div className="hero-partners-set flex shrink-0 items-center gap-8 pe-8 sm:gap-12 sm:pe-12" aria-hidden={copy>1}>{partnerLogos.map((partner,index)=><div key={`${copy}-${index}`} className="flex h-14 w-24 shrink-0 items-center justify-center sm:h-16 sm:w-32"><img src={partner.src} alt={copy===1?partner.name:''} className="block max-h-full max-w-full object-contain" loading="eager"/></div>)}</div>;
 
   return (
     <section className="relative -mt-20 flex min-h-[760px] flex-col items-center justify-center overflow-hidden bg-white px-6 pb-52 pt-40 text-center sm:min-h-[800px] sm:pb-56 md:min-h-[860px]">
@@ -44,10 +45,10 @@ export function Hero({ locale }: { locale: Locale }) {
           </div>
         </div>
         <div className="relative mt-3 overflow-hidden">
-          <div className="hero-partners-marquee flex w-max" dir="ltr"><LogoSet copy={1}/><LogoSet copy={2}/><LogoSet copy={3}/></div>
+          <div className="hero-partners-marquee flex w-max" dir="ltr"><LogoSet copy={1}/><LogoSet copy={2}/></div>
         </div>
       </div>
-      <style>{`@keyframes heroPartnersMarquee{from{transform:translate3d(0,0,0)}to{transform:translate3d(-33.333333%,0,0)}}.hero-partners-marquee{animation:heroPartnersMarquee 36s linear infinite;will-change:transform}.hero-partners-marquee>div{flex:none}@media (prefers-reduced-motion:reduce){.hero-partners-marquee{animation:none}}`}</style>
+      <style>{`@keyframes heroPartnersMarquee{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}.hero-partners-marquee{animation:heroPartnersMarquee 28s linear infinite;will-change:transform}.hero-partners-set{flex:none}@media (prefers-reduced-motion:reduce){.hero-partners-marquee{animation:none}}`}</style>
     </section>
   );
 }
