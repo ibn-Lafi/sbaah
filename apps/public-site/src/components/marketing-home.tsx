@@ -39,19 +39,4 @@ function AudienceSection({locale}:{locale:Locale}) {
   </div></section>;
 }
 
-const partnerLogos = [
-  {name:'إيجار',src:'https://raw.githubusercontent.com/ibn-Lafi/sbaah/acb83df10149cec7ec79ff779a99819a40ec3e17/شعار ايجار الجديد بدقة عالية svg - png.svg'},
-  {name:'فال',src:'https://raw.githubusercontent.com/ibn-Lafi/sbaah/acb83df10149cec7ec79ff779a99819a40ec3e17/شعار فال للوساطة والتسويق العقاري بدقة عالية svg - png.svg'},
-  {name:'الهيئة العامة للعقار',src:'https://raw.githubusercontent.com/ibn-Lafi/sbaah/acb83df10149cec7ec79ff779a99819a40ec3e17/شعار الهيئة العامة للعقار بدقة عالية svg - png.svg'},
-  {name:'السجل العقاري',src:'https://raw.githubusercontent.com/ibn-Lafi/sbaah/acb83df10149cec7ec79ff779a99819a40ec3e17/شعار السجل العقاري بدقة عالية svg - png.svg'},
-  {name:'المركز السعودي للتحكيم العقاري',src:'https://raw.githubusercontent.com/ibn-Lafi/sbaah/acb83df10149cec7ec79ff779a99819a40ec3e17/شعار المركز السعودي للتحكيم العقار بدقة عالية svg - png.svg'},
-  {name:'تقدم',src:'https://raw.githubusercontent.com/ibn-Lafi/sbaah/acb83df10149cec7ec79ff779a99819a40ec3e17/شعار تقدم بدقة عالية svg - png.svg'},
-];
-
-function EcosystemSection({locale}:{locale:Locale}) {
-  const ar=locale==='ar';
-  const LogoSet=({copy}:{copy:number})=><div className="flex shrink-0 items-center gap-10 pe-10 sm:gap-16 sm:pe-16" aria-hidden={copy===2}>{partnerLogos.map((partner,index)=><div key={`${copy}-${index}`} className="flex h-28 w-48 shrink-0 items-center justify-center sm:h-36 sm:w-64"><img src={partner.src} alt={copy===1?partner.name:''} className="block h-full w-full object-contain" loading="eager"/></div>)}</div>;
-  return <section className="overflow-hidden bg-white py-12 sm:py-16"><div className="mx-auto max-w-5xl px-5"><div className="flex items-center justify-end gap-3"><span className="text-brand text-lg font-medium">←</span><h2 className="text-text-secondary text-lg font-semibold sm:text-xl">{ar?'شركاء النجاح':'Success partners'}</h2></div></div><div className="relative mt-6 overflow-hidden sm:mt-8"><div className="partners-marquee flex w-max" dir="ltr"><LogoSet copy={1}/><LogoSet copy={2}/></div></div><style>{`@keyframes partnersMarquee{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}.partners-marquee{animation:partnersMarquee 32s linear infinite;will-change:transform}@media (prefers-reduced-motion:reduce){.partners-marquee{animation:none}}`}</style></section>;
-}
-
-export function MarketingHome({locale}:{locale:Locale}) {return <div><Hero locale={locale}/><ProblemSection locale={locale}/><ProductShowcase locale={locale}/><WebsiteSection locale={locale}/><FeatureGrid locale={locale}/><HowItWorks locale={locale}/><AudienceSection locale={locale}/><EcosystemSection locale={locale}/><Pricing locale={locale}/><Faq locale={locale}/></div>}
+export function MarketingHome({locale}:{locale:Locale}) {return <div><Hero locale={locale}/><ProblemSection locale={locale}/><ProductShowcase locale={locale}/><WebsiteSection locale={locale}/><FeatureGrid locale={locale}/><HowItWorks locale={locale}/><AudienceSection locale={locale}/><Pricing locale={locale}/><Faq locale={locale}/></div>}
