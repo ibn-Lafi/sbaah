@@ -22,13 +22,14 @@ export function Hero({ locale }: { locale: Locale }) {
       <HeroVideo src="/marketing/hero-motion.mp4" className="absolute inset-x-0 top-0 z-0 h-[82%] w-full object-cover sm:h-[83%]" />
       <div className="pointer-events-none absolute inset-x-0 top-0 z-[1] h-[62%] bg-gradient-to-b from-black/60 via-black/30 to-transparent" />
 
+      {/* Fade is anchored to the video's bottom edge and extends upward into it. */}
       <div
-        className="pointer-events-none absolute inset-x-0 top-[46%] z-[3] h-[42%] dark:hidden"
-        style={{background:'linear-gradient(to bottom,rgba(255,255,255,0) 0%,rgba(255,255,255,.015) 10%,rgba(255,255,255,.05) 20%,rgba(255,255,255,.13) 31%,rgba(255,255,255,.27) 43%,rgba(255,255,255,.46) 56%,rgba(255,255,255,.67) 68%,rgba(255,255,255,.84) 79%,rgba(255,255,255,.95) 89%,#fff 100%)'}}
+        className="pointer-events-none absolute inset-x-0 bottom-[18%] z-[3] h-[32%] dark:hidden sm:bottom-[17%]"
+        style={{background:'linear-gradient(to bottom,rgba(255,255,255,0) 0%,rgba(255,255,255,.03) 18%,rgba(255,255,255,.10) 34%,rgba(255,255,255,.24) 50%,rgba(255,255,255,.45) 65%,rgba(255,255,255,.68) 78%,rgba(255,255,255,.87) 89%,#fff 100%)'}}
       />
       <div
-        className="pointer-events-none absolute inset-x-0 top-[46%] z-[3] hidden h-[42%] dark:block"
-        style={{background:'linear-gradient(to bottom,rgba(10,10,10,0) 0%,rgba(10,10,10,.015) 10%,rgba(10,10,10,.05) 20%,rgba(10,10,10,.13) 31%,rgba(10,10,10,.27) 43%,rgba(10,10,10,.46) 56%,rgba(10,10,10,.67) 68%,rgba(10,10,10,.84) 79%,rgba(10,10,10,.95) 89%,#0a0a0a 100%)'}}
+        className="pointer-events-none absolute inset-x-0 bottom-[18%] z-[3] hidden h-[32%] dark:block sm:bottom-[17%]"
+        style={{background:'linear-gradient(to bottom,rgba(10,10,10,0) 0%,rgba(10,10,10,.03) 18%,rgba(10,10,10,.10) 34%,rgba(10,10,10,.24) 50%,rgba(10,10,10,.45) 65%,rgba(10,10,10,.68) 78%,rgba(10,10,10,.87) 89%,#0a0a0a 100%)'}}
       />
 
       <div className="relative z-10 mx-auto -mt-28 flex max-w-3xl flex-col items-center gap-6 sm:-mt-32">
