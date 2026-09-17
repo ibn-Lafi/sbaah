@@ -3,29 +3,28 @@ import { MARKETING_CONTENT } from '@/lib/marketing/content';
 import { HeroVideo } from './hero-video';
 
 /**
- * فيديو خلفية حقيقي (نفس نمط `themes/classic/hero-section.tsx` — video
- * حقيقي لا CSS background-image، autoPlay+muted+loop+playsInline لتشغيله
- * تلقائيًا على الجوال/Safari iOS). القسم يُسحب للأعلى خلف الهيدر العائم
- * الشفاف (`-mt-20`، مطابق لارتفاع الهيدر في marketing-chrome.tsx — نفس
- * الرقمين يجب أن يبقيا متطابقين). نهاية الفيديو تتلاشى تدريجيًا داخل خلفية
- * الصفحة حتى لا يظهر حد أو فاصل واضح بين الـHero والقسم التالي.
+ * خلفية Hero بالفيديو مع تلاشي سفلي طويل داخل خلفية الصفحة.
+ * طبقة التلاشي تتجاوز حدود القسم قليلًا حتى لا يظهر أي خط فاصل على الجوال.
  */
 export function Hero({ locale }: { locale: Locale }) {
   const t = MARKETING_CONTENT[locale].hero;
   const dashboardUrl = process.env.NEXT_PUBLIC_DASHBOARD_URL;
 
   return (
-    <section className="relative -mt-20 flex min-h-[560px] flex-col items-center justify-center gap-6 overflow-hidden px-6 pb-28 pt-40 text-center sm:min-h-[640px] sm:pb-32 md:min-h-[720px]">
-      <HeroVideo
-        src="/marketing/hero-motion.mp4"
-        className="absolute inset-0 h-full w-full object-cover"
-        style={{
-          maskImage: 'linear-gradient(to bottom, black 0%, black 58%, rgba(0,0,0,.92) 68%, rgba(0,0,0,.62) 80%, rgba(0,0,0,.22) 92%, transparent 100%)',
-          WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 58%, rgba(0,0,0,.92) 68%, rgba(0,0,0,.62) 80%, rgba(0,0,0,.22) 92%, transparent 100%)',
-        }}
-      />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/35 to-transparent" />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[32%] bg-gradient-to-b from-transparent via-background/45 to-background" />
+    <section className="relative -mt-20 flex min-h-[560px] flex-col items-center justify-center gap-6 px-6 pb-36 pt-40 text-center sm:min-h-[640px] sm:pb-40 md:min-h-[720px]">
+      <div className="absolute inset-0 -z-10 overflow-hidden">
+        <HeroVideo
+          src="/marketing/hero-motion.mp4"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/35 to-transparent" />
+        <div
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-[48%]"
+          style={{
+            background: 'linear-gradient(to bottom, transparent 0%, color-mix(in srgb, var(--background) 8%, transparent) 16%, color-mix(in srgb, var(--background) 30%, transparent) 38%, color-mix(in srgb, var(--background) 66%, transparent) 66%, var(--background) 92%, var(--background) 100%)',
+          }}
+        />
+      </div>
 
       <div className="relative mx-auto flex max-w-3xl flex-col items-center gap-6">
         <span className="rounded-full bg-white/15 px-4 py-1.5 text-sm font-medium text-white backdrop-blur">{t.eyebrow}</span>
@@ -51,6 +50,11 @@ export function Hero({ locale }: { locale: Locale }) {
           </a>
         </div>
       </div>
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 -bottom-20 z-0 h-40 bg-gradient-to-b from-background to-background"
+      />
     </section>
   );
 }
