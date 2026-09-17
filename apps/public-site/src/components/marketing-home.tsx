@@ -1,32 +1,6 @@
-import Image from 'next/image';
 import type { Locale } from '@/lib/i18n/locales';
 import { Hero } from './marketing/hero';
-import { HowItWorks } from './marketing/how-it-works';
-import { ProductShowcase } from './marketing/product-showcase';
-import { FeatureGrid } from './marketing/feature-grid';
 import { Pricing } from './marketing/pricing';
 import { Faq } from './marketing/faq';
 
-const REALISTIC = {
-  website: '/marketing/realistic/02-real-estate-scene.png',
-  audience: '/marketing/realistic/03-real-estate-scene.png',
-};
-
-function WebsiteSection({ locale }: { locale: Locale }) {
-  const ar=locale==='ar'; const bullets=ar?['تصاميم عصرية قابلة للتخصيص','متوافق مع الجوال ومحركات البحث','دعم العربية والإنجليزية','ربط دومين خاص بك']:['Modern customizable designs','Mobile and search friendly','Arabic & English','Connect your own domain'];
-  return <section className="bg-[#faf9fb] px-4 py-10 sm:px-6 sm:py-14"><div className="mx-auto grid max-w-5xl items-center gap-5 md:grid-cols-2 md:gap-8">
-    <div className="order-2 md:order-1"><span className="text-brand text-[11px] font-bold sm:text-xs">{ar?'موقع عقاري خاص بك':'Your own real-estate website'}</span><h2 className="text-text-primary mt-2 text-xl font-bold tracking-tight sm:text-3xl">{ar?'بشكل احترافي وسريع':'Professional and fast'}</h2><p className="text-text-secondary mt-2 text-xs leading-6 sm:text-sm">{ar?'أنشئ موقعك العقاري في دقائق باختيار تصميم يناسب هويتك، مع إمكانية ربط نطاقك الخاص.':'Launch your property website in minutes with a design that matches your brand.'}</p><div className="mt-4 space-y-2">{bullets.map(item=><div key={item} className="flex items-center gap-2 text-xs font-medium sm:text-sm"><span className="flex h-5 w-5 items-center justify-center rounded-md bg-brand/10 text-[10px] text-brand">✓</span>{item}</div>)}</div></div>
-    <div className="order-1 relative aspect-[1.48/1] overflow-hidden rounded-[1.5rem] bg-white shadow-sm md:order-2 md:aspect-[1.3/1]"><Image src={REALISTIC.website} alt={ar?'عرض موقع عقاري احترافي':'Professional real-estate website'} fill sizes="(max-width:767px) 100vw, 50vw" className="object-cover"/></div>
-  </div></section>;
-}
-
-function AudienceSection({locale}:{locale:Locale}) {
-  const ar=locale==='ar';
-  const audiences: [string, string][] = ar?[['المكاتب العقارية','إدارة متكاملة لعملك'],['المسوقون العقاريون','إدارة العملاء والعروض'],['الوسطاء العقاريون','تنظيم الفرص والمتابعة'],['المطورون العقاريون','إدارة مشاريعهم ومبيعاتهم']]:[['Real-estate offices','Integrated business management'],['Property marketers','Manage clients and listings'],['Real-estate brokers','Organize opportunities'],['Property developers','Manage projects and sales']];
-  const audiencePositions: string[] = ['15% center','40% center','65% center','88% center'];
-  return <section className="bg-white px-4 py-10 sm:px-6 sm:py-14"><div className="mx-auto max-w-5xl"><div className="mx-auto max-w-2xl text-center"><span className="text-brand text-[11px] font-bold sm:text-xs">{ar?'لجميع العاملين في القطاع العقاري':'For real-estate professionals'}</span><h2 className="text-text-primary mt-2 text-xl font-bold sm:text-3xl">{ar?'مناسب لاحتياجك':'Built around your needs'}</h2><p className="text-text-secondary mt-2 text-xs leading-6 sm:text-sm">{ar?'سواء كنت مطورًا أو وسيطًا أو مسوقًا أو مكتبًا عقاريًا، سبعة تساعدك على النمو.':'Whether you are a developer, broker, marketer or office, Sbaah helps you grow.'}</p></div>
-    <div className="mt-6 grid grid-cols-4 gap-2 sm:gap-4">{audiences.map(([title,body],index)=>{const objectPosition: string = audiencePositions[index] || 'center'; return <article key={title} className="overflow-hidden rounded-xl border border-black/7 bg-white shadow-sm"><div className="relative aspect-[.9/1] sm:aspect-[1.25/1]"><Image src={REALISTIC.audience} alt={title} fill sizes="(max-width:640px) 25vw, 240px" className="object-cover" style={{objectPosition}}/></div><div className="p-2 text-center sm:p-3"><h3 className="text-[9px] font-bold leading-4 sm:text-sm">{title}</h3><p className="text-text-secondary mt-0.5 hidden text-[10px] leading-4 sm:block sm:text-xs">{body}</p></div></article>})}</div>
-  </div></section>;
-}
-
-export function MarketingHome({locale}:{locale:Locale}) {return <div><Hero locale={locale}/><ProductShowcase locale={locale}/><WebsiteSection locale={locale}/><FeatureGrid locale={locale}/><HowItWorks locale={locale}/><AudienceSection locale={locale}/><Pricing locale={locale}/><Faq locale={locale}/></div>}
+export function MarketingHome({locale}:{locale:Locale}) {return <div><Hero locale={locale}/><Pricing locale={locale}/><Faq locale={locale}/></div>}
