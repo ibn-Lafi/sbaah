@@ -11,20 +11,18 @@ function CycleToggle({ value, onChange, labels }: { value: BillingCycle; onChang
   return <div className="mx-auto flex w-[220px] gap-1 rounded-full border border-white/10 bg-white/[.06] p-1">{options.map(option=><button key={option.value} type="button" onClick={()=>onChange(option.value)} className={`h-10 flex-1 rounded-full text-[13px] font-semibold transition-all ${value===option.value?'bg-white text-neutral-950 shadow-sm':'text-white/60 hover:text-white'}`}>{option.label}</button>)}</div>;
 }
 
-function MetallicBackdrop({ tone }: { tone: 'bronze' | 'silver' | 'gold' }) {
-  const background = tone === 'silver'
-    ? 'radial-gradient(circle at 15% 8%,rgba(255,255,255,.9),transparent 27%),radial-gradient(circle at 88% 12%,rgba(255,255,255,.35),transparent 26%),radial-gradient(circle at 48% 62%,rgba(120,125,135,.7),transparent 38%),linear-gradient(135deg,#777b82 0%,#17191d 45%,#050608 70%,#70747b 100%)'
-    : tone === 'gold'
-      ? 'radial-gradient(circle at 18% 10%,rgba(255,229,155,.72),transparent 27%),radial-gradient(circle at 86% 18%,rgba(211,145,36,.65),transparent 29%),radial-gradient(circle at 38% 70%,rgba(120,64,7,.8),transparent 37%),linear-gradient(135deg,#9a5c12 0%,#2b1705 48%,#110b04 72%,#a86b17 100%)'
-      : 'radial-gradient(circle at 12% 8%,rgba(223,111,42,.7),transparent 29%),radial-gradient(circle at 88% 16%,rgba(197,128,46,.52),transparent 30%),radial-gradient(circle at 40% 68%,rgba(97,42,14,.82),transparent 39%),linear-gradient(135deg,#713015 0%,#21110a 47%,#0d0b09 72%,#7d461b 100%)';
+function MetallicBackdrop({ tone }: { tone: 'platinum' | 'gold' }) {
+  const background = tone === 'platinum'
+    ? 'radial-gradient(circle at 15% 8%,rgba(255,255,255,.92),transparent 27%),radial-gradient(circle at 88% 12%,rgba(220,224,232,.42),transparent 26%),radial-gradient(circle at 48% 62%,rgba(120,125,135,.72),transparent 38%),linear-gradient(135deg,#8b8f96 0%,#202228 43%,#06070a 70%,#777b83 100%)'
+    : 'radial-gradient(circle at 18% 10%,rgba(255,229,155,.72),transparent 27%),radial-gradient(circle at 86% 18%,rgba(211,145,36,.65),transparent 29%),radial-gradient(circle at 38% 70%,rgba(120,64,7,.8),transparent 37%),linear-gradient(135deg,#9a5c12 0%,#2b1705 48%,#110b04 72%,#a86b17 100%)';
   return <div className="absolute inset-0 overflow-hidden" style={{background}} aria-hidden="true"><span className="absolute -left-[18%] -top-[12%] h-[52%] w-[72%] rounded-[50%] border border-white/20 bg-black/5 shadow-[0_0_50px_rgba(255,255,255,.08)]"/><span className="absolute -right-[25%] -top-[8%] h-[55%] w-[70%] rounded-[50%] border border-white/20 bg-black/15"/><span className="absolute -bottom-[22%] left-[2%] h-[58%] w-[72%] rounded-[50%] border border-white/10 bg-black/10"/><div className="absolute inset-0 bg-gradient-to-b from-black/5 via-black/20 to-black/70"/></div>;
 }
 
 export function PricingCards({ plans, locale, dashboardUrl }: { plans: Plan[]; locale: Locale; dashboardUrl: string | undefined }) {
   const t=MARKETING_CONTENT[locale].pricing;
   const [cycle,setCycle]=useState<BillingCycle>('annual');
-  const tiers=groupPlansByTier(plans);
-  const tones: Array<'bronze'|'silver'|'gold'>=['bronze','silver','gold'];
+  const tiers=groupPlansByTier(plans).slice(0,2);
+  const tones: Array<'platinum'|'gold'>=['platinum','gold'];
 
   return <div className="mt-8 flex flex-col items-center gap-8">
     <CycleToggle value={cycle} onChange={setCycle} labels={t.cycleToggle}/>
@@ -32,8 +30,8 @@ export function PricingCards({ plans, locale, dashboardUrl }: { plans: Plan[]; l
       {tiers.map((tier,index)=>{
         const plan=planForCycle(tier,cycle);
         const savingsMonths=cycle==='annual'&&tier.monthly&&tier.annual?annualSavingsMonths(tier.monthly,tier.annual):0;
-        const tone=tones[index%tones.length];
-        return <article key={tier.key} className="relative min-h-[430px] w-[86%] max-w-[390px] flex-none snap-center overflow-hidden rounded-[30px] border border-white/15 text-white shadow-[0_22px_60px_-28px_rgba(0,0,0,.75)] sm:w-[310px] sm:flex-1">
+        const tone=tones[index] ?? 'gold';
+        return <article key={tier.key} className="relative min-h-[430px] w-[86%] max-w-[390px] flex-none snap-center overflow-hidden rounded-[30px] border border-white/15 text-white shadow-[0_22px_60px_-28px_rgba(0,0,0,.75)] sm:w-[360px] sm:flex-none">
           <MetallicBackdrop tone={tone}/>
           <div className="relative z-10 flex min-h-[430px] flex-col p-7 sm:p-8">
             <div className="flex items-start justify-between gap-4">
