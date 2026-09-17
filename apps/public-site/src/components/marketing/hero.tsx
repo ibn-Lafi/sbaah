@@ -23,11 +23,11 @@ export function Hero({ locale }: { locale: Locale }) {
       <div className="pointer-events-none absolute inset-x-0 top-0 z-[1] h-[62%] bg-gradient-to-b from-black/60 via-black/30 to-transparent" />
 
       <div
-        className="pointer-events-none absolute inset-x-0 top-[54%] z-[3] h-[34%] dark:hidden"
+        className="pointer-events-none absolute inset-x-0 top-[46%] z-[3] h-[42%] dark:hidden"
         style={{background:'linear-gradient(to bottom,rgba(255,255,255,0) 0%,rgba(255,255,255,.015) 10%,rgba(255,255,255,.05) 20%,rgba(255,255,255,.13) 31%,rgba(255,255,255,.27) 43%,rgba(255,255,255,.46) 56%,rgba(255,255,255,.67) 68%,rgba(255,255,255,.84) 79%,rgba(255,255,255,.95) 89%,#fff 100%)'}}
       />
       <div
-        className="pointer-events-none absolute inset-x-0 top-[54%] z-[3] hidden h-[34%] dark:block"
+        className="pointer-events-none absolute inset-x-0 top-[46%] z-[3] hidden h-[42%] dark:block"
         style={{background:'linear-gradient(to bottom,rgba(10,10,10,0) 0%,rgba(10,10,10,.015) 10%,rgba(10,10,10,.05) 20%,rgba(10,10,10,.13) 31%,rgba(10,10,10,.27) 43%,rgba(10,10,10,.46) 56%,rgba(10,10,10,.67) 68%,rgba(10,10,10,.84) 79%,rgba(10,10,10,.95) 89%,#0a0a0a 100%)'}}
       />
 
