@@ -42,10 +42,10 @@ export function Hero({ locale }: { locale: Locale }) {
           </div>
         </div>
         <div className="relative mt-3 overflow-hidden">
-          <div className="hero-partners-marquee flex w-max" dir="ltr"><LogoSet copy={1}/><LogoSet copy={2}/></div>
+          <div className="hero-partners-marquee flex w-max" dir="ltr"><LogoSet copy={1}/><LogoSet copy={2}/><LogoSet copy={3}/></div>
         </div>
       </div>
-      <style>{`@keyframes heroPartnersMarquee{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}.hero-partners-marquee{animation:heroPartnersMarquee 28s linear infinite;will-change:transform}.hero-partners-set{flex:none}@media (prefers-reduced-motion:reduce){.hero-partners-marquee{animation:none}}`}</style>
+      <style>{`@keyframes heroPartnersMarquee{from{transform:translate3d(0,0,0)}to{transform:translate3d(-33.3333333333%,0,0)}}.hero-partners-marquee{animation:heroPartnersMarquee 28s linear infinite;will-change:transform;transform:translate3d(0,0,0)}.hero-partners-set{flex:none}@media (prefers-reduced-motion:reduce){.hero-partners-marquee{animation-duration:56s}}`}</style>
     </section>
   );
 }
