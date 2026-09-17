@@ -2,15 +2,14 @@ import type { Locale } from '@/lib/i18n/locales';
 import { MARKETING_CONTENT } from '@/lib/marketing/content';
 import { HeroVideo } from './hero-video';
 
-const partnerLogoBase = 'https://raw.githubusercontent.com/ibn-Lafi/sbaah/acb83df10149cec7ec79ff779a99819a40ec3e17/';
 const partnerLogos = [
-  { name: 'Ejar', file: 'شعار منصة إيجار - SVG.svg' },
-  { name: 'Real Estate General Authority', file: '\u200e\u2068شعار الهيئة العامة للعقار الجديد - Real Estate General Authority Logo - PNG - SVG\u2069.svg' },
-  { name: 'Public Investment Fund', file: 'شعار صندوق الاستثمارات العامة  الجديد بدقة عالية - PNG - SVG PIF Logo.svg' },
+  { name: 'Ejar', src: '/marketing/partners/ejar.svg' },
+  { name: 'Real Estate General Authority', src: '/marketing/partners/rega.svg' },
+  { name: 'Public Investment Fund', src: '/marketing/partners/pif.svg' },
   { name: 'Real Estate Development Fund', file: '\u200e\u2068شعار صندوق التنمية العقارية - SVG\u2069.svg' },
   { name: 'ROSHN Group', file: 'شعار مجموعة روشن الجديد بدقة عالية PNG - SVG.svg' },
   { name: 'Saudi Real Estate Arbitration Center', file: 'شعار المركز السعودي للتحكيم العقار بدقة عالية svg - png.svg' },
-].map((partner) => ({ ...partner, src: `${partnerLogoBase}${encodeURIComponent(partner.file)}` }));
+];
 
 export function Hero({ locale }: { locale: Locale }) {
   const t = MARKETING_CONTENT[locale].hero;
