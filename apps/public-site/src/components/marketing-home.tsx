@@ -8,7 +8,7 @@ const CTA_BANNER_SRC =
 
 function CtaBanner() {
   return (
-    <section className="w-full bg-white py-8 sm:py-10">
+    <section className="w-full bg-surface-card py-8 sm:py-10">
       <div className="w-full overflow-hidden">
         <div className="w-full">
           <img
