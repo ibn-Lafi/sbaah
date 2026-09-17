@@ -15,7 +15,7 @@ const partnerLogos = [
 export function Hero({ locale }: { locale: Locale }) {
   const t = MARKETING_CONTENT[locale].hero;
   const ar = locale === 'ar';
-  const LogoSet=({copy}:{copy:number})=><div className="hero-partners-set flex shrink-0 items-center gap-8 sm:gap-12" aria-hidden={copy>1}>{partnerLogos.map((partner,index)=><div key={`${copy}-${index}`} className="flex h-14 w-24 shrink-0 items-center justify-center sm:h-16 sm:w-32"><img src={partner.src} alt={copy===1?partner.name:''} className="block max-h-full max-w-full object-contain" loading="eager"/></div>)}</div>;
+  const LogoSet=({copy}:{copy:number})=><div className="hero-partners-set flex shrink-0 items-center gap-6 sm:gap-12" aria-hidden={copy>1}>{partnerLogos.map((partner,index)=><div key={`${copy}-${index}`} className="flex h-12 w-20 shrink-0 items-center justify-center sm:h-16 sm:w-32"><img src={partner.src} alt={copy===1?partner.name:''} className="block max-h-full max-w-full object-contain" loading="eager"/></div>)}</div>;
 
   return (
     <section className="relative -mt-20 flex min-h-[760px] flex-col items-center justify-center overflow-hidden bg-white px-6 pb-52 pt-40 text-center sm:min-h-[800px] sm:pb-56 md:min-h-[860px]">
@@ -42,10 +42,10 @@ export function Hero({ locale }: { locale: Locale }) {
           </div>
         </div>
         <div className="relative mt-3 overflow-hidden">
-          <div className="hero-partners-marquee flex w-max gap-8 sm:gap-12" dir="ltr"><LogoSet copy={1}/><LogoSet copy={2}/></div>
+          <div className="hero-partners-marquee flex w-max gap-6 sm:gap-12" dir="ltr"><LogoSet copy={1}/><LogoSet copy={2}/></div>
         </div>
       </div>
-      <style>{`@keyframes heroPartnersMarquee{from{transform:translate3d(0,0,0)}to{transform:translate3d(calc(-50% - 1rem),0,0)}}@media (min-width:640px){@keyframes heroPartnersMarquee{from{transform:translate3d(0,0,0)}to{transform:translate3d(calc(-50% - 1.5rem),0,0)}}}.hero-partners-marquee{animation:heroPartnersMarquee 28s linear infinite;will-change:transform;transform:translate3d(0,0,0)}.hero-partners-set{flex:none}@media (prefers-reduced-motion:reduce){.hero-partners-marquee{animation-duration:56s}}`}</style>
+      <style>{`@keyframes heroPartnersMarquee{from{transform:translate3d(0,0,0)}to{transform:translate3d(calc(-50% - .75rem),0,0)}}@media (min-width:640px){@keyframes heroPartnersMarquee{from{transform:translate3d(0,0,0)}to{transform:translate3d(calc(-50% - 1.5rem),0,0)}}}.hero-partners-marquee{animation:heroPartnersMarquee 22s linear infinite;will-change:transform;transform:translate3d(0,0,0)}.hero-partners-set{flex:none}@media (prefers-reduced-motion:reduce){.hero-partners-marquee{animation-duration:44s}}`}</style>
     </section>
   );
 }
