@@ -15,7 +15,7 @@ function MetallicBackdrop({ tone }: { tone: 'platinum' | 'gold' }) {
   const background = tone === 'platinum'
     ? 'radial-gradient(circle at 15% 8%,rgba(255,255,255,.92),transparent 27%),radial-gradient(circle at 88% 12%,rgba(220,224,232,.42),transparent 26%),radial-gradient(circle at 48% 62%,rgba(120,125,135,.72),transparent 38%),linear-gradient(135deg,#8b8f96 0%,#202228 43%,#06070a 70%,#777b83 100%)'
     : 'radial-gradient(circle at 18% 10%,rgba(255,229,155,.72),transparent 27%),radial-gradient(circle at 86% 18%,rgba(211,145,36,.65),transparent 29%),radial-gradient(circle at 38% 70%,rgba(120,64,7,.8),transparent 37%),linear-gradient(135deg,#9a5c12 0%,#2b1705 48%,#110b04 72%,#a86b17 100%)';
-  return <div className="absolute inset-0 overflow-hidden" style={{background}} aria-hidden="true"><span className="absolute -left-[18%] -top-[12%] h-[52%] w-[72%] rounded-[50%] border border-white/20 bg-black/5 shadow-[0_0_50px_rgba(255,255,255,.08)]"/><span className="absolute -right-[25%] -top-[8%] h-[55%] w-[70%] rounded-[50%] border border-white/20 bg-black/15"/><span className="absolute -bottom-[22%] left-[2%] h-[58%] w-[72%] rounded-[50%] border border-white/10 bg-black/10"/><div className="absolute inset-0 bg-gradient-to-b from-black/5 via-black/20 to-black/70"/></div>;
+  return <div className="absolute inset-0 overflow-hidden" style={{background}} aria-hidden="true"><span className="absolute -left-[18%] -top-[12%] h-[52%] w-[72%] rounded-[50%] border border-white/20 bg-black/5"/><span className="absolute -right-[25%] -top-[8%] h-[55%] w-[70%] rounded-[50%] border border-white/20 bg-black/15"/><span className="absolute -bottom-[22%] left-[2%] h-[58%] w-[72%] rounded-[50%] border border-white/10 bg-black/10"/><div className="absolute inset-0 bg-gradient-to-b from-black/5 via-black/20 to-black/70"/></div>;
 }
 
 export function PricingCards({ plans, locale, dashboardUrl }: { plans: Plan[]; locale: Locale; dashboardUrl: string | undefined }) {
@@ -31,7 +31,7 @@ export function PricingCards({ plans, locale, dashboardUrl }: { plans: Plan[]; l
         const plan=planForCycle(tier,cycle);
         const savingsMonths=cycle==='annual'&&tier.monthly&&tier.annual?annualSavingsMonths(tier.monthly,tier.annual):0;
         const tone=tones[index] ?? 'gold';
-        return <article key={tier.key} className="relative min-h-[430px] w-[86vw] max-w-[390px] flex-none snap-center overflow-hidden rounded-[30px] border border-white/15 text-white shadow-[0_22px_60px_-28px_rgba(0,0,0,.75)] sm:w-[360px]">
+        return <article key={tier.key} className="relative min-h-[430px] w-[86vw] max-w-[390px] flex-none snap-center overflow-hidden rounded-[30px] border border-white/15 text-white sm:w-[360px]">
           <MetallicBackdrop tone={tone}/>
           <div className="relative z-10 flex min-h-[430px] flex-col p-7 sm:p-8">
             <div className="flex items-start justify-between gap-4">
