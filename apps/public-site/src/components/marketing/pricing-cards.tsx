@@ -6,144 +6,51 @@ import type { Locale } from '@/lib/i18n/locales';
 import { MARKETING_CONTENT } from '@/lib/marketing/content';
 import { CheckIcon } from './icons';
 
-/**
- * نفس شريط التبديل شهري/سنوي المستخدم فعليًا بالداشبورد
- * (components/billing/plan-cycle-toggle.tsx) — نفس الأبعاد، الألوان،
- * وترتيب الخيارين (سنوي أولًا ثم شهري) بطلب المؤسس صراحة.
- */
-function CycleToggle({
-  value,
-  onChange,
-  labels,
-}: {
-  value: BillingCycle;
-  onChange: (cycle: BillingCycle) => void;
-  labels: { annual: string; monthly: string };
-}) {
-  const options: { value: BillingCycle; label: string }[] = [
-    { value: 'annual', label: labels.annual },
-    { value: 'monthly', label: labels.monthly },
-  ];
-  return (
-    <div className="mx-auto flex w-[220px] gap-1 rounded-full bg-surface-subtle-3 p-1">
-      {options.map((option) => (
-        <button
-          key={option.value}
-          type="button"
-          onClick={() => onChange(option.value)}
-          className={`h-10 flex-1 rounded-full text-[13px] font-semibold transition-colors ${
-            value === option.value ? 'bg-surface-card text-text-primary shadow-sm' : 'text-text-secondary'
-          }`}
-        >
-          {option.label}
-        </button>
-      ))}
-    </div>
-  );
+function CycleToggle({ value, onChange, labels }: { value: BillingCycle; onChange: (cycle: BillingCycle) => void; labels: { annual: string; monthly: string } }) {
+  const options: { value: BillingCycle; label: string }[] = [{ value: 'annual', label: labels.annual }, { value: 'monthly', label: labels.monthly }];
+  return <div className="mx-auto flex w-[220px] gap-1 rounded-full border border-white/10 bg-white/[.06] p-1">{options.map(option=><button key={option.value} type="button" onClick={()=>onChange(option.value)} className={`h-10 flex-1 rounded-full text-[13px] font-semibold transition-all ${value===option.value?'bg-white text-neutral-950 shadow-sm':'text-white/60 hover:text-white'}`}>{option.label}</button>)}</div>;
 }
 
-export function PricingCards({
-  plans,
-  locale,
-  dashboardUrl,
-}: {
-  plans: Plan[];
-  locale: Locale;
-  dashboardUrl: string | undefined;
-}) {
-  const t = MARKETING_CONTENT[locale].pricing;
-  const [cycle, setCycle] = useState<BillingCycle>('annual');
-  const tiers = groupPlansByTier(plans);
-  // شارة "الأكثر اختيارًا" على الفئة الوسطى فقط عند وجود ٣ فئات فأكثر —
-  // مجرّد تمييز بصري لا ادّعاء رقمي حقيقي (لا بيانات مبيعات فعلية متاحة هنا).
-  const highlightIndex = tiers.length >= 3 ? Math.floor(tiers.length / 2) : -1;
+function MetallicBackdrop({ tone }: { tone: 'bronze' | 'silver' | 'gold' }) {
+  const background = tone === 'silver'
+    ? 'radial-gradient(circle at 15% 8%,rgba(255,255,255,.9),transparent 27%),radial-gradient(circle at 88% 12%,rgba(255,255,255,.35),transparent 26%),radial-gradient(circle at 48% 62%,rgba(120,125,135,.7),transparent 38%),linear-gradient(135deg,#777b82 0%,#17191d 45%,#050608 70%,#70747b 100%)'
+    : tone === 'gold'
+      ? 'radial-gradient(circle at 18% 10%,rgba(255,229,155,.72),transparent 27%),radial-gradient(circle at 86% 18%,rgba(211,145,36,.65),transparent 29%),radial-gradient(circle at 38% 70%,rgba(120,64,7,.8),transparent 37%),linear-gradient(135deg,#9a5c12 0%,#2b1705 48%,#110b04 72%,#a86b17 100%)'
+      : 'radial-gradient(circle at 12% 8%,rgba(223,111,42,.7),transparent 29%),radial-gradient(circle at 88% 16%,rgba(197,128,46,.52),transparent 30%),radial-gradient(circle at 40% 68%,rgba(97,42,14,.82),transparent 39%),linear-gradient(135deg,#713015 0%,#21110a 47%,#0d0b09 72%,#7d461b 100%)';
+  return <div className="absolute inset-0 overflow-hidden" style={{background}} aria-hidden="true"><span className="absolute -left-[18%] -top-[12%] h-[52%] w-[72%] rounded-[50%] border border-white/20 bg-black/5 shadow-[0_0_50px_rgba(255,255,255,.08)]"/><span className="absolute -right-[25%] -top-[8%] h-[55%] w-[70%] rounded-[50%] border border-white/20 bg-black/15"/><span className="absolute -bottom-[22%] left-[2%] h-[58%] w-[72%] rounded-[50%] border border-white/10 bg-black/10"/><div className="absolute inset-0 bg-gradient-to-b from-black/5 via-black/20 to-black/70"/></div>;
+}
 
-  return (
-    <div className="mt-8 flex flex-col items-center gap-10">
-      <CycleToggle value={cycle} onChange={setCycle} labels={t.cycleToggle} />
+export function PricingCards({ plans, locale, dashboardUrl }: { plans: Plan[]; locale: Locale; dashboardUrl: string | undefined }) {
+  const t=MARKETING_CONTENT[locale].pricing;
+  const [cycle,setCycle]=useState<BillingCycle>('annual');
+  const tiers=groupPlansByTier(plans);
+  const tones: Array<'bronze'|'silver'|'gold'>=['bronze','silver','gold'];
 
-      {/* صف واحد دائمًا (طلب المؤسس) — أفقيًا قابل للتمرير بالجوال (كل بطاقة
-          تأخذ معظم العرض مع تلميح ببطاقة تالية)، وصف واحد ثابت بلا تمرير
-          من عرض التابلت فما فوق. */}
-      <div className="flex w-full snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-4 sm:justify-center sm:overflow-visible sm:px-0 sm:pb-0 sm:gap-6">
-        {tiers.map((tier, index) => {
-          const plan = planForCycle(tier, cycle);
-          const highlighted = index === highlightIndex;
-          const savingsMonths =
-            cycle === 'annual' && tier.monthly && tier.annual ? annualSavingsMonths(tier.monthly, tier.annual) : 0;
-
-          return (
-            <div key={tier.key} className="w-[82%] flex-none snap-center sm:w-[300px] sm:min-w-0 sm:flex-1 sm:snap-align-none">
-              <div
-                className={`rounded-card relative flex h-full flex-col border bg-surface-card p-8 ${
-                  highlighted ? 'border-brand shadow-[0_16px_40px_-12px_rgba(104,69,138,.35)]' : 'border-border-subtle'
-                }`}
-              >
-                {highlighted && (
-                  <span className="rounded-full bg-brand px-3 py-1 text-xs font-semibold text-white absolute -top-3 start-1/2 -translate-x-1/2">
-                    {t.mostPopular}
-                  </span>
-                )}
-                <div className="flex min-h-[20px] items-center">
-                  {savingsMonths > 0 && (
-                    <span className="rounded-full bg-success-surface px-2.5 py-1 text-xs font-semibold text-success">
-                      {t.savingsLabel(savingsMonths)}
-                    </span>
-                  )}
-                </div>
-                <h3 className="mt-2 text-lg font-semibold text-text-primary">
-                  {locale === 'ar' ? plan.name_ar : plan.name_en}
-                </h3>
-                <p className="mt-3 flex items-baseline gap-2">
-                  <span className="font-display text-4xl font-semibold text-text-primary" dir="ltr">
-                    {plan.price.toLocaleString('en-US')}
-                  </span>
-                  <span className="text-sm text-text-secondary">
-                    {t.currency} {t.priceNote(t.cycleLabel(plan.billing_cycle))}
-                  </span>
-                </p>
-                <p className="mt-1 text-xs text-text-placeholder">{t.vatNote}</p>
-                <ul className="mt-6 flex flex-1 flex-col gap-3 text-sm text-text-secondary">
-                  <li className="flex items-center justify-between gap-2">
-                    <span className="flex items-center gap-2">
-                      <CheckIcon className="h-4 w-4 flex-none text-success" />
-                      {t.propertiesLimit}
-                    </span>
-                    <span className="font-medium text-text-primary" dir={plan.max_properties != null ? 'ltr' : undefined}>
-                      {plan.max_properties != null ? plan.max_properties.toLocaleString('en-US') : t.unlimited}
-                    </span>
-                  </li>
-                  <li className="flex items-center justify-between gap-2">
-                    <span className="flex items-center gap-2">
-                      <CheckIcon className="h-4 w-4 flex-none text-success" />
-                      {t.usersLimit}
-                    </span>
-                    <span className="font-medium text-text-primary" dir={plan.max_users != null ? 'ltr' : undefined}>
-                      {plan.max_users != null ? plan.max_users.toLocaleString('en-US') : t.unlimited}
-                    </span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckIcon className="h-4 w-4 flex-none text-success" />
-                    {plan.custom_domain_allowed ? t.customDomainYes : t.customDomainNo}
-                  </li>
-                </ul>
-                {dashboardUrl && (
-                  <a
-                    href={`${dashboardUrl}/register`}
-                    className={`rounded-control mt-6 flex h-[48px] items-center justify-center text-center text-sm font-semibold transition-colors ${
-                      highlighted
-                        ? 'bg-brand text-white hover:bg-brand-hover'
-                        : 'border border-border-default text-text-primary hover:bg-surface-subtle'
-                    }`}
-                  >
-                    {t.cta}
-                  </a>
-                )}
-              </div>
+  return <div className="mt-8 flex flex-col items-center gap-8">
+    <CycleToggle value={cycle} onChange={setCycle} labels={t.cycleToggle}/>
+    <div className="flex w-full snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-5 sm:justify-center sm:overflow-visible sm:px-0 lg:gap-6">
+      {tiers.map((tier,index)=>{
+        const plan=planForCycle(tier,cycle);
+        const savingsMonths=cycle==='annual'&&tier.monthly&&tier.annual?annualSavingsMonths(tier.monthly,tier.annual):0;
+        const tone=tones[index%tones.length];
+        return <article key={tier.key} className="relative min-h-[430px] w-[86%] max-w-[390px] flex-none snap-center overflow-hidden rounded-[30px] border border-white/15 text-white shadow-[0_22px_60px_-28px_rgba(0,0,0,.75)] sm:w-[310px] sm:flex-1">
+          <MetallicBackdrop tone={tone}/>
+          <div className="relative z-10 flex min-h-[430px] flex-col p-7 sm:p-8">
+            <div className="flex items-start justify-between gap-4">
+              <div><div className="flex items-center gap-2"><h3 className="text-xl font-bold">{locale==='ar'?plan.name_ar:plan.name_en}</h3><svg viewBox="0 0 24 24" className="h-5 w-5 text-white/65" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 16l5-5 4 4 7-8"/><path d="M15 7h5v5"/></svg></div>{savingsMonths>0&&<span className="mt-2 inline-flex rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-white/75 backdrop-blur">{t.savingsLabel(savingsMonths)}</span>}</div>
+              <div className="text-end"><div className="font-display text-4xl font-bold tracking-tight" dir="ltr">{plan.price.toLocaleString('en-US')}</div><div className="mt-1 text-xs text-white/65">{t.currency} {t.priceNote(t.cycleLabel(plan.billing_cycle))}</div></div>
             </div>
-          );
-        })}
-      </div>
+            <div className="my-7 h-px bg-white/65"/>
+            <ul className="flex flex-1 flex-col gap-4 text-[14px] text-white/90">
+              <li className="flex items-center justify-between gap-3"><span className="flex items-center gap-2"><CheckIcon className="h-4 w-4 flex-none text-white"/>{t.propertiesLimit}</span><strong dir={plan.max_properties!=null?'ltr':undefined}>{plan.max_properties!=null?plan.max_properties.toLocaleString('en-US'):t.unlimited}</strong></li>
+              <li className="flex items-center justify-between gap-3"><span className="flex items-center gap-2"><CheckIcon className="h-4 w-4 flex-none text-white"/>{t.usersLimit}</span><strong dir={plan.max_users!=null?'ltr':undefined}>{plan.max_users!=null?plan.max_users.toLocaleString('en-US'):t.unlimited}</strong></li>
+              <li className="flex items-center gap-2"><CheckIcon className="h-4 w-4 flex-none text-white"/>{plan.custom_domain_allowed?t.customDomainYes:t.customDomainNo}</li>
+            </ul>
+            <p className="mt-5 text-[11px] text-white/55">{t.vatNote}</p>
+            {dashboardUrl&&<a href={`${dashboardUrl}/register`} className="mt-5 flex h-12 items-center justify-center rounded-2xl border border-white/35 bg-white/10 text-sm font-semibold text-white backdrop-blur-md transition-all hover:bg-white hover:text-neutral-950">{t.cta}</a>}
+          </div>
+        </article>;
+      })}
     </div>
-  );
+  </div>;
 }
