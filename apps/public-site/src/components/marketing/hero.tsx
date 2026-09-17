@@ -3,12 +3,9 @@ import { MARKETING_CONTENT } from '@/lib/marketing/content';
 import { HeroVideo } from './hero-video';
 
 const partnerLogos = [
-  { name: 'Ejar', src: '/marketing/partners/ejar.svg' },
-  { name: 'Real Estate General Authority', src: '/marketing/partners/rega.svg' },
-  { name: 'Public Investment Fund', src: '/marketing/partners/pif.svg' },
-  { name: 'Real Estate Development Fund', src: '/marketing/partners/redf.svg' },
   { name: 'ROSHN Group', src: '/marketing/partners/roshn.svg' },
   { name: 'Saudi Real Estate Arbitration Center', src: '/marketing/partners/arbitration.svg' },
+  { name: 'Real Estate Development Fund', src: '/marketing/partners/redf.svg' },
 ];
 
 export function Hero({ locale }: { locale: Locale }) {
