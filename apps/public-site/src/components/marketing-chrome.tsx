@@ -6,6 +6,7 @@ import type { Locale } from '@/lib/i18n/locales';
 import { MARKETING_CONTENT } from '@/lib/marketing/content';
 import { CloseIcon } from './marketing/icons';
 import { ThemeToggle } from './theme-toggle';
+import { apiGet } from '@/lib/api/client';
 
 function BrandMark({ label, invert = false, className = 'h-6' }: { label: string; invert?: boolean; className?: string }) {
   return <img src={invert ? '/brand-mark-white.svg' : '/brand-mark.svg'} alt={label} width={54} height={24} className={`${className} w-auto`} />;
@@ -19,6 +20,18 @@ function QuickControlsIcon({ className }: { className?: string }) {
   return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="2.2"/><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="19" r="1.5"/><circle cx="5" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/><path d="M10.4 10.4 7.8 7.8M13.6 10.4l2.6-2.6M10.4 13.6l-2.6 2.6M13.6 13.6l2.6 2.6"/></svg>;
 }
 
+interface PublicPlatformSettings {
+  social_tiktok: string | null;
+  social_instagram: string | null;
+  social_x: string | null;
+}
+
+function SocialIcon({ type }: { type: 'tiktok' | 'instagram' | 'x' }) {
+  if (type === 'instagram') return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8" fill="currentColor" stroke="none"/></svg>;
+  if (type === 'x') return <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5"><path d="M18.9 2H22l-6.77 7.74L23.2 22h-6.24l-4.89-6.39L6.48 22H3.36l7.26-8.3L2.98 2h6.4l4.42 5.84L18.9 2Zm-1.1 17.84h1.73L8.44 4.05H6.58L17.8 19.84Z"/></svg>;
+  return <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5"><path d="M14.5 3c.4 2.2 1.7 3.6 3.8 4v3.1a8.7 8.7 0 0 1-3.8-1.1v6.2a6.2 6.2 0 1 1-5.4-6.1v3.2a3.1 3.1 0 1 0 2.2 3V3h3.2Z"/></svg>;
+}
+
 const SCROLL_THRESHOLD = 24;
 
 export function MarketingChrome({ locale, children }: { locale: Locale; children: React.ReactNode }) {
@@ -29,6 +42,11 @@ export function MarketingChrome({ locale, children }: { locale: Locale; children
   const otherLocaleHref = locale === 'ar' ? '/en' : '/';
   const [quickControlsOpen, setQuickControlsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [platformSettings, setPlatformSettings] = useState<PublicPlatformSettings | null>(null);
+
+  useEffect(() => {
+    void apiGet<PublicPlatformSettings>('/public/platform-settings').then(setPlatformSettings).catch(() => setPlatformSettings(null));
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > SCROLL_THRESHOLD);
@@ -60,34 +78,35 @@ export function MarketingChrome({ locale, children }: { locale: Locale; children
 
       <footer className="bg-surface-card px-3 pb-3 pt-8 sm:px-5 sm:pb-5 lg:px-8 lg:pb-8">
         <div className="relative mx-auto max-w-7xl overflow-hidden rounded-[2rem] bg-[#68458A] text-white shadow-[0_24px_70px_-35px_rgba(72,42,94,.55)] sm:rounded-[2.5rem]">
-          <div aria-hidden="true" className="absolute inset-0 bg-cover bg-center bg-no-repeat sm:bg-[center_46%] lg:bg-center" style={{ backgroundImage: "url('/marketing/footer-silk.svg')" }} />
+          <div aria-hidden="true" className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/marketing/footer-silk.svg')" }} />
           <div aria-hidden="true" className="absolute inset-0 bg-[#321846]/20" />
+          <div className="relative flex flex-col items-center px-6 py-12 text-center sm:px-10 sm:py-16">
+            <BrandMark label={t.brand} invert className="h-10 sm:h-12" />
 
-          <div className="relative px-6 py-9 sm:px-9 sm:py-11 lg:px-12 lg:py-12">
-            <div className="grid grid-cols-2 gap-x-8 gap-y-10 md:grid-cols-[1.2fr_.8fr_.8fr] lg:gap-x-16">
-              <div className="col-span-2 md:col-span-1">
-                <BrandMark label={t.brand} invert className="h-8 sm:h-9" />
-                <p className="mt-4 max-w-sm text-xs leading-6 text-white/70 sm:text-sm">{t.footer.tagline}</p>
-              </div>
-
-              <div className="flex flex-col gap-3">
-                <span className="text-sm font-bold text-white sm:text-base">{t.footer.columns.product.title}</span>
-                <a href="#features" className="text-xs text-white/72 transition-colors hover:text-white sm:text-sm">{t.footer.columns.product.features}</a>
-                <a href="#pricing" className="text-xs text-white/72 transition-colors hover:text-white sm:text-sm">{t.footer.columns.product.pricing}</a>
-                <a href="#faq" className="text-xs text-white/72 transition-colors hover:text-white sm:text-sm">{t.footer.columns.product.faq}</a>
-              </div>
-
-              <div className="flex flex-col gap-3">
-                <span className="text-sm font-bold text-white sm:text-base">{t.footer.columns.account.title}</span>
-                <a href={`${dashboardUrl}/login`} className="text-xs text-white/72 transition-colors hover:text-white sm:text-sm">{t.footer.columns.account.login}</a>
-                <a href={`${dashboardUrl}/register`} className="text-xs text-white/72 transition-colors hover:text-white sm:text-sm">{t.footer.columns.account.register}</a>
+            <div className="mt-10">
+              <h2 className="text-2xl font-bold sm:text-3xl">{locale === 'ar' ? 'تواصل معنا' : 'Contact us'}</h2>
+              <a href="mailto:info@sbaah.com" dir="ltr" className="mt-4 inline-block border-b border-white/70 pb-1 text-base text-white/90 transition-opacity hover:opacity-75 sm:text-lg">info@sbaah.com</a>
+              <div className="mt-6 flex items-center justify-center gap-6">
+                {platformSettings?.social_tiktok && <a href={platformSettings.social_tiktok} target="_blank" rel="noopener noreferrer" aria-label="TikTok" className="text-white/85 transition-transform hover:scale-110 hover:text-white"><SocialIcon type="tiktok"/></a>}
+                {platformSettings?.social_instagram && <a href={platformSettings.social_instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="text-white/85 transition-transform hover:scale-110 hover:text-white"><SocialIcon type="instagram"/></a>}
+                {platformSettings?.social_x && <a href={platformSettings.social_x} target="_blank" rel="noopener noreferrer" aria-label="X" className="text-white/85 transition-transform hover:scale-110 hover:text-white"><SocialIcon type="x"/></a>}
               </div>
             </div>
 
-            <div className="mt-10 border-t border-white/15 pt-6 sm:mt-12 sm:flex sm:items-end sm:justify-between">
-              <p className="max-w-2xl text-[11px] leading-5 text-white/58 sm:text-xs">{locale === 'ar' ? 'سبعة منصة SaaS سعودية تساعد العاملين في القطاع العقاري على بناء حضورهم الرقمي وتنظيم أعمالهم من مكان واحد.' : 'Sbaah is a Saudi SaaS platform for real-estate professionals to build their digital presence and organize their work in one place.'}</p>
-              <p className="mt-5 text-[11px] text-white/58 sm:mt-0 sm:text-xs">{t.footer.rights}</p>
+            <div className="mt-12">
+              <h2 className="text-2xl font-bold sm:text-3xl">{locale === 'ar' ? 'روابط سريعة' : 'Quick links'}</h2>
+              <nav className="mt-5 flex flex-wrap items-center justify-center gap-x-7 gap-y-4 text-sm text-white/80 sm:text-base">
+                <a href={homeHref} className="hover:text-white">{locale === 'ar' ? 'الرئيسية' : 'Home'}</a>
+                <a href="#pricing" className="hover:text-white">{t.nav.pricing}</a>
+                <a href="#faq" className="hover:text-white">{t.nav.faq}</a>
+              </nav>
             </div>
+
+            <div className="mt-14 flex flex-wrap items-center justify-center gap-3 text-xs sm:text-sm">
+              <a href="#" className="rounded-full border border-white/55 px-5 py-2.5 text-white/85 hover:bg-white/10">{locale === 'ar' ? 'سياسة الخصوصية' : 'Privacy Policy'}</a>
+              <a href="#" className="rounded-full border border-white/55 px-5 py-2.5 text-white/85 hover:bg-white/10">{locale === 'ar' ? 'الشروط والأحكام' : 'Terms & Conditions'}</a>
+            </div>
+            <p className="mt-6 text-xs text-white/65 sm:text-sm">{locale === 'ar' ? 'جميع الحقوق محفوظة © سبعة 2026' : '© Sbaah 2026. All rights reserved.'}</p>
           </div>
         </div>
       </footer>
