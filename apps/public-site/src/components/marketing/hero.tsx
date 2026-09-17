@@ -19,7 +19,7 @@ export function Hero({ locale }: { locale: Locale }) {
             src={partner.src}
             alt={copy === 1 ? partner.name : ''}
             title={partner.name}
-            className="block h-auto max-h-[88%] w-auto max-w-full object-contain"
+            className={`block h-auto w-auto object-contain ${partner.name === 'Real Estate Development Fund' ? 'max-h-full max-w-[112%] scale-110 sm:scale-105' : 'max-h-[88%] max-w-full'}`}
             loading="eager"
           />
         </div>
