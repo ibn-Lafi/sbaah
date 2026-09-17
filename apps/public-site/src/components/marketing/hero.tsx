@@ -42,10 +42,10 @@ export function Hero({ locale }: { locale: Locale }) {
           </div>
         </div>
         <div className="relative mt-3 overflow-hidden">
-          <div className="hero-partners-marquee flex w-max gap-6 sm:gap-12" dir="ltr"><LogoSet copy={1}/><LogoSet copy={2}/><LogoSet copy={3}/><LogoSet copy={4}/></div>
+          <div className="hero-partners-marquee flex w-max" dir="ltr"><LogoSet copy={1}/><LogoSet copy={2}/></div>
         </div>
       </div>
-      <style>{`@keyframes heroPartnersMarquee{from{transform:translate3d(0,0,0)}to{transform:translate3d(calc(-25% - 1.125rem),0,0)}}@media (min-width:640px){@keyframes heroPartnersMarquee{from{transform:translate3d(0,0,0)}to{transform:translate3d(calc(-25% - 2.25rem),0,0)}}}.hero-partners-marquee{animation:heroPartnersMarquee 22s linear infinite;will-change:transform;transform:translate3d(0,0,0)}.hero-partners-set{flex:none}@media (prefers-reduced-motion:reduce){.hero-partners-marquee{animation-duration:44s}}`}</style>
+      <style>{`@keyframes heroPartnersMarquee{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}.hero-partners-marquee{animation:heroPartnersMarquee 17s linear infinite;will-change:transform;transform:translate3d(0,0,0)}.hero-partners-set{flex:none;padding-right:1.5rem}@media (min-width:640px){.hero-partners-set{padding-right:3rem}}@media (prefers-reduced-motion:reduce){.hero-partners-marquee{animation-duration:34s}}`}</style>
     </section>
   );
 }
