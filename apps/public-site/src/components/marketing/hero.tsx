@@ -28,14 +28,14 @@ export function Hero({ locale }: { locale: Locale }) {
   );
 
   return (
-    <section className="relative -mt-20 flex min-h-[760px] flex-col items-center justify-center overflow-hidden bg-white px-6 pb-52 pt-40 text-center sm:min-h-[800px] sm:pb-56 md:min-h-[860px]">
+    <section className="relative -mt-20 flex min-h-[760px] flex-col items-center justify-center overflow-hidden bg-surface-card px-6 pb-52 pt-40 text-center sm:min-h-[800px] sm:pb-56 md:min-h-[860px]">
       <HeroVideo src="/marketing/hero-motion.mp4" className="absolute inset-x-0 top-0 z-0 h-[82%] w-full object-cover sm:h-[83%]" />
       <div className="pointer-events-none absolute inset-x-0 top-0 z-[1] h-[62%] bg-gradient-to-b from-black/60 via-black/30 to-transparent" />
 
       {/* White page background starts solid at the video's lower edge and dissolves upward. */}
       <div
         className="pointer-events-none absolute inset-x-0 bottom-[18%] z-[3] h-[34%] sm:bottom-[17%]"
-        style={{background:'linear-gradient(to top,#ffffff 0%,#ffffff 8%,rgba(255,255,255,.98) 16%,rgba(255,255,255,.92) 27%,rgba(255,255,255,.80) 39%,rgba(255,255,255,.62) 52%,rgba(255,255,255,.42) 65%,rgba(255,255,255,.23) 77%,rgba(255,255,255,.09) 88%,rgba(255,255,255,0) 100%)'}}
+        style={{background:'linear-gradient(to top,var(--color-surface-card) 0%,var(--color-surface-card) 8%,color-mix(in srgb,var(--color-surface-card) 98%,transparent) 16%,color-mix(in srgb,var(--color-surface-card) 92%,transparent) 27%,color-mix(in srgb,var(--color-surface-card) 80%,transparent) 39%,color-mix(in srgb,var(--color-surface-card) 62%,transparent) 52%,color-mix(in srgb,var(--color-surface-card) 42%,transparent) 65%,color-mix(in srgb,var(--color-surface-card) 23%,transparent) 77%,color-mix(in srgb,var(--color-surface-card) 9%,transparent) 88%,transparent 100%)'}}
       />
 
       <div className="relative z-10 mx-auto -mt-28 flex max-w-3xl flex-col items-center gap-6 sm:-mt-32">
