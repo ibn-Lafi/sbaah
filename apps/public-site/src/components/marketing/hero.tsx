@@ -14,16 +14,19 @@ const partnerLogos = [
 export function Hero({ locale }: { locale: Locale }) {
   const t = MARKETING_CONTENT[locale].hero;
   const ar = locale === 'ar';
-  const LogoSet=({copy}:{copy:number})=><div className="flex shrink-0 items-center gap-8 pe-8 sm:gap-12 sm:pe-12" aria-hidden={copy===2}>{partnerLogos.map((partner,index)=><div key={`${copy}-${index}`} className="flex h-14 w-24 shrink-0 items-center justify-center sm:h-16 sm:w-32"><img src={partner.src} alt={copy===1?partner.name:''} className="block max-h-full max-w-full object-contain" loading="eager"/></div>)}</div>;
+  const LogoSet=({copy}:{copy:number})=><div className="flex shrink-0 items-center gap-8 pe-8 sm:gap-12 sm:pe-12" aria-hidden={copy>1}>{partnerLogos.map((partner,index)=><div key={`${copy}-${index}`} className="flex h-14 w-24 shrink-0 items-center justify-center sm:h-16 sm:w-32"><img src={partner.src} alt={copy===1?partner.name:''} className="block max-h-full max-w-full object-contain" loading="eager"/></div>)}</div>;
 
   return (
-    <section className="relative -mt-20 flex min-h-[720px] flex-col items-center justify-center overflow-hidden px-6 pb-48 pt-40 text-center sm:min-h-[760px] sm:pb-52 md:min-h-[820px]">
-      <HeroVideo src="/marketing/hero-motion.mp4" className="absolute inset-0 z-0 h-full w-full object-cover" />
-      <div className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-b from-black/60 via-black/30 to-transparent" />
+    <section className="relative -mt-20 flex min-h-[760px] flex-col items-center justify-center overflow-hidden bg-white px-6 pb-52 pt-40 text-center sm:min-h-[800px] sm:pb-56 md:min-h-[860px]">
+      <HeroVideo src="/marketing/hero-motion.mp4" className="absolute inset-x-0 top-0 z-0 h-[78%] w-full object-cover sm:h-[80%]" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-[1] h-[68%] bg-gradient-to-b from-black/60 via-black/30 to-transparent" />
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] h-[39%] bg-gradient-to-b from-transparent via-white/90 to-white dark:via-neutral-950/90 dark:to-neutral-950 sm:h-[36%]" />
+      {/* Strong, long dissolve matching the approved reference: the lower edge of
+          the video disappears gradually into the page instead of ending as a line. */}
+      <div className="pointer-events-none absolute inset-x-0 top-[49%] z-[3] h-[35%] bg-gradient-to-b from-transparent via-white/75 via-55% to-white dark:via-neutral-950/75 dark:to-neutral-950" />
+      <div className="pointer-events-none absolute inset-x-0 top-[68%] z-[3] h-[18%] bg-gradient-to-b from-transparent to-white dark:to-neutral-950" />
 
-      <div className="relative z-10 mx-auto -mt-20 flex max-w-3xl flex-col items-center gap-6 sm:-mt-24">
+      <div className="relative z-10 mx-auto -mt-28 flex max-w-3xl flex-col items-center gap-6 sm:-mt-32">
         <span className="rounded-full bg-white/15 px-4 py-1.5 text-sm font-medium text-white backdrop-blur">{t.eyebrow}</span>
         <h1 className="font-display text-4xl leading-[1.15] font-semibold text-white sm:text-5xl md:text-6xl">{t.title}</h1>
         <p className="max-w-xl text-lg text-white/85">{t.subtitle}</p>
@@ -37,10 +40,10 @@ export function Hero({ locale }: { locale: Locale }) {
           </div>
         </div>
         <div className="relative mt-3 overflow-hidden">
-          <div className="hero-partners-marquee flex w-max" dir="ltr"><LogoSet copy={1}/><LogoSet copy={2}/></div>
+          <div className="hero-partners-marquee flex w-max" dir="ltr"><LogoSet copy={1}/><LogoSet copy={2}/><LogoSet copy={3}/></div>
         </div>
       </div>
-      <style>{`@keyframes heroPartnersMarquee{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}.hero-partners-marquee{animation:heroPartnersMarquee 30s linear infinite;will-change:transform}@media (prefers-reduced-motion:reduce){.hero-partners-marquee{animation:none}}`}</style>
+      <style>{`@keyframes heroPartnersMarquee{from{transform:translate3d(0,0,0)}to{transform:translate3d(-33.333333%,0,0)}}.hero-partners-marquee{animation:heroPartnersMarquee 36s linear infinite;will-change:transform}.hero-partners-marquee>div{flex:none}@media (prefers-reduced-motion:reduce){.hero-partners-marquee{animation:none}}`}</style>
     </section>
   );
 }
