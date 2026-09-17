@@ -8,19 +8,9 @@ import { Pricing } from './marketing/pricing';
 import { Faq } from './marketing/faq';
 
 const REALISTIC = {
-  professional: '/marketing/realistic/01-real-estate-professional.png',
   website: '/marketing/realistic/02-real-estate-scene.png',
   audience: '/marketing/realistic/03-real-estate-scene.png',
 };
-
-function ProblemSection({ locale }: { locale: Locale }) {
-  const ar = locale === 'ar';
-  const items: [string, string][] = ar ? [['إدارة الفرص والطلبات', 'متابعة واضحة من مكان واحد.'], ['إدارة العملاء والعقارات', 'بياناتك مرتبة وسهلة الوصول.'], ['التقارير والتحليلات', 'صورة أوضح لأداء أعمالك.']] : [['Opportunities & requests', 'Clear follow-up in one place.'], ['Clients & properties', 'Organized and easy to access.'], ['Reports & analytics', 'A clearer view of your business.']];
-  return <section className="bg-white px-4 py-10 sm:px-6 sm:py-14"><div className="mx-auto grid max-w-5xl items-stretch gap-5 md:grid-cols-2 md:gap-8">
-    <div className="order-2 flex flex-col justify-center md:order-1"><span className="text-brand text-[11px] font-bold sm:text-xs">{ar ? 'إدارة أسهل — نتائج أكبر' : 'Simpler management — bigger results'}</span><h2 className="text-text-primary mt-2 text-xl font-bold tracking-tight sm:text-3xl">{ar ? 'منصة متكاملة لنمو أعمالك' : 'An integrated platform for growth'}</h2><p className="text-text-secondary mt-2 text-xs leading-6 sm:text-sm">{ar ? 'كل ما تحتاجه لإدارة عقاراتك وعملائك ومتابعة أعمالك في منصة واحدة سهلة الاستخدام.' : 'Everything you need to manage properties, clients and follow-up in one easy platform.'}</p><div className="mt-4 space-y-2.5">{items.map(([title,body])=><div key={title} className="flex items-start gap-2.5"><span className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-brand/10 text-[10px] font-bold text-brand">✓</span><div><h3 className="text-xs font-bold sm:text-sm">{title}</h3><p className="text-text-secondary mt-0.5 text-[11px] leading-5 sm:text-xs">{body}</p></div></div>)}</div></div>
-    <div className="order-1 relative aspect-[1.38/1] overflow-hidden rounded-[1.5rem] md:order-2 md:aspect-[1.18/1]"><Image src={REALISTIC.professional} alt={ar?'محترف عقاري يستخدم سبعة':'Real-estate professional using Sbaah'} fill sizes="(max-width:767px) 100vw, 50vw" className="object-cover" priority={false}/></div>
-  </div></section>;
-}
 
 function WebsiteSection({ locale }: { locale: Locale }) {
   const ar=locale==='ar'; const bullets=ar?['تصاميم عصرية قابلة للتخصيص','متوافق مع الجوال ومحركات البحث','دعم العربية والإنجليزية','ربط دومين خاص بك']:['Modern customizable designs','Mobile and search friendly','Arabic & English','Connect your own domain'];
@@ -39,4 +29,4 @@ function AudienceSection({locale}:{locale:Locale}) {
   </div></section>;
 }
 
-export function MarketingHome({locale}:{locale:Locale}) {return <div><Hero locale={locale}/><ProblemSection locale={locale}/><ProductShowcase locale={locale}/><WebsiteSection locale={locale}/><FeatureGrid locale={locale}/><HowItWorks locale={locale}/><AudienceSection locale={locale}/><Pricing locale={locale}/><Faq locale={locale}/></div>}
+export function MarketingHome({locale}:{locale:Locale}) {return <div><Hero locale={locale}/><ProductShowcase locale={locale}/><WebsiteSection locale={locale}/><FeatureGrid locale={locale}/><HowItWorks locale={locale}/><AudienceSection locale={locale}/><Pricing locale={locale}/><Faq locale={locale}/></div>}
