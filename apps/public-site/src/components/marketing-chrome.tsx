@@ -57,7 +57,41 @@ export function MarketingChrome({ locale, children }: { locale: Locale; children
       <div className="h-16" />
       <main>{children}</main>
       <div className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] left-4 z-[60] flex flex-col items-center gap-2 lg:hidden"><div className={`flex flex-col items-center gap-2 transition-all duration-200 ${quickControlsOpen ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-3 opacity-0'}`} aria-hidden={!quickControlsOpen}><Link href={otherLocaleHref} aria-label={t.nav.languageSwitch} title={t.nav.languageSwitch} className="text-brand flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-white shadow-lg transition-transform hover:scale-105"><GlobeIcon className="h-5 w-5" /></Link><div className="flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-white text-neutral-800 shadow-lg"><ThemeToggle labels={t.nav} className="h-11 w-11 rounded-full bg-transparent text-current hover:bg-black/5" /></div></div><button type="button" onClick={() => setQuickControlsOpen((value) => !value)} aria-label={quickControlsOpen ? t.nav.menuClose : t.nav.menuOpen} aria-expanded={quickControlsOpen} className="bg-brand flex h-12 w-12 items-center justify-center rounded-full text-white shadow-xl ring-1 ring-white/20 transition-transform active:scale-95">{quickControlsOpen ? <CloseIcon className="h-5 w-5" /> : <QuickControlsIcon className="h-5 w-5" />}</button></div>
-      <footer className="bg-surface-subtle-2 px-6 py-12"><div className="mx-auto flex max-w-6xl flex-col gap-10 sm:flex-row sm:justify-between"><div className="flex max-w-xs flex-col gap-3"><BrandMark label={t.brand} /><p className="text-text-secondary text-sm">{t.footer.tagline}</p></div><div className="flex gap-12"><div className="flex flex-col gap-3"><span className="text-text-primary text-sm font-semibold">{t.footer.columns.product.title}</span><a href="#features" className="text-text-secondary hover:text-brand text-sm">{t.footer.columns.product.features}</a><a href="#pricing" className="text-text-secondary hover:text-brand text-sm">{t.footer.columns.product.pricing}</a><a href="#faq" className="text-text-secondary hover:text-brand text-sm">{t.footer.columns.product.faq}</a></div><div className="flex flex-col gap-3"><span className="text-text-primary text-sm font-semibold">{t.footer.columns.account.title}</span><a href={`${dashboardUrl}/login`} className="text-text-secondary hover:text-brand text-sm">{t.footer.columns.account.login}</a><a href={`${dashboardUrl}/register`} className="text-text-secondary hover:text-brand text-sm">{t.footer.columns.account.register}</a></div></div></div><div className="text-text-secondary mx-auto mt-10 max-w-6xl text-sm">{t.footer.rights}</div></footer>
+
+      <footer className="px-3 pb-3 pt-8 sm:px-5 sm:pb-5 lg:px-8 lg:pb-8">
+        <div className="relative mx-auto max-w-7xl overflow-hidden rounded-[2rem] bg-[#69428a] text-white shadow-[0_24px_70px_-35px_rgba(72,42,94,.55)] sm:rounded-[2.5rem]">
+          <div aria-hidden="true" className="absolute inset-0 opacity-95" style={{ background: 'radial-gradient(ellipse at 18% 16%, rgba(255,255,255,.14), transparent 28%), radial-gradient(ellipse at 78% 28%, rgba(255,255,255,.09), transparent 34%), radial-gradient(ellipse at 38% 82%, rgba(28,7,45,.32), transparent 42%), linear-gradient(128deg,#4d286d 0%,#754d95 38%,#5b3479 67%,#3f215b 100%)' }} />
+          <div aria-hidden="true" className="absolute -left-[12%] top-[20%] h-[32%] w-[125%] rotate-[-9deg] rounded-[50%] border-t-[42px] border-white/[.035] blur-sm" />
+          <div aria-hidden="true" className="absolute -right-[18%] bottom-[18%] h-[35%] w-[120%] rotate-[8deg] rounded-[50%] border-t-[55px] border-black/[.08] blur-md" />
+
+          <div className="relative px-6 py-9 sm:px-9 sm:py-11 lg:px-12 lg:py-12">
+            <div className="grid grid-cols-2 gap-x-8 gap-y-10 md:grid-cols-[1.2fr_.8fr_.8fr] lg:gap-x-16">
+              <div className="col-span-2 md:col-span-1">
+                <BrandMark label={t.brand} invert className="h-8 sm:h-9" />
+                <p className="mt-4 max-w-sm text-xs leading-6 text-white/70 sm:text-sm">{t.footer.tagline}</p>
+              </div>
+
+              <div className="flex flex-col gap-3">
+                <span className="text-sm font-bold text-white sm:text-base">{t.footer.columns.product.title}</span>
+                <a href="#features" className="text-xs text-white/72 transition-colors hover:text-white sm:text-sm">{t.footer.columns.product.features}</a>
+                <a href="#pricing" className="text-xs text-white/72 transition-colors hover:text-white sm:text-sm">{t.footer.columns.product.pricing}</a>
+                <a href="#faq" className="text-xs text-white/72 transition-colors hover:text-white sm:text-sm">{t.footer.columns.product.faq}</a>
+              </div>
+
+              <div className="flex flex-col gap-3">
+                <span className="text-sm font-bold text-white sm:text-base">{t.footer.columns.account.title}</span>
+                <a href={`${dashboardUrl}/login`} className="text-xs text-white/72 transition-colors hover:text-white sm:text-sm">{t.footer.columns.account.login}</a>
+                <a href={`${dashboardUrl}/register`} className="text-xs text-white/72 transition-colors hover:text-white sm:text-sm">{t.footer.columns.account.register}</a>
+              </div>
+            </div>
+
+            <div className="mt-10 border-t border-white/15 pt-6 sm:mt-12 sm:flex sm:items-end sm:justify-between">
+              <p className="max-w-2xl text-[11px] leading-5 text-white/58 sm:text-xs">{locale === 'ar' ? 'سبعة منصة SaaS سعودية تساعد العاملين في القطاع العقاري على بناء حضورهم الرقمي وتنظيم أعمالهم من مكان واحد.' : 'Sbaah is a Saudi SaaS platform for real-estate professionals to build their digital presence and organize their work in one place.'}</p>
+              <p className="mt-5 text-[11px] text-white/58 sm:mt-0 sm:text-xs">{t.footer.rights}</p>
+            </div>
+          </div>
+        </div>
+      </footer>
     </>
   );
 }
