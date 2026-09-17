@@ -4,18 +4,33 @@ import { HeroVideo } from './hero-video';
 
 const partnerLogoBase = 'https://raw.githubusercontent.com/ibn-Lafi/sbaah/acb83df10149cec7ec79ff779a99819a40ec3e17/';
 const partnerLogos = [
-  {name:'إيجار',file:'شعار منصة إيجار - SVG.svg'},
-  {name:'الهيئة العامة للعقار',file:'\u200e\u2068شعار الهيئة العامة للعقار الجديد - Real Estate General Authority Logo - PNG - SVG\u2069.svg'},
-  {name:'صندوق الاستثمارات العامة',file:'شعار صندوق الاستثمارات العامة  الجديد بدقة عالية - PNG - SVG PIF Logo.svg'},
-  {name:'صندوق التنمية العقارية',file:'\u200e\u2068شعار صندوق التنمية العقارية - SVG\u2069.svg'},
-  {name:'روشن',file:'شعار مجموعة روشن الجديد بدقة عالية PNG - SVG.svg'},
-  {name:'المركز السعودي للتحكيم العقاري',file:'شعار المركز السعودي للتحكيم العقار بدقة عالية svg - png.svg'},
-].map(partner=>({...partner,src:`${partnerLogoBase}${encodeURIComponent(partner.file)}`}));
+  { name: 'Ejar', file: 'شعار منصة إيجار - SVG.svg' },
+  { name: 'Real Estate General Authority', file: '\u200e\u2068شعار الهيئة العامة للعقار الجديد - Real Estate General Authority Logo - PNG - SVG\u2069.svg' },
+  { name: 'Public Investment Fund', file: 'شعار صندوق الاستثمارات العامة  الجديد بدقة عالية - PNG - SVG PIF Logo.svg' },
+  { name: 'Real Estate Development Fund', file: '\u200e\u2068شعار صندوق التنمية العقارية - SVG\u2069.svg' },
+  { name: 'ROSHN Group', file: 'شعار مجموعة روشن الجديد بدقة عالية PNG - SVG.svg' },
+  { name: 'Saudi Real Estate Arbitration Center', file: 'شعار المركز السعودي للتحكيم العقار بدقة عالية svg - png.svg' },
+].map((partner) => ({ ...partner, src: `${partnerLogoBase}${encodeURIComponent(partner.file)}` }));
 
 export function Hero({ locale }: { locale: Locale }) {
   const t = MARKETING_CONTENT[locale].hero;
   const ar = locale === 'ar';
-  const LogoSet=({copy}:{copy:number})=><div className="hero-partners-set flex shrink-0 items-center" aria-hidden={copy>1}>{partnerLogos.map((partner,index)=><div key={`${copy}-${index}`} className="flex h-14 w-28 shrink-0 items-center justify-center px-2 sm:h-16 sm:w-40 sm:px-4"><img src={partner.src} alt={copy===1?partner.name:''} className="block h-full w-full object-contain" loading="eager"/></div>)}</div>;
+  const LogoSet = ({ copy }: { copy: number }) => (
+    <div className="hero-partners-set flex shrink-0 items-center" aria-hidden={copy > 1}>
+      {partnerLogos.map((partner, index) => (
+        <div key={`${copy}-${index}`} className="flex h-16 w-32 shrink-0 items-center justify-center px-3 sm:h-20 sm:w-44 sm:px-5">
+          <img
+            src={partner.src}
+            alt={partner.name}
+            title={partner.name}
+            className="block max-h-[82%] max-w-full object-contain"
+            loading="eager"
+            decoding="async"
+          />
+        </div>
+      ))}
+    </div>
+  );
 
   return (
     <section className="relative -mt-20 flex min-h-[760px] flex-col items-center justify-center overflow-hidden bg-white px-6 pb-52 pt-40 text-center sm:min-h-[800px] sm:pb-56 md:min-h-[860px]">
