@@ -119,14 +119,14 @@ export function MarketingChrome({
             <a
               href={`${dashboardUrl}/login`}
               dir={locale === 'ar' ? 'rtl' : 'ltr'}
-              className="flex h-[50px] flex-none items-center whitespace-nowrap rounded-xl border border-white/35 px-3 text-[11px] font-semibold text-white transition-colors hover:bg-white/10 min-[390px]:px-3.5 min-[390px]:text-xs"
+              className="flex h-7 flex-none items-center whitespace-nowrap rounded-[9px] border border-white/35 px-3 text-xs font-semibold leading-none text-white transition-colors hover:bg-white/10"
             >
               {t.nav.login}
             </a>
             <a
               href={`${dashboardUrl}/register`}
               dir={locale === 'ar' ? 'rtl' : 'ltr'}
-              className="text-brand flex h-[50px] flex-none items-center whitespace-nowrap rounded-xl bg-white px-3 text-[11px] font-semibold shadow-sm transition-colors hover:bg-white/90 min-[390px]:px-3.5 min-[390px]:text-xs"
+              className="text-brand flex h-7 flex-none items-center whitespace-nowrap rounded-[9px] bg-white px-3 text-xs font-semibold leading-none shadow-sm transition-colors hover:bg-white/90"
             >
               {t.nav.cta}
             </a>
