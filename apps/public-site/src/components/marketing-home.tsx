@@ -21,13 +21,15 @@ function WebsiteSection({ locale }: { locale: Locale }) {
 
 function AudienceSection({locale}:{locale:Locale}) { const ar=locale==='ar'; const audiences=ar?[['المطور العقاري','اعرض مشاريعك ونظّم العملاء والفرص من لوحة واحدة.'],['المسوّق العقاري','ابنِ حضورك الرقمي واعرض مخزونك وتابع العملاء المحتملين.'],['الوسيط العقاري','موقع احترافي وعقارات وطلبات عملاء في مكان واحد.']]:[['Real-estate developer','Showcase projects and organize clients and opportunities.'],['Real-estate marketer','Build your digital presence, inventory and lead workflow.'],['Real-estate broker','A professional website, properties and client requests in one place.']]; return <section className="bg-white px-5 py-20 sm:px-6 lg:py-28"><div className="mx-auto max-w-6xl"><div className="max-w-2xl"><span className="text-brand text-sm font-semibold">{ar?'لمن صُممت سبعة؟':'Who is Sbaah for?'}</span><h2 className="text-text-primary mt-3 text-3xl font-bold sm:text-4xl">{ar?'سبعة مبنية للعمل العقاري':'Built for real-estate work'}</h2><p className="text-text-secondary mt-4 leading-8">{ar?'سواء كنت تعمل بشكل فردي أو ضمن منشأة، الأدوات تتكيف مع طريقة عملك.':'Whether you work independently or within a company, the tools adapt to your workflow.'}</p></div><div className="mt-10 grid gap-4 md:grid-cols-3">{audiences.map(([title,body])=><article key={title} className="rounded-3xl border border-black/5 p-7"><div className="bg-brand/10 mb-8 h-12 w-12 rounded-2xl"/><h3 className="text-lg font-bold">{title}</h3><p className="text-text-secondary mt-2 text-sm leading-7">{body}</p></article>)}</div></div></section>; }
 
+// Direct logo assets only. Do not use domain-logo proxy services here: they are unreliable
+// and can return favicons/incorrect marks instead of the organization's actual identity.
 const ecosystemLogos = [
-  { ar:'الهيئة العامة للعقار', en:'Real Estate General Authority', src:'https://rega.gov.sa/media/i5ldldee/image-3.png' },
-  { ar:'فال', en:'FAL', src:'https://logo.clearbit.com/rega.gov.sa' },
-  { ar:'السجل العقاري', en:'Real Estate Registry', src:'https://logo.clearbit.com/rer.sa' },
-  { ar:'إيجار', en:'Ejar', src:'https://logo.clearbit.com/ejar.sa' },
-  { ar:'صندوق الاستثمارات العامة', en:'Public Investment Fund', src:'https://logo.clearbit.com/pif.gov.sa' },
-  { ar:'وزارة الاتصالات وتقنية المعلومات', en:'Ministry of Communications and Information Technology', src:'https://logo.clearbit.com/mcit.gov.sa' },
+  { ar:'الهيئة العامة للعقار', en:'Real Estate General Authority', src:'https://alsaudieconomy.com/images/2024/05/-1715709148-0.jpg' },
+  { ar:'فال', en:'FAL', src:'https://www.al-madina.com/uploads/images/2023/06/15/2197569.jpg' },
+  { ar:'السجل العقاري', en:'Real Estate Registry', src:'https://rer.sa/assets/images/og/logo_og.png' },
+  { ar:'إيجار', en:'Ejar', src:'https://alsaudialyaum.com/images/2023/04/%D9%85%D9%86%D8%B5%D8%A9-%D8%A5%D9%8A%D8%AC%D8%A7%D8%B1-1680352456-0.png' },
+  { ar:'صندوق الاستثمارات العامة', en:'Public Investment Fund', src:'https://www.economy-today.com/economy/uploads/2025/10/1680389.webp' },
+  { ar:'وزارة الاتصالات وتقنية المعلومات', en:'Ministry of Communications and Information Technology', src:'https://media.assettype.com/ajel/import/uploads/material-file/5dca9cf275054c76323eb264/5dca9b2545545.jpg?auto=format%2Ccompress&enlarge=true&fit=max&h=675&w=1200' },
 ];
 
 function EcosystemSection({locale}:{locale:Locale}) {
@@ -38,17 +40,17 @@ function EcosystemSection({locale}:{locale:Locale}) {
       <span className="text-brand text-sm font-semibold">{ar?'الشركاء':'Partners'}</span>
       <h2 className="text-text-primary mt-3 text-2xl font-bold sm:text-3xl">{ar?'شركاؤنا في المنظومة العقارية والتقنية':'Our real-estate and technology ecosystem partners'}</h2>
     </div>
-    <div className="relative mt-10">
-      <div className="pointer-events-none absolute inset-y-0 start-0 z-10 w-16 bg-gradient-to-e from-transparent to-white sm:w-32"/>
-      <div className="pointer-events-none absolute inset-y-0 end-0 z-10 w-16 bg-gradient-to-s from-transparent to-white sm:w-32"/>
+    <div className="relative mt-10 overflow-hidden">
+      <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-white to-transparent sm:w-32"/>
+      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-white to-transparent sm:w-32"/>
       <div className="sbaah-logo-marquee flex w-max items-center gap-5 pe-5" dir="ltr">
-        {logos.map((logo,index)=><div key={`${logo.en}-${index}`} className="flex h-28 w-52 shrink-0 items-center justify-center rounded-2xl border border-black/[0.06] bg-white px-7 shadow-[0_6px_24px_rgba(0,0,0,0.04)] sm:h-32 sm:w-60">
-          {/* eslint-disable-next-line @next/next/no-img-element -- official/brand logo assets are served from their source domains */}
-          <img src={logo.src} alt={ar?logo.ar:logo.en} className="max-h-16 max-w-[170px] object-contain sm:max-h-[72px] sm:max-w-[190px]" loading="lazy" />
+        {logos.map((logo,index)=><div key={`${logo.en}-${index}`} className="flex h-28 w-52 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-black/[0.06] bg-white px-6 shadow-[0_6px_24px_rgba(0,0,0,0.04)] sm:h-32 sm:w-60">
+          {/* eslint-disable-next-line @next/next/no-img-element -- remote brand marks intentionally rendered directly */}
+          <img src={logo.src} alt={ar?logo.ar:logo.en} className="block max-h-[76px] max-w-[180px] object-contain sm:max-h-[84px] sm:max-w-[200px]" loading="eager" referrerPolicy="no-referrer" />
         </div>)}
       </div>
     </div>
-    <style>{`@keyframes sbaahLogoMarquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}.sbaah-logo-marquee{animation:sbaahLogoMarquee 28s linear infinite}.sbaah-logo-marquee:hover{animation-play-state:paused}@media(prefers-reduced-motion:reduce){.sbaah-logo-marquee{animation:none}}`}</style>
+    <style>{`@keyframes sbaahLogoMarquee{from{transform:translate3d(0,0,0)}to{transform:translate3d(calc(-50% - 10px),0,0)}}.sbaah-logo-marquee{animation:sbaahLogoMarquee 30s linear infinite;will-change:transform}.sbaah-logo-marquee:hover{animation-play-state:paused}@media(prefers-reduced-motion:reduce){.sbaah-logo-marquee{animation:none}}`}</style>
   </section>;
 }
 
