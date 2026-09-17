@@ -6,9 +6,9 @@ const partnerLogos = [
   { name: 'Ejar', src: '/marketing/partners/ejar.svg' },
   { name: 'Real Estate General Authority', src: '/marketing/partners/rega.svg' },
   { name: 'Public Investment Fund', src: '/marketing/partners/pif.svg' },
-  { name: 'Real Estate Development Fund', file: '\u200e\u2068شعار صندوق التنمية العقارية - SVG\u2069.svg' },
-  { name: 'ROSHN Group', file: 'شعار مجموعة روشن الجديد بدقة عالية PNG - SVG.svg' },
-  { name: 'Saudi Real Estate Arbitration Center', file: 'شعار المركز السعودي للتحكيم العقار بدقة عالية svg - png.svg' },
+  { name: 'Real Estate Development Fund', src: '/marketing/partners/redf.svg' },
+  { name: 'ROSHN Group', src: '/marketing/partners/roshn.svg' },
+  { name: 'Saudi Real Estate Arbitration Center', src: '/marketing/partners/arbitration.svg' },
 ];
 
 export function Hero({ locale }: { locale: Locale }) {
