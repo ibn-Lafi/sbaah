@@ -57,7 +57,7 @@ export default function ThemeStorePage() {
       orgName={me.tenant.name_ar}
       accountType={me.tenant.account_type}
     >
-      <div className="mx-auto flex max-w-[1100px] flex-col gap-6">
+      <div className="flex w-full flex-col gap-6">
         <FormError message={error} />
 
         <Card className="p-8">
