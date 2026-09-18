@@ -15,6 +15,7 @@ export * from './validation/project';
 export * from './validation/rental';
 export * from './validation/website';
 export * from './validation/lead';
+export * from './validation/crm';
 export * from './validation/console';
 export * from './validation/team';
 export * from './validation/billing';
