@@ -29,6 +29,7 @@ import { getListingTypeLabels, getPropertyTypeLabels } from '@/lib/property/labe
 import type { PropertyWithMedia } from '@/lib/api/properties';
 import { listTeam, type TeamMember } from '@/lib/api/team';
 import { useLocale } from '@/lib/i18n/locale-context';
+import { FormWizard, WizardActions } from '@/components/forms/form-wizard';
 
 type FormState = {
   title_ar: string;
@@ -155,6 +156,8 @@ export function PropertyForm({
   const [team, setTeam] = useState<TeamMember[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [step, setStep] = useState(0);
+  const steps = ['المعلومات الأساسية', 'الموقع والربط', 'المواصفات', 'الترخيص والحالة', 'المراجعة'];
   const canAssignAgent = role !== 'agent';
 
   useEffect(() => {
@@ -231,162 +234,83 @@ export function PropertyForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Input
-          placeholder={t.form.fields.titleAr}
-          value={form.title_ar}
-          onChange={(e) => set('title_ar', e.target.value)}
-        />
-        <Input
-          placeholder={t.form.fields.titleEn}
-          value={form.title_en}
-          onChange={(e) => set('title_en', e.target.value)}
-        />
-      </div>
+    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+      <FormWizard steps={steps} current={step} onStepChange={setStep} />
 
-      <Textarea
-        placeholder={t.form.fields.descriptionAr}
-        value={form.description_ar}
-        onChange={(e) => set('description_ar', e.target.value)}
-      />
-      <Textarea
-        placeholder={t.form.fields.descriptionEn}
-        value={form.description_en}
-        onChange={(e) => set('description_en', e.target.value)}
-      />
-
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Select value={form.property_type} onChange={(e) => set('property_type', e.target.value)}>
-          {PROPERTY_TYPES.map((type) => (
-            <option key={type} value={type}>
-              {propertyTypeLabels[type]}
-            </option>
-          ))}
-        </Select>
-        <Select value={form.listing_type} onChange={(e) => set('listing_type', e.target.value)}>
-          {LISTING_TYPES.map((type) => (
-            <option key={type} value={type}>
-              {listingTypeLabels[type]}
-            </option>
-          ))}
-        </Select>
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Input
-          type="number"
-          placeholder={t.form.fields.price}
-          value={form.price}
-          onChange={(e) => set('price', e.target.value)}
-        />
-        <Input
-          type="number"
-          placeholder={t.form.fields.area}
-          value={form.area_sqm}
-          onChange={(e) => set('area_sqm', e.target.value)}
-        />
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Input
-          type="number"
-          placeholder={t.form.fields.bedrooms}
-          value={form.bedrooms}
-          onChange={(e) => set('bedrooms', e.target.value)}
-        />
-        <Input
-          type="number"
-          placeholder={t.form.fields.bathrooms}
-          value={form.bathrooms}
-          onChange={(e) => set('bathrooms', e.target.value)}
-        />
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <SearchableSelect
-          options={cities.map((city) => ({ value: city.id, label: city.name_ar }))}
-          value={form.city_id}
-          onChange={(value) => set('city_id', value)}
-          placeholder={t.form.fields.citySelect}
-        />
-        <SearchableSelect
-          options={districts.map((district) => ({ value: district.id, label: district.name_ar }))}
-          value={form.district_id}
-          onChange={(value) => set('district_id', value)}
-          placeholder={t.form.fields.districtSelect}
-          disabled={!form.city_id}
-          clearable
-          onCreate={async (name) => {
-            const district = await createDistrict(accessToken, { city_id: form.city_id, name_ar: name });
-            setDistricts((prev) => [...prev, district]);
-            return { value: district.id, label: district.name_ar };
-          }}
-        />
-      </div>
-
-      <LocationPicker
-        value={form.location}
-        onChange={(location) => set('location', location)}
-        focusPoint={mapFocusPoint}
-      />
-
-      {/* PRODUCT_SPEC.md section 4.1 — optional hierarchy grouping; both independent nullable FKs (a unit can belong to a building without a project, or vice versa). */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Select value={form.project_id} onChange={(e) => set('project_id', e.target.value)}>
-          <option value="">{t.form.fields.noProject}</option>
-          {projects.map((project) => (
-            <option key={project.id} value={project.id}>
-              {project.name_ar}
-            </option>
-          ))}
-        </Select>
-        <Select value={form.building_id} onChange={(e) => set('building_id', e.target.value)}>
-          <option value="">{t.form.fields.noBuilding}</option>
-          {buildings.map((building) => (
-            <option key={building.id} value={building.id}>
-              {building.name_ar}
-            </option>
-          ))}
-        </Select>
-      </div>
-
-      {canAssignAgent && (
-        <Select value={form.agent_id} onChange={(e) => set('agent_id', e.target.value)}>
-          <option value="">{t.form.fields.noAgent}</option>
-          {team.map((member) => (
-            <option key={member.id} value={member.id}>
-              {member.full_name}
-            </option>
-          ))}
-        </Select>
+      {step === 0 && (
+        <div className="flex flex-col gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Input placeholder={t.form.fields.titleAr} value={form.title_ar} onChange={(e) => set('title_ar', e.target.value)} />
+            <Input placeholder={t.form.fields.titleEn} value={form.title_en} onChange={(e) => set('title_en', e.target.value)} />
+          </div>
+          <Textarea placeholder={t.form.fields.descriptionAr} value={form.description_ar} onChange={(e) => set('description_ar', e.target.value)} />
+          <Textarea placeholder={t.form.fields.descriptionEn} value={form.description_en} onChange={(e) => set('description_en', e.target.value)} />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Select value={form.property_type} onChange={(e) => set('property_type', e.target.value)}>{PROPERTY_TYPES.map((type) => <option key={type} value={type}>{propertyTypeLabels[type]}</option>)}</Select>
+            <Select value={form.listing_type} onChange={(e) => set('listing_type', e.target.value)}>{LISTING_TYPES.map((type) => <option key={type} value={type}>{listingTypeLabels[type]}</option>)}</Select>
+            <Input type="number" min="0" placeholder={t.form.fields.price} value={form.price} onChange={(e) => set('price', e.target.value)} />
+            <Input type="number" min="0" placeholder={t.form.fields.area} value={form.area_sqm} onChange={(e) => set('area_sqm', e.target.value)} />
+          </div>
+        </div>
       )}
 
-      <div className="rounded-xl border border-border-default p-4"><h3 className="mb-3 text-sm font-semibold">تفاصيل العقار والترخيص</h3><div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">{[['land_area','مساحة الأرض'],['built_area','المساحة المبنية'],['street_width','عرض الشارع'],['property_age','عمر العقار'],['floor_number','رقم الدور'],['floors_count','عدد الأدوار'],['parking_count','مواقف السيارات'],['elevators_count','المصاعد']].map(([key,label])=><Input key={key} type="number" placeholder={label} value={form[key as keyof FormState] as string} onChange={e=>set(key as keyof FormState,e.target.value)}/>)}</div><div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2"><Input placeholder="الرقم المرجعي" value={form.reference_number} onChange={e=>set('reference_number',e.target.value)}/><Input placeholder="رقم ترخيص الإعلان" value={form.advertisement_license_number} onChange={e=>set('advertisement_license_number',e.target.value)}/><Input type="datetime-local" value={form.advertisement_license_expires_at} onChange={e=>set('advertisement_license_expires_at',e.target.value)}/><Input placeholder="اسم المعلن" value={form.advertiser_name} onChange={e=>set('advertiser_name',e.target.value)}/></div></div>
+      {step === 1 && (
+        <div className="flex flex-col gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <SearchableSelect options={cities.map((city) => ({ value: city.id, label: city.name_ar }))} value={form.city_id} onChange={(value) => set('city_id', value)} placeholder={t.form.fields.citySelect} />
+            <SearchableSelect options={districts.map((district) => ({ value: district.id, label: district.name_ar }))} value={form.district_id} onChange={(value) => set('district_id', value)} placeholder={t.form.fields.districtSelect} disabled={!form.city_id} clearable onCreate={async (name) => { const district = await createDistrict(accessToken, { city_id: form.city_id, name_ar: name }); setDistricts((prev) => [...prev, district]); return { value: district.id, label: district.name_ar }; }} />
+          </div>
+          <LocationPicker value={form.location} onChange={(location) => set('location', location)} focusPoint={mapFocusPoint} />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Select value={form.project_id} onChange={(e) => set('project_id', e.target.value)}><option value="">{t.form.fields.noProject}</option>{projects.map((project) => <option key={project.id} value={project.id}>{project.name_ar}</option>)}</Select>
+            <Select value={form.building_id} onChange={(e) => set('building_id', e.target.value)}><option value="">{t.form.fields.noBuilding}</option>{buildings.map((building) => <option key={building.id} value={building.id}>{building.name_ar}</option>)}</Select>
+          </div>
+          {canAssignAgent && <Select value={form.agent_id} onChange={(e) => set('agent_id', e.target.value)}><option value="">{t.form.fields.noAgent}</option>{team.map((member) => <option key={member.id} value={member.id}>{member.full_name}</option>)}</Select>}
+        </div>
+      )}
 
-      {mode === 'edit' && (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Select value={form.status} onChange={(e) => set('status', e.target.value)}>
-            {PROPERTY_STATUSES.map((status) => (
-              <option key={status} value={status}>
-                {t.statusLabels[status]}
-              </option>
-            ))}
-          </Select>
-          <Select value={form.availability} onChange={(e) => set('availability', e.target.value)}>
-            {PROPERTY_AVAILABILITY.map((availability) => (
-              <option key={availability} value={availability}>
-                {t.availabilityLabels[availability]}
-              </option>
-            ))}
-          </Select>
+      {step === 2 && (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <Input type="number" min="0" placeholder={t.form.fields.bedrooms} value={form.bedrooms} onChange={(e) => set('bedrooms', e.target.value)} />
+          <Input type="number" min="0" placeholder={t.form.fields.bathrooms} value={form.bathrooms} onChange={(e) => set('bathrooms', e.target.value)} />
+          {([['land_area','مساحة الأرض'],['built_area','المساحة المبنية'],['street_width','عرض الشارع'],['property_age','عمر العقار'],['floor_number','رقم الدور'],['floors_count','عدد الأدوار'],['parking_count','مواقف السيارات'],['elevators_count','المصاعد']] as const).map(([key,label]) => <Input key={key} type="number" min="0" placeholder={label} value={form[key]} onChange={(e) => set(key, e.target.value)} />)}
+        </div>
+      )}
+
+      {step === 3 && (
+        <div className="flex flex-col gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Input placeholder="الرقم المرجعي" value={form.reference_number} onChange={(e) => set('reference_number', e.target.value)} />
+            <Input placeholder="رقم ترخيص الإعلان" value={form.advertisement_license_number} onChange={(e) => set('advertisement_license_number', e.target.value)} />
+            <Input type="datetime-local" value={form.advertisement_license_expires_at} onChange={(e) => set('advertisement_license_expires_at', e.target.value)} />
+            <Input placeholder="اسم المعلن" value={form.advertiser_name} onChange={(e) => set('advertiser_name', e.target.value)} />
+          </div>
+          {mode === 'edit' && <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Select value={form.status} onChange={(e) => set('status', e.target.value)}>{PROPERTY_STATUSES.map((status) => <option key={status} value={status}>{t.statusLabels[status]}</option>)}</Select>
+            <Select value={form.availability} onChange={(e) => set('availability', e.target.value)}>{PROPERTY_AVAILABILITY.map((availability) => <option key={availability} value={availability}>{t.availabilityLabels[availability]}</option>)}</Select>
+          </div>}
+        </div>
+      )}
+
+      {step === 4 && (
+        <div className="rounded-xl border border-border-default p-5">
+          <h3 className="mb-4 font-semibold">مراجعة بيانات العقار</h3>
+          <dl className="grid gap-4 text-sm sm:grid-cols-2 lg:grid-cols-3">
+            <div><dt className="text-text-secondary">العقار</dt><dd className="mt-1 font-medium">{form.title_ar || '—'}</dd></div>
+            <div><dt className="text-text-secondary">النوع</dt><dd className="mt-1 font-medium">{propertyTypeLabels[form.property_type as keyof typeof propertyTypeLabels] || form.property_type}</dd></div>
+            <div><dt className="text-text-secondary">السعر</dt><dd className="mt-1 font-medium">{form.price || '—'}</dd></div>
+            <div><dt className="text-text-secondary">المساحة</dt><dd className="mt-1 font-medium">{form.area_sqm ? `${form.area_sqm} م²` : '—'}</dd></div>
+            <div><dt className="text-text-secondary">المدينة</dt><dd className="mt-1 font-medium">{cities.find((x) => x.id === form.city_id)?.name_ar || '—'}</dd></div>
+            <div><dt className="text-text-secondary">الحي</dt><dd className="mt-1 font-medium">{districts.find((x) => x.id === form.district_id)?.name_ar || '—'}</dd></div>
+            <div><dt className="text-text-secondary">المشروع</dt><dd className="mt-1 font-medium">{projects.find((x) => x.id === form.project_id)?.name_ar || 'بدون مشروع'}</dd></div>
+            <div><dt className="text-text-secondary">العمارة</dt><dd className="mt-1 font-medium">{buildings.find((x) => x.id === form.building_id)?.name_ar || 'بدون عمارة'}</dd></div>
+            <div><dt className="text-text-secondary">ترخيص الإعلان</dt><dd className="mt-1 font-medium">{form.advertisement_license_number || 'غير مضاف'}</dd></div>
+          </dl>
         </div>
       )}
 
       <FormError message={error} />
-      <Button type="submit" disabled={loading}>
-        {loading ? t.form.saving : submitLabel}
-      </Button>
+      <WizardActions step={step} total={steps.length} loading={loading} submitLabel={submitLabel} onBack={() => setStep((s) => Math.max(0, s - 1))} onNext={() => setStep((s) => Math.min(steps.length - 1, s + 1))} />
     </form>
   );
 }
