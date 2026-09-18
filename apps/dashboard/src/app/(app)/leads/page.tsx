@@ -134,15 +134,15 @@ export default function LeadsPage() {
         ) : leads.length === 0 ? (
           <p className="text-text-secondary p-6 text-center">{t.list.emptyState}</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[760px] text-sm">
+          <div className="overflow-x-auto md:overflow-visible">
+            <table className="w-full min-w-[680px] table-fixed text-sm md:min-w-0">
               <thead className="bg-surface-header text-text-secondary text-right">
                 <tr>
-                  <th className="px-5 py-3 font-medium">{t.list.table.name}</th>
-                  <th className="px-5 py-3 font-medium">{t.list.table.phone}</th>
-                  <th className="px-5 py-3 font-medium">{t.list.table.source}</th>
-                  <th className="px-5 py-3 font-medium">{t.list.table.status}</th>
-                  <th className="px-5 py-3 font-medium">{t.list.table.nextFollowUp}</th>
+                  <th className="px-3 py-3 md:px-4 font-medium">{t.list.table.name}</th>
+                  <th className="px-3 py-3 md:px-4 font-medium">{t.list.table.phone}</th>
+                  <th className="px-3 py-3 md:px-4 font-medium">{t.list.table.source}</th>
+                  <th className="px-3 py-3 md:px-4 font-medium">{t.list.table.status}</th>
+                  <th className="px-3 py-3 md:px-4 font-medium">{t.list.table.nextFollowUp}</th>
                   <th className="w-10 px-3 py-3" />
                 </tr>
               </thead>
@@ -156,7 +156,7 @@ export default function LeadsPage() {
                       onClick={() => router.push(`/leads/${lead.id}`)}
                       className="border-border-subtle hover:bg-surface-subtle cursor-pointer border-t"
                     >
-                      <td className="px-5 py-3">
+                      <td className="px-3 py-3 md:px-4">
                         <div className="flex items-center gap-3">
                           <PersonAvatar name={lead.full_name} size={32} />
                           <div className="min-w-0">
@@ -179,7 +179,7 @@ export default function LeadsPage() {
                       <td className="text-text-secondary px-5 py-3">
                         {t.sourceLabels[lead.source]}
                       </td>
-                      <td className="px-5 py-3">
+                      <td className="px-3 py-3 md:px-4">
                         <LeadStatusPillSelect
                           value={lead.status}
                           onChange={(status) => void handleStatusChange(lead.id, status)}
