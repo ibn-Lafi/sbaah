@@ -6,6 +6,9 @@ const partnerLogos = [
   { name: 'ROSHN Group', src: '/marketing/partners/roshn.svg' },
   { name: 'Saudi Real Estate Arbitration Center', src: '/marketing/partners/arbitration.svg' },
   { name: 'Real Estate Development Fund', src: '/marketing/partners/redf.svg' },
+  { name: 'Partner', src: 'https://raw.githubusercontent.com/ibn-Lafi/sbaah/claude/real-estate-saas-platform-sp7ua9/F43BA20A-E45F-43FB-81A7-107096FCA871.png' },
+  { name: 'Partner', src: 'https://raw.githubusercontent.com/ibn-Lafi/sbaah/claude/real-estate-saas-platform-sp7ua9/IMG_1903.png' },
+  { name: 'Partner', src: 'https://raw.githubusercontent.com/ibn-Lafi/sbaah/claude/real-estate-saas-platform-sp7ua9/IMG_1904.png' },
 ];
 
 export function Hero({ locale }: { locale: Locale }) {
