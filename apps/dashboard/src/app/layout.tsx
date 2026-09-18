@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import { IBM_Plex_Sans_Arabic } from 'next/font/google';
 import './globals.css';
 import { ServiceWorkerRegister } from '@/components/pwa/service-worker-register';
@@ -48,7 +49,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <LocaleProvider>
           <ThemeProvider>
-            <NavigationProgress />
+            <Suspense fallback={null}>
+              <NavigationProgress />
+            </Suspense>
             {children}
             <ServiceWorkerRegister />
           </ThemeProvider>
