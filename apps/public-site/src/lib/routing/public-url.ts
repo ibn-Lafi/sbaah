@@ -37,11 +37,11 @@ export async function getPublicOrigin(): Promise<string | null> {
   return `${protocol}://${host}`;
 }
 
-export async function buildLocalizedAlternates(locale: Locale, pathname: string): Promise<{
+export async function buildLocalizedAlternates(locale: Locale, pathname: string, originOverride?: string): Promise<{
   canonical?: string;
   languages?: Record<string, string>;
 }> {
-  const origin = await getPublicOrigin();
+  const origin = originOverride ?? await getPublicOrigin();
   if (!origin) return {};
 
   const ar = `${origin}${localizedPath('ar', pathname)}`;
