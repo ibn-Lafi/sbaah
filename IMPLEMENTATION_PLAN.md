@@ -7,10 +7,10 @@
 ## Progress
 
 - Total tasks: **50**
-- Completed: **35**
-- In progress: **0**
+- Completed: **46**
+- In progress: **5**
 - Blocked: **0**
-- Remaining: **15**
+- Remaining: **4**
 
 Legend: [ ] Pending · [~] In Progress · [x] Completed · [!] Blocked
 
@@ -83,7 +83,7 @@ Growth
 - [x] PROP-004 Add reusable tenant-scoped documents domain
 - [x] PROP-005 Add advertisement/license/marketing-mandate metadata
 - [x] PROP-006 Add publication validation and compliance gate
-- [ ] PROP-007 Update property create/edit UX responsively for RTL/LTR
+- [~] PROP-007 Update property create/edit UX responsively for RTL/LTR
 
 ## Phase 03 — Developer Inventory
 - [x] PROJ-001 Extend project lifecycle/location/development fields
@@ -93,43 +93,43 @@ Growth
 - [x] PROJ-005 Add unit types
 - [x] PROJ-006 Add units and availability lifecycle
 - [x] PROJ-007 Add project inventory APIs and validation
-- [ ] PROJ-008 Add project/unit management UX
+- [~] PROJ-008 Add project/unit management UX
 
 ## Phase 04 — CRM Foundation
 - [x] CRM-001 Refine lead pipeline and qualification fields
 - [x] CRM-002 Add property requirements
-- [ ] CRM-003 Add multiple property/unit interests and deterministic matching
+- [x] CRM-003 Add multiple property/unit interests and deterministic matching
 - [x] CRM-004 Add CRM activity timeline
 - [x] CRM-005 Add tasks/reminders
 - [x] CRM-006 Add structured lost reasons
-- [ ] CRM-007 Update CRM UX and permission-aware assignment
+- [~] CRM-007 Update CRM UX and permission-aware assignment
 
 ## Phase 05 — Viewings & Deals
 - [x] VIEW-001 Add in-person viewing entity + RLS
-- [ ] VIEW-002 Add schedule/reschedule/cancel APIs
-- [ ] VIEW-003 Add calendar/today agenda UX
-- [ ] VIEW-004 Add completed/no-show/outcome workflow
-- [ ] VIEW-005 Integrate viewings into lead/property/unit timelines
+- [x] VIEW-002 Add schedule/reschedule/cancel APIs
+- [~] VIEW-003 Add calendar/today agenda UX
+- [x] VIEW-004 Add completed/no-show/outcome workflow
+- [x] VIEW-005 Integrate viewings into lead/property/unit timelines
 - [x] DEAL-001 Add deal lifecycle
 - [x] DEAL-002 Add brokerage commission fields/rules
 
 ## Phase 06 — Marketing & Website
 - [x] MKT-001 Add marketing mandates
 - [x] MKT-002 Add source/UTM attribution model and capture
-- [ ] MKT-003 Add pixel configuration and safe event emission
-- [ ] WEB-001 Add public listing view model for Property + Unit
-- [ ] WEB-002 Add project detail and unit inventory public views
-- [ ] WEB-003 Add activity-aware website sections without rebuilding themes
+- [x] MKT-003 Add pixel configuration and safe event emission
+- [x] WEB-001 Add public listing view model for Property + Unit
+- [~] WEB-002 Add project detail and unit inventory public views
+- [x] WEB-003 Add activity-aware website sections without rebuilding themes
 
 ## Phase 07 — Analytics
 - [x] REP-001 Define source-of-truth analytics events/KPIs
-- [ ] REP-002 Add marketer/broker/developer activity-aware reports
+- [x] REP-002 Add marketer/broker/developer activity-aware reports
 
 ## Phase 08 — WhatsApp AI
 - [x] AI-001 Add conversation/message domain and audit trail
-- [ ] AI-002 Add WhatsApp webhook/router + idempotency
-- [ ] AI-003 Add least-privilege read-only inventory tools
-- [ ] AI-004 Add human handoff with preserved context
+- [x] AI-002 Add WhatsApp webhook/router + idempotency
+- [x] AI-003 Add least-privilege read-only inventory tools
+- [x] AI-004 Add human handoff with preserved context
 
 ## Phase 09 — Final Hardening & Release
 - [ ] QA-001 Run full lint/typecheck/build + security/RLS/regression suite
