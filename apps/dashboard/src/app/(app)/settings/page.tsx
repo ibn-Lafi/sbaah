@@ -627,6 +627,9 @@ function WebsiteDataTab({ accessToken }: { accessToken: string }) {
           social_whatsapp: me.tenant.social_whatsapp,
           social_snapchat: me.tenant.social_snapchat,
           social_phone: me.tenant.social_phone,
+          social_facebook: me.tenant.social_facebook,
+          social_x: me.tenant.social_x,
+          social_telegram: me.tenant.social_telegram,
         }}
       />
 
