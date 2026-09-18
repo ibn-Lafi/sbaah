@@ -24,7 +24,7 @@ interface MobileNavProps {
  * target, while lighting up for a visit to ANY of the group's pages
  * (العمارات/المشاريع/الإيجارات included) — not just /properties itself.
  */
-const PINNED_KEYS = ['/', 'properties', '/leads'];
+const PINNED_KEYS = ['/', 'properties', 'clients'];
 
 interface PinnedNavItem {
   key: string;
