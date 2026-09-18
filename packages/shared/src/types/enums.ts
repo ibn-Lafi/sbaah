@@ -6,6 +6,47 @@
 export const ACCOUNT_TYPES = ['individual', 'institution', 'company'] as const;
 export type AccountType = (typeof ACCOUNT_TYPES)[number];
 
+/**
+ * What the tenant does in Sabaah. This is deliberately independent from
+ * account/entity type and from staff authorization roles: a company can be
+ * both a developer and a marketer, while its employees still have their own
+ * permissions.
+ */
+export const BUSINESS_ACTIVITIES = ['marketing', 'brokerage', 'development'] as const;
+export type BusinessActivity = (typeof BUSINESS_ACTIVITIES)[number];
+
+export const BUSINESS_CAPABILITIES = [
+  'properties',
+  'crm',
+  'marketing',
+  'projects',
+  'developer_inventory',
+] as const;
+export type BusinessCapability = (typeof BUSINESS_CAPABILITIES)[number];
+
+const BUSINESS_ACTIVITY_CAPABILITIES: Record<BusinessActivity, readonly BusinessCapability[]> = {
+  marketing: ['properties', 'crm', 'marketing'],
+  brokerage: ['properties', 'crm'],
+  development: ['properties', 'crm', 'projects', 'developer_inventory'],
+};
+
+/**
+ * Central capability resolver. Product surfaces should depend on capabilities
+ * instead of scattering activity checks throughout UI/API code.
+ */
+export function resolveBusinessCapabilities(
+  activities: readonly BusinessActivity[],
+): ReadonlySet<BusinessCapability> {
+  return new Set(activities.flatMap((activity) => BUSINESS_ACTIVITY_CAPABILITIES[activity]));
+}
+
+export function hasBusinessCapability(
+  activities: readonly BusinessActivity[],
+  capability: BusinessCapability,
+): boolean {
+  return resolveBusinessCapabilities(activities).has(capability);
+}
+
 export const TENANT_STATUSES = ['active', 'suspended', 'cancelled'] as const;
 export type TenantStatus = (typeof TENANT_STATUSES)[number];
 
