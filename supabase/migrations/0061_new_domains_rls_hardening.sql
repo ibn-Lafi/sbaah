@@ -14,4 +14,4 @@ revoke all on documents, project_phases, unit_types, units, lead_requirements, l
 grant select,insert,update,delete on documents, project_phases, unit_types, units, lead_requirements, lead_interests, crm_activities, crm_tasks, viewings, deals, marketing_mandates, tracking_pixels to authenticated;
 grant select,insert on analytics_events to authenticated;
 grant select on whatsapp_conversations, whatsapp_messages to authenticated;
-grant select on unit_types, units to anon;
+grant select on projects, unit_types, units to anon;
