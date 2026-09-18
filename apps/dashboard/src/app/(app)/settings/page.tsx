@@ -672,7 +672,7 @@ export default function SettingsPage() {
 
   return (
     <AppShell title={settings.pageTitle} orgName={me.tenant.name_ar} accountType={me.tenant.account_type}>
-      <div className="mx-auto flex max-w-[640px] flex-col gap-5">
+      <div className="flex w-full flex-col gap-5">
         {tabOptions.length > 1 && <SegmentedToggle value={tab} onChange={setTab} options={tabOptions} className="settings-tabs" />}
 
         {tab === 'account' && <AccountTab accessToken={accessToken} />}
