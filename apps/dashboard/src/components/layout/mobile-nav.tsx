@@ -7,7 +7,7 @@ import type { AccountType } from '@sbaah/shared';
 import { AccountAvatar } from '@/components/ui/account-avatar';
 import { BrandMark } from '@/components/ui/brand-mark';
 import { getNavItems, isNavGroup, type NavEntry, type NavLeaf } from './nav-items';
-import { ChevronIcon, CloseIcon, SettingsIcon } from './nav-icons';
+import { ChevronIcon, CloseIcon, MenuIcon, SettingsIcon } from './nav-icons';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { useLocale } from '@/lib/i18n/locale-context';
 
@@ -24,7 +24,7 @@ interface MobileNavProps {
  * target, while lighting up for a visit to ANY of the group's pages
  * (العمارات/المشاريع/الإيجارات included) — not just /properties itself.
  */
-const PINNED_KEYS = ['/', '/leads', 'properties'];
+const PINNED_KEYS = ['/', '/leads'];
 
 interface PinnedNavItem {
   key: string;
@@ -104,7 +104,7 @@ export function MobileNav({ orgName, accountType }: MobileNavProps) {
   return (
     <div className="md:hidden">
       <div
-        className="fixed inset-x-3 z-40 flex items-center justify-center gap-2"
+        className="fixed inset-x-4 z-40 flex items-center justify-center gap-2.5"
         style={{ bottom: 'calc(env(safe-area-inset-bottom) + 12px)' }}
       >
         <button
@@ -112,12 +112,12 @@ export function MobileNav({ orgName, accountType }: MobileNavProps) {
           onClick={() => setSheetOpen(true)}
           aria-label={t.mobileNav.morePages}
           title={t.mobileNav.morePages}
-          className="bg-brand flex h-[52px] w-[52px] flex-none items-center justify-center rounded-[18px] text-white shadow-[0_8px_24px_rgba(104,69,138,.32)]"
+          className="bg-brand flex h-[56px] w-[56px] flex-none items-center justify-center rounded-full text-white shadow-[0_10px_28px_rgba(104,69,138,.34)]"
         >
-          <SettingsIcon className="h-[22px] w-[22px]" />
+          <MenuIcon className="h-[22px] w-[22px]" />
         </button>
 
-        <nav className="border-border-subtle bg-surface-card flex h-[52px] min-w-0 flex-1 items-stretch justify-around rounded-[18px] border px-1.5 shadow-[0_8px_24px_rgba(31,29,34,.14)]">
+        <nav className="border-border-subtle bg-surface-card flex h-[58px] min-w-0 flex-1 items-stretch justify-around rounded-full border px-2 shadow-[0_10px_30px_rgba(31,29,34,.14)]">
           {pinnedItems.map(({ key, href, label, icon: ItemIcon, activeHrefs }) => {
             const active = activeHrefs.includes(pathname);
             return (
@@ -135,6 +135,13 @@ export function MobileNav({ orgName, accountType }: MobileNavProps) {
               </Link>
             );
           })}
+          <Link
+            href="/settings"
+            className={`flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-[14px] px-1.5 py-1 text-[10px] leading-none ${settingsActive ? 'bg-brand-surface text-brand font-semibold' : 'text-text-tertiary font-normal'}`}
+          >
+            <SettingsIcon className="h-[18px] w-[18px]" />
+            <span className="max-w-full truncate">{t.settingsNavLabel}</span>
+          </Link>
         </nav>
       </div>
 
@@ -246,23 +253,6 @@ export function MobileNav({ orgName, accountType }: MobileNavProps) {
           </nav>
         </div>
 
-        <div
-          className="border-border-subtle flex-none border-t p-3"
-          style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 12px)' }}
-        >
-          <Link
-            href="/settings"
-            onClick={(e) => handleNavigate(e, '/settings')}
-            className={`border-border-subtle flex h-11 flex-none items-center gap-2 rounded-[10px] border px-[10px] text-[15px] ${
-              settingsActive
-                ? 'bg-brand-surface text-brand font-semibold'
-                : 'text-text-primary font-normal'
-            }`}
-          >
-            <SettingsIcon className="h-[17px] w-[17px] flex-none" />
-            {t.settingsNavLabel}
-          </Link>
-        </div>
       </div>
     </div>
   );
