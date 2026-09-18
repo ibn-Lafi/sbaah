@@ -21,9 +21,11 @@ interface PlanCardProps {
   selecting: boolean;
   selectDisabled: boolean;
   showIntroPricing?: boolean;
+  currentUsage?: { properties: number; users: number };
+  actionLabel?: string;
 }
 
-export function PlanCard({ plan, monthlyEquivalent, isCurrent, selected=false, onSelect, selecting, selectDisabled, showIntroPricing=false }: PlanCardProps) {
+export function PlanCard({ plan, monthlyEquivalent, isCurrent, selected=false, onSelect, selecting, selectDisabled, showIntroPricing=false, currentUsage, actionLabel }: PlanCardProps) {
   const { locale, pages } = useLocale();
   const t=pages.billing.planCard;
   const cycleLabel=t.cycleLabel(plan.billing_cycle);
@@ -41,13 +43,18 @@ export function PlanCard({ plan, monthlyEquivalent, isCurrent, selected=false, o
       </div>
       <div className="my-7 h-px bg-white/65"/>
       <ul className="flex flex-1 flex-col gap-4 text-sm text-white/90">
-        <li className="flex items-center justify-between gap-3"><span className="flex items-center gap-2"><CheckIcon className="h-4 w-4"/>{t.propertiesLimitLabel}</span><strong>{plan.max_properties!=null?t.propertiesCount(plan.max_properties.toLocaleString('en-US')):pages.billing.unlimited}</strong></li>
-        <li className="flex items-center justify-between gap-3"><span className="flex items-center gap-2"><CheckIcon className="h-4 w-4"/>{t.usersLimitLabel}</span><strong>{plan.max_users!=null?t.usersLabel(plan.max_users):pages.billing.unlimited}</strong></li>
-        <li className="flex items-center justify-between gap-3"><span className="flex items-center gap-2"><CheckIcon className="h-4 w-4"/>{t.customDomainLabel}</span><strong>{plan.custom_domain_allowed?t.allowedLabel:t.subdomainLabel}</strong></li>
+        {currentUsage ? <>
+          <li className="flex items-center justify-between gap-3"><span>{pages.billing.currentPlan.propertiesUsage}</span><strong>{plan.max_properties!=null?`${currentUsage.properties} / ${plan.max_properties}`:pages.billing.unlimited}</strong></li>
+          <li className="flex items-center justify-between gap-3"><span>{pages.billing.currentPlan.usersUsage}</span><strong dir="ltr">{plan.max_users!=null?`${currentUsage.users} / ${plan.max_users}`:pages.billing.unlimited}</strong></li>
+        </> : <>
+          <li className="flex items-center justify-between gap-3"><span className="flex items-center gap-2"><CheckIcon className="h-4 w-4"/>{t.propertiesLimitLabel}</span><strong>{plan.max_properties!=null?t.propertiesCount(plan.max_properties.toLocaleString('en-US')):pages.billing.unlimited}</strong></li>
+          <li className="flex items-center justify-between gap-3"><span className="flex items-center gap-2"><CheckIcon className="h-4 w-4"/>{t.usersLimitLabel}</span><strong>{plan.max_users!=null?t.usersLabel(plan.max_users):pages.billing.unlimited}</strong></li>
+          <li className="flex items-center justify-between gap-3"><span className="flex items-center gap-2"><CheckIcon className="h-4 w-4"/>{t.customDomainLabel}</span><strong>{plan.custom_domain_allowed?t.allowedLabel:t.subdomainLabel}</strong></li>
+        </>}
       </ul>
       <p className="mt-5 text-[11px] text-white/55">{t.vatNote}</p>
       <button type="button" disabled={isCurrent||selectDisabled} onClick={onSelect} className="mt-5 flex h-12 w-full items-center justify-center rounded-2xl border border-white/35 bg-white/10 text-sm font-semibold text-white backdrop-blur-md transition-all hover:bg-white hover:text-neutral-950 disabled:cursor-not-allowed disabled:opacity-60">
-        {selecting?t.selectButton:isCurrent?t.currentPlanBadge:t.selectButton}
+        {selecting?t.selectButton:actionLabel??(isCurrent?t.currentPlanBadge:t.selectButton)}
       </button>
     </div>
   </article>;
