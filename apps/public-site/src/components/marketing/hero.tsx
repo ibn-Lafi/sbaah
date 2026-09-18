@@ -3,12 +3,14 @@ import { MARKETING_CONTENT } from '@/lib/marketing/content';
 import { HeroVideo } from './hero-video';
 
 const partnerLogos = [
-  { name: 'ROSHN Group', src: '/marketing/partners/roshn.svg' },
-  { name: 'Saudi Real Estate Arbitration Center', src: '/marketing/partners/arbitration.svg' },
-  { name: 'Real Estate Development Fund', src: '/marketing/partners/redf.svg' },
-  { name: 'Partner', src: 'https://raw.githubusercontent.com/ibn-Lafi/sbaah/claude/real-estate-saas-platform-sp7ua9/F43BA20A-E45F-43FB-81A7-107096FCA871.png' },
-  { name: 'Partner', src: 'https://raw.githubusercontent.com/ibn-Lafi/sbaah/claude/real-estate-saas-platform-sp7ua9/IMG_1903.png' },
-  { name: 'Partner', src: 'https://raw.githubusercontent.com/ibn-Lafi/sbaah/claude/real-estate-saas-platform-sp7ua9/IMG_1904.png' },
+  { name: 'Saudi Real Estate Arbitration Center', src: 'https://raw.githubusercontent.com/ibn-Lafi/sbaah/claude/real-estate-saas-platform-sp7ua9/%D8%B4%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D9%85%D8%B1%D9%83%D8%B2%20%D8%A7%D9%84%D8%B3%D8%B9%D9%88%D8%AF%D9%8A%20%D9%84%D9%84%D8%AA%D8%AD%D9%83%D9%8A%D9%85%20%D8%A7%D9%84%D8%B9%D9%82%D8%A7%D8%B1%20%D8%A8%D8%AF%D9%82%D8%A9%20%D8%B9%D8%A7%D9%84%D9%8A%D8%A9%20svg%20-%20png.svg' },
+  { name: 'Real Estate General Authority', src: 'https://raw.githubusercontent.com/ibn-Lafi/sbaah/claude/real-estate-saas-platform-sp7ua9/%D8%B4%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D9%87%D9%8A%D9%8A%D9%94%D8%A9%20%D8%A7%D9%84%D8%B9%D8%A7%D9%85%D8%A9%20%D9%84%D9%84%D8%B9%D9%82%D8%A7%D8%B1%20%D8%A7%D9%84%D8%AC%D8%AF%D9%8A%D8%AF%20-%20Real%20Estate%20General%20Authority%20Logo%20-%20PNG%20-%20SVG.svg' },
+  { name: 'Public Investment Fund', src: 'https://raw.githubusercontent.com/ibn-Lafi/sbaah/claude/real-estate-saas-platform-sp7ua9/%D8%B4%D8%B9%D8%A7%D8%B1%20%D8%B5%D9%86%D8%AF%D9%88%D9%82%20%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D8%AB%D9%85%D8%A7%D8%B1%D8%A7%D8%AA%20%D8%A7%D9%84%D8%B9%D8%A7%D9%85%D8%A9%20%20%D8%A7%D9%84%D8%AC%D8%AF%D9%8A%D8%AF%20%D8%A8%D8%AF%D9%82%D8%A9%20%D8%B9%D8%A7%D9%84%D9%8A%D8%A9%20-%20PNG%20-%20SVG%20PIF%20Logo.svg' },
+  { name: 'Real Estate Development Fund', src: 'https://raw.githubusercontent.com/ibn-Lafi/sbaah/claude/real-estate-saas-platform-sp7ua9/%D8%B4%D8%B9%D8%A7%D8%B1%20%D8%B5%D9%86%D8%AF%D9%88%D9%82%20%D8%A7%D9%84%D8%AA%D9%86%D9%85%D9%8A%D8%A9%20%D8%A7%D9%84%D8%B9%D9%82%D8%A7%D8%B1%D9%8A%D8%A9%20-%20SVG.svg' },
+  { name: 'ROSHN Group', src: 'https://raw.githubusercontent.com/ibn-Lafi/sbaah/claude/real-estate-saas-platform-sp7ua9/%D8%B4%D8%B9%D8%A7%D8%B1%20%D9%85%D8%AC%D9%85%D9%88%D8%B9%D8%A9%20%D8%B1%D9%88%D8%B4%D9%86%20%D8%A7%D9%84%D8%AC%D8%AF%D9%8A%D8%AF%20%D8%A8%D8%AF%D9%82%D8%A9%20%D8%B9%D8%A7%D9%84%D9%8A%D8%A9%20PNG%20-%20SVG.svg' },
+  { name: 'Ejar', src: 'https://raw.githubusercontent.com/ibn-Lafi/sbaah/claude/real-estate-saas-platform-sp7ua9/%D8%B4%D8%B9%D8%A7%D8%B1%20%D9%85%D9%86%D8%B5%D8%A9%20%D8%A7%D9%95%D9%8A%D8%AC%D8%A7%D8%B1%20-%20SVG.svg' },
+  { name: 'Ministry of Communications and Information Technology', src: 'https://raw.githubusercontent.com/ibn-Lafi/sbaah/claude/real-estate-saas-platform-sp7ua9/%D8%B4%D8%B9%D8%A7%D8%B1%20%D9%88%D8%B2%D8%A7%D8%B1%D8%A9%20%D8%A7%D9%84%D8%A7%D8%AA%D8%B5%D8%A7%D9%84%D8%A7%D8%AA%20%D9%88%D8%AA%D9%82%D9%86%D9%8A%D8%A9%20%D8%A7%D9%84%D9%85%D8%B9%D9%84%D9%88%D9%85%D8%A7%D8%AA%20-%20PNG%20-%20SVG.svg' },
+  { name: 'Real Estate Registry', src: 'https://raw.githubusercontent.com/ibn-Lafi/sbaah/claude/real-estate-saas-platform-sp7ua9/%D9%86%D8%B3%D8%AE%D8%A9%20%D9%85%D9%86%20%D8%B4%D8%B9%D8%A7%D8%B1%20%D8%AE%D8%B7%D9%8A%20%D8%A8%D8%A7%D9%84%D9%88%D9%86%20%D8%A7%D9%84%D8%A7%D8%AE%D8%B6%D8%B1%20%D8%A7%D9%84%D8%BA%D8%A7%D9%85%D9%82%20%D9%88%20%D8%A7%D9%84%D8%A7%D8%A8%D9%8A%D8%B6%20%20-%203.svg' },
 ];
 
 export function Hero({ locale }: { locale: Locale }) {
