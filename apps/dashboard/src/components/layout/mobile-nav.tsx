@@ -145,13 +145,6 @@ export function MobileNav({ orgName, accountType }: MobileNavProps) {
               </Link>
             );
           })}
-          <Link
-            href="/settings"
-            className={`flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-[14px] px-1.5 py-1 text-[10px] leading-none ${settingsActive ? 'bg-brand-surface text-brand font-semibold' : 'text-text-tertiary font-normal'}`}
-          >
-            <SettingsIcon className="h-[18px] w-[18px]" />
-            <span className="max-w-full truncate">{t.settingsNavLabel}</span>
-          </Link>
         </nav>
       </div>
 
@@ -261,6 +254,17 @@ export function MobileNav({ orgName, accountType }: MobileNavProps) {
               );
             })}
           </nav>
+
+          <div className="border-border-subtle mt-3 border-t pt-3">
+            <Link
+              href="/settings"
+              onClick={(e) => handleNavigate(e, '/settings')}
+              className={`flex h-11 items-center gap-2 rounded-[10px] px-[10px] text-[15px] ${settingsActive ? 'bg-brand-surface text-brand font-semibold' : 'text-text-tertiary font-normal'}`}
+            >
+              <SettingsIcon className="h-[17px] w-[17px] flex-none" />
+              <span>{t.settingsNavLabel}</span>
+            </Link>
+          </div>
         </div>
 
       </div>
