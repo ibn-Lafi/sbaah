@@ -21,7 +21,6 @@ import { billingAr, billingEn } from './billing';
 import { websiteAr, websiteEn } from './website';
 import { domainAr, domainEn } from './domain';
 import { appsAr, appsEn } from './apps';
-import { brokerMarketerAr, brokerMarketerEn } from './broker-marketer';
 import { authAr, authEn } from './auth';
 import type { Locale } from '../locale';
 
@@ -40,7 +39,6 @@ export const pageDictionaries = {
     website: websiteAr,
     domain: domainAr,
     apps: appsAr,
-    brokerMarketer: brokerMarketerAr,
     auth: authAr,
   },
   en: {
@@ -57,7 +55,6 @@ export const pageDictionaries = {
     website: websiteEn,
     domain: domainEn,
     apps: appsEn,
-    brokerMarketer: brokerMarketerEn,
     auth: authEn,
   },
 } satisfies Record<Locale, unknown>;
