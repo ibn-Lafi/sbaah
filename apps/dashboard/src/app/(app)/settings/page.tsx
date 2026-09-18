@@ -595,7 +595,7 @@ export default function SettingsPage() {
     { value: 'account' as const, label: settings.tabs.account },
     ...(canSeeTeam ? [{ value: 'team' as const, label: settings.tabs.team }] : []),
     ...(canSeeBilling ? [{ value: 'billing' as const, label: settings.tabs.billing }] : []),
-    ...(canSeeWebsiteData ? [{ value: 'websiteData' as const, label: settings.tabs.websiteData }] : []),
+    ...(canSeeWebsiteData ? [{ value: 'websiteData' as const, label: me.tenant.account_type === 'individual' ? 'بيانات الفرد' : me.tenant.account_type === 'institution' ? 'بيانات المؤسسة' : 'بيانات الشركة' }] : []),
   ];
   const [tab, setTab] = useState<SettingsTab>('account');
 
