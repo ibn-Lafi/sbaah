@@ -1,7 +1,14 @@
 import { z } from 'zod';
-import { FURNISHING_STATUSES, LISTING_TYPES, PROPERTY_AVAILABILITY, PROPERTY_FRONTAGES, PROPERTY_STATUSES, PROPERTY_TYPES } from '../types/enums';
+import {
+  FURNISHING_STATUSES,
+  LISTING_TYPES,
+  PROPERTY_AVAILABILITY,
+  PROPERTY_FRONTAGES,
+  PROPERTY_STATUSES,
+  PROPERTY_TYPES,
+} from '../types/enums';
 
-export const propertyInputSchema = z.object({
+const propertyFieldsSchema = z.object({
   title_ar: z.string().min(3, 'عنوان العقار مطلوب'),
   title_en: z.string().optional().nullable(),
   description_ar: z.string().min(10, 'وصف العقار مطلوب'),
@@ -17,7 +24,6 @@ export const propertyInputSchema = z.object({
   lat: z.number().optional().nullable(),
   lng: z.number().optional().nullable(),
   agent_id: z.string().uuid().optional().nullable(),
-  /** PRODUCT_SPEC section 4.1 — optional hierarchy grouping, added after the original property model. */
   project_id: z.string().uuid().optional().nullable(),
   building_id: z.string().uuid().optional().nullable(),
   land_area: z.number().positive().optional().nullable(),
@@ -35,26 +41,27 @@ export const propertyInputSchema = z.object({
   advertisement_license_expires_at: z.string().datetime().optional().nullable(),
   advertiser_name: z.string().max(200).optional().nullable(),
   marketing_mandate_id: z.string().uuid().optional().nullable(),
-}).superRefine((value, ctx) => {
-  if (['apartment', 'villa'].includes(value.property_type)) {
+});
+
+function validateResidentialFields(
+  value: { property_type?: string; bedrooms?: number | null; bathrooms?: number | null },
+  ctx: z.RefinementCtx,
+) {
+  if (value.property_type && ['apartment', 'villa'].includes(value.property_type)) {
     if (value.bedrooms == null) ctx.addIssue({ code: 'custom', path: ['bedrooms'], message: 'عدد غرف النوم مطلوب لهذا النوع' });
     if (value.bathrooms == null) ctx.addIssue({ code: 'custom', path: ['bathrooms'], message: 'عدد دورات المياه مطلوب لهذا النوع' });
   }
-});
+}
+
+export const propertyInputSchema = propertyFieldsSchema.superRefine(validateResidentialFields);
 export type PropertyInput = z.infer<typeof propertyInputSchema>;
 
-/** PATCH body — every field optional, plus status/availability which POST never sets directly (DB defaults handle creation). */
-export const propertyUpdateSchema = propertyInputSchema.partial().and(z.object({
+export const propertyUpdateSchema = propertyFieldsSchema.partial().extend({
   status: z.enum(PROPERTY_STATUSES).optional(),
   availability: z.enum(PROPERTY_AVAILABILITY).optional(),
-}));
+}).superRefine(validateResidentialFields);
 export type PropertyUpdateInput = z.infer<typeof propertyUpdateSchema>;
 
-/**
- * Query params for the public search/filter endpoint (PRODUCT_SPEC section
- * 4). `.coerce` throughout — these arrive as strings from a URL query
- * string (`request.nextUrl.searchParams`), never as a JSON body.
- */
 export const propertySearchSchema = z.object({
   city_id: z.string().uuid().optional(),
   district_id: z.string().uuid().optional(),
@@ -68,7 +75,6 @@ export const propertySearchSchema = z.object({
 });
 export type PropertySearchInput = z.infer<typeof propertySearchSchema>;
 
-/** Max upload limits per PRODUCT_SPEC section 12 (video risk mitigation). */
 export const MAX_VIDEO_SIZE_MB = 50;
 export const MAX_VIDEOS_PER_PROPERTY = 2;
 export const MAX_IMAGES_PER_PROPERTY = 15;
