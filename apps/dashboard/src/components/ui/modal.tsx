@@ -23,16 +23,16 @@ export function Modal({ title, onClose, children, maxWidth = '720px' }: ModalPro
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      className="fixed inset-0 z-50 flex items-stretch justify-center bg-black/40 p-0 sm:items-center sm:p-4"
       onClick={onClose}
     >
       <div
-        className="rounded-card bg-surface-card max-h-[90vh] w-full overflow-auto overscroll-contain p-5 shadow-[0_20px_60px_rgba(31,29,34,.25)] sm:p-8"
+        className="bg-surface-card h-[100dvh] max-h-[100dvh] w-full min-w-0 overflow-x-hidden overflow-y-auto overscroll-contain px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))] shadow-[0_20px_60px_rgba(31,29,34,.25)] sm:h-auto sm:max-h-[90vh] sm:rounded-card sm:p-8"
         style={{ maxWidth }}
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="mb-5 flex items-center justify-between">
-          <h2 className="text-text-primary text-lg font-semibold">{title}</h2>
+        <div className="sticky top-0 z-20 -mx-4 -mt-[max(1rem,env(safe-area-inset-top))] mb-5 flex min-w-0 items-center justify-between border-b border-border-subtle bg-surface-card/95 px-4 pb-3 pt-[max(1rem,env(safe-area-inset-top))] backdrop-blur sm:static sm:mx-0 sm:mt-0 sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
+          <h2 className="text-text-primary min-w-0 truncate pe-3 text-base font-semibold sm:text-lg">{title}</h2>
           <button
             type="button"
             onClick={onClose}
