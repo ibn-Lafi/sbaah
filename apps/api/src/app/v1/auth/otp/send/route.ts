@@ -40,10 +40,13 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
         .gte('created_at', windowStart),
     ]);
 
+    if (purpose === 'change_phone' && existingUser) {
+      throw new ApiError(409, 'phone_already_registered', 'رقم الجوال مستخدم لحساب آخر');
+    }
     if (purpose === 'register' && existingUser) {
       throw new ApiError(409, 'phone_already_registered', 'رقم الجوال مسجّل بالفعل');
     }
-    if (purpose !== 'register' && !existingUser) {
+    if (!['register', 'change_phone'].includes(purpose) && !existingUser) {
       throw new ApiError(404, 'phone_not_registered', 'رقم الجوال غير مسجّل');
     }
     if (recentSendsError) {
@@ -100,7 +103,10 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
       .gte('created_at', windowStart),
   ]);
 
-  if (!existingUser) {
+  if (purpose === 'change_email' && existingUser) {
+    throw new ApiError(409, 'email_already_used', 'البريد الإلكتروني مستخدم لحساب آخر');
+  }
+  if (purpose !== 'change_email' && !existingUser) {
     throw new ApiError(404, 'email_not_registered', 'البريد الإلكتروني غير مسجّل');
   }
   if (recentSendsError) {
