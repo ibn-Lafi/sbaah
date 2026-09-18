@@ -7,10 +7,10 @@
 ## Progress
 
 - Total tasks: **50**
-- Completed: **3**
+- Completed: **8**
 - In progress: **0**
-- Blocked: **0**
-- Remaining: **47**
+- Blocked: **1**
+- Remaining: **42**
 
 Legend: [ ] Pending · [~] In Progress · [x] Completed · [!] Blocked
 
@@ -67,12 +67,12 @@ Growth
 - [x] PLAN-001 Create validated master implementation plan and decision log
 - [x] FOUND-001 Add shared Business Activity domain types and capability resolver
 - [x] FOUND-002 Add additive tenant business-activity persistence migration + RLS
-- [ ] FOUND-003 Add tenant activities API with backward-compatible unconfigured state
-- [ ] FOUND-004 Add activity-aware dashboard capability context
-- [ ] RBAC-001 Define centralized permission catalog and data scopes
-- [ ] RBAC-002 Map legacy owner/admin/agent roles to permission sets
-- [ ] RBAC-003 Add backend permission guard helpers
-- [ ] RBAC-004 Add database permission/scoping foundation without breaking legacy roles
+- [x] FOUND-003 Add tenant activities API with backward-compatible unconfigured state
+- [x] FOUND-004 Add activity-aware dashboard capability context
+- [x] RBAC-001 Define centralized permission catalog and data scopes
+- [x] RBAC-002 Map legacy owner/admin/agent roles to permission sets
+- [x] RBAC-003 Add backend permission guard helpers
+- [!] RBAC-004 Add database permission/scoping foundation without breaking legacy roles
 - [ ] SEC-001 Add same-tenant foreign-key ownership validation helpers
 - [ ] SEC-002 Add tenant-isolation/RLS regression tests
 
