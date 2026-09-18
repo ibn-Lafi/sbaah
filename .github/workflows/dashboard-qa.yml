@@ -1,0 +1,24 @@
+name: Dashboard QA
+on:
+  push:
+    branches:
+      - claude/real-estate-saas-platform-sp7ua9
+  workflow_dispatch:
+jobs:
+  dashboard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.34.5
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.20.2
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter=@sbaah/dashboard typecheck
+      - run: pnpm --filter=@sbaah/dashboard lint
+      - run: pnpm --filter=@sbaah/dashboard build
