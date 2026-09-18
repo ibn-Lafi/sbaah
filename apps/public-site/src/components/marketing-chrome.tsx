@@ -99,6 +99,7 @@ export function MarketingChrome({ locale, children }: { locale: Locale; children
                 <a href={homeHref} className="hover:text-white">{locale === 'ar' ? 'الرئيسية' : 'Home'}</a>
                 <a href="#pricing" className="hover:text-white">{t.nav.pricing}</a>
                 <a href="#faq" className="hover:text-white">{t.nav.faq}</a>
+                <a href={`/${locale}/support`} className="hover:text-white">{locale === 'ar' ? 'مركز الدعم' : 'Support Center'}</a>
               </nav>
             </div>
 
