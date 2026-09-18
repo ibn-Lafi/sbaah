@@ -27,9 +27,9 @@ interface PublicPlatformSettings {
 }
 
 function SocialIcon({ type }: { type: 'tiktok' | 'instagram' | 'x' }) {
-  if (type === 'instagram') return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8" fill="currentColor" stroke="none"/></svg>;
-  if (type === 'x') return <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5"><path d="M18.9 2H22l-6.77 7.74L23.2 22h-6.24l-4.89-6.39L6.48 22H3.36l7.26-8.3L2.98 2h6.4l4.42 5.84L18.9 2Zm-1.1 17.84h1.73L8.44 4.05H6.58L17.8 19.84Z"/></svg>;
-  return <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5"><path d="M14.5 3c.4 2.2 1.7 3.6 3.8 4v3.1a8.7 8.7 0 0 1-3.8-1.1v6.2a6.2 6.2 0 1 1-5.4-6.1v3.2a3.1 3.1 0 1 0 2.2 3V3h3.2Z"/></svg>;
+  if (type === 'instagram') return <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5" aria-hidden="true"><path d="M7.75 2h8.5A5.76 5.76 0 0 1 22 7.75v8.5A5.76 5.76 0 0 1 16.25 22h-8.5A5.76 5.76 0 0 1 2 16.25v-8.5A5.76 5.76 0 0 1 7.75 2Zm0 1.75a4 4 0 0 0-4 4v8.5a4 4 0 0 0 4 4h8.5a4 4 0 0 0 4-4v-8.5a4 4 0 0 0-4-4h-8.5ZM17.5 5.4a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2ZM12 7.15A4.85 4.85 0 1 1 12 16.85 4.85 4.85 0 0 1 12 7.15Zm0 1.75a3.1 3.1 0 1 0 0 6.2 3.1 3.1 0 0 0 0-6.2Z"/></svg>;
+  if (type === 'x') return <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5" aria-hidden="true"><path d="M18.9 2H22l-6.77 7.74L23.2 22h-6.24l-4.89-6.39L6.48 22H3.36l7.26-8.3L2.98 2h6.4l4.42 5.84L18.9 2Zm-1.1 17.84h1.73L8.44 4.05H6.58L17.8 19.84Z"/></svg>;
+  return <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5" aria-hidden="true"><path d="M14.1 2h3.25c.23 1.9 1.28 3.18 3.15 3.75v3.3a8.36 8.36 0 0 1-3.1-.78v6.15A6.58 6.58 0 1 1 11.1 7.85v3.34a3.3 3.3 0 1 0 3 3.28V2Z"/></svg>;
 }
 
 const SCROLL_THRESHOLD = 24;
