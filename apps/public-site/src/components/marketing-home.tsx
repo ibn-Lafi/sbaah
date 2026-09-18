@@ -2,6 +2,7 @@ import Link from 'next/link';
 import type { Locale } from '@/lib/i18n/locales';
 import { Hero } from './marketing/hero';
 import { Pricing } from './marketing/pricing';
+import { BusinessSuite } from './marketing/business-suite';
 import { Faq } from './marketing/faq';
 
 const CTA_BANNER_SRC =
@@ -30,5 +31,5 @@ function CtaBanner({ locale }: { locale: Locale }) {
 }
 
 export function MarketingHome({locale}:{locale:Locale}) {
-  return <div><Hero locale={locale}/><Pricing locale={locale}/><CtaBanner locale={locale}/><Faq locale={locale}/></div>;
+  return <div><Hero locale={locale}/><BusinessSuite locale={locale}/><Pricing locale={locale}/><CtaBanner locale={locale}/><Faq locale={locale}/></div>;
 }
