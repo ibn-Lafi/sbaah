@@ -7,10 +7,10 @@
 ## Progress
 
 - Total tasks: **50**
-- Completed: **47**
-- In progress: **5**
+- Completed: **48**
+- In progress: **4**
 - Blocked: **0**
-- Remaining: **3**
+- Remaining: **2**
 
 Legend: [ ] Pending · [~] In Progress · [x] Completed · [!] Blocked
 
@@ -107,7 +107,7 @@ Growth
 ## Phase 05 — Viewings & Deals
 - [x] VIEW-001 Add in-person viewing entity + RLS
 - [x] VIEW-002 Add schedule/reschedule/cancel APIs
-- [~] VIEW-003 Add calendar/today agenda UX
+- [x] VIEW-003 Add calendar/today agenda UX
 - [x] VIEW-004 Add completed/no-show/outcome workflow
 - [x] VIEW-005 Integrate viewings into lead/property/unit timelines
 - [x] DEAL-001 Add deal lifecycle
