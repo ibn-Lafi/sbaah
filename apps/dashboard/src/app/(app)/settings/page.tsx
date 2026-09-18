@@ -33,7 +33,7 @@ import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { useLocale } from '@/lib/i18n/locale-context';
 import { updateSocialLinks, updateAccountType, updateFalLicense, type SocialLinks } from '@/lib/api/tenant';
 import { getWebsite, updateWebsite } from '@/lib/api/website';
-import { updateMyEmail } from '@/lib/api/auth';
+import { sendProfileChangeOtp, updateMyProfile, verifyProfileChange } from '@/lib/api/auth';
 import { signOut } from '@/lib/auth/session';
 import { ApiRequestError } from '@/lib/api/client';
 
@@ -430,53 +430,6 @@ function WebsiteTextFieldCard({
  * البريد، إشعار إضافتك كموظف، رمز تحقق عند تغيير كلمة المرور، وإشعارات
  * أخرى يحتاجها حسابك (مثل تعيين عميل محتمل لك). يمكن تركه فارغًا.
  */
-function EmailCard({ accessToken, initialEmail }: { accessToken: string; initialEmail: string | null }) {
-  const { pages } = useLocale();
-  const t = pages.settings;
-  const [draft, setDraft] = useState(initialEmail ?? '');
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [saved, setSaved] = useState(false);
-
-  async function handleSubmit(event: React.FormEvent) {
-    event.preventDefault();
-    setError(null);
-    setSaved(false);
-    setLoading(true);
-    try {
-      await updateMyEmail(accessToken, draft.trim() ? draft.trim() : null);
-      setSaved(true);
-    } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : t.email.saveFailed);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  return (
-    <Card className="p-6">
-      <h2 className="mb-1 flex items-center gap-2 text-base font-semibold text-text-primary">
-        <MailIcon className="h-[18px] w-[18px] text-text-secondary" />
-        {t.email.title}
-      </h2>
-      <p className="mb-4 text-sm text-text-secondary">{t.email.description}</p>
-      <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-3">
-        <Input
-          type="email"
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          placeholder="name@example.com"
-          dir="ltr"
-        />
-        <FormError message={error} />
-        <Button type="submit" disabled={loading} className="w-fit">
-          {loading ? t.common.saving : saved ? t.common.saved : t.common.save}
-        </Button>
-      </form>
-    </Card>
-  );
-}
-
 /**
  * رخصة فال — منفصلة عن "نوع الحساب" لأنها لا تتغيّر بتبديله (migration
  * 0047: لم تعد تُطلب أثناء التسجيل، تُدخل هنا أول مرة أو تُعدَّل لاحقًا).
@@ -553,39 +506,13 @@ function FalLicenseCard({ accessToken, initial, canEdit }: { accessToken: string
 }
 
 function AccountTab({ accessToken }: { accessToken: string }) {
-  const { me } = useCurrentUser();
-  const { t, pages } = useLocale();
-  const settings = pages.settings;
-  const router = useRouter();
-
-  function handleSignOut() {
-    void signOut().then(() => router.replace('/login'));
-  }
-
-  return (
-    <>
-      <Card className="p-6">
-        <h2 className="mb-2 text-base font-semibold text-text-primary">{settings.accountInfo.title}</h2>
-        <InfoRow label={settings.accountInfo.yourName} value={me.user.full_name} />
-        <InfoRow label={settings.accountInfo.yourPhone} value={me.user.phone} />
-        <InfoRow label={settings.accountInfo.yourRole} value={t.roleLabels[me.user.role]} />
-      </Card>
-
-      <EmailCard accessToken={accessToken} initialEmail={me.user.email} />
-
-      <LanguageThemeSwitchCard />
-
-      <Card className="p-6">
-        <button
-          type="button"
-          onClick={handleSignOut}
-          className="text-sm font-semibold text-danger hover:underline"
-        >
-          {settings.signOut}
-        </button>
-      </Card>
-    </>
-  );
+  const { me } = useCurrentUser(); const { t, pages } = useLocale(); const settings=pages.settings; const router=useRouter();
+  const [name,setName]=useState(me.user.full_name); const [role,setRole]=useState(me.user.role); const [phone,setPhone]=useState(me.user.phone); const [email,setEmail]=useState(me.user.email??'');
+  const [verify,setVerify]=useState<null|{kind:'phone'|'email';target:string;code:string}>(null); const [error,setError]=useState<string|null>(null); const [saved,setSaved]=useState(false);
+  async function saveBasic(){setError(null);try{await updateMyProfile(accessToken,{full_name:name,role});setSaved(true);window.location.reload()}catch(e){setError(e instanceof ApiRequestError?e.message:'تعذر حفظ البيانات')}}
+  async function requestChange(kind:'phone'|'email'){setError(null);const target=kind==='phone'?phone:email.trim();if(!target)return;try{await sendProfileChangeOtp(kind==='phone'?{phone:target}:{email:target});setVerify({kind,target,code:''})}catch(e){setError(e instanceof ApiRequestError?e.message:'تعذر إرسال رمز التحقق')}}
+  async function confirm(){if(!verify)return;try{await verifyProfileChange(accessToken,verify.kind==='phone'?{phone:verify.target,code:verify.code}:{email:verify.target,code:verify.code});setVerify(null);window.location.reload()}catch(e){setError(e instanceof ApiRequestError?e.message:'رمز التحقق غير صحيح')}}
+  return <><Card className="p-6"><h2 className="mb-4 text-base font-semibold text-text-primary">{settings.accountInfo.title}</h2><div className="flex flex-col gap-4"><div><label className="mb-1.5 block text-sm text-text-secondary">الاسم</label><Input value={name} onChange={e=>setName(e.target.value)}/></div><div><label className="mb-1.5 block text-sm text-text-secondary">الدور</label><select value={role} onChange={e=>setRole(e.target.value as typeof role)} className="rounded-input border-border-default bg-surface-card w-full border px-3 py-2.5 text-sm text-text-primary"><option value="owner">مالك الحساب</option><option value="admin">مسؤول</option><option value="agent">وسيط</option></select></div><div><label className="mb-1.5 block text-sm text-text-secondary">رقم الجوال</label><div className="flex gap-2"><PhoneInput storagePrefix="966" value={phone} onChange={setPhone}/><Button type="button" variant="secondary" onClick={()=>void requestChange('phone')} disabled={phone===me.user.phone}>تغيير</Button></div><p className="mt-1 text-xs text-text-placeholder">عند التغيير سنرسل رمز OTP إلى الرقم الجديد للتأكد منه.</p></div><div><label className="mb-1.5 block text-sm text-text-secondary">البريد الإلكتروني</label><div className="flex gap-2"><Input type="email" dir="ltr" value={email} onChange={e=>setEmail(e.target.value)}/><Button type="button" variant="secondary" onClick={()=>void requestChange('email')} disabled={email.trim()===(me.user.email??'')}>تغيير</Button></div><p className="mt-1 text-xs text-text-placeholder">عند التغيير سنرسل رمز OTP إلى البريد الجديد للتأكد منه.</p></div><FormError message={error}/><Button type="button" onClick={()=>void saveBasic()} className="w-fit">{saved?'تم الحفظ':'حفظ الاسم والدور'}</Button></div></Card><LanguageThemeSwitchCard/><Card className="p-6"><button type="button" onClick={()=>void signOut().then(()=>router.replace('/login'))} className="text-sm font-semibold text-danger hover:underline">{settings.signOut}</button></Card>{verify&&<div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/40 p-4"><Card className="w-full max-w-sm p-6"><h3 className="text-lg font-bold text-text-primary">تأكيد {verify.kind==='phone'?'رقم الجوال':'البريد الإلكتروني'}</h3><p className="mb-4 mt-1 text-sm text-text-secondary">أدخل رمز التحقق المرسل إلى <span dir="ltr">{verify.target}</span></p><Input inputMode="numeric" maxLength={4} dir="ltr" value={verify.code} onChange={e=>setVerify({...verify,code:e.target.value.replace(/\D/g,'').slice(0,4)})} placeholder="0000"/><FormError message={error}/><div className="mt-4 flex gap-2"><Button type="button" onClick={()=>void confirm()} disabled={verify.code.length!==4}>تأكيد التغيير</Button><Button type="button" variant="secondary" onClick={()=>setVerify(null)}>إلغاء</Button></div></Card></div>}</>;
 }
 
 function WebsiteDataTab({ accessToken }: { accessToken: string }) {
