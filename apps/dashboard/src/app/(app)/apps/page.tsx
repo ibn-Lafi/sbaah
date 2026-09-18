@@ -31,10 +31,6 @@ interface AppConfig {
 const APPS: AppConfig[] = [
   { slug: 'whatsapp', tile: 'light', connected: true },
   { slug: 'googleanalytics', tile: 'light', connected: false },
-  { slug: 'mailchimp', tile: 'dark', connected: false },
-  { slug: 'zapier', tile: 'light', connected: false },
-  { slug: 'salla', tile: 'dark', connected: false },
-  { slug: 'snapchat', tile: 'dark', connected: false },
 ];
 
 function SearchIcon({ className }: { className?: string }) {
