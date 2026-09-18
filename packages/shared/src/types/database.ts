@@ -223,6 +223,7 @@ export interface District {
 /** PRODUCT_SPEC section 4.1 — optional hierarchy grouping, added with migration 0008. */
 export interface Project {
   id: string;
+  slug: string;
   tenant_id: string;
   name_ar: string;
   name_en: string | null;
@@ -252,6 +253,7 @@ export interface Building {
 
 export interface Property {
   id: string;
+  slug: string;
   tenant_id: string;
   project_id: string | null;
   building_id: string | null;
