@@ -83,6 +83,9 @@ export interface Tenant {
   social_whatsapp: string | null;
   social_snapchat: string | null;
   social_phone: string | null;
+  social_facebook: string | null;
+  social_x: string | null;
+  social_telegram: string | null;
   subdomain: string;
   custom_domain: string | null;
   /** PRODUCT_SPEC section 4.3 — always paired with custom_domain (both null or both set), enforced by a DB check constraint. */
