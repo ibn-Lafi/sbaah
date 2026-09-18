@@ -72,9 +72,7 @@ export function Sidebar({ orgName, accountType }: SidebarProps) {
     .filter((item) => !business.configured || !item.capability || capabilities.has(item.capability))
     .map((item) =>
       isNavGroup(item)
-        ? { ...item, children: item.children
-            .filter((child) => !child.roles || child.roles.includes(me.user.role))
-            .filter((child) => !business.configured || !child.capability || capabilities.has(child.capability)) }
+        ? { ...item, children: item.children.filter((child) => !business.configured || !child.capability || capabilities.has(child.capability)) }
         : item,
     )
     .filter((item) => !isNavGroup(item) || item.children.length > 0);
