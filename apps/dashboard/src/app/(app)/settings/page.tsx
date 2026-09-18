@@ -88,10 +88,10 @@ function AccountTypeCard({ accessToken, initial, canEdit }: { accessToken: strin
     }
   }
 
-  if (!editing) {
-    return (
+  return (
+    <>
       <Card className="p-6">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-4">
           <div>
             <h2 className="mb-1 text-base font-semibold text-text-primary">{t.accountType.title}</h2>
             <p className="text-sm text-text-secondary">{t.accountType.options[initial].label}</p>
@@ -103,48 +103,43 @@ function AccountTypeCard({ accessToken, initial, canEdit }: { accessToken: strin
           )}
         </div>
       </Card>
-    );
-  }
 
-  return (
-    <Card className="p-6">
-      <h2 className="mb-1 text-base font-semibold text-text-primary">{t.accountType.editTitle}</h2>
-      <p className="mb-4 text-sm text-text-secondary">{t.accountType.editDescription}</p>
-      <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-4">
-        <div className="flex flex-col gap-3">
-          {ACCOUNT_TYPES.map((type) => {
-            const { label, description } = t.accountType.options[type];
-            const selected = accountType === type;
-            return (
-              <button
-                key={type}
-                type="button"
-                onClick={() => setAccountType(type)}
-                className={`rounded-input flex items-center gap-4 border p-4 text-start transition-colors ${
-                  selected ? 'border-brand ring-brand ring-1' : 'border-border-default hover:border-text-placeholder'
-                }`}
-              >
-                <VerifiedBadge accountType={type} size={36} />
-                <div className="flex flex-1 flex-col gap-0.5">
-                  <span className="text-sm font-semibold text-text-primary">{label}</span>
-                  <span className="text-xs text-text-secondary">{description}</span>
-                </div>
-              </button>
-            );
-          })}
+      {editing && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/40 p-4 backdrop-blur-[2px]" onClick={cancel}>
+          <div role="dialog" aria-modal="true" className="bg-surface-card w-full max-w-md rounded-[28px] p-5 shadow-2xl sm:p-6" onClick={(event) => event.stopPropagation()}>
+            <div className="mb-5 flex items-start justify-between gap-4">
+              <div>
+                <h2 className="mb-1 text-lg font-bold text-text-primary">{t.accountType.editTitle}</h2>
+                <p className="text-sm text-text-secondary">{t.accountType.editDescription}</p>
+              </div>
+              <button type="button" onClick={cancel} aria-label={t.common.cancel} className="bg-surface-subtle text-text-secondary flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xl">×</button>
+            </div>
+            <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-4">
+              <div className="flex flex-col gap-3">
+                {ACCOUNT_TYPES.map((type) => {
+                  const { label, description } = t.accountType.options[type];
+                  const selected = accountType === type;
+                  return (
+                    <button key={type} type="button" onClick={() => setAccountType(type)} className={`rounded-input flex items-center gap-4 border p-4 text-start transition-colors ${selected ? 'border-brand ring-brand ring-1' : 'border-border-default hover:border-text-placeholder'}`}>
+                      <VerifiedBadge accountType={type} size={36} />
+                      <div className="flex flex-1 flex-col gap-0.5">
+                        <span className="text-sm font-semibold text-text-primary">{label}</span>
+                        <span className="text-xs text-text-secondary">{description}</span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+              <FormError message={error} />
+              <div className="flex gap-2">
+                <Button type="submit" disabled={loading}>{loading ? t.common.saving : t.common.save}</Button>
+                <Button type="button" variant="secondary" onClick={cancel} disabled={loading}>{t.common.cancel}</Button>
+              </div>
+            </form>
+          </div>
         </div>
-
-        <FormError message={error} />
-        <div className="flex gap-2">
-          <Button type="submit" disabled={loading}>
-            {loading ? t.common.saving : t.common.save}
-          </Button>
-          <Button type="button" variant="secondary" onClick={cancel} disabled={loading}>
-            {t.common.cancel}
-          </Button>
-        </div>
-      </form>
-    </Card>
+      )}
+    </>
   );
 }
 
