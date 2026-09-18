@@ -122,7 +122,7 @@ export function LocationPicker({ value, onChange, focusPoint }: LocationPickerPr
       </div>
       <div
         ref={containerRef}
-        className="h-[280px] w-full overflow-hidden rounded-input border border-border-default"
+        className="h-[220px] w-full min-w-0 overflow-hidden rounded-input border border-border-default sm:h-[280px]"
       />
       <p className="text-xs text-text-secondary">{t.mapInstructions}</p>
     </div>
