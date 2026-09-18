@@ -76,19 +76,7 @@ export function MarketingChrome({ locale, children }: { locale: Locale; children
       <main>{children}</main>
       <div className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] left-4 z-[60] flex flex-col items-center gap-2 lg:hidden"><div className={`flex flex-col items-center gap-2 transition-all duration-200 ${quickControlsOpen ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-3 opacity-0'}`} aria-hidden={!quickControlsOpen}><Link href={otherLocaleHref} aria-label={t.nav.languageSwitch} title={t.nav.languageSwitch} className="text-brand flex h-11 w-11 items-center justify-center rounded-full border border-border-subtle bg-surface-card shadow-lg transition-transform hover:scale-105"><GlobeIcon className="h-5 w-5" /></Link><div className="flex h-11 w-11 items-center justify-center rounded-full border border-border-subtle bg-surface-card text-text-primary shadow-lg"><ThemeToggle labels={t.nav} className="h-11 w-11 rounded-full bg-transparent text-current hover:bg-black/5" /></div></div><button type="button" onClick={() => setQuickControlsOpen((value) => !value)} aria-label={quickControlsOpen ? t.nav.menuClose : t.nav.menuOpen} aria-expanded={quickControlsOpen} className="bg-brand flex h-12 w-12 items-center justify-center rounded-full text-white shadow-xl ring-1 ring-white/20 transition-transform active:scale-95">{quickControlsOpen ? <CloseIcon className="h-5 w-5" /> : <QuickControlsIcon className="h-5 w-5" />}</button></div>
 
-      <footer className="relative bg-surface-card pt-16 sm:pt-24">
-        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 z-10 h-32 -translate-y-[6%] sm:h-48 lg:h-56">
-          <img
-            src="https://raw.githubusercontent.com/ibn-Lafi/sbaah/claude/real-estate-saas-platform-sp7ua9/947053BC-8CA9-4329-A41D-7EB9BCCDE5C5.png"
-            alt=""
-            className="absolute bottom-0 right-[-2rem] h-[150%] w-auto max-w-none object-contain object-bottom drop-shadow-[0_12px_22px_rgba(67,43,82,.18)] sm:right-[-1rem] sm:h-[165%] lg:right-[3vw] lg:h-[190%]"
-          />
-          <img
-            src="https://raw.githubusercontent.com/ibn-Lafi/sbaah/claude/real-estate-saas-platform-sp7ua9/874B8A4E-94A2-4990-9824-CF3320A544DD.png"
-            alt=""
-            className="absolute bottom-[-.5rem] left-[-3.5rem] hidden h-[125%] w-auto max-w-none object-contain object-bottom opacity-95 drop-shadow-[0_12px_22px_rgba(67,43,82,.14)] sm:block lg:left-[2vw] lg:h-[145%]"
-          />
-        </div>
+      <footer className="bg-surface-card pt-8">
         <div className="relative w-full overflow-hidden rounded-t-[2rem] bg-[#68458A] text-white shadow-[0_-18px_55px_-40px_rgba(72,42,94,.45)] sm:rounded-t-[2.5rem]">
           <div aria-hidden="true" className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/marketing/footer-silk.svg')" }} />
           <div aria-hidden="true" className="absolute inset-0 bg-[#321846]/20" />
