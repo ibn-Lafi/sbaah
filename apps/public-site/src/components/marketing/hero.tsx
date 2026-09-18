@@ -56,7 +56,7 @@ export function Hero({ locale }: { locale: Locale }) {
           <div className="hero-partners-marquee flex w-max" dir="ltr"><LogoSet copy={1}/><LogoSet copy={2}/><LogoSet copy={3}/><LogoSet copy={4}/></div>
         </div>
       </div>
-      <style>{`@keyframes heroPartnersMarquee{from{transform:translate3d(0,0,0)}to{transform:translate3d(-25%,0,0)}}.hero-partners-marquee{animation:heroPartnersMarquee 15s linear infinite;will-change:transform;transform:translate3d(0,0,0)}.hero-partners-set{flex:none}@media (prefers-reduced-motion:reduce){.hero-partners-marquee{animation-duration:30s}}`}</style>
+      <style>{`@keyframes heroPartnersMarquee{from{transform:translate3d(0,0,0)}to{transform:translate3d(-25%,0,0)}}.hero-partners-marquee{animation:heroPartnersMarquee 15s linear infinite;will-change:transform;transform:translate3d(0,0,0)}.hero-partners-set{flex:none}@media(max-width:639px){.hero-partners-marquee{animation-name:heroPartnersMarqueeMobile;animation-duration:18s;transform:translate3d(0,0,0)}@keyframes heroPartnersMarqueeMobile{from{transform:translate3d(0,0,0)}to{transform:translate3d(-25%,0,0)}}}@media (prefers-reduced-motion:reduce){.hero-partners-marquee{animation-duration:30s}}`}</style>
     </section>
   );
 }
