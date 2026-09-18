@@ -74,7 +74,7 @@ export function RentalForm({
   onSubmit,
   submitLabel,
 }: RentalFormProps) {
-  const { pages } = useLocale();
+  const { pages, locale } = useLocale();
   const t = pages.rentals.form;
   const [form, setForm] = useState<FormState>(
     initialValues
@@ -138,7 +138,7 @@ export function RentalForm({
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className="flex flex-col gap-3">
-        <h3 className="text-sm font-semibold text-text-primary">{pages.rentals.pageTitle}</h3>
+        <h3 className="text-sm font-semibold text-text-primary">{locale === 'ar' ? 'العقار المرتبط' : 'Linked Property'}</h3>
         {mode === 'create' && (
           <Select value={form.property_id} onChange={(e) => set('property_id', e.target.value)}>
             <option value="">{t.propertyPlaceholder}</option>
@@ -152,7 +152,7 @@ export function RentalForm({
       </div>
 
       <div className="flex flex-col gap-3">
-        <h3 className="text-sm font-semibold text-text-primary">بيانات المستأجر</h3>
+        <h3 className="text-sm font-semibold text-text-primary">{locale === 'ar' ? 'بيانات المستأجر' : 'Tenant Information'}</h3>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Input
             placeholder={t.tenantNamePlaceholder}
@@ -168,7 +168,7 @@ export function RentalForm({
       </div>
 
       <div className="flex flex-col gap-3">
-        <h3 className="text-sm font-semibold text-text-primary">بيانات الإيجار</h3>
+        <h3 className="text-sm font-semibold text-text-primary">{locale === 'ar' ? 'بيانات الإيجار' : 'Rental Information'}</h3>
         <Input
           type="number"
           placeholder={t.rentAmountPlaceholder}
