@@ -80,16 +80,6 @@ export function RentalsIcon({ className }: IconProps) {
   );
 }
 
-export function BrokerMarketerIcon({ className }: IconProps) {
-  return (
-    <Svg className={className}>
-      <path d="M7 3h7l4 4v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" />
-      <path d="M14 3v4h4" />
-      <path d="M9 13h6M9 17h6" />
-    </Svg>
-  );
-}
-
 export function WebsiteIcon({ className }: IconProps) {
   return (
     <Svg className={className}>
