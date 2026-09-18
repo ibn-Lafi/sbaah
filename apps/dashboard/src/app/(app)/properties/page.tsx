@@ -88,20 +88,20 @@ export default function PropertiesPage() {
         ) : properties.length === 0 ? (
           <p className="text-text-secondary p-6 text-center">{t.list.emptyState}</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[640px] text-sm">
+          <div className="overflow-x-auto md:overflow-visible">
+            <table className="w-full min-w-[560px] table-fixed text-sm md:min-w-0">
               <thead className="bg-surface-header text-text-secondary text-right">
                 <tr>
-                  <th className="px-5 py-3 font-medium">{t.list.table.title}</th>
-                  <th className="px-5 py-3 font-medium">{t.list.table.type}</th>
-                  <th className="px-5 py-3 font-medium">{t.list.table.price}</th>
-                  <th className="px-5 py-3 font-medium">{t.list.table.status}</th>
+                  <th className="px-3 py-3 md:px-4 font-medium">{t.list.table.title}</th>
+                  <th className="px-3 py-3 md:px-4 font-medium">{t.list.table.type}</th>
+                  <th className="px-3 py-3 md:px-4 font-medium">{t.list.table.price}</th>
+                  <th className="px-3 py-3 md:px-4 font-medium">{t.list.table.status}</th>
                 </tr>
               </thead>
               <tbody>
                 {properties.map((property) => (
                   <tr key={property.id} className="border-border-subtle border-t">
-                    <td className="px-5 py-3">
+                    <td className="px-3 py-3 md:px-4">
                       <Link
                         href={`/properties/${property.id}`}
                         className="text-text-primary hover:text-brand font-medium"
@@ -116,7 +116,7 @@ export default function PropertiesPage() {
                     <td className="text-text-secondary px-5 py-3" dir="ltr">
                       {t.list.priceValue(property.price)}
                     </td>
-                    <td className="px-5 py-3">
+                    <td className="px-3 py-3 md:px-4">
                       <Badge
                         status={property.status}
                         label={t.statusLabels[property.status]}
