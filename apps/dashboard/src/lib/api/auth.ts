@@ -121,3 +121,17 @@ export function getMe(accessToken: string) {
 export function updateMyEmail(accessToken: string, email: string | null) {
   return apiPatch<{ user: MeResponse['user'] }>('/auth/me', { email }, accessToken);
 }
+
+export function updateMyProfile(accessToken: string, input: { full_name?: string; role?: UserRole }) {
+  return apiPatch<{ user: MeResponse['user'] }>('/auth/me', input, accessToken);
+}
+export function sendProfileChangeOtp(input: { phone: string } | { email: string }) {
+  return 'phone' in input
+    ? apiPost<{status:'sent'}>('/auth/otp/send',{channel:'sms',phone:input.phone,purpose:'change_phone'})
+    : apiPost<{status:'sent'}>('/auth/otp/send',{channel:'email',email:input.email,purpose:'change_email'});
+}
+export function verifyProfileChange(accessToken:string,input:({phone:string}|{email:string})&{code:string}) {
+  return 'phone' in input
+    ? apiPost<{status:'updated'}>('/auth/profile-change',{channel:'sms',...input},accessToken)
+    : apiPost<{status:'updated'}>('/auth/profile-change',{channel:'email',...input},accessToken);
+}
