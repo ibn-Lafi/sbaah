@@ -67,8 +67,15 @@ export function isNavGroup(entry: NavEntry): entry is NavGroup {
 export function getNavItems(t: ChromeDictionary): NavEntry[] {
   return [
     { href: '/', label: t.nav.dashboard, icon: DashboardIcon },
-    { href: '/leads', label: t.nav.leads, icon: ClientsIcon, capability: 'crm' },
-    { href: '/viewings', label: 'المعاينات', icon: ClientsIcon, capability: 'crm' },
+    {
+      group: 'clients',
+      label: t.nav.leads,
+      icon: ClientsIcon,
+      children: [
+        { href: '/leads', label: t.nav.leads, icon: ClientsIcon, capability: 'crm' },
+        { href: '/viewings', label: 'المعاينات', icon: ClientsIcon, capability: 'crm' },
+          ],
+    },
     {
       group: 'properties',
       capability: 'properties',

@@ -74,7 +74,7 @@ export function RentalForm({
   onSubmit,
   submitLabel,
 }: RentalFormProps) {
-  const { pages } = useLocale();
+  const { pages, locale } = useLocale();
   const t = pages.rentals.form;
   const [form, setForm] = useState<FormState>(
     initialValues
@@ -137,69 +137,72 @@ export function RentalForm({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      {mode === 'create' && (
-        <Select value={form.property_id} onChange={(e) => set('property_id', e.target.value)}>
-          <option value="">{t.propertyPlaceholder}</option>
-          {properties.map((property) => (
-            <option key={property.id} value={property.id}>
-              {property.title_ar} · {LISTING_TYPE_LABELS[property.listing_type]}
-            </option>
-          ))}
-        </Select>
-      )}
+      <div className="flex flex-col gap-3">
+        <h3 className="text-sm font-semibold text-text-primary">{locale === 'ar' ? 'العقار المرتبط' : 'Linked Property'}</h3>
+        {mode === 'create' && (
+          <Select value={form.property_id} onChange={(e) => set('property_id', e.target.value)}>
+            <option value="">{t.propertyPlaceholder}</option>
+            {properties.map((property) => (
+              <option key={property.id} value={property.id}>
+                {property.title_ar} · {LISTING_TYPE_LABELS[property.listing_type]}
+              </option>
+            ))}
+          </Select>
+        )}
+      </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="flex flex-col gap-3">
+        <h3 className="text-sm font-semibold text-text-primary">{locale === 'ar' ? 'بيانات المستأجر' : 'Tenant Information'}</h3>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <Input
+            placeholder={t.tenantNamePlaceholder}
+            value={form.tenant_name}
+            onChange={(e) => set('tenant_name', e.target.value)}
+          />
+          <PhoneInput
+            placeholder={t.tenantPhonePlaceholder}
+            value={form.tenant_phone}
+            onChange={(value) => set('tenant_phone', value)}
+          />
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-3">
+        <h3 className="text-sm font-semibold text-text-primary">{locale === 'ar' ? 'بيانات الإيجار' : 'Rental Information'}</h3>
         <Input
-          placeholder={t.tenantNamePlaceholder}
-          value={form.tenant_name}
-          onChange={(e) => set('tenant_name', e.target.value)}
+          type="number"
+          placeholder={t.rentAmountPlaceholder}
+          value={form.rent_amount}
+          onChange={(e) => set('rent_amount', e.target.value)}
         />
-        <PhoneInput
-          placeholder={t.tenantPhonePlaceholder}
-          value={form.tenant_phone}
-          onChange={(value) => set('tenant_phone', value)}
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="flex flex-col gap-1">
+            <label className="text-text-secondary text-xs">{t.contractStartLabel}</label>
+            <DatePicker value={form.contract_start_date} onChange={(value) => set('contract_start_date', value)} />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-text-secondary text-xs">{t.contractEndLabel}</label>
+            <DatePicker value={form.contract_end_date} onChange={(value) => set('contract_end_date', value)} />
+          </div>
+        </div>
+
+        {mode === 'edit' && (
+          <Select value={form.status} onChange={(e) => set('status', e.target.value)}>
+            {RENTAL_STATUSES.map((status) => (
+              <option key={status} value={status}>
+                {pages.rentals.statusLabels[status]}
+              </option>
+            ))}
+          </Select>
+        )}
+
+        <Textarea
+          placeholder={t.notesPlaceholder}
+          value={form.notes}
+          onChange={(e) => set('notes', e.target.value)}
         />
       </div>
-
-      <Input
-        type="number"
-        placeholder={t.rentAmountPlaceholder}
-        value={form.rent_amount}
-        onChange={(e) => set('rent_amount', e.target.value)}
-      />
-
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="flex flex-col gap-1">
-          <label className="text-text-secondary text-xs">{t.contractStartLabel}</label>
-          <DatePicker
-            value={form.contract_start_date}
-            onChange={(value) => set('contract_start_date', value)}
-          />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-text-secondary text-xs">{t.contractEndLabel}</label>
-          <DatePicker
-            value={form.contract_end_date}
-            onChange={(value) => set('contract_end_date', value)}
-          />
-        </div>
-      </div>
-
-      <Textarea
-        placeholder={t.notesPlaceholder}
-        value={form.notes}
-        onChange={(e) => set('notes', e.target.value)}
-      />
-
-      {mode === 'edit' && (
-        <Select value={form.status} onChange={(e) => set('status', e.target.value)}>
-          {RENTAL_STATUSES.map((status) => (
-            <option key={status} value={status}>
-              {pages.rentals.statusLabels[status]}
-            </option>
-          ))}
-        </Select>
-      )}
 
       <FormError message={error} />
       <Button type="submit" disabled={loading}>

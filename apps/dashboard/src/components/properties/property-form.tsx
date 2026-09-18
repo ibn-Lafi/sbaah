@@ -157,7 +157,7 @@ export function PropertyForm({
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(0);
-  const steps = ['المعلومات الأساسية', 'الموقع والربط', 'المواصفات', 'الترخيص والحالة', 'المراجعة'];
+  const steps = locale === 'ar' ? ['المعلومات الأساسية', 'الموقع والربط', 'المواصفات', 'الترخيص والحالة', 'المراجعة'] : ['Basic Information', 'Location & Linking', 'Specifications', 'Licensing & Status', 'Review'];
   const canAssignAgent = role !== 'agent';
 
   useEffect(() => {
@@ -278,17 +278,28 @@ export function PropertyForm({
       )}
 
       {step === 3 && (
-        <div className="flex flex-col gap-4">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Input placeholder="الرقم المرجعي" value={form.reference_number} onChange={(e) => set('reference_number', e.target.value)} />
-            <Input placeholder="رقم ترخيص الإعلان" value={form.advertisement_license_number} onChange={(e) => set('advertisement_license_number', e.target.value)} />
-            <Input type="datetime-local" value={form.advertisement_license_expires_at} onChange={(e) => set('advertisement_license_expires_at', e.target.value)} />
-            <Input placeholder="اسم المعلن" value={form.advertiser_name} onChange={(e) => set('advertiser_name', e.target.value)} />
+        <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-3">
+            <h3 className="text-sm font-semibold text-text-primary">{locale === 'ar' ? 'بيانات الإعلان والترخيص' : 'Advertisement & Licensing'}</h3>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Input placeholder={locale === 'ar' ? 'الرقم المرجعي' : 'Reference number'} value={form.reference_number} onChange={(e) => set('reference_number', e.target.value)} />
+              <Input placeholder={locale === 'ar' ? 'رقم ترخيص الإعلان' : 'Advertisement license number'} value={form.advertisement_license_number} onChange={(e) => set('advertisement_license_number', e.target.value)} />
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-text-secondary">{locale === 'ar' ? 'تاريخ انتهاء ترخيص الإعلان' : 'Advertisement license expiry'}</label>
+                <Input type="datetime-local" value={form.advertisement_license_expires_at} onChange={(e) => set('advertisement_license_expires_at', e.target.value)} />
+              </div>
+              <Input placeholder={locale === 'ar' ? 'اسم المعلن' : 'Advertiser name'} value={form.advertiser_name} onChange={(e) => set('advertiser_name', e.target.value)} />
+            </div>
           </div>
-          {mode === 'edit' && <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Select value={form.status} onChange={(e) => set('status', e.target.value)}>{PROPERTY_STATUSES.map((status) => <option key={status} value={status}>{t.statusLabels[status]}</option>)}</Select>
-            <Select value={form.availability} onChange={(e) => set('availability', e.target.value)}>{PROPERTY_AVAILABILITY.map((availability) => <option key={availability} value={availability}>{t.availabilityLabels[availability]}</option>)}</Select>
-          </div>}
+          {mode === 'edit' && (
+            <div className="flex flex-col gap-3">
+              <h3 className="text-sm font-semibold text-text-primary">{locale === 'ar' ? 'حالة العقار' : 'Property Status'}</h3>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <Select value={form.status} onChange={(e) => set('status', e.target.value)}>{PROPERTY_STATUSES.map((status) => <option key={status} value={status}>{t.statusLabels[status]}</option>)}</Select>
+                <Select value={form.availability} onChange={(e) => set('availability', e.target.value)}>{PROPERTY_AVAILABILITY.map((availability) => <option key={availability} value={availability}>{t.availabilityLabels[availability]}</option>)}</Select>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
