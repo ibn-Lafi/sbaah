@@ -22,6 +22,9 @@ import {
   TiktokIcon,
   WhatsappIcon,
   SnapchatIcon,
+  FacebookIcon,
+  TelegramIcon,
+  XIcon,
   CallIcon,
   LocationIcon,
   MailIcon,
@@ -251,7 +254,7 @@ function OrganizationInfoCard({
 
 /** حسابات التواصل الاجتماعي — تُعرض تلقائيًا (فقط ما تمت تعبئته) في تذييل الموقع العام (site/editor's أسفل الصفحة). */
 function SocialLinksCard({ accessToken, initial }: { accessToken: string; initial: SocialLinks }) {
-  const { pages } = useLocale();
+  const { pages, locale } = useLocale();
   const t = pages.settings;
   const [draft, setDraft] = useState<SocialLinks>(initial);
   const [activeFields, setActiveFields] = useState<(keyof SocialLinks)[]>(
@@ -268,6 +271,9 @@ function SocialLinksCard({ accessToken, initial }: { accessToken: string; initia
     { key: 'social_instagram', label: t.socialLinks.instagram, placeholder: t.socialLinks.instagramPlaceholder, Icon: InstagramIcon },
     { key: 'social_tiktok', label: t.socialLinks.tiktok, placeholder: t.socialLinks.tiktokPlaceholder, Icon: TiktokIcon },
     { key: 'social_snapchat', label: t.socialLinks.snapchat, placeholder: t.socialLinks.snapchatPlaceholder, Icon: SnapchatIcon },
+    { key: 'social_facebook', label: locale === 'ar' ? 'فيسبوك' : 'Facebook', placeholder: 'https://facebook.com/...', Icon: FacebookIcon },
+    { key: 'social_x', label: locale === 'ar' ? 'إكس' : 'X', placeholder: 'https://x.com/...', Icon: XIcon },
+    { key: 'social_telegram', label: locale === 'ar' ? 'تليجرام' : 'Telegram', placeholder: 'https://t.me/...', Icon: TelegramIcon },
   ];
 
   function addField(key: keyof SocialLinks) {
@@ -326,7 +332,7 @@ function SocialLinksCard({ accessToken, initial }: { accessToken: string; initia
       </Card>
 
       {pickerOpen && (
-        <div className="fixed inset-0 z-[100] flex items-end justify-center bg-black/35 p-4 backdrop-blur-[2px] sm:items-center" onClick={() => setPickerOpen(false)}>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/35 p-4 backdrop-blur-[2px]" onClick={() => setPickerOpen(false)}>
           <div role="dialog" aria-modal="true" className="w-full max-w-md rounded-[28px] bg-surface-card p-5 shadow-2xl" onClick={(event) => event.stopPropagation()}>
             <div className="mb-5 flex items-center justify-between">
               <h3 className="text-lg font-bold text-text-primary">{t.socialLinks.title}</h3>
