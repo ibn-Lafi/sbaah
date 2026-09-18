@@ -77,15 +77,17 @@ export function MarketingChrome({ locale, children }: { locale: Locale; children
       <div className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] left-4 z-[60] flex flex-col items-center gap-2 lg:hidden"><div className={`flex flex-col items-center gap-2 transition-all duration-200 ${quickControlsOpen ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-3 opacity-0'}`} aria-hidden={!quickControlsOpen}><Link href={otherLocaleHref} aria-label={t.nav.languageSwitch} title={t.nav.languageSwitch} className="text-brand flex h-11 w-11 items-center justify-center rounded-full border border-border-subtle bg-surface-card shadow-lg transition-transform hover:scale-105"><GlobeIcon className="h-5 w-5" /></Link><div className="flex h-11 w-11 items-center justify-center rounded-full border border-border-subtle bg-surface-card text-text-primary shadow-lg"><ThemeToggle labels={t.nav} className="h-11 w-11 rounded-full bg-transparent text-current hover:bg-black/5" /></div></div><button type="button" onClick={() => setQuickControlsOpen((value) => !value)} aria-label={quickControlsOpen ? t.nav.menuClose : t.nav.menuOpen} aria-expanded={quickControlsOpen} className="bg-brand flex h-12 w-12 items-center justify-center rounded-full text-white shadow-xl ring-1 ring-white/20 transition-transform active:scale-95">{quickControlsOpen ? <CloseIcon className="h-5 w-5" /> : <QuickControlsIcon className="h-5 w-5" />}</button></div>
 
       <footer className="relative bg-surface-card pt-16 sm:pt-24">
-        <div aria-hidden="true" className="pointer-events-none absolute left-1/2 top-0 z-10 h-32 w-28 -translate-x-1/2 -translate-y-[10%] sm:h-48 sm:w-40 lg:h-56 lg:w-48">
-          <svg viewBox="0 0 180 250" className="h-full w-full overflow-visible drop-shadow-[0_10px_18px_rgba(83,51,104,.18)]">
-            <g fill="none" strokeLinecap="round">
-              <path d="M90 246C91 190 86 136 75 68M91 245C102 190 111 145 127 94M89 245C74 195 58 159 39 119" stroke="#526447" strokeWidth="4"/>
-              <path d="M77 84C62 75 52 61 47 46M80 105C96 91 102 75 105 57M122 111C137 98 143 83 146 67M49 136C36 125 28 112 25 98" stroke="#617555" strokeWidth="2.5"/>
-            </g>
-            <g fill="#8d5bb0"><ellipse cx="45" cy="43" rx="7" ry="13" transform="rotate(-28 45 43)"/><ellipse cx="55" cy="58" rx="7" ry="13" transform="rotate(-35 55 58)"/><ellipse cx="65" cy="72" rx="7" ry="13" transform="rotate(-38 65 72)"/><ellipse cx="105" cy="54" rx="7" ry="14" transform="rotate(22 105 54)"/><ellipse cx="100" cy="72" rx="7" ry="13" transform="rotate(27 100 72)"/><ellipse cx="94" cy="89" rx="7" ry="13" transform="rotate(30 94 89)"/><ellipse cx="148" cy="64" rx="7" ry="14" transform="rotate(28 148 64)"/><ellipse cx="143" cy="82" rx="7" ry="13" transform="rotate(32 143 82)"/><ellipse cx="136" cy="99" rx="7" ry="13" transform="rotate(35 136 99)"/><ellipse cx="24" cy="96" rx="7" ry="13" transform="rotate(-32 24 96)"/><ellipse cx="31" cy="113" rx="7" ry="13" transform="rotate(-36 31 113)"/><ellipse cx="40" cy="129" rx="7" ry="13" transform="rotate(-40 40 129)"/></g>
-            <g fill="#b78ad1"><ellipse cx="52" cy="48" rx="5" ry="10" transform="rotate(35 52 48)"/><ellipse cx="62" cy="63" rx="5" ry="10" transform="rotate(35 62 63)"/><ellipse cx="111" cy="61" rx="5" ry="10" transform="rotate(-28 111 61)"/><ellipse cx="104" cy="80" rx="5" ry="10" transform="rotate(-28 104 80)"/><ellipse cx="153" cy="72" rx="5" ry="10" transform="rotate(-30 153 72)"/><ellipse cx="146" cy="91" rx="5" ry="10" transform="rotate(-30 146 91)"/><ellipse cx="31" cy="103" rx="5" ry="10" transform="rotate(34 31 103)"/><ellipse cx="39" cy="120" rx="5" ry="10" transform="rotate(34 39 120)"/></g>
-          </svg>
+        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 z-10 h-32 -translate-y-[6%] sm:h-48 lg:h-56">
+          <img
+            src="https://raw.githubusercontent.com/ibn-Lafi/sbaah/claude/real-estate-saas-platform-sp7ua9/947053BC-8CA9-4329-A41D-7EB9BCCDE5C5.png"
+            alt=""
+            className="absolute bottom-0 right-[-2rem] h-[150%] w-auto max-w-none object-contain object-bottom drop-shadow-[0_12px_22px_rgba(67,43,82,.18)] sm:right-[-1rem] sm:h-[165%] lg:right-[3vw] lg:h-[190%]"
+          />
+          <img
+            src="https://raw.githubusercontent.com/ibn-Lafi/sbaah/claude/real-estate-saas-platform-sp7ua9/874B8A4E-94A2-4990-9824-CF3320A544DD.png"
+            alt=""
+            className="absolute bottom-[-.5rem] left-[-3.5rem] hidden h-[125%] w-auto max-w-none object-contain object-bottom opacity-95 drop-shadow-[0_12px_22px_rgba(67,43,82,.14)] sm:block lg:left-[2vw] lg:h-[145%]"
+          />
         </div>
         <div className="relative w-full overflow-hidden rounded-t-[2rem] bg-[#68458A] text-white shadow-[0_-18px_55px_-40px_rgba(72,42,94,.45)] sm:rounded-t-[2.5rem]">
           <div aria-hidden="true" className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/marketing/footer-silk.svg')" }} />
