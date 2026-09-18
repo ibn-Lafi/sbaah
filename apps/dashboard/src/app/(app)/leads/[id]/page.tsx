@@ -24,6 +24,7 @@ import { PROPERTY_TYPE_LABELS } from '@/lib/property/labels';
 import { datetimeLocalToIso, isoToDatetimeLocal } from '@/lib/lead/datetime';
 import { formatRelativeTime } from '@/lib/format/date';
 import { useLocale } from '@/lib/i18n/locale-context';
+import { LeadRequirements } from '@/components/crm/lead-requirements';
 
 // Matches Button's h-[46px] — these are <a> tags (tel:/WhatsApp deep links), not <button>s, so they can't use the Button component itself, but should still line up with it.
 const ACTION_LINK_CLASSES =
@@ -161,6 +162,8 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
           </div>
 
           <FormError message={error} />
+
+          <LeadRequirements leadId={id} accessToken={accessToken} />
 
           <div className="grid items-start gap-6 md:grid-cols-2">
             <Card className="order-2 p-8 md:order-1">
