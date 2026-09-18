@@ -34,6 +34,7 @@ import {
   ThemeCustomizeIcon,
   ThemeStoreIcon,
   WebsiteIcon,
+  SupportIcon,
 } from './nav-icons';
 
 type Icon = ComponentType<{ className?: string }>;
@@ -90,5 +91,6 @@ export function getNavItems(t: ChromeDictionary): NavEntry[] {
       ],
     },
     { href: '/apps', label: t.nav.apps, icon: AppsIcon, roles: ['owner', 'admin'] },
+    { href: '/support', label: t.nav.support, icon: SupportIcon },
   ];
 }
