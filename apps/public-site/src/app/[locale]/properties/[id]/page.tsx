@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { isLocale, DEFAULT_LOCALE } from '@/lib/i18n/locales';
 import { pickLocalized } from '@/lib/i18n/localized-field';
@@ -9,6 +10,7 @@ import { PropertyGallery } from '@/components/properties/property-gallery';
 import { InquiryForm } from '@/components/properties/inquiry-form';
 import { getThemeComponents } from '@/components/themes/registry';
 import { renderThemedSection } from '@/lib/website/render-section';
+import { buildLocalizedAlternates, localizedPath, getPublicOrigin } from '@/lib/routing/public-url';
 
 const LABELS = {
   ar: { area: 'المساحة', bedrooms: 'الغرف', bathrooms: 'دورات المياه', description: 'الوصف' },
@@ -17,6 +19,39 @@ const LABELS = {
 
 interface PageProps {
   params: Promise<{ locale: string; id: string }>;
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { locale: rawLocale, id } = await params;
+  const locale = isLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
+  const property = await getPublicProperty(id);
+  if (!property) {
+    return { robots: { index: false, follow: false } };
+  }
+
+  const title = pickLocalized(locale, property.title_ar, property.title_en);
+  const description = pickLocalized(locale, property.description_ar, property.description_en) || undefined;
+  const pathname = `/properties/${id}`;
+  const [alternates, origin] = await Promise.all([
+    buildLocalizedAlternates(locale, pathname),
+    getPublicOrigin(),
+  ]);
+  const url = origin ? `${origin}${localizedPath(locale, pathname)}` : undefined;
+  const image = property.property_media.find((media) => media.media_type === 'image')?.url;
+
+  return {
+    title,
+    description,
+    alternates,
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+      locale: locale === 'ar' ? 'ar_SA' : 'en_SA',
+      url,
+      images: image ? [{ url: image }] : undefined,
+    },
+  };
 }
 
 /**

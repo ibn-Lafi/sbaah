@@ -22,6 +22,12 @@ export function middleware(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set('x-pathname', `${pathWithoutLocale}${search}`);
 
+  if (prefixedLocale === DEFAULT_LOCALE) {
+    const canonicalUrl = request.nextUrl.clone();
+    canonicalUrl.pathname = pathWithoutLocale;
+    return NextResponse.redirect(canonicalUrl, 308);
+  }
+
   if (prefixedLocale) {
     return NextResponse.next({ request: { headers: requestHeaders } });
   }
@@ -43,5 +49,5 @@ export const config = {
   // (public/marketing/hero-motion.mp4) — بلا هذا الاستثناء كان الطلب
   // يُعاد كتابته إلى `/ar/marketing/hero-motion.mp4` (غير موجود) فيسقط
   // بنفس عطل `not-found.tsx` أعلاه، فيمنع تشغيل الفيديو فعليًا في الإنتاج.
-  matcher: ['/((?!_next/|api/|favicon.ico|sw\\.js$|manifest\\.webmanifest$|offline\\.html$|.*\\.(?:svg|png|jpg|jpeg|webp|ico|mp4)$).*)'],
+  matcher: ['/((?!_next/|api/|favicon.ico|robots\\.txt$|sitemap\\.xml$|sw\\.js$|manifest\\.webmanifest$|offline\\.html$|.*\\.(?:svg|png|jpg|jpeg|webp|ico|mp4)$).*)'],
 };

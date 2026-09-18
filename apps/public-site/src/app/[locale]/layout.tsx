@@ -16,6 +16,7 @@ import { ServiceWorkerRegister } from '@/components/pwa/service-worker-register'
 import { getThemeComponents } from '@/components/themes/registry';
 import { ThemeProvider } from '@/lib/theme/theme-context';
 import { THEME_STORAGE_KEY } from '@/lib/theme/theme';
+import { buildLocalizedAlternates, canonicalTenantOrigin, getPublicOrigin } from '@/lib/routing/public-url';
 
 interface LocaleLayoutProps {
   children: React.ReactNode;
@@ -34,14 +35,29 @@ const themeInitScript = `(function(){try{var t=localStorage.getItem('${THEME_STO
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale: rawLocale } = await params;
   const locale = isLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
+  const pathname = ((await headers()).get('x-pathname') ?? '/').split('?')[0] || '/';
+  const requestOrigin = await getPublicOrigin();
+
   if (await isMarketingHost()) {
-    return { title: MARKETING_CONTENT[locale].brand };
+    return {
+      title: MARKETING_CONTENT[locale].brand,
+      alternates: requestOrigin ? await buildLocalizedAlternates(locale, pathname, requestOrigin) : undefined,
+    };
   }
+
   const result = await getTenantSiteResult();
   if (result.status !== 'active') {
-    return { title: 'سبعة' };
+    return { title: 'سبعة', robots: { index: false, follow: false } };
   }
-  return { title: locale === 'ar' ? result.site.tenant.name_ar : result.site.tenant.name_en };
+
+  const origin = requestOrigin
+    ? canonicalTenantOrigin(requestOrigin, result.site.tenant.custom_domain)
+    : undefined;
+
+  return {
+    title: locale === 'ar' ? result.site.tenant.name_ar : result.site.tenant.name_en,
+    alternates: origin ? await buildLocalizedAlternates(locale, pathname, origin) : undefined,
+  };
 }
 
 export default async function LocaleLayout({ children, params }: LocaleLayoutProps) {
