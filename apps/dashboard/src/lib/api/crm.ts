@@ -8,3 +8,8 @@ export function listViewings(token:string){return apiGet<{viewings:Viewing[]}>('
 export function createViewing(token:string,input:Record<string,unknown>){return apiPost<{viewing:Viewing}>('/v1/crm/viewings',input,token);}
 export function listDeals(token:string){return apiGet<{deals:Deal[]}>('/v1/crm/deals',token);}
 export function createDeal(token:string,input:Record<string,unknown>){return apiPost<{deal:Deal}>('/v1/crm/deals',input,token);}
+
+export interface LeadRequirement { id:string; lead_id:string; purpose:string|null; budget_min:number|null; budget_max:number|null; property_types:string[]|null; city_ids:string[]|null; district_ids:string[]|null; area_min:number|null; area_max:number|null; bedrooms_min:number|null; }
+export function listRequirements(token:string,leadId:string){return apiGet<{requirements:LeadRequirement[]}>(`/v1/crm/requirements?lead_id=${encodeURIComponent(leadId)}`,token);}
+export function createRequirement(token:string,input:Record<string,unknown>){return apiPost<{requirement:LeadRequirement}>('/v1/crm/requirements',input,token);}
+export function getMatches(token:string,leadId:string){return apiGet<{matches:Array<{id:string;title_ar:string;price:number;area_sqm:number}>}>(`/v1/crm/matching?lead_id=${encodeURIComponent(leadId)}`,token);}
