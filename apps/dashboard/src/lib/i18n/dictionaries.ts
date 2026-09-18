@@ -12,7 +12,6 @@ export interface ChromeDictionary {
       projects: string;
       rentals: string;
     };
-    brokerMarketer: string;
     website: {
       label: string;
       themeEditor: string;
@@ -70,7 +69,6 @@ export const dictionaries: Record<Locale, ChromeDictionary> = {
         projects: 'المشاريع',
         rentals: 'الإيجارات',
       },
-      brokerMarketer: 'الوسطاء والمسوقين',
       website: {
         label: 'الموقع الالكتروني',
         themeEditor: 'تخصيص الثيم',
@@ -125,7 +123,6 @@ export const dictionaries: Record<Locale, ChromeDictionary> = {
         projects: 'Projects',
         rentals: 'Rentals',
       },
-      brokerMarketer: 'Brokers & Marketers',
       website: {
         label: 'Website',
         themeEditor: 'Theme Editor',
