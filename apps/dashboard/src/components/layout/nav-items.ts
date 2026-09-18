@@ -22,7 +22,6 @@ import type { BusinessCapability, UserRole } from '@sbaah/shared';
 import type { ChromeDictionary } from '@/lib/i18n/dictionaries';
 import {
   AppsIcon,
-  BrokerMarketerIcon,
   BuildingsIcon,
   ClientsIcon,
   DashboardIcon,
@@ -81,7 +80,6 @@ export function getNavItems(t: ChromeDictionary): NavEntry[] {
         { href: '/viewings', label: 'المعاينات', icon: ClientsIcon, capability: 'crm' },
       ],
     },
-    { href: '/broker-marketer', label: t.nav.brokerMarketer, icon: BrokerMarketerIcon, roles: ['owner', 'admin'] },
     {
       group: 'website',
       label: t.nav.website.label,
