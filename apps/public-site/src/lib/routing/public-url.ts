@@ -56,3 +56,7 @@ export async function buildLocalizedAlternates(locale: Locale, pathname: string)
     },
   };
 }
+
+export function canonicalTenantOrigin(requestOrigin: string, customDomain: string | null): string {
+  return customDomain ? `https://${customDomain.toLowerCase()}` : requestOrigin;
+}
