@@ -68,3 +68,5 @@ export function SettingsIcon({ className }: IconProps) {
     </Svg>
   );
 }
+
+export function SupportIcon({ className }: IconProps) { return <Svg className={className}><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-5 4v-4.5A2.5 2.5 0 0 1 4 13.5z"/><path d="M8 8h8M8 12h5"/></Svg>; }
