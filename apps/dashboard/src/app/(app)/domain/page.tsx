@@ -301,7 +301,7 @@ function SubdomainCard({
           </Button>
           {showUpsell && (
             <Link
-              href="/billing"
+              href="/settings?tab=billing"
               className="rounded-input bg-brand-surface text-brand px-4 py-3 text-sm hover:underline"
             >
               {t.subdomain.upsell}
