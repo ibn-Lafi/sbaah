@@ -10,6 +10,7 @@ import { DeleteButton } from '@/components/ui/delete-button';
 import { Modal } from '@/components/ui/modal';
 import { BuildingForm } from '@/components/hierarchy/building-form';
 import { ProjectForm } from '@/components/hierarchy/project-form';
+import { ProjectInventory } from '@/components/hierarchy/project-inventory';
 import { FormPageSkeleton } from '@/components/ui/form-page-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { createBuilding, deleteProject, getProject, listBuildings, updateProject } from '@/lib/api/hierarchy';
@@ -133,6 +134,8 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
               </ul>
             )}
           </Card>
+
+          <ProjectInventory projectId={id} accessToken={accessToken} canManage={canManage} />
 
           {canManage && (
             <DeleteButton
