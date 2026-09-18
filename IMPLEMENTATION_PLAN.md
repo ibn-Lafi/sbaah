@@ -7,10 +7,10 @@
 ## Progress
 
 - Total tasks: **50**
-- Completed: **8**
+- Completed: **9**
 - In progress: **0**
-- Blocked: **1**
-- Remaining: **42**
+- Blocked: **0**
+- Remaining: **41**
 
 Legend: [ ] Pending · [~] In Progress · [x] Completed · [!] Blocked
 
@@ -72,8 +72,8 @@ Growth
 - [x] RBAC-001 Define centralized permission catalog and data scopes
 - [x] RBAC-002 Map legacy owner/admin/agent roles to permission sets
 - [x] RBAC-003 Add backend permission guard helpers
-- [!] RBAC-004 Add database permission/scoping foundation without breaking legacy roles
-- [ ] SEC-001 Add same-tenant foreign-key ownership validation helpers
+- [x] RBAC-004 Add database permission/scoping foundation without breaking legacy roles
+- [~] SEC-001 Add same-tenant foreign-key ownership validation helpers
 - [ ] SEC-002 Add tenant-isolation/RLS regression tests
 
 ## Phase 02 — Property Core
