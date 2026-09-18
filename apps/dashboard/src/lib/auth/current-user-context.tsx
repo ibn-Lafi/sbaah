@@ -1,11 +1,14 @@
 'use client';
 
 import { createContext, useContext } from 'react';
-import type { MeResponse } from '@/lib/api/auth';
+import type { BusinessCapability } from '@sbaah/shared';
+import type { BusinessActivitiesResponse, MeResponse } from '@/lib/api/auth';
 
 export interface CurrentUser {
   me: MeResponse;
   accessToken: string;
+  business: BusinessActivitiesResponse;
+  capabilities: ReadonlySet<BusinessCapability>;
 }
 
 const CurrentUserContext = createContext<CurrentUser | null>(null);
