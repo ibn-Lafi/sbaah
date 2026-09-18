@@ -7,10 +7,10 @@
 ## Progress
 
 - Total tasks: **50**
-- Completed: **46**
+- Completed: **47**
 - In progress: **5**
 - Blocked: **0**
-- Remaining: **4**
+- Remaining: **3**
 
 Legend: [ ] Pending · [~] In Progress · [x] Completed · [!] Blocked
 
@@ -87,7 +87,7 @@ Growth
 
 ## Phase 03 — Developer Inventory
 - [x] PROJ-001 Extend project lifecycle/location/development fields
-- [ ] PROJ-002 Add project media/documents support
+- [~] PROJ-002 Add project media/documents support
 - [x] PROJ-003 Add optional project phases
 - [x] PROJ-004 Harden/extend optional buildings with tenant ownership
 - [x] PROJ-005 Add unit types
@@ -118,7 +118,7 @@ Growth
 - [x] MKT-002 Add source/UTM attribution model and capture
 - [x] MKT-003 Add pixel configuration and safe event emission
 - [x] WEB-001 Add public listing view model for Property + Unit
-- [~] WEB-002 Add project detail and unit inventory public views
+- [x] WEB-002 Add project detail and unit inventory public views
 - [x] WEB-003 Add activity-aware website sections without rebuilding themes
 
 ## Phase 07 — Analytics
