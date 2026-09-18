@@ -32,7 +32,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         return;
       }
       try {
-        const [me, business] = await Promise.all([getMe(accessToken), getBusinessActivities(accessToken)]);
+        // /auth/me is the actual authentication/tenant guard. Business activity
+        // configuration is product metadata and must never turn a valid login
+        // into a redirect loop if that endpoint is temporarily unavailable.
+        const me = await getMe(accessToken);
+        const business = await getBusinessActivities(accessToken).catch(() => ({
+          activities: [],
+          configured: false,
+        } satisfies BusinessActivitiesResponse));
         if (!cancelled) setState({ me, accessToken, business });
       } catch {
         router.replace('/login');
