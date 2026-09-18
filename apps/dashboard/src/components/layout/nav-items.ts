@@ -18,7 +18,7 @@
  * old plain dot indicator per the founder's explicit request.
  */
 import type { ComponentType } from 'react';
-import type { UserRole } from '@sbaah/shared';
+import type { BusinessCapability, UserRole } from '@sbaah/shared';
 import type { ChromeDictionary } from '@/lib/i18n/dictionaries';
 import {
   AppsIcon,
@@ -45,6 +45,7 @@ export interface NavLeaf {
   icon: Icon;
   /** Omitted = visible to every role. PRODUCT_SPEC section 8: Agent has no website/team/billing access. */
   roles?: UserRole[];
+  capability?: BusinessCapability;
 }
 
 export interface NavGroup {
@@ -52,6 +53,7 @@ export interface NavGroup {
   label: string;
   icon: Icon;
   roles?: UserRole[];
+  capability?: BusinessCapability;
   children: NavLeaf[];
 }
 
@@ -65,15 +67,16 @@ export function isNavGroup(entry: NavEntry): entry is NavGroup {
 export function getNavItems(t: ChromeDictionary): NavEntry[] {
   return [
     { href: '/', label: t.nav.dashboard, icon: DashboardIcon },
-    { href: '/leads', label: t.nav.leads, icon: ClientsIcon },
+    { href: '/leads', label: t.nav.leads, icon: ClientsIcon, capability: 'crm' },
     {
       group: 'properties',
+      capability: 'properties',
       label: t.nav.propertiesGroup.label,
       icon: PropertiesIcon,
       children: [
         { href: '/properties', label: t.nav.propertiesGroup.units, icon: PropertiesIcon },
         { href: '/buildings', label: t.nav.propertiesGroup.buildings, icon: BuildingsIcon },
-        { href: '/projects', label: t.nav.propertiesGroup.projects, icon: ProjectsIcon },
+        { href: '/projects', label: t.nav.propertiesGroup.projects, icon: ProjectsIcon, capability: 'projects' },
         { href: '/rentals', label: t.nav.propertiesGroup.rentals, icon: RentalsIcon },
       ],
     },
