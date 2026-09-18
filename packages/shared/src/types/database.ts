@@ -7,6 +7,7 @@
 import type {
   AccountType,
   BillingCycle,
+  BusinessActivity,
   BrokerMarketerApplicantType,
   CustomDomainStatus,
   LeadSource,
@@ -100,6 +101,14 @@ export interface Tenant {
 }
 
 /** One StreamPay checkout attempt (migration 0027) — service-role written only; the tenant Owner can read their own billing history. */
+/** One enabled product activity for a tenant (migration 0050). */
+export interface TenantBusinessActivity {
+  tenant_id: string;
+  activity: BusinessActivity;
+  created_at: string;
+  created_by: string | null;
+}
+
 export interface Payment {
   id: string;
   tenant_id: string;
