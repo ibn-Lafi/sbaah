@@ -31,9 +31,9 @@ export const GET = withErrorHandling<RouteContext>(async (request, { params }) =
   const { data, error } = await supabase
     .from('properties')
     .select('*, property_media(id, media_type, url, order_index)')
-    .eq('id', id)
     .eq('tenant_id', tenantId)
     .eq('status', 'published')
+    .or(`id.eq.${id},slug.eq.${id}`)
     .maybeSingle();
   if (error) {
     throw new Error(`Failed to load public property: ${error.message}`);
