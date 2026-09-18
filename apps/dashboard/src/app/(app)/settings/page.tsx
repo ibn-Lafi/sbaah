@@ -169,6 +169,7 @@ function OrganizationInfoCard({
   const [nameAr, setNameAr] = useState(initial.name_ar);
   const [crNumber, setCrNumber] = useState(initial.cr_number ?? '');
   const [taxNumber, setTaxNumber] = useState(initial.tax_number ?? '');
+  const [fal, setFal] = useState(falLicense ?? '');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -189,9 +190,11 @@ function OrganizationInfoCard({
       return;
     }
 
+    const falResult = falLicenseUpdateSchema.safeParse({ fal_license_number: fal });
+    if (!falResult.success) { setError(falResult.error.issues[0]?.message ?? t.falLicense.invalidNumber); return; }
     setLoading(true);
     try {
-      await updateAccountType(accessToken, result.data);
+      await Promise.all([updateAccountType(accessToken, result.data), updateFalLicense(accessToken, falResult.data)]);
       setSaved(true);
     } catch (err) {
       setError(err instanceof ApiRequestError ? err.message : t.organizationInfo.saveFailed);
@@ -227,6 +230,9 @@ function OrganizationInfoCard({
             onChange={(e) => setTaxNumber(e.target.value)}
             dir="ltr"
           />
+          <div className="my-2 h-px bg-border-subtle" />
+          <h3 className="text-base font-semibold text-text-primary">التراخيص</h3>
+          <Input value={fal} onChange={(e) => setFal(e.target.value)} placeholder={t.falLicense.placeholder} dir="ltr" />
           <FormError message={error} />
           <Button type="submit" disabled={loading} className="w-fit">
             {loading ? t.common.saving : saved ? t.common.saved : t.common.save}
@@ -239,10 +245,6 @@ function OrganizationInfoCard({
           <InfoRow label={t.organizationInfo.taxNumberLabel} value={initial.tax_number ?? '—'} />
         </>
       )}
-
-      <div className="my-5 h-px bg-border-subtle" />
-
-      <FalLicenseFields accessToken={accessToken} initial={falLicense} canEdit={canEdit} />
     </Card>
   );
 }
@@ -526,7 +528,7 @@ function WebsiteDataTab({ accessToken }: { accessToken: string }) {
       <AccountTypeCard accessToken={accessToken} canEdit={canEdit} initial={me.tenant.account_type} />
 
       {me.tenant.account_type === 'individual' ? (
-        <FalLicenseCard accessToken={accessToken} canEdit={canEdit} initial={me.tenant.fal_license_number} />
+        <Card className="p-6"><h2 className="mb-4 text-base font-semibold text-text-primary">التراخيص</h2><FalLicenseFields accessToken={accessToken} canEdit={canEdit} initial={me.tenant.fal_license_number} /></Card>
       ) : (
         <OrganizationInfoCard
           accessToken={accessToken}
