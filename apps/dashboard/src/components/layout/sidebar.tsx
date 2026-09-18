@@ -58,7 +58,7 @@ function flyoutStyle(rect: DOMRect, dir: 'rtl' | 'ltr', top: number): CSSPropert
 export function Sidebar({ orgName, accountType }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { me } = useCurrentUser();
+  const { me, business, capabilities } = useCurrentUser();
   const { t, pages, locale } = useLocale();
   const dir = dirFor(locale);
   const roleLabel = t.roleLabels[me.user.role];
@@ -67,7 +67,15 @@ export function Sidebar({ orgName, accountType }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [hoveredKey, setHoveredKey] = useState<string | null>(null);
   const [hoveredRect, setHoveredRect] = useState<DOMRect | null>(null);
-  const visibleItems = getNavItems(t).filter((item) => !item.roles || item.roles.includes(me.user.role));
+  const visibleItems = getNavItems(t)
+    .filter((item) => !item.roles || item.roles.includes(me.user.role))
+    .filter((item) => !business.configured || !item.capability || capabilities.has(item.capability))
+    .map((item) =>
+      isNavGroup(item)
+        ? { ...item, children: item.children.filter((child) => !business.configured || !child.capability || capabilities.has(child.capability)) }
+        : item,
+    )
+    .filter((item) => !isNavGroup(item) || item.children.length > 0);
 
   useEffect(() => {
     try {
