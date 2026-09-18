@@ -1,13 +1,16 @@
-name: Dashboard QA
+name: Monorepo QA
 on:
   push:
     branches:
       - claude/real-estate-saas-platform-sp7ua9
   workflow_dispatch:
+concurrency:
+  group: monorepo-qa-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
-  dashboard:
+  quality:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -19,6 +22,11 @@ jobs:
           node-version: 20.20.2
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter=@sbaah/dashboard typecheck
-      - run: pnpm --filter=@sbaah/dashboard lint
-      - run: pnpm --filter=@sbaah/dashboard build
+      - name: Typecheck all workspaces
+        run: pnpm typecheck
+      - name: Lint all workspaces
+        run: pnpm lint
+      - name: Check formatting
+        run: pnpm format:check
+      - name: Build all applications
+        run: pnpm build
