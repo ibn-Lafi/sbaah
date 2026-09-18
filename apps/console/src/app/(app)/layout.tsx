@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getMe, type MeResponse } from '@/lib/api/console-auth';
-import { getAccessToken } from '@/lib/auth/session';
+import { getAccessToken, signOut } from '@/lib/auth/session';
 import { CurrentAdminProvider } from '@/lib/auth/current-admin-context';
 import { ConsoleShellSkeleton } from '@/components/layout/console-shell-skeleton';
 
@@ -33,6 +33,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         const me = await getMe(accessToken);
         if (!cancelled) setState({ me, accessToken });
       } catch {
+        await signOut().catch(() => undefined);
         router.replace('/login');
       }
     }
