@@ -71,12 +71,20 @@ function getPinnedItems(items: NavEntry[]): PinnedNavItem[] {
 export function MobileNav({ orgName, accountType }: MobileNavProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { me } = useCurrentUser();
+  const { me, business, capabilities } = useCurrentUser();
   const { t } = useLocale();
   const roleLabel = t.roleLabels[me.user.role];
   const [sheetOpen, setSheetOpen] = useState(false);
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
-  const visibleItems = getNavItems(t).filter((item) => !item.roles || item.roles.includes(me.user.role));
+  const visibleItems = getNavItems(t)
+    .filter((item) => !item.roles || item.roles.includes(me.user.role))
+    .filter((item) => !business.configured || !item.capability || capabilities.has(item.capability))
+    .map((item) =>
+      isNavGroup(item)
+        ? { ...item, children: item.children.filter((child) => !business.configured || !child.capability || capabilities.has(child.capability)) }
+        : item,
+    )
+    .filter((item) => !isNavGroup(item) || item.children.length > 0);
   const pinnedItems: PinnedNavItem[] = getPinnedItems(visibleItems);
   const settingsActive = pathname === '/settings';
 
