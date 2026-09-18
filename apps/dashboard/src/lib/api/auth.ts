@@ -1,5 +1,6 @@
 import type {
   AccountType,
+  BusinessActivity,
   CustomDomainStatus,
   OtpPurpose,
   RegisterInput,
@@ -134,4 +135,14 @@ export function verifyProfileChange(accessToken:string,input:({phone:string}|{em
   return 'phone' in input
     ? apiPost<{status:'updated'}>('/auth/profile-change',{channel:'sms',...input},accessToken)
     : apiPost<{status:'updated'}>('/auth/profile-change',{channel:'email',...input},accessToken);
+}
+
+
+export interface BusinessActivitiesResponse {
+  activities: BusinessActivity[];
+  configured: boolean;
+}
+
+export function getBusinessActivities(accessToken: string) {
+  return apiGet<BusinessActivitiesResponse>('/tenant/activities', accessToken);
 }
