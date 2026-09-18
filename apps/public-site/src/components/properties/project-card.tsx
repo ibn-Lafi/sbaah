@@ -11,7 +11,7 @@ export function ProjectCard({ project, city, locale }: { project: PublicProject;
   const description = pickLocalized(locale, project.description_ar ?? '', project.description_en ?? null);
 
   return (
-    <Link href={localizedPath(locale, `/projects/${project.id}`)} className="flex flex-col gap-2 rounded-xl border border-black/10 p-5 transition hover:border-black/25">
+    <Link href={localizedPath(locale, `/projects/${project.slug}`)} className="flex flex-col gap-2 rounded-xl border border-black/10 p-5 transition hover:border-black/25">
       <h3 className="font-semibold">{title}</h3>
       {city && <p className="text-sm text-black/60">{pickLocalized(locale, city.name_ar, city.name_en)}</p>}
       {description && <p className="text-sm text-black/70">{description}</p>}

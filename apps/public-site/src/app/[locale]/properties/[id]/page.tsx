@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { isLocale, DEFAULT_LOCALE } from '@/lib/i18n/locales';
 import { pickLocalized } from '@/lib/i18n/localized-field';
 import { getPublicProperty } from '@/lib/api/public-properties';
@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const title = pickLocalized(locale, property.title_ar, property.title_en);
   const description = pickLocalized(locale, property.description_ar, property.description_en) || undefined;
-  const pathname = `/properties/${id}`;
+  const pathname = `/properties/${property.slug}`;
   const [alternates, origin] = await Promise.all([
     buildLocalizedAlternates(locale, pathname),
     getPublicOrigin(),
@@ -74,6 +74,9 @@ export default async function PropertyDetailPage({ params }: PageProps) {
   const [property, site] = await Promise.all([getPublicProperty(id), getTenantSitePage('property_detail')]);
   if (!property || !site) {
     notFound();
+  }
+  if (id !== property.slug) {
+    permanentRedirect(localizedPath(locale, `/properties/${property.slug}`));
   }
 
   const [cities, districts] = await Promise.all([listCities(), listDistricts(property.city_id)]);
