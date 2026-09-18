@@ -254,20 +254,26 @@ function SocialLinksCard({ accessToken, initial }: { accessToken: string; initia
   const { pages } = useLocale();
   const t = pages.settings;
   const [draft, setDraft] = useState<SocialLinks>(initial);
+  const [activeFields, setActiveFields] = useState<(keyof SocialLinks)[]>(
+    () => (Object.keys(initial) as (keyof SocialLinks)[]).filter((key) => Boolean(initial[key]))
+  );
+  const [pickerOpen, setPickerOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  /** حقلا واتساب/اتصال يُخزَّنان كأرقام بلا + (966 متبوعة بتسعة أرقام) لتوافق digitsOnly() بالموقع العام — يُعرضان دائمًا برمز +966 ثابت مثل بقية حقول الجوال. */
-  const phoneSocialFields: { key: 'social_whatsapp' | 'social_phone'; label: string; Icon: typeof WhatsappIcon }[] = [
-    { key: 'social_whatsapp', label: t.socialLinks.whatsapp, Icon: WhatsappIcon },
-    { key: 'social_phone', label: t.socialLinks.call, Icon: CallIcon },
-  ];
-  const socialFields: { key: keyof SocialLinks; label: string; placeholder: string; Icon: typeof InstagramIcon }[] = [
+  const fields: { key: keyof SocialLinks; label: string; placeholder: string; Icon: typeof InstagramIcon; phone?: boolean }[] = [
+    { key: 'social_whatsapp', label: t.socialLinks.whatsapp, placeholder: t.socialLinks.phonePlaceholder, Icon: WhatsappIcon, phone: true },
+    { key: 'social_phone', label: t.socialLinks.call, placeholder: t.socialLinks.phonePlaceholder, Icon: CallIcon, phone: true },
     { key: 'social_instagram', label: t.socialLinks.instagram, placeholder: t.socialLinks.instagramPlaceholder, Icon: InstagramIcon },
     { key: 'social_tiktok', label: t.socialLinks.tiktok, placeholder: t.socialLinks.tiktokPlaceholder, Icon: TiktokIcon },
     { key: 'social_snapchat', label: t.socialLinks.snapchat, placeholder: t.socialLinks.snapchatPlaceholder, Icon: SnapchatIcon },
   ];
+
+  function addField(key: keyof SocialLinks) {
+    setActiveFields((current) => current.includes(key) ? current : [...current, key]);
+    setPickerOpen(false);
+  }
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -282,6 +288,7 @@ function SocialLinksCard({ accessToken, initial }: { accessToken: string; initia
     try {
       const updated = await updateSocialLinks(accessToken, result.data);
       setDraft(updated);
+      setActiveFields((Object.keys(updated) as (keyof SocialLinks)[]).filter((key) => Boolean(updated[key])));
       setSaved(true);
     } catch (err) {
       setError(err instanceof ApiRequestError ? err.message : t.socialLinks.saveFailed);
@@ -291,47 +298,57 @@ function SocialLinksCard({ accessToken, initial }: { accessToken: string; initia
   }
 
   return (
-    <Card className="p-6">
-      <h2 className="mb-1 text-base font-semibold text-text-primary">{t.socialLinks.title}</h2>
-      <p className="mb-4 text-sm text-text-secondary">{t.socialLinks.description}</p>
-      <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-3">
-        {phoneSocialFields.map(({ key, label, Icon }) => (
-          <div key={key} className="flex flex-col gap-2">
-            <label className="flex items-center gap-2 text-sm font-medium text-text-primary">
-              <Icon className="h-[16px] w-[16px] text-text-secondary" />
-              {label}
-            </label>
-            <PhoneInput
-              storagePrefix="966"
-              placeholder={t.socialLinks.phonePlaceholder}
-              value={draft[key] ?? ''}
-              onChange={(value) => setDraft((c) => ({ ...c, [key]: value }))}
-            />
+    <>
+      <Card className="p-6">
+        <div className="mb-1 flex items-center justify-between gap-3">
+          <h2 className="text-base font-semibold text-text-primary">{t.socialLinks.title}</h2>
+          <button type="button" onClick={() => setPickerOpen(true)} aria-label={`+ ${t.socialLinks.title}`} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border-default bg-surface-card text-xl font-medium text-brand transition-colors hover:bg-surface-subtle">+</button>
+        </div>
+        <p className="mb-4 text-sm text-text-secondary">{t.socialLinks.description}</p>
+        <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-3">
+          {fields.filter(({ key }) => activeFields.includes(key)).map(({ key, label, placeholder, Icon, phone }) => (
+            <div key={key} className="flex flex-col gap-2">
+              <label className="flex items-center gap-2 text-sm font-medium text-text-primary">
+                <Icon className="h-[18px] w-[18px] text-text-secondary" />
+                {label}
+              </label>
+              {phone ? (
+                <PhoneInput storagePrefix="966" placeholder={placeholder} value={draft[key] ?? ''} onChange={(value) => setDraft((current) => ({ ...current, [key]: value }))} />
+              ) : (
+                <Input value={draft[key] ?? ''} onChange={(event) => setDraft((current) => ({ ...current, [key]: event.target.value }))} placeholder={placeholder} dir="ltr" />
+              )}
+            </div>
+          ))}
+          {activeFields.length === 0 && <p className="rounded-2xl border border-dashed border-border-default px-4 py-5 text-center text-sm text-text-secondary">{t.socialLinks.description}</p>}
+          <FormError message={error} />
+          {activeFields.length > 0 && <Button type="submit" disabled={loading} className="w-fit">{loading ? t.common.saving : saved ? t.common.saved : t.common.save}</Button>}
+        </form>
+      </Card>
+
+      {pickerOpen && (
+        <div className="fixed inset-0 z-[100] flex items-end justify-center bg-black/35 p-4 backdrop-blur-[2px] sm:items-center" onClick={() => setPickerOpen(false)}>
+          <div role="dialog" aria-modal="true" className="w-full max-w-md rounded-[28px] bg-surface-card p-5 shadow-2xl" onClick={(event) => event.stopPropagation()}>
+            <div className="mb-5 flex items-center justify-between">
+              <h3 className="text-lg font-bold text-text-primary">{t.socialLinks.title}</h3>
+              <button type="button" onClick={() => setPickerOpen(false)} className="flex h-9 w-9 items-center justify-center rounded-full bg-surface-subtle text-xl text-text-secondary">×</button>
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              {fields.map(({ key, label, Icon }) => {
+                const active = activeFields.includes(key);
+                return (
+                  <button key={key} type="button" disabled={active} onClick={() => addField(key)} className="flex min-h-24 flex-col items-center justify-center gap-2 rounded-2xl border border-border-default bg-surface-page p-3 text-center transition-colors hover:border-brand hover:text-brand disabled:opacity-35">
+                    <Icon className="h-7 w-7" />
+                    <span className="text-xs font-semibold">{label}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        ))}
-        {socialFields.map(({ key, label, placeholder, Icon }) => (
-          <div key={key} className="flex flex-col gap-2">
-            <label className="flex items-center gap-2 text-sm font-medium text-text-primary">
-              <Icon className="h-[16px] w-[16px] text-text-secondary" />
-              {label}
-            </label>
-            <Input
-              value={draft[key] ?? ''}
-              onChange={(e) => setDraft((c) => ({ ...c, [key]: e.target.value }))}
-              placeholder={placeholder}
-              dir="ltr"
-            />
-          </div>
-        ))}
-        <FormError message={error} />
-        <Button type="submit" disabled={loading} className="w-fit">
-          {loading ? t.common.saving : saved ? t.common.saved : t.common.save}
-        </Button>
-      </form>
-    </Card>
+        </div>
+      )}
+    </>
   );
 }
-
 /**
  * حقل نصي على `websites` (العنوان/وصف الموقع) — نفس الشكل والسلوك لكلا
  * الحقلين (يظهران دائمًا في تذييل الموقع العام)، فقط يختلف الحقل المستهدَف
