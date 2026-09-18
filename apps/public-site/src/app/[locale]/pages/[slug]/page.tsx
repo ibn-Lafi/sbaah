@@ -1,5 +1,19 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTenantCustomPage } from '@/lib/tenant/get-tenant-site';
+import { getPublicOrigin } from '@/lib/routing/public-url';
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const page = await getTenantCustomPage(slug);
+  if (!page) return { robots: { index: false, follow: false } };
+
+  const origin = await getPublicOrigin();
+  return {
+    title: page.title,
+    alternates: origin ? { canonical: `${origin}/pages/${slug}` } : undefined,
+  };
+}
 
 /** الصفحات — صفحة حرة كتبها المالك/المسؤول (مثل سياسة الخصوصية)، مربوطة من تذييل الموقع. */
 export default async function CustomPage({ params }: { params: Promise<{ slug: string }> }) {
