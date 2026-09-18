@@ -11,6 +11,7 @@ export class ApiRequestError extends Error {
   constructor(
     public readonly code: string,
     message: string,
+    public readonly status?: number,
   ) {
     super(message);
     this.name = 'ApiRequestError';
@@ -28,7 +29,7 @@ function requireApiUrl(): string {
 async function handleResponse<T>(response: Response): Promise<T> {
   const json = await response.json().catch(() => null);
   if (!response.ok) {
-    throw new ApiRequestError(json?.error?.code ?? 'unknown_error', json?.error?.message ?? 'حدث خطأ غير متوقع');
+    throw new ApiRequestError(json?.error?.code ?? 'unknown_error', json?.error?.message ?? 'حدث خطأ غير متوقع', response.status);
   }
   return json as T;
 }
