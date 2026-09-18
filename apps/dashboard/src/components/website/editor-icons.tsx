@@ -142,39 +142,19 @@ export function ChevronIcon({ open, className }: IconProps & { open: boolean }) 
 }
 
 export function InstagramIcon({ className }: IconProps) {
-  return (
-    <Svg className={className}>
-      <rect x="3" y="3" width="18" height="18" rx="5" />
-      <circle cx="12" cy="12" r="4" />
-      <circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none" />
-    </Svg>
-  );
+  return <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true"><path d="M7.75 2h8.5A5.76 5.76 0 0 1 22 7.75v8.5A5.76 5.76 0 0 1 16.25 22h-8.5A5.76 5.76 0 0 1 2 16.25v-8.5A5.76 5.76 0 0 1 7.75 2Zm0 1.75a4 4 0 0 0-4 4v8.5a4 4 0 0 0 4 4h8.5a4 4 0 0 0 4-4v-8.5a4 4 0 0 0-4-4h-8.5ZM17.5 5.4a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2ZM12 7.15A4.85 4.85 0 1 1 12 16.85 4.85 4.85 0 0 1 12 7.15Zm0 1.75a3.1 3.1 0 1 0 0 6.2 3.1 3.1 0 0 0 0-6.2Z"/></svg>;
 }
 
 export function TiktokIcon({ className }: IconProps) {
-  return (
-    <Svg className={className}>
-      <path d="M14 3v11.5a3.5 3.5 0 1 1-3.5-3.5c.35 0 .69.04 1 .12" />
-      <path d="M14 3c.3 2.2 2 4 4.5 4.2" />
-    </Svg>
-  );
+  return <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true"><path d="M14.1 2h3.25c.23 1.9 1.28 3.18 3.15 3.75v3.3a8.36 8.36 0 0 1-3.1-.78v6.15A6.58 6.58 0 1 1 11.1 7.85v3.34a3.3 3.3 0 1 0 3 3.28V2Z"/></svg>;
 }
 
 export function WhatsappIcon({ className }: IconProps) {
-  return (
-    <Svg className={className}>
-      <path d="M4 20l1.3-3.8A8 8 0 1 1 8.4 19L4 20z" />
-      <path d="M9 9.5c0 3 2.5 5.5 5.5 5.5.5-1 .3-1.4-.2-1.7l-1.3-.8c-.4-.2-.7-.1-1 .2l-.4.4c-1-.5-1.9-1.4-2.4-2.4l.4-.4c.3-.3.4-.6.2-1l-.8-1.3c-.3-.5-.7-.7-1.7-.2" />
-    </Svg>
-  );
+  return <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true"><path d="M20.52 3.48A11.8 11.8 0 0 0 1.95 17.7L.3 23.7l6.14-1.61a11.8 11.8 0 0 0 14.08-18.61ZM12.02 21a9.78 9.78 0 0 1-4.99-1.37l-.36-.21-3.64.95.97-3.54-.23-.37A9.82 9.82 0 1 1 12.02 21Zm5.39-7.35c-.3-.15-1.75-.86-2.02-.96-.27-.1-.47-.15-.67.15-.2.3-.76.96-.94 1.16-.17.2-.34.22-.64.07-.3-.15-1.25-.46-2.38-1.47-.88-.78-1.47-1.75-1.65-2.05-.17-.3-.02-.46.13-.61.13-.13.3-.34.44-.52.15-.17.2-.3.3-.49.1-.2.05-.37-.02-.52-.08-.15-.67-1.61-.91-2.2-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.21 3.08c.15.2 2.1 3.2 5.08 4.49.71.3 1.26.49 1.69.63.71.23 1.36.2 1.87.12.57-.09 1.75-.72 2-1.41.25-.7.25-1.29.17-1.41-.07-.13-.27-.2-.57-.35Z"/></svg>;
 }
 
 export function SnapchatIcon({ className }: IconProps) {
-  return (
-    <Svg className={className}>
-      <path d="M12 4c2.5 0 4 1.8 4 4.3 0 1 .1 1.9.3 2.4.3.6 1 .9 1.7 1.1-.1.6-.9 1-1.5 1.2 0 .4.1.9-.4 1.1-.4.2-1 .1-1.4.3-.4.2-.5.9-1.2 1.2-.7.3-1.5-.2-2.5-.2s-1.8.5-2.5.2c-.7-.3-.8-1-1.2-1.2-.4-.2-1-.1-1.4-.3-.5-.2-.4-.7-.4-1.1-.6-.2-1.4-.6-1.5-1.2.7-.2 1.4-.5 1.7-1.1.2-.5.3-1.4.3-2.4C8 5.8 9.5 4 12 4z" />
-    </Svg>
-  );
+  return <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true"><path d="M12 2.25c-2.86 0-5.03 2.13-5.03 5.24 0 .67.08 1.52.08 2.2 0 .45-.2.73-.62.92-.53.24-1.15.3-1.63.5-.48.2-.42.75.05.98.7.34 1.37.4 1.56.87.13.32-.12.77.12 1.12.28.4.87.25 1.23.52.42.31.4.92.94 1.15.7.3 1.55-.12 2.27-.12h2.06c.72 0 1.57.42 2.27.12.54-.23.52-.84.94-1.15.36-.27.95-.12 1.23-.52.24-.35-.01-.8.12-1.12.19-.47.86-.53 1.56-.87.47-.23.53-.78.05-.98-.48-.2-1.1-.26-1.63-.5-.42-.19-.62-.47-.62-.92 0-.68.08-1.53.08-2.2 0-3.11-2.17-5.24-5.03-5.24Z"/></svg>;
 }
 
 export function CallIcon({ className }: IconProps) {
@@ -186,11 +166,7 @@ export function CallIcon({ className }: IconProps) {
 }
 
 export function XIcon({ className }: IconProps) {
-  return (
-    <Svg className={className}>
-      <path d="M4 4l16 16M20 4L4 20" />
-    </Svg>
-  );
+  return <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true"><path d="M18.9 2H22l-6.77 7.74L23.2 22h-6.24l-4.89-6.39L6.48 22H3.36l7.26-8.3L2.98 2h6.4l4.42 5.84L18.9 2Zm-1.1 17.84h1.73L8.44 4.05H6.58L17.8 19.84Z"/></svg>;
 }
 
 export function MailIcon({ className }: IconProps) {
