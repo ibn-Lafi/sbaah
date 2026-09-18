@@ -1,7 +1,6 @@
 import type { City, WebsiteSection } from '@sbaah/shared';
 import type { Locale } from '@/lib/i18n/locales';
 import type { ThemeSectionComponents } from '@/components/themes/types';
-import { BrokerMarketerForm } from '@/components/broker-marketer/broker-marketer-form';
 
 /**
  * Renders one THEMED section (hero/about/why_us/contact/broker_marketer_form)
@@ -53,16 +52,6 @@ export function renderThemedSection(
           config={section.config}
           whatsappPhone={ctx.whatsappPhone}
           tenantId={ctx.tenantId}
-        />
-      );
-    case 'broker_marketer_form':
-      return (
-        <BrokerMarketerForm
-          key={section.id}
-          locale={ctx.locale}
-          tenantId={ctx.tenantId}
-          propertyId={ctx.propertyId}
-          cities={ctx.cities ?? []}
         />
       );
     default:
