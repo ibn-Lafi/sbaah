@@ -93,7 +93,7 @@ Growth
 - [x] PROJ-005 Add unit types
 - [x] PROJ-006 Add units and availability lifecycle
 - [x] PROJ-007 Add project inventory APIs and validation
-- [~] PROJ-008 Add project/unit management UX
+- [x] PROJ-008 Add project/unit management UX
 
 ## Phase 04 — CRM Foundation
 - [x] CRM-001 Refine lead pipeline and qualification fields
