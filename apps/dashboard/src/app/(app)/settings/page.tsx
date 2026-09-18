@@ -27,6 +27,7 @@ import {
   XIcon,
   CallIcon,
   LocationIcon,
+  MailIcon,
 } from '@/components/website/editor-icons';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { useLocale } from '@/lib/i18n/locale-context';
@@ -36,7 +37,7 @@ import { sendProfileChangeOtp, updateMyProfile, verifyProfileChange } from '@/li
 import { signOut } from '@/lib/auth/session';
 import { ApiRequestError } from '@/lib/api/client';
 
-type SettingsTab = 'account' | 'organization' | 'contact' | 'brand' | 'team' | 'billing';
+type SettingsTab = 'account' | 'team' | 'billing' | 'websiteData';
 
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
@@ -516,18 +517,18 @@ function AccountTab({ accessToken }: { accessToken: string }) {
   return <><Card className="p-6"><h2 className="mb-4 text-base font-semibold text-text-primary">{settings.accountInfo.title}</h2><div className="flex flex-col gap-4"><div><label className="mb-1.5 block text-sm text-text-secondary">الاسم</label><Input value={name} onChange={e=>setName(e.target.value)}/></div><div><label className="mb-1.5 block text-sm text-text-secondary">الدور</label><select value={role} onChange={e=>setRole(e.target.value as typeof role)} className="rounded-input border-border-default bg-surface-card w-full border px-3 py-2.5 text-sm text-text-primary"><option value="owner">مالك الحساب</option><option value="admin">مسؤول</option><option value="agent">وسيط</option></select></div><div><label className="mb-1.5 block text-sm text-text-secondary">رقم الجوال</label><div className="flex gap-2"><PhoneInput storagePrefix="966" value={phone} onChange={setPhone}/><Button type="button" variant="secondary" onClick={()=>void requestChange('phone')} disabled={phone===me.user.phone}>تغيير</Button></div><p className="mt-1 text-xs text-text-placeholder">عند التغيير سنرسل رمز OTP إلى الرقم الجديد للتأكد منه.</p></div><div><label className="mb-1.5 block text-sm text-text-secondary">البريد الإلكتروني</label><div className="flex gap-2"><Input type="email" dir="ltr" value={email} onChange={e=>setEmail(e.target.value)}/><Button type="button" variant="secondary" onClick={()=>void requestChange('email')} disabled={email.trim()===(me.user.email??'')}>تغيير</Button></div><p className="mt-1 text-xs text-text-placeholder">عند التغيير سنرسل رمز OTP إلى البريد الجديد للتأكد منه.</p></div><FormError message={error}/><Button type="button" onClick={()=>void saveBasic()} className="w-fit">{saved?'تم الحفظ':'حفظ الاسم والدور'}</Button></div></Card><LanguageThemeSwitchCard/><Card className="p-6"><button type="button" onClick={()=>void signOut().then(()=>router.replace('/login'))} className="text-sm font-semibold text-danger hover:underline">{settings.signOut}</button></Card>{verify&&<div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/40 p-4"><Card className="w-full max-w-sm p-6"><h3 className="text-lg font-bold text-text-primary">تأكيد {verify.kind==='phone'?'رقم الجوال':'البريد الإلكتروني'}</h3><p className="mb-4 mt-1 text-sm text-text-secondary">أدخل رمز التحقق المرسل إلى <span dir="ltr">{verify.target}</span></p><Input inputMode="numeric" maxLength={4} dir="ltr" value={verify.code} onChange={e=>setVerify({...verify,code:e.target.value.replace(/\D/g,'').slice(0,4)})} placeholder="0000"/><FormError message={error}/><div className="mt-4 flex gap-2"><Button type="button" onClick={()=>void confirm()} disabled={verify.code.length!==4}>تأكيد التغيير</Button><Button type="button" variant="secondary" onClick={()=>setVerify(null)}>إلغاء</Button></div></Card></div>}</>;
 }
 
-function OrganizationTab({ accessToken }: { accessToken: string }) {
+function WebsiteDataTab({ accessToken }: { accessToken: string }) {
   const { me } = useCurrentUser();
+  const { pages } = useLocale();
+  const settings = pages.settings;
   const canEdit = me.user.role === 'owner';
 
   return (
     <>
       <AccountTypeCard accessToken={accessToken} canEdit={canEdit} initial={me.tenant.account_type} />
+
       {me.tenant.account_type === 'individual' ? (
-        <Card className="p-6">
-          <h2 className="mb-4 text-base font-semibold text-text-primary">التراخيص</h2>
-          <FalLicenseFields accessToken={accessToken} canEdit={canEdit} initial={me.tenant.fal_license_number} />
-        </Card>
+        <Card className="p-6"><h2 className="mb-4 text-base font-semibold text-text-primary">التراخيص</h2><FalLicenseFields accessToken={accessToken} canEdit={canEdit} initial={me.tenant.fal_license_number} /></Card>
       ) : (
         <OrganizationInfoCard
           accessToken={accessToken}
@@ -541,17 +542,7 @@ function OrganizationTab({ accessToken }: { accessToken: string }) {
           falLicense={me.tenant.fal_license_number}
         />
       )}
-    </>
-  );
-}
 
-function ContactTab({ accessToken }: { accessToken: string }) {
-  const { me } = useCurrentUser();
-  const { pages } = useLocale();
-  const settings = pages.settings;
-
-  return (
-    <>
       <SocialLinksCard
         accessToken={accessToken}
         initial={{
@@ -565,6 +556,7 @@ function ContactTab({ accessToken }: { accessToken: string }) {
           social_telegram: me.tenant.social_telegram,
         }}
       />
+
       <WebsiteTextFieldCard
         accessToken={accessToken}
         field="address"
@@ -574,40 +566,38 @@ function ContactTab({ accessToken }: { accessToken: string }) {
         placeholder={settings.address.placeholder}
         saveFailedMessage={settings.address.saveFailed}
       />
+
+      <WebsiteTextFieldCard
+        accessToken={accessToken}
+        field="footer_description"
+        icon={<MailIcon className="h-[18px] w-[18px] text-text-secondary" />}
+        title={settings.websiteDescription.title}
+        description={settings.websiteDescription.description}
+        placeholder={settings.websiteDescription.placeholder}
+        saveFailedMessage={settings.websiteDescription.saveFailed}
+      />
+
+      <WebsiteBrandingCard accessToken={accessToken} />
     </>
   );
 }
 
-function BrandTab({ accessToken }: { accessToken: string }) {
-  return <WebsiteBrandingCard accessToken={accessToken} />;
-}
-
-/** إعدادات الحساب والمنشأة — نفس المكوّنات والتصميم الحالي، مع فصل ملكية المعلومات منطقيًا إلى حساب، منشأة، تواصل، وهوية. */
+/** حسابي (من الشريط السفلي بعرض الجوال، وقائمة الحساب المنسدلة بالشريط الجانبي على سطح المكتب) — شريط تبويب موحّد (بنفس شكل الدومين المخصص/الفرعي بصفحة الدومين) يجمع الحساب الشخصي، إدارة الموظفين، الفوترة والاشتراك، وبيانات الموقع في صفحة واحدة بدل ثلاث صفحات منفصلة. /team و/billing يبقيان يعملان (نفس المكوّنات بالضبط). */
 export default function SettingsPage() {
   const { me, accessToken } = useCurrentUser();
   const { pages } = useLocale();
   const settings = pages.settings;
   const canSeeTeam = me.user.role === 'owner' || me.user.role === 'admin';
   const canSeeBilling = me.user.role === 'owner';
-  const canSeeOrganization = me.user.role === 'owner' || me.user.role === 'admin';
-  const { locale } = useLocale();
+  const canSeeWebsiteData = me.user.role === 'owner' || me.user.role === 'admin';
 
   const tabOptions = [
-    { value: 'account' as const, label: locale === 'ar' ? 'الحساب' : 'Account' },
-    ...(canSeeOrganization ? [{ value: 'organization' as const, label: locale === 'ar' ? (me.tenant.account_type === 'individual' ? 'بيانات الفرد' : 'بيانات المنشأة') : (me.tenant.account_type === 'individual' ? 'Individual Information' : 'Organization Information') }] : []),
-    ...(canSeeOrganization ? [{ value: 'contact' as const, label: locale === 'ar' ? 'معلومات التواصل' : 'Contact Information' }] : []),
-    ...(canSeeOrganization ? [{ value: 'brand' as const, label: locale === 'ar' ? 'الهوية التجارية' : 'Brand Identity' }] : []),
-    ...(canSeeTeam ? [{ value: 'team' as const, label: locale === 'ar' ? 'الفريق والصلاحيات' : 'Team & Permissions' }] : []),
+    { value: 'account' as const, label: settings.tabs.account },
+    ...(canSeeTeam ? [{ value: 'team' as const, label: settings.tabs.team }] : []),
     ...(canSeeBilling ? [{ value: 'billing' as const, label: settings.tabs.billing }] : []),
+    ...(canSeeWebsiteData ? [{ value: 'websiteData' as const, label: me.tenant.account_type === 'individual' ? 'بيانات الفرد' : me.tenant.account_type === 'institution' ? 'بيانات المؤسسة' : 'بيانات الشركة' }] : []),
   ];
   const [tab, setTab] = useState<SettingsTab>('account');
-
-  useEffect(() => {
-    const requested = new URLSearchParams(window.location.search).get('tab') as SettingsTab | null;
-    if (requested && tabOptions.some((option) => option.value === requested)) setTab(requested);
-  // tabOptions is derived from the authenticated account; read the initial deep-link once.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
     <AppShell title={settings.pageTitle} orgName={me.tenant.name_ar} accountType={me.tenant.account_type}>
@@ -622,9 +612,7 @@ export default function SettingsPage() {
               <BillingPanel />
             </Suspense>
           ) : null)}
-        {tab === 'organization' && (canSeeOrganization ? <OrganizationTab accessToken={accessToken} /> : null)}
-        {tab === 'contact' && (canSeeOrganization ? <ContactTab accessToken={accessToken} /> : null)}
-        {tab === 'brand' && (canSeeOrganization ? <BrandTab accessToken={accessToken} /> : null)}
+        {tab === 'websiteData' && (canSeeWebsiteData ? <WebsiteDataTab accessToken={accessToken} /> : null)}
       </div>
     </AppShell>
   );
