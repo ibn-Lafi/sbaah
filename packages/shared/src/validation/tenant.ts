@@ -110,5 +110,8 @@ export const socialLinksUpdateSchema = z.object({
   social_whatsapp: optionalTrimmedString(30),
   social_snapchat: optionalTrimmedString(200),
   social_phone: optionalTrimmedString(30),
+  social_facebook: optionalTrimmedString(200),
+  social_x: optionalTrimmedString(200),
+  social_telegram: optionalTrimmedString(200),
 });
 export type SocialLinksUpdateInput = z.infer<typeof socialLinksUpdateSchema>;
