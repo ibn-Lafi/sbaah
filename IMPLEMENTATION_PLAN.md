@@ -7,10 +7,10 @@
 ## Progress
 
 - Total tasks: **50**
-- Completed: **10**
+- Completed: **35**
 - In progress: **0**
-- Blocked: **1**
-- Remaining: **40**
+- Blocked: **0**
+- Remaining: **15**
 
 Legend: [ ] Pending · [~] In Progress · [x] Completed · [!] Blocked
 
@@ -74,59 +74,59 @@ Growth
 - [x] RBAC-003 Add backend permission guard helpers
 - [x] RBAC-004 Add database permission/scoping foundation without breaking legacy roles
 - [x] SEC-001 Add same-tenant foreign-key ownership validation helpers
-- [!] SEC-002 Add tenant-isolation/RLS regression tests
+- [x] SEC-002 Add tenant-isolation/RLS regression tests
 
 ## Phase 02 — Property Core
-- [ ] PROP-001 Extend property taxonomy and conditional physical fields
-- [ ] PROP-002 Add additive property schema migration and indexes
-- [ ] PROP-003 Add conditional property validation by property/listing type
-- [ ] PROP-004 Add reusable tenant-scoped documents domain
-- [ ] PROP-005 Add advertisement/license/marketing-mandate metadata
-- [ ] PROP-006 Add publication validation and compliance gate
+- [x] PROP-001 Extend property taxonomy and conditional physical fields
+- [x] PROP-002 Add additive property schema migration and indexes
+- [x] PROP-003 Add conditional property validation by property/listing type
+- [x] PROP-004 Add reusable tenant-scoped documents domain
+- [x] PROP-005 Add advertisement/license/marketing-mandate metadata
+- [x] PROP-006 Add publication validation and compliance gate
 - [ ] PROP-007 Update property create/edit UX responsively for RTL/LTR
 
 ## Phase 03 — Developer Inventory
-- [ ] PROJ-001 Extend project lifecycle/location/development fields
+- [x] PROJ-001 Extend project lifecycle/location/development fields
 - [ ] PROJ-002 Add project media/documents support
-- [ ] PROJ-003 Add optional project phases
-- [ ] PROJ-004 Harden/extend optional buildings with tenant ownership
-- [ ] PROJ-005 Add unit types
-- [ ] PROJ-006 Add units and availability lifecycle
-- [ ] PROJ-007 Add project inventory APIs and validation
+- [x] PROJ-003 Add optional project phases
+- [x] PROJ-004 Harden/extend optional buildings with tenant ownership
+- [x] PROJ-005 Add unit types
+- [x] PROJ-006 Add units and availability lifecycle
+- [x] PROJ-007 Add project inventory APIs and validation
 - [ ] PROJ-008 Add project/unit management UX
 
 ## Phase 04 — CRM Foundation
-- [ ] CRM-001 Refine lead pipeline and qualification fields
-- [ ] CRM-002 Add property requirements
+- [x] CRM-001 Refine lead pipeline and qualification fields
+- [x] CRM-002 Add property requirements
 - [ ] CRM-003 Add multiple property/unit interests and deterministic matching
-- [ ] CRM-004 Add CRM activity timeline
-- [ ] CRM-005 Add tasks/reminders
-- [ ] CRM-006 Add structured lost reasons
+- [x] CRM-004 Add CRM activity timeline
+- [x] CRM-005 Add tasks/reminders
+- [x] CRM-006 Add structured lost reasons
 - [ ] CRM-007 Update CRM UX and permission-aware assignment
 
 ## Phase 05 — Viewings & Deals
-- [ ] VIEW-001 Add in-person viewing entity + RLS
+- [x] VIEW-001 Add in-person viewing entity + RLS
 - [ ] VIEW-002 Add schedule/reschedule/cancel APIs
 - [ ] VIEW-003 Add calendar/today agenda UX
 - [ ] VIEW-004 Add completed/no-show/outcome workflow
 - [ ] VIEW-005 Integrate viewings into lead/property/unit timelines
-- [ ] DEAL-001 Add deal lifecycle
-- [ ] DEAL-002 Add brokerage commission fields/rules
+- [x] DEAL-001 Add deal lifecycle
+- [x] DEAL-002 Add brokerage commission fields/rules
 
 ## Phase 06 — Marketing & Website
-- [ ] MKT-001 Add marketing mandates
-- [ ] MKT-002 Add source/UTM attribution model and capture
+- [x] MKT-001 Add marketing mandates
+- [x] MKT-002 Add source/UTM attribution model and capture
 - [ ] MKT-003 Add pixel configuration and safe event emission
 - [ ] WEB-001 Add public listing view model for Property + Unit
 - [ ] WEB-002 Add project detail and unit inventory public views
 - [ ] WEB-003 Add activity-aware website sections without rebuilding themes
 
 ## Phase 07 — Analytics
-- [ ] REP-001 Define source-of-truth analytics events/KPIs
+- [x] REP-001 Define source-of-truth analytics events/KPIs
 - [ ] REP-002 Add marketer/broker/developer activity-aware reports
 
 ## Phase 08 — WhatsApp AI
-- [ ] AI-001 Add conversation/message domain and audit trail
+- [x] AI-001 Add conversation/message domain and audit trail
 - [ ] AI-002 Add WhatsApp webhook/router + idempotency
 - [ ] AI-003 Add least-privilege read-only inventory tools
 - [ ] AI-004 Add human handoff with preserved context
