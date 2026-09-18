@@ -1,5 +1,5 @@
 import type { NextRequest } from 'next/server';
-import { updateMyEmailSchema } from '@sbaah/shared';
+import { updateMyEmailSchema, updateMyProfileSchema } from '@sbaah/shared';
 import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
@@ -48,7 +48,16 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
 export const PATCH = withErrorHandling(async (request: NextRequest) => {
   const { supabase } = getAuthenticatedClient(request);
   const caller = await getCallerContext(supabase);
-  const { email } = updateMyEmailSchema.parse(await request.json());
+  const body = await request.json();
+  const profile = updateMyProfileSchema.safeParse(body);
+  if (profile.success && (profile.data.full_name !== undefined || profile.data.role !== undefined)) {
+    const updates = profile.data;
+    if (updates.role === 'owner' && caller.role !== 'owner') throw new ApiError(403, 'forbidden', 'لا يمكن منح دور مالك الحساب');
+    const { data: updated, error: profileError } = await supabase.from('users').update(updates).eq('id', caller.userId).select('id, full_name, phone, email, role, status').single();
+    if (profileError) throw new Error(`Failed to update profile: ${profileError.message}`);
+    return okResponse({ user: updated });
+  }
+  const { email } = updateMyEmailSchema.parse(body);
 
   const { data: user, error } = await supabase
     .from('users')
