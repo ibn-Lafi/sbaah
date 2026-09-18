@@ -60,8 +60,8 @@ export interface ChromeDictionary {
 export const dictionaries: Record<Locale, ChromeDictionary> = {
   ar: {
     nav: {
-      dashboard: 'لوحة القيادة',
-      leads: 'إدارة العملاء',
+      dashboard: 'الرئيسية',
+      leads: 'العملاء',
       propertiesGroup: {
         label: 'العقارات',
         units: 'الوحدات',
