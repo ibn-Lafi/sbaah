@@ -39,7 +39,6 @@ export function Hero({ locale }: { locale: Locale }) {
       />
 
       <div className="relative z-10 mx-auto -mt-28 flex max-w-3xl flex-col items-center gap-6 sm:-mt-32">
-        <span className="rounded-full bg-white/15 px-4 py-1.5 text-sm font-medium text-white backdrop-blur">{t.eyebrow}</span>
         <h1 className="font-display text-4xl leading-[1.15] font-semibold text-white sm:text-5xl md:text-6xl">{t.title}</h1>
         <p className="max-w-xl text-lg text-white/85">{t.subtitle}</p>
       </div>
