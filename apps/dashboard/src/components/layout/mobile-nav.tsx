@@ -7,7 +7,7 @@ import type { AccountType } from '@sbaah/shared';
 import { AccountAvatar } from '@/components/ui/account-avatar';
 import { BrandMark } from '@/components/ui/brand-mark';
 import { getNavItems, isNavGroup, type NavEntry, type NavLeaf } from './nav-items';
-import { ChevronIcon, CloseIcon, MenuIcon, SettingsIcon } from './nav-icons';
+import { ChevronIcon, CloseIcon, SettingsIcon } from './nav-icons';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { useLocale } from '@/lib/i18n/locale-context';
 
@@ -114,7 +114,7 @@ export function MobileNav({ orgName, accountType }: MobileNavProps) {
           title={t.mobileNav.morePages}
           className="bg-brand flex h-[52px] w-[52px] flex-none items-center justify-center rounded-[18px] text-white shadow-[0_8px_24px_rgba(104,69,138,.32)]"
         >
-          <MenuIcon className="h-[22px] w-[22px]" />
+          <SettingsIcon className="h-[22px] w-[22px]" />
         </button>
 
         <nav className="border-border-subtle bg-surface-card flex h-[52px] min-w-0 flex-1 items-stretch justify-around rounded-[18px] border px-1.5 shadow-[0_8px_24px_rgba(31,29,34,.14)]">
