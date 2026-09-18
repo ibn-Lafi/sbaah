@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { getMe, type MeResponse } from '@/lib/api/console-auth';
 import { getAccessToken, signOut } from '@/lib/auth/session';
 import { CurrentAdminProvider } from '@/lib/auth/current-admin-context';
+import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import { ConsoleShellSkeleton } from '@/components/layout/console-shell-skeleton';
 
 /**
@@ -39,8 +40,23 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     }
 
     void load();
+
+    const {
+      data: { subscription },
+    } = getSupabaseBrowserClient().auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT') {
+        setState(null);
+        router.replace('/login');
+        return;
+      }
+      if (session) {
+        setState((current) => (current ? { ...current, accessToken: session.access_token } : current));
+      }
+    });
+
     return () => {
       cancelled = true;
+      subscription.unsubscribe();
     };
   }, [router]);
 

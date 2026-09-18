@@ -1,7 +1,12 @@
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { AuthPanel } from '@/components/auth/auth-panel';
 import { Card } from '@/components/ui/card';
 import { LanguageToggle } from '@/components/layout/language-toggle';
 import { ThemeToggle } from '@/components/layout/theme-toggle';
+import { getAccessToken } from '@/lib/auth/session';
 
 /**
  * Shared shell for /login, /register, /forgot-password — no sidebar/topbar
@@ -20,6 +25,18 @@ import { ThemeToggle } from '@/components/layout/theme-toggle';
  * on its own without moving the surrounding viewport.
  */
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
+
+  useEffect(() => {
+    let cancelled = false;
+    void getAccessToken().then((token) => {
+      if (token && !cancelled) router.replace('/');
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [router]);
+
   return (
     <div className="flex h-dvh overflow-hidden">
       <AuthPanel />
