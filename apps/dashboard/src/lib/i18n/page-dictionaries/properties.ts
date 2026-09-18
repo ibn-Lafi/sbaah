@@ -25,11 +25,6 @@ export const propertiesAr = {
     createRentalModalTitle: 'إضافة إيجار',
     createRentalSubmitLabel: 'إضافة الإيجار',
     noRentals: 'لا عقود إيجار مسجّلة بعد.',
-    applicationsSectionTitle: 'طلبات الوسطاء والمسوقين على هذا العقار',
-    applicantTypeLabels: {
-      broker: 'وسيط',
-      marketer: 'مسوّق',
-    },
     deleteLabel: 'حذف',
     deleteConfirmTitle: 'حذف العقار',
     deleteConfirmMessage:
@@ -105,11 +100,6 @@ export const propertiesEn: typeof propertiesAr = {
     createRentalModalTitle: 'Add rental',
     createRentalSubmitLabel: 'Add rental',
     noRentals: 'No rentals recorded yet.',
-    applicationsSectionTitle: 'Broker and marketer applications on this property',
-    applicantTypeLabels: {
-      broker: 'Broker',
-      marketer: 'Marketer',
-    },
     deleteLabel: 'Delete',
     deleteConfirmTitle: 'Delete property',
     deleteConfirmMessage:
