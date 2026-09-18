@@ -4,6 +4,7 @@ export * from './format/date';
 export * from './http/api-client';
 export * from './labels';
 export * from './types/enums';
+export * from './types/permissions';
 export * from './types/database';
 export * from './types/website-section-config';
 export * from './validation/auth';
