@@ -1,6 +1,6 @@
 /** Sidebar nav — flat (console has no expandable groups, unlike dashboard's "الموقع الالكتروني" group) and no per-role filtering (every console screen requires the same platform_admins access). */
 import type { ComponentType } from 'react';
-import { AccountsIcon, CitiesIcon, DistrictsIcon, PlansIcon, SettingsIcon, ThemesIcon } from './nav-icons';
+import { AccountsIcon, CitiesIcon, DistrictsIcon, PlansIcon, SettingsIcon, SupportIcon, ThemesIcon } from './nav-icons';
 
 type Icon = ComponentType<{ className?: string }>;
 
@@ -17,5 +17,6 @@ export const NAV_ITEMS: NavItem[] = [
   { href: '/themes', label: 'الثيمات', icon: ThemesIcon },
   { href: '/cities', label: 'المدن', icon: CitiesIcon },
   { href: '/districts', label: 'الأحياء', icon: DistrictsIcon },
+  { href: '/support', label: 'التذاكر والدعم', icon: SupportIcon },
   { href: '/settings', label: 'إعدادات المنصة', icon: SettingsIcon },
 ];
