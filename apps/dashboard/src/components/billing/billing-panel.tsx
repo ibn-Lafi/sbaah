@@ -3,8 +3,8 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { PlanCard } from './plan-card';
 import { BillingSkeleton } from './billing-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { useLocale } from '@/lib/i18n/locale-context';
@@ -89,47 +89,48 @@ export function BillingPanel() {
             </div>
           )}
 
-          <Card className="p-6">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs text-text-secondary">{t.currentPlan.label}</p>
-                <h2 className="mt-1 text-xl font-bold text-text-primary">
-                  {locale === 'en' ? billing.plan.name_en : billing.plan.name_ar}
-                </h2>
+          <div className="flex flex-col gap-4">
+            <PlanCard
+              plan={billing.plan}
+              isCurrent={false}
+              selecting={false}
+              selectDisabled
+              onSelect={() => undefined}
+            />
+
+            <div className="rounded-[24px] border border-border-subtle bg-surface-card p-5">
+              <div className="flex flex-col gap-4">
+                <UsageBar
+                  label={t.currentPlan.propertiesUsage}
+                  used={billing.usage.properties}
+                  max={billing.plan.max_properties}
+                  unlimitedLabel={t.unlimited}
+                />
+                <UsageBar
+                  label={t.currentPlan.usersUsage}
+                  used={billing.usage.users}
+                  max={billing.plan.max_users}
+                  unlimitedLabel={t.unlimited}
+                />
               </div>
-              {billing.payment_status === 'paid' && (
-                <span className="rounded-full bg-success-surface px-3 py-1 text-xs font-semibold text-success">
-                  {t.currentPlan.activeBadge}
-                </span>
-              )}
+              <div className="mt-5 flex items-center justify-between gap-3">
+                <p className="text-xs text-text-secondary" dir="ltr">
+                  {billing.next_renewal_at ? t.currentPlan.nextRenewal(formatDate(billing.next_renewal_at)) : ''}
+                </p>
+                {billing.payment_status === 'paid' && (
+                  <span className="rounded-full bg-success-surface px-3 py-1 text-xs font-semibold text-success">
+                    {t.currentPlan.activeBadge}
+                  </span>
+                )}
+              </div>
             </div>
 
-            <div className="mt-5 flex flex-col gap-4">
-              <UsageBar
-                label={t.currentPlan.propertiesUsage}
-                used={billing.usage.properties}
-                max={billing.plan.max_properties}
-                unlimitedLabel={t.unlimited}
-              />
-              <UsageBar
-                label={t.currentPlan.usersUsage}
-                used={billing.usage.users}
-                max={billing.plan.max_users}
-                unlimitedLabel={t.unlimited}
-              />
-            </div>
-
-            <div className="mt-5 flex items-center justify-between gap-3">
-              <p className="text-xs text-text-secondary" dir="ltr">
-                {billing.next_renewal_at ? t.currentPlan.nextRenewal(formatDate(billing.next_renewal_at)) : ''}
-              </p>
-              <Link href="/billing/plans">
-                <Button type="button" className="w-fit">
-                  {t.currentPlan.changePlanButton}
-                </Button>
-              </Link>
-            </div>
-          </Card>
+            <Link href="/billing/plans" className="block">
+              <Button type="button" className="w-full">
+                {t.currentPlan.changePlanButton}
+              </Button>
+            </Link>
+          </div>
 
           {error && (
             <p role="alert" className="rounded-control bg-danger-surface px-4 py-3 text-sm text-danger">
