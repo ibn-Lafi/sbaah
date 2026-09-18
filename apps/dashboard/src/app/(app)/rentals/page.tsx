@@ -93,21 +93,21 @@ export default function RentalsPage() {
         ) : rentals.length === 0 ? (
           <p className="text-text-secondary p-6 text-center">{t.emptyState}</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[700px] text-sm">
+          <div className="overflow-x-auto md:overflow-visible">
+            <table className="w-full min-w-[620px] table-fixed text-sm md:min-w-0">
               <thead className="bg-surface-header text-text-secondary text-right">
                 <tr>
-                  <th className="px-5 py-3 font-medium">{t.table.property}</th>
-                  <th className="px-5 py-3 font-medium">{t.table.tenant}</th>
-                  <th className="px-5 py-3 font-medium">{t.table.rent}</th>
-                  <th className="px-5 py-3 font-medium">{t.table.contractEnd}</th>
-                  <th className="px-5 py-3 font-medium">{t.table.status}</th>
+                  <th className="px-3 py-3 md:px-4 font-medium">{t.table.property}</th>
+                  <th className="px-3 py-3 md:px-4 font-medium">{t.table.tenant}</th>
+                  <th className="px-3 py-3 md:px-4 font-medium">{t.table.rent}</th>
+                  <th className="px-3 py-3 md:px-4 font-medium">{t.table.contractEnd}</th>
+                  <th className="px-3 py-3 md:px-4 font-medium">{t.table.status}</th>
                 </tr>
               </thead>
               <tbody>
                 {rentals.map((rental) => (
                   <tr key={rental.id} className="border-border-subtle border-t">
-                    <td className="px-5 py-3">
+                    <td className="px-3 py-3 md:px-4">
                       <Link
                         href={`/rentals/${rental.id}`}
                         className="text-text-primary hover:text-brand font-medium"
@@ -122,7 +122,7 @@ export default function RentalsPage() {
                     <td className="text-text-secondary px-5 py-3" dir="ltr">
                       {formatDate(rental.contract_end_date)}
                     </td>
-                    <td className="px-5 py-3">
+                    <td className="px-3 py-3 md:px-4">
                       <Badge status={rental.status} label={t.statusLabels[rental.status]} />
                     </td>
                   </tr>
