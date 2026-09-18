@@ -3,7 +3,7 @@ import { businessActivitiesUpdateSchema } from '@sbaah/shared';
 import { okResponse, withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
-import { assertOwner } from '@/lib/auth/assert-owner';
+import { assertPermission } from '@/lib/auth/permissions';
 
 /**
  * Business activity is product configuration, not staff authorization.
@@ -30,7 +30,7 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
 export const PUT = withErrorHandling(async (request: NextRequest) => {
   const { supabase } = getAuthenticatedClient(request);
   const caller = await getCallerContext(supabase);
-  assertOwner(caller.role);
+  assertPermission(caller.role, 'tenant.settings.manage');
 
   const { activities } = businessActivitiesUpdateSchema.parse(await request.json());
 
