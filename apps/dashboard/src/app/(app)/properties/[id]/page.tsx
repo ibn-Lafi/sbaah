@@ -17,7 +17,6 @@ import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { deleteProperty, getProperty, updateProperty, type PropertyWithMedia } from '@/lib/api/properties';
 import { createRental, listRentals } from '@/lib/api/rentals';
 import { RENTAL_STATUS_LABELS } from '@/lib/rental/labels';
-import { listBrokerMarketerApplications, type BrokerMarketerApplicationWithRelations } from '@/lib/api/broker-marketer';
 import { ApiRequestError } from '@/lib/api/client';
 import { useLocale } from '@/lib/i18n/locale-context';
 
@@ -29,7 +28,6 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
   const t = pages.properties;
   const [property, setProperty] = useState<PropertyWithMedia | null>(null);
   const [rentals, setRentals] = useState<Rental[]>([]);
-  const [brokerMarketerApplications, setBrokerMarketerApplications] = useState<BrokerMarketerApplicationWithRelations[]>([]);
   const [notFound, setNotFound] = useState(false);
   const [showCreateRental, setShowCreateRental] = useState(false);
 
@@ -41,9 +39,6 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
         setProperty(loaded);
         void listRentals(accessToken, { property_id: id }).then((result) => {
           if (!cancelled) setRentals(result.rentals);
-        });
-        void listBrokerMarketerApplications(accessToken, { property_id: id }).then((result) => {
-          if (!cancelled) setBrokerMarketerApplications(result.applications);
         });
       })
       .catch(() => {
@@ -153,19 +148,6 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
             )}
           </Card>
 
-          {brokerMarketerApplications.length > 0 && (
-            <Card className="p-8">
-              <h2 className="mb-4 text-base font-semibold text-text-primary">{t.detail.applicationsSectionTitle}</h2>
-              <ul className="flex flex-col gap-2">
-                {brokerMarketerApplications.map((application) => (
-                  <li key={application.id} className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-text-primary">{application.full_name}</span>
-                    <span className="text-xs text-text-secondary">{t.detail.applicantTypeLabels[application.applicant_type]}</span>
-                  </li>
-                ))}
-              </ul>
-            </Card>
-          )}
 
           {canManage && (
             <DeleteButton
