@@ -97,15 +97,15 @@ export default function BrokerMarketerPage() {
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[640px] text-sm">
+          <div className="overflow-x-auto md:overflow-visible">
+            <table className="w-full min-w-[580px] table-fixed text-sm md:min-w-0">
               <thead className="bg-surface-header text-text-secondary text-right">
                 <tr>
-                  <th className="px-5 py-3 font-medium">{t.table.name}</th>
-                  <th className="px-5 py-3 font-medium">{t.table.city}</th>
-                  <th className="px-5 py-3 font-medium">{t.table.falLicense}</th>
-                  <th className="px-5 py-3 font-medium">{t.table.property}</th>
-                  <th className="px-5 py-3 font-medium">{t.table.date}</th>
+                  <th className="px-3 py-3 md:px-4 font-medium">{t.table.name}</th>
+                  <th className="px-3 py-3 md:px-4 font-medium">{t.table.city}</th>
+                  <th className="px-3 py-3 md:px-4 font-medium">{t.table.falLicense}</th>
+                  <th className="px-3 py-3 md:px-4 font-medium">{t.table.property}</th>
+                  <th className="px-3 py-3 md:px-4 font-medium">{t.table.date}</th>
                 </tr>
               </thead>
               <tbody>
