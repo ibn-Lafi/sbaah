@@ -41,7 +41,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       document.documentElement.style.colorScheme = resolved;
     };
     apply();
-    try { window.localStorage.setItem(THEME_STORAGE_KEY, preference); } catch {}
+    try { window.localStorage.setItem(THEME_STORAGE_KEY, preference); } catch { /* Storage can be unavailable in private/restricted browsing. */ }
     if (preference !== 'system') return;
     const media = window.matchMedia('(prefers-color-scheme: dark)');
     media.addEventListener('change', apply);
