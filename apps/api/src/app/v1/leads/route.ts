@@ -4,6 +4,7 @@ import { LEAD_SOURCES, LEAD_STATUSES, manualLeadInputSchema } from '@sbaah/share
 import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
+import { assertOptionalTenantOwnedRow } from '@/lib/tenant/assert-tenant-owned-row';
 
 const listQuerySchema = z.object({
   status: z.enum(LEAD_STATUSES).optional(),
@@ -47,6 +48,21 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   }
 
   const input = manualLeadInputSchema.parse(await request.json());
+
+  await assertOptionalTenantOwnedRow({
+    supabase,
+    table: 'properties',
+    id: input.property_id,
+    tenantId: caller.tenantId,
+    label: 'العقار',
+  });
+  await assertOptionalTenantOwnedRow({
+    supabase,
+    table: 'users',
+    id: input.assigned_agent_id,
+    tenantId: caller.tenantId,
+    label: 'الموظف المسند إليه العميل',
+  });
 
   const { data, error } = await supabase
     .from('leads')
