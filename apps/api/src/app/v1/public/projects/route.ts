@@ -31,7 +31,7 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
   const from = (page - 1) * page_size;
   const { data, error, count } = await supabase
     .from('projects')
-    .select('id, name_ar, name_en, description_ar, description_en, city_id, district_id', { count: 'exact' })
+    .select('id, slug, name_ar, name_en, description_ar, description_en, city_id, district_id', { count: 'exact' })
     .eq('tenant_id', tenantId)
     .eq('status', 'published')
     .order('created_at', { ascending: false })
