@@ -63,18 +63,18 @@ export default function ProjectsPage() {
         ) : projects.length === 0 ? (
           <p className="text-text-secondary p-6 text-center">{t.list.emptyState}</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[420px] text-sm">
+          <div className="overflow-x-auto md:overflow-visible">
+            <table className="w-full min-w-[360px] table-fixed text-sm md:min-w-0">
               <thead className="bg-surface-header text-text-secondary text-right">
                 <tr>
-                  <th className="px-5 py-3 font-medium">{t.list.table.name}</th>
-                  <th className="px-5 py-3 font-medium">{t.list.table.status}</th>
+                  <th className="px-3 py-3 md:px-4 font-medium">{t.list.table.name}</th>
+                  <th className="px-3 py-3 md:px-4 font-medium">{t.list.table.status}</th>
                 </tr>
               </thead>
               <tbody>
                 {projects.map((project) => (
                   <tr key={project.id} className="border-border-subtle border-t">
-                    <td className="px-5 py-3">
+                    <td className="px-3 py-3 md:px-4">
                       <Link
                         href={`/projects/${project.id}`}
                         className="text-text-primary hover:text-brand font-medium"
@@ -82,7 +82,7 @@ export default function ProjectsPage() {
                         {project.name_ar}
                       </Link>
                     </td>
-                    <td className="px-5 py-3">
+                    <td className="px-3 py-3 md:px-4">
                       <Badge
                         status={project.status}
                         label={pages.properties.statusLabels[project.status]}
