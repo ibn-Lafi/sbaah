@@ -3,7 +3,7 @@ import { isMarketingHost } from '@/lib/tenant/get-host';
 import { getTenantSite } from '@/lib/tenant/get-tenant-site';
 import { listPublicProperties } from '@/lib/api/public-properties';
 import { listPublicProjects } from '@/lib/api/public-projects';
-import { getPublicOrigin, localizedPath } from '@/lib/routing/public-url';
+import { canonicalTenantOrigin, getPublicOrigin, localizedPath } from '@/lib/routing/public-url';
 
 const PAGE_SIZE_FALLBACK = 20;
 
@@ -58,6 +58,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const site = await getTenantSite();
   if (!site) return [];
+  const canonicalOrigin = canonicalTenantOrigin(origin, site.tenant.custom_domain);
 
   const [propertyIds, projectIds] = await Promise.all([allPropertyIds(), allProjectIds()]);
   const paths = [
@@ -66,8 +67,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     '/projects',
     ...propertyIds.map((id) => `/properties/${id}`),
     ...projectIds.map((id) => `/projects/${id}`),
-    ...site.custom_pages.map((page) => `/pages/${page.slug}`),
   ];
 
-  return paths.flatMap((path) => localizedEntries(origin, path));
+  const localized = paths.flatMap((path) => localizedEntries(canonicalOrigin, path));
+  const customPages = site.custom_pages.map((page) => ({
+    url: `${canonicalOrigin}/pages/${page.slug}`,
+    changeFrequency: 'weekly' as const,
+  }));
+  return [...localized, ...customPages];
 }
