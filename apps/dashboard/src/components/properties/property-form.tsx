@@ -49,6 +49,18 @@ type FormState = {
   agent_id: string;
   status: string;
   availability: string;
+  land_area: string;
+  built_area: string;
+  street_width: string;
+  property_age: string;
+  floor_number: string;
+  floors_count: string;
+  parking_count: string;
+  elevators_count: string;
+  reference_number: string;
+  advertisement_license_number: string;
+  advertisement_license_expires_at: string;
+  advertiser_name: string;
 };
 
 const EMPTY_STATE: FormState = {
@@ -70,6 +82,7 @@ const EMPTY_STATE: FormState = {
   agent_id: '',
   status: 'draft',
   availability: 'available',
+  land_area: '', built_area: '', street_width: '', property_age: '', floor_number: '', floors_count: '', parking_count: '', elevators_count: '', reference_number: '', advertisement_license_number: '', advertisement_license_expires_at: '', advertiser_name: '',
 };
 
 function toFormState(property: PropertyWithMedia): FormState {
@@ -92,6 +105,7 @@ function toFormState(property: PropertyWithMedia): FormState {
     agent_id: property.agent_id ?? '',
     status: property.status,
     availability: property.availability,
+    land_area: String((property as any).land_area ?? ''), built_area: String((property as any).built_area ?? ''), street_width: String((property as any).street_width ?? ''), property_age: String((property as any).property_age ?? ''), floor_number: String((property as any).floor_number ?? ''), floors_count: String((property as any).floors_count ?? ''), parking_count: String((property as any).parking_count ?? ''), elevators_count: String((property as any).elevators_count ?? ''), reference_number: String((property as any).reference_number ?? ''), advertisement_license_number: String((property as any).advertisement_license_number ?? ''), advertisement_license_expires_at: String((property as any).advertisement_license_expires_at ?? ''), advertiser_name: String((property as any).advertiser_name ?? ''),
   };
 }
 
@@ -181,6 +195,7 @@ export function PropertyForm({
       lng: form.location?.lng ?? null,
       project_id: form.project_id || null,
       building_id: form.building_id || null,
+      land_area: form.land_area ? Number(form.land_area) : null, built_area: form.built_area ? Number(form.built_area) : null, street_width: form.street_width ? Number(form.street_width) : null, property_age: form.property_age ? Number(form.property_age) : null, floor_number: form.floor_number ? Number(form.floor_number) : null, floors_count: form.floors_count ? Number(form.floors_count) : null, parking_count: form.parking_count ? Number(form.parking_count) : null, elevators_count: form.elevators_count ? Number(form.elevators_count) : null, reference_number: form.reference_number || null, advertisement_license_number: form.advertisement_license_number || null, advertisement_license_expires_at: form.advertisement_license_expires_at ? new Date(form.advertisement_license_expires_at).toISOString() : null, advertiser_name: form.advertiser_name || null,
       ...(canAssignAgent ? { agent_id: form.agent_id || null } : {}),
       ...(mode === 'edit' ? { status: form.status, availability: form.availability } : {}),
     };
@@ -333,6 +348,8 @@ export function PropertyForm({
           ))}
         </Select>
       )}
+
+      <div className="rounded-xl border border-border-default p-4"><h3 className="mb-3 text-sm font-semibold">تفاصيل العقار والترخيص</h3><div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">{[['land_area','مساحة الأرض'],['built_area','المساحة المبنية'],['street_width','عرض الشارع'],['property_age','عمر العقار'],['floor_number','رقم الدور'],['floors_count','عدد الأدوار'],['parking_count','مواقف السيارات'],['elevators_count','المصاعد']].map(([key,label])=><Input key={key} type="number" placeholder={label} value={form[key as keyof FormState] as string} onChange={e=>set(key as keyof FormState,e.target.value)}/>)}</div><div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2"><Input placeholder="الرقم المرجعي" value={form.reference_number} onChange={e=>set('reference_number',e.target.value)}/><Input placeholder="رقم ترخيص الإعلان" value={form.advertisement_license_number} onChange={e=>set('advertisement_license_number',e.target.value)}/><Input type="datetime-local" value={form.advertisement_license_expires_at} onChange={e=>set('advertisement_license_expires_at',e.target.value)}/><Input placeholder="اسم المعلن" value={form.advertiser_name} onChange={e=>set('advertiser_name',e.target.value)}/></div></div>
 
       {mode === 'edit' && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
