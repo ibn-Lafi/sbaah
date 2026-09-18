@@ -22,6 +22,7 @@ export const STATUS_CLASSES: Record<BadgeStatus, string> = {
   new: 'bg-brand-surface text-brand',
   contacted: 'bg-warning-surface text-warning',
   qualified: 'bg-success-surface text-success',
+  in_progress: 'bg-brand-surface text-brand',
   won: 'bg-success-surface text-success',
   lost: 'bg-danger-surface text-danger',
   expired: 'bg-surface-subtle-3 text-text-secondary',
