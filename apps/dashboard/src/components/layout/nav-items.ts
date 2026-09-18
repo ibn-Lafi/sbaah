@@ -68,7 +68,6 @@ export function getNavItems(t: ChromeDictionary): NavEntry[] {
   return [
     { href: '/', label: t.nav.dashboard, icon: DashboardIcon },
     { href: '/leads', label: t.nav.leads, icon: ClientsIcon, capability: 'crm' },
-    { href: '/viewings', label: 'المعاينات', icon: ClientsIcon, capability: 'crm' },
     {
       group: 'properties',
       capability: 'properties',
@@ -79,6 +78,7 @@ export function getNavItems(t: ChromeDictionary): NavEntry[] {
         { href: '/buildings', label: t.nav.propertiesGroup.buildings, icon: BuildingsIcon },
         { href: '/projects', label: t.nav.propertiesGroup.projects, icon: ProjectsIcon, capability: 'projects' },
         { href: '/rentals', label: t.nav.propertiesGroup.rentals, icon: RentalsIcon },
+        { href: '/viewings', label: 'المعاينات', icon: ClientsIcon, capability: 'crm' },
       ],
     },
     { href: '/broker-marketer', label: t.nav.brokerMarketer, icon: BrokerMarketerIcon, roles: ['owner', 'admin'] },
