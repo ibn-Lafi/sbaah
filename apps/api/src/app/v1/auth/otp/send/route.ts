@@ -15,8 +15,8 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 
   // Registration stays phone-only (docs/OTP_FLOW.md, migration 0042's
   // header) — there is no email-based account creation.
-  if (channel === 'email' && purpose === 'register') {
-    throw new ApiError(400, 'email_otp_unsupported_purpose', 'التسجيل الجديد يتم برقم الجوال فقط');
+  if (channel === 'email' && (purpose === 'register' || purpose === 'change_phone')) {
+    throw new ApiError(400, 'email_otp_unsupported_purpose', 'هذا الإجراء يتطلب التحقق عبر رقم الجوال');
   }
   if (purpose === 'register' && !REGISTRATION_OPEN) {
     throw new ApiError(503, 'registration_closed', 'التسجيل الجديد متوقف مؤقتًا، سيعاد فتحه قريبًا');
@@ -91,7 +91,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   // otp/verify. `purpose` is 'login' | 'reset_password' here, the
   // 'register' case having already been rejected above.
   const email = input.email as string;
-  const emailPurpose = purpose as Exclude<OtpPurpose, 'register'>;
+  const emailPurpose = purpose as Exclude<OtpPurpose, 'register' | 'change_phone'>;
 
   const [{ data: existingUser }, { data: recentSends, error: recentSendsError }] = await Promise.all([
     supabase.from('users').select('id').eq('email', email).maybeSingle(),
