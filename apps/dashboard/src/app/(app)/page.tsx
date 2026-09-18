@@ -39,10 +39,10 @@ export default function DashboardHomePage() {
   }, [accessToken]);
 
   const setupTasks = [
-    { label: 'أكمل بيانات المنشأة', href: '/settings?tab=organization', done: Boolean(me.tenant.fal_license_number) },
-    { label: 'أضف أول عقار', href: '/properties', done: (summary?.properties.total ?? 0) > 0 },
-    { label: 'أضف معلومات التواصل', href: '/settings?tab=contact', done: Boolean(me.tenant.social_whatsapp || me.tenant.social_instagram || me.tenant.social_tiktok || me.tenant.social_snapchat || me.tenant.social_facebook || me.tenant.social_x || me.tenant.social_telegram) },
-    { label: 'خصّص موقعك العقاري', href: '/website/editor', done: false },
+    { label: 'أكمل بيانات الموقع', href: '/settings?tab=site', done: Boolean(me.tenant.fal_license_number) },
+    { label: 'أضف أول عقار', href: '/properties/new', done: (summary?.properties.total ?? 0) > 0 },
+    { label: 'أضف حسابات التواصل', href: '/settings?tab=site', done: Boolean(me.tenant.social_whatsapp || me.tenant.social_instagram || me.tenant.social_tiktok || me.tenant.social_snapchat || me.tenant.social_facebook || me.tenant.social_x || me.tenant.social_telegram) },
+    { label: 'خصّص موقعك العقاري', href: '/website', done: false },
   ];
   const completedSetup = setupTasks.filter((task) => task.done).length;
   const bars = summary?.property_views ? summary.property_views.daily.slice(-range) : [];
