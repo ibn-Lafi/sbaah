@@ -47,6 +47,29 @@ export function hasBusinessCapability(
   return resolveBusinessCapabilities(activities).has(capability);
 }
 
+export const DATA_PUBLICATION_STATES = ['draft', 'ready', 'published', 'blocked'] as const;
+export type PublicationState = (typeof DATA_PUBLICATION_STATES)[number];
+
+export const FURNISHING_STATUSES = ['unfurnished', 'semi_furnished', 'furnished'] as const;
+export type FurnishingStatus = (typeof FURNISHING_STATUSES)[number];
+
+export const PROPERTY_FRONTAGES = ['north','south','east','west','northeast','northwest','southeast','southwest'] as const;
+export type PropertyFrontage = (typeof PROPERTY_FRONTAGES)[number];
+
+export const UNIT_AVAILABILITY = ['available','reserved','sold','rented','blocked'] as const;
+export type UnitAvailability = (typeof UNIT_AVAILABILITY)[number];
+
+export const VIEWING_STATUSES = ['scheduled','completed','rescheduled','cancelled','no_show'] as const;
+export type ViewingStatus = (typeof VIEWING_STATUSES)[number];
+export const VIEWING_OUTCOMES = ['interested','follow_up','not_interested'] as const;
+export type ViewingOutcome = (typeof VIEWING_OUTCOMES)[number];
+
+export const DEAL_STATUSES = ['open','negotiation','won','lost'] as const;
+export type DealStatus = (typeof DEAL_STATUSES)[number];
+
+export const CONVERSATION_STATUSES = ['ai_active','human_handoff','closed'] as const;
+export type ConversationStatus = (typeof CONVERSATION_STATUSES)[number];
+
 export const TENANT_STATUSES = ['active', 'suspended', 'cancelled'] as const;
 export type TenantStatus = (typeof TENANT_STATUSES)[number];
 
@@ -97,7 +120,7 @@ export type MediaType = (typeof MEDIA_TYPES)[number];
 export const LEAD_SOURCES = ['website_form', 'whatsapp_click', 'manual'] as const;
 export type LeadSource = (typeof LEAD_SOURCES)[number];
 
-export const LEAD_STATUSES = ['new', 'contacted', 'qualified', 'won', 'lost', 'expired'] as const;
+export const LEAD_STATUSES = ['new', 'contacted', 'qualified', 'in_progress', 'won', 'lost', 'expired'] as const;
 export type LeadStatus = (typeof LEAD_STATUSES)[number];
 
 export const WEBSITE_SECTION_TYPES = [
