@@ -50,7 +50,7 @@ export const MARKETING_CONTENT = {
     },
     pricing: {
       title: 'اختر الباقة المناسبة',
-      subtitle: 'بلاتينيوم أو ذهبي — اختر ما يناسب حجم عملك.',
+      subtitle: '',
       cycleToggle: { annual: 'سنوي', monthly: 'شهري' },
       cycleLabel: (cycle: 'monthly' | 'annual'): string => cycle === 'annual' ? 'سنويًا' : 'شهريًا',
       savingsLabel: (months: number) => months === 1 ? 'وفّر شهرًا' : months === 2 ? 'وفّر شهرين' : `وفّر ${months} أشهر`,
