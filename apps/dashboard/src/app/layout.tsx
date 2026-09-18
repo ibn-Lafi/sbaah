@@ -35,7 +35,7 @@ export const viewport = { themeColor: '#68458A' };
  * attributes back on mount instead of the hardcoded defaults below, so
  * client state stays in sync with what's already on screen.
  */
-const themeAndLocaleInitScript = `(function(){try{var l=localStorage.getItem('${LOCALE_STORAGE_KEY}');if(l==='en'||l==='ar'){document.documentElement.lang=l;document.documentElement.dir=l==='ar'?'rtl':'ltr';}var t=localStorage.getItem('${THEME_STORAGE_KEY}');if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();`;
+const themeAndLocaleInitScript = `(function(){try{var l=localStorage.getItem('${LOCALE_STORAGE_KEY}');if(l==='en'||l==='ar'){document.documentElement.lang=l;document.documentElement.dir=l==='ar'?'rtl':'ltr';}var t=localStorage.getItem('${THEME_STORAGE_KEY}');var d=t==='dark'||((!t||t==='system')&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.setAttribute('data-theme',d?'dark':'light');document.documentElement.style.colorScheme=d?'dark':'light';}catch(e){}})();`;
 
 /** Dashboard defaults to Arabic-first RTL + light mode (PRODUCT_SPEC section 4); a returning visitor's saved language/theme is applied on top by the script above and by LocaleProvider/ThemeProvider. */
 export default function RootLayout({ children }: { children: React.ReactNode }) {
