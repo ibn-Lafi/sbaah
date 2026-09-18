@@ -63,12 +63,12 @@ export default function ChangePlanPage() {
         {billing === null || tiers === null ? (
           <LoadingState />
         ) : (
-          <div className="grid gap-5 sm:grid-cols-2">
+          <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 sm:pb-0">
             {tiers.map((tier) => {
               const plan = planForCycle(tier, cycle);
               return (
+                <div key={tier.key} className="w-[86vw] max-w-[390px] shrink-0 snap-center sm:w-auto sm:max-w-none">
                 <PlanCard
-                  key={tier.key}
                   plan={plan}
                   monthlyEquivalent={tier.monthly}
                   isCurrent={plan.id === billing.plan.id}
@@ -76,6 +76,7 @@ export default function ChangePlanPage() {
                   selectDisabled={selectingPlanId !== null}
                   onSelect={() => void handleSelect(plan)}
                 />
+                </div>
               );
             })}
           </div>
