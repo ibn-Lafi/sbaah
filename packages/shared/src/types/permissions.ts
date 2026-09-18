@@ -45,7 +45,7 @@ const ASSIGNED: DataScope = 'assigned';
 
 const ownerPermissions: readonly Permission[] = PERMISSIONS;
 const adminPermissions: readonly Permission[] = PERMISSIONS.filter(
-  (permission) => permission !== 'billing.manage',
+  (permission) => permission !== 'billing.manage' && permission !== 'tenant.settings.manage',
 );
 const agentPermissions: readonly Permission[] = [
   'properties.read',
