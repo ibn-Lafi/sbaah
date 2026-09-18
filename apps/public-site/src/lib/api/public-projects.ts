@@ -3,6 +3,7 @@ import { getHost } from '@/lib/tenant/get-host';
 
 export interface PublicProject {
   id: string;
+  slug: string;
   name_ar: string;
   name_en: string | null;
   description_ar: string | null;
