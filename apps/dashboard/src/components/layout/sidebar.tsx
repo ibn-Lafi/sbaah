@@ -135,7 +135,7 @@ export function Sidebar({ orgName, accountType }: SidebarProps) {
       <nav className="flex flex-1 flex-col gap-px overflow-y-auto">
         {visibleItems.map((item) => {
           if (isNavGroup(item)) {
-            const hasActiveChild = item.children.some((child) => child.href === pathname);
+            const hasActiveChild = item.children.some((child) => pathname === child.href || pathname.startsWith(`${child.href}/`));
             const isOpen = !collapsed && (openGroups[item.group] ?? hasActiveChild);
             const GroupIcon = item.icon;
             const flyoutOpen = collapsed && hoveredKey === item.group && hoveredRect;
@@ -169,7 +169,7 @@ export function Sidebar({ orgName, accountType }: SidebarProps) {
                   >
                     <div className="text-text-secondary px-[14px] pt-1 pb-1.5 text-xs font-medium">{item.label}</div>
                     {item.children.map((child) => {
-                      const active = pathname === child.href;
+                      const active = pathname === child.href || pathname.startsWith(`${child.href}/`);
                       const ChildIcon = child.icon;
                       return (
                         <Link
@@ -190,7 +190,7 @@ export function Sidebar({ orgName, accountType }: SidebarProps) {
                 {!collapsed &&
                   isOpen &&
                   item.children.map((child) => {
-                    const active = pathname === child.href;
+                    const active = pathname === child.href || pathname.startsWith(`${child.href}/`);
                     const ChildIcon = child.icon;
                     return (
                       <Link
@@ -209,7 +209,7 @@ export function Sidebar({ orgName, accountType }: SidebarProps) {
             );
           }
 
-          const active = pathname === item.href;
+          const active = item.href === '/' ? pathname === '/' : pathname === item.href || pathname.startsWith(`${item.href}/`);
           const ItemIcon = item.icon;
           const tooltipOpen = collapsed && hoveredKey === item.href && hoveredRect;
           return (
