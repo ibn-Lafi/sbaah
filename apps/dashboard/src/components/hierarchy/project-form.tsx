@@ -20,6 +20,7 @@ import { FormError } from '@/components/ui/form-error';
 import { LocationPicker, type LocationPickerValue } from '@/components/ui/location-picker';
 import { createDistrict, listCities, listDistricts } from '@/lib/api/reference-data';
 import { useLocale } from '@/lib/i18n/locale-context';
+import { FormWizard, WizardActions } from '@/components/forms/form-wizard';
 
 type FormState = {
   name_ar: string;
@@ -74,6 +75,8 @@ export function ProjectForm({ mode, initialValues, accessToken, onSubmit, submit
   const [districts, setDistricts] = useState<District[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [step, setStep] = useState(0);
+  const steps = ['المعلومات الأساسية', 'الموقع', 'المراجعة'];
 
   useEffect(() => {
     void listCities().then(setCities);
@@ -133,73 +136,49 @@ export function ProjectForm({ mode, initialValues, accessToken, onSubmit, submit
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Input
-          placeholder={t.form.fields.nameAr}
-          value={form.name_ar}
-          onChange={(e) => set('name_ar', e.target.value)}
-        />
-        <Input
-          placeholder={t.form.fields.nameEn}
-          value={form.name_en}
-          onChange={(e) => set('name_en', e.target.value)}
-        />
-      </div>
+    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+      <FormWizard steps={steps} current={step} onStepChange={setStep} />
 
-      <Textarea
-        placeholder={t.form.fields.descriptionAr}
-        value={form.description_ar}
-        onChange={(e) => set('description_ar', e.target.value)}
-      />
-      <Textarea
-        placeholder={t.form.fields.descriptionEn}
-        value={form.description_en}
-        onChange={(e) => set('description_en', e.target.value)}
-      />
+      {step === 0 && (
+        <div className="flex flex-col gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Input placeholder={t.form.fields.nameAr} value={form.name_ar} onChange={(e) => set('name_ar', e.target.value)} />
+            <Input placeholder={t.form.fields.nameEn} value={form.name_en} onChange={(e) => set('name_en', e.target.value)} />
+          </div>
+          <Textarea placeholder={t.form.fields.descriptionAr} value={form.description_ar} onChange={(e) => set('description_ar', e.target.value)} />
+          <Textarea placeholder={t.form.fields.descriptionEn} value={form.description_en} onChange={(e) => set('description_en', e.target.value)} />
+          {mode === 'edit' && (
+            <Select value={form.status} onChange={(e) => set('status', e.target.value)}>
+              {PROPERTY_STATUSES.map((status) => <option key={status} value={status}>{pages.properties.statusLabels[status]}</option>)}
+            </Select>
+          )}
+        </div>
+      )}
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <SearchableSelect
-          options={cities.map((city) => ({ value: city.id, label: city.name_ar }))}
-          value={form.city_id}
-          onChange={(value) => set('city_id', value)}
-          placeholder={t.form.fields.citySelect}
-        />
-        <SearchableSelect
-          options={districts.map((district) => ({ value: district.id, label: district.name_ar }))}
-          value={form.district_id}
-          onChange={(value) => set('district_id', value)}
-          placeholder={t.form.fields.districtSelect}
-          disabled={!form.city_id}
-          clearable
-          onCreate={async (name) => {
-            const district = await createDistrict(accessToken, { city_id: form.city_id, name_ar: name });
-            setDistricts((prev) => [...prev, district]);
-            return { value: district.id, label: district.name_ar };
-          }}
-        />
-      </div>
+      {step === 1 && (
+        <div className="flex flex-col gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <SearchableSelect options={cities.map((city) => ({ value: city.id, label: city.name_ar }))} value={form.city_id} onChange={(value) => set('city_id', value)} placeholder={t.form.fields.citySelect} />
+            <SearchableSelect options={districts.map((district) => ({ value: district.id, label: district.name_ar }))} value={form.district_id} onChange={(value) => set('district_id', value)} placeholder={t.form.fields.districtSelect} disabled={!form.city_id} clearable onCreate={async (name) => { const district = await createDistrict(accessToken, { city_id: form.city_id, name_ar: name }); setDistricts((prev) => [...prev, district]); return { value: district.id, label: district.name_ar }; }} />
+          </div>
+          <LocationPicker value={form.location} onChange={(location) => set('location', location)} focusPoint={mapFocusPoint} />
+        </div>
+      )}
 
-      <LocationPicker
-        value={form.location}
-        onChange={(location) => set('location', location)}
-        focusPoint={mapFocusPoint}
-      />
-
-      {mode === 'edit' && (
-        <Select value={form.status} onChange={(e) => set('status', e.target.value)}>
-          {PROPERTY_STATUSES.map((status) => (
-            <option key={status} value={status}>
-              {pages.properties.statusLabels[status]}
-            </option>
-          ))}
-        </Select>
+      {step === 2 && (
+        <div className="rounded-xl border border-border-default p-5">
+          <h3 className="mb-4 font-semibold">مراجعة بيانات المشروع</h3>
+          <dl className="grid gap-4 text-sm sm:grid-cols-2">
+            <div><dt className="text-text-secondary">اسم المشروع</dt><dd className="mt-1 font-medium">{form.name_ar || '—'}</dd></div>
+            <div><dt className="text-text-secondary">المدينة</dt><dd className="mt-1 font-medium">{cities.find((x) => x.id === form.city_id)?.name_ar || '—'}</dd></div>
+            <div><dt className="text-text-secondary">الحي</dt><dd className="mt-1 font-medium">{districts.find((x) => x.id === form.district_id)?.name_ar || '—'}</dd></div>
+            <div><dt className="text-text-secondary">الموقع على الخريطة</dt><dd className="mt-1 font-medium">{form.location ? 'تم تحديده' : 'غير محدد'}</dd></div>
+          </dl>
+        </div>
       )}
 
       <FormError message={error} />
-      <Button type="submit" disabled={loading}>
-        {loading ? t.form.saving : submitLabel}
-      </Button>
+      <WizardActions step={step} total={steps.length} loading={loading} submitLabel={submitLabel} onBack={() => setStep((s) => Math.max(0, s - 1))} onNext={() => setStep((s) => Math.min(steps.length - 1, s + 1))} />
     </form>
   );
 }
