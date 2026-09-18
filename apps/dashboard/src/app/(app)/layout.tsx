@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getMe, type MeResponse } from '@/lib/api/auth';
+import { getBusinessActivities, getMe, type BusinessActivitiesResponse, type MeResponse } from '@/lib/api/auth';
+import { resolveBusinessCapabilities } from '@sbaah/shared';
 import { getAccessToken } from '@/lib/auth/session';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import { CurrentUserProvider } from '@/lib/auth/current-user-context';
@@ -19,7 +20,7 @@ import { DashboardShellSkeleton } from '@/components/layout/dashboard-shell-skel
  */
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const [state, setState] = useState<{ me: MeResponse; accessToken: string } | null>(null);
+  const [state, setState] = useState<{ me: MeResponse; accessToken: string; business: BusinessActivitiesResponse } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -31,8 +32,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         return;
       }
       try {
-        const me = await getMe(accessToken);
-        if (!cancelled) setState({ me, accessToken });
+        const [me, business] = await Promise.all([getMe(accessToken), getBusinessActivities(accessToken)]);
+        if (!cancelled) setState({ me, accessToken, business });
       } catch {
         router.replace('/login');
       }
@@ -71,5 +72,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     return <DashboardShellSkeleton />;
   }
 
-  return <CurrentUserProvider value={state}>{children}</CurrentUserProvider>;
+  const capabilities = resolveBusinessCapabilities(state.business.activities);
+
+  return <CurrentUserProvider value={{ ...state, capabilities }}>{children}</CurrentUserProvider>;
 }
