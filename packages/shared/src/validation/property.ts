@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { LISTING_TYPES, PROPERTY_AVAILABILITY, PROPERTY_STATUSES, PROPERTY_TYPES } from '../types/enums';
+import { FURNISHING_STATUSES, LISTING_TYPES, PROPERTY_AVAILABILITY, PROPERTY_FRONTAGES, PROPERTY_STATUSES, PROPERTY_TYPES } from '../types/enums';
 
 export const propertyInputSchema = z.object({
   title_ar: z.string().min(3, 'عنوان العقار مطلوب'),
@@ -20,14 +20,34 @@ export const propertyInputSchema = z.object({
   /** PRODUCT_SPEC section 4.1 — optional hierarchy grouping, added after the original property model. */
   project_id: z.string().uuid().optional().nullable(),
   building_id: z.string().uuid().optional().nullable(),
+  land_area: z.number().positive().optional().nullable(),
+  built_area: z.number().positive().optional().nullable(),
+  street_width: z.number().positive().optional().nullable(),
+  frontage: z.enum(PROPERTY_FRONTAGES).optional().nullable(),
+  property_age: z.number().int().nonnegative().optional().nullable(),
+  floor_number: z.number().int().optional().nullable(),
+  floors_count: z.number().int().positive().optional().nullable(),
+  parking_count: z.number().int().nonnegative().optional().nullable(),
+  elevators_count: z.number().int().nonnegative().optional().nullable(),
+  furnishing: z.enum(FURNISHING_STATUSES).optional().nullable(),
+  reference_number: z.string().max(100).optional().nullable(),
+  advertisement_license_number: z.string().max(100).optional().nullable(),
+  advertisement_license_expires_at: z.string().datetime().optional().nullable(),
+  advertiser_name: z.string().max(200).optional().nullable(),
+  marketing_mandate_id: z.string().uuid().optional().nullable(),
+}).superRefine((value, ctx) => {
+  if (['apartment', 'villa'].includes(value.property_type)) {
+    if (value.bedrooms == null) ctx.addIssue({ code: 'custom', path: ['bedrooms'], message: 'عدد غرف النوم مطلوب لهذا النوع' });
+    if (value.bathrooms == null) ctx.addIssue({ code: 'custom', path: ['bathrooms'], message: 'عدد دورات المياه مطلوب لهذا النوع' });
+  }
 });
 export type PropertyInput = z.infer<typeof propertyInputSchema>;
 
 /** PATCH body — every field optional, plus status/availability which POST never sets directly (DB defaults handle creation). */
-export const propertyUpdateSchema = propertyInputSchema.partial().extend({
+export const propertyUpdateSchema = propertyInputSchema.partial().and(z.object({
   status: z.enum(PROPERTY_STATUSES).optional(),
   availability: z.enum(PROPERTY_AVAILABILITY).optional(),
-});
+}));
 export type PropertyUpdateInput = z.infer<typeof propertyUpdateSchema>;
 
 /**
