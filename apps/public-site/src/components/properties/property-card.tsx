@@ -11,7 +11,7 @@ export function PropertyCard({ property, city, locale }: { property: PublicPrope
   const thumbnail = [...property.property_media]
     .filter((media) => media.media_type === 'image')
     .sort((a, b) => a.order_index - b.order_index)[0];
-  const href = locale === 'ar' ? `/properties/${property.id}` : `/en/properties/${property.id}`;
+  const href = locale === 'ar' ? `/properties/${property.slug}` : `/en/properties/${property.slug}`;
 
   return (
     <Link href={href} className="block overflow-hidden rounded-xl border border-black/10 hover:shadow-md">
