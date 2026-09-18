@@ -27,7 +27,6 @@ import {
   XIcon,
   CallIcon,
   LocationIcon,
-  MailIcon,
 } from '@/components/website/editor-icons';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { useLocale } from '@/lib/i18n/locale-context';
