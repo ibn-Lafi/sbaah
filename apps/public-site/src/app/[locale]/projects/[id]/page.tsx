@@ -1,5 +1,110 @@
 import type { Metadata } from 'next';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { buildLocalizedAlternates, getPublicOrigin, localizedPath } from '@/lib/routing/public-url';
-import { notFound, permanentRedirect } from 'next/navigation';import { getPublicProject } from '@/lib/api/public-projects';import { isLocale,DEFAULT_LOCALE } from '@/lib/i18n/locales';import { pickLocalized } from '@/lib/i18n/localized-field';
-export async function generateMetadata({params}:{params:Promise<{locale:string;id:string}>}):Promise<Metadata>{const{locale:raw,id}=await params;const locale=isLocale(raw)?raw:DEFAULT_LOCALE;try{const data=await getPublicProject(id);const p=data.project;if(id!==p.slug){permanentRedirect(localizedPath(locale,`/projects/${p.slug}`));}const title=pickLocalized(locale,p.name_ar,p.name_en);const description=pickLocalized(locale,p.description_ar??'',p.description_en??null)||undefined;const pathname=`/projects/${p.slug}`;const[alternates,origin]=await Promise.all([buildLocalizedAlternates(locale,pathname),getPublicOrigin()]);const url=origin?`${origin}${localizedPath(locale,pathname)}`:undefined;const image=data.media.find(m=>m.media_type==='image')?.url;return{title,description,alternates,openGraph:{title,description,type:'website',locale:locale==='ar'?'ar_SA':'en_SA',url,images:image?[{url:image}]:undefined}};}catch{return{robots:{index:false,follow:false}};}}
-export default async function ProjectDetailPage({params}:{params:Promise<{locale:string;id:string}>}){const{locale:raw,id}=await params,locale=isLocale(raw)?raw:DEFAULT_LOCALE;let data;try{data=await getPublicProject(id);}catch{return notFound();}const p=data.project;const title=pickLocalized(locale,p.name_ar,p.name_en);const description=pickLocalized(locale,p.description_ar??'',p.description_en??null);return <main className="mx-auto max-w-6xl px-6 py-8"><h1 className="text-3xl font-bold">{title}</h1>{description&&<p className="mt-3 max-w-3xl text-black/70">{description}</p>}{data.media.length>0&&<div className="mt-8 grid gap-4 sm:grid-cols-2">{data.media.map(m=>m.media_type==='image'?<img key={m.id} src={m.url} alt={pickLocalized(locale,m.alt_ar??title,m.alt_en)} className="aspect-[4/3] w-full rounded-xl object-cover"/>:<video key={m.id} src={m.url} controls className="aspect-video w-full rounded-xl"/>)}</div>}<section className="mt-10"><h2 className="text-xl font-semibold">{locale==='ar'?'الوحدات المتاحة':'Available units'}</h2>{data.units.length===0?<p className="mt-3 text-black/60">{locale==='ar'?'لا توجد وحدات متاحة حاليًا':'No units currently available'}</p>:<div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{data.units.map(u=><article key={u.id} className="rounded-xl border border-black/10 p-5"><h3 className="font-semibold">{locale==='ar'?'وحدة':'Unit'} {u.unit_number}</h3>{u.area_sqm!=null&&<p className="mt-2 text-sm">{u.area_sqm} م²</p>}{u.price!=null&&<p className="mt-1 font-semibold">{new Intl.NumberFormat(locale==='ar'?'ar-SA':'en-SA').format(u.price)} SAR</p>}</article>)}</div>}</section></main>}
+import { getPublicProject } from '@/lib/api/public-projects';
+import { isLocale, DEFAULT_LOCALE } from '@/lib/i18n/locales';
+import { pickLocalized } from '@/lib/i18n/localized-field';
+
+interface PageProps {
+  params: Promise<{ locale: string; id: string }>;
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { locale: rawLocale, id } = await params;
+  const locale = isLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
+
+  let data;
+  try {
+    data = await getPublicProject(id);
+  } catch {
+    return { robots: { index: false, follow: false } };
+  }
+
+  const project = data.project;
+  const title = pickLocalized(locale, project.name_ar, project.name_en);
+  const description = pickLocalized(locale, project.description_ar ?? '', project.description_en ?? null) || undefined;
+  const pathname = `/projects/${project.slug}`;
+  const [alternates, origin] = await Promise.all([
+    buildLocalizedAlternates(locale, pathname),
+    getPublicOrigin(),
+  ]);
+  const url = origin ? `${origin}${localizedPath(locale, pathname)}` : undefined;
+  const image = data.media.find((media) => media.media_type === 'image')?.url;
+
+  return {
+    title,
+    description,
+    alternates,
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+      locale: locale === 'ar' ? 'ar_SA' : 'en_SA',
+      url,
+      images: image ? [{ url: image }] : undefined,
+    },
+  };
+}
+
+export default async function ProjectDetailPage({ params }: PageProps) {
+  const { locale: rawLocale, id } = await params;
+  const locale = isLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
+
+  let data;
+  try {
+    data = await getPublicProject(id);
+  } catch {
+    notFound();
+  }
+
+  const project = data.project;
+  if (id !== project.slug) {
+    permanentRedirect(localizedPath(locale, `/projects/${project.slug}`));
+  }
+
+  const title = pickLocalized(locale, project.name_ar, project.name_en);
+  const description = pickLocalized(locale, project.description_ar ?? '', project.description_en ?? null);
+
+  return (
+    <main className="mx-auto max-w-6xl px-6 py-8">
+      <h1 className="text-3xl font-bold">{title}</h1>
+      {description && <p className="mt-3 max-w-3xl text-black/70">{description}</p>}
+      {data.media.length > 0 && (
+        <div className="mt-8 grid gap-4 sm:grid-cols-2">
+          {data.media.map((media) =>
+            media.media_type === 'image' ? (
+              <img
+                key={media.id}
+                src={media.url}
+                alt={pickLocalized(locale, media.alt_ar ?? title, media.alt_en)}
+                className="aspect-[4/3] w-full rounded-xl object-cover"
+              />
+            ) : (
+              <video key={media.id} src={media.url} controls className="aspect-video w-full rounded-xl" />
+            ),
+          )}
+        </div>
+      )}
+      <section className="mt-10">
+        <h2 className="text-xl font-semibold">{locale === 'ar' ? 'الوحدات المتاحة' : 'Available units'}</h2>
+        {data.units.length === 0 ? (
+          <p className="mt-3 text-black/60">{locale === 'ar' ? 'لا توجد وحدات متاحة حاليًا' : 'No units currently available'}</p>
+        ) : (
+          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {data.units.map((unit) => (
+              <article key={unit.id} className="rounded-xl border border-black/10 p-5">
+                <h3 className="font-semibold">{locale === 'ar' ? 'وحدة' : 'Unit'} {unit.unit_number}</h3>
+                {unit.area_sqm != null && <p className="mt-2 text-sm">{unit.area_sqm} m²</p>}
+                {unit.price != null && (
+                  <p className="mt-1 font-semibold">
+                    {new Intl.NumberFormat(locale === 'ar' ? 'ar-SA' : 'en-SA').format(unit.price)} SAR
+                  </p>
+                )}
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+    </main>
+  );
+}
