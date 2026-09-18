@@ -88,7 +88,7 @@ export const WEBSITE_PAGE_KEYS = ['home', 'properties', 'property_detail', 'proj
 export type WebsitePageKey = (typeof WEBSITE_PAGE_KEYS)[number];
 
 /** Not part of PRODUCT_SPEC's original data model — see docs/OTP_FLOW.md. */
-export const OTP_PURPOSES = ['register', 'login', 'reset_password'] as const;
+export const OTP_PURPOSES = ['register', 'login', 'reset_password', 'change_phone', 'change_email'] as const;
 export type OtpPurpose = (typeof OTP_PURPOSES)[number];
 
 /** Account-type badge color, per PRODUCT_SPEC section 6. */
