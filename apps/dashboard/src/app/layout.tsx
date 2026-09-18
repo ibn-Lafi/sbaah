@@ -6,6 +6,7 @@ import { LocaleProvider } from '@/lib/i18n/locale-context';
 import { LOCALE_STORAGE_KEY } from '@/lib/i18n/locale';
 import { ThemeProvider } from '@/lib/theme/theme-context';
 import { THEME_STORAGE_KEY } from '@/lib/theme/theme';
+import { NavigationProgress } from '@/components/layout/navigation-progress';
 
 /**
  * Self-hosted via next/font (no runtime request to Google, no
@@ -47,6 +48,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <LocaleProvider>
           <ThemeProvider>
+            <NavigationProgress />
             {children}
             <ServiceWorkerRegister />
           </ThemeProvider>
