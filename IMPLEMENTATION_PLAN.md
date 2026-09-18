@@ -7,10 +7,10 @@
 ## Progress
 
 - Total tasks: **50**
-- Completed: **2**
+- Completed: **3**
 - In progress: **0**
 - Blocked: **0**
-- Remaining: **48**
+- Remaining: **47**
 
 Legend: [ ] Pending · [~] In Progress · [x] Completed · [!] Blocked
 
@@ -66,7 +66,7 @@ Growth
 ## Phase 01 — Foundation & Safety
 - [x] PLAN-001 Create validated master implementation plan and decision log
 - [x] FOUND-001 Add shared Business Activity domain types and capability resolver
-- [ ] FOUND-002 Add additive tenant business-activity persistence migration + RLS
+- [x] FOUND-002 Add additive tenant business-activity persistence migration + RLS
 - [ ] FOUND-003 Add tenant activities API with backward-compatible unconfigured state
 - [ ] FOUND-004 Add activity-aware dashboard capability context
 - [ ] RBAC-001 Define centralized permission catalog and data scopes
