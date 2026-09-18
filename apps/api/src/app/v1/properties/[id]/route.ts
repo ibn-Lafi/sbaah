@@ -2,6 +2,7 @@ import { propertyUpdateSchema } from '@sbaah/shared';
 import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
+import { assertPropertyPublishable } from '@/lib/property/publication';
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -31,9 +32,26 @@ export const PATCH = withErrorHandling<RouteContext>(async (request, { params })
   const { supabase } = getAuthenticatedClient(request);
   const input = propertyUpdateSchema.parse(await request.json());
 
+  if (input.status === 'published') {
+    const { data: current, error: currentError } = await supabase
+      .from('properties')
+      .select('advertisement_license_number, advertisement_license_expires_at')
+      .eq('id', id)
+      .maybeSingle();
+    if (currentError) throw new Error(`Failed to validate publication: ${currentError.message}`);
+    if (!current) throw new ApiError(404, 'property_not_found', 'العقار غير موجود');
+    assertPropertyPublishable({ ...current, ...input });
+  }
+
+  const updatePayload = input.status === 'published'
+    ? { ...input, publication_state: 'published' }
+    : input.status === 'draft'
+      ? { ...input, publication_state: 'draft' }
+      : input;
+
   const { data, error } = await supabase
     .from('properties')
-    .update(input)
+    .update(updatePayload)
     .eq('id', id)
     .select()
     .maybeSingle();
