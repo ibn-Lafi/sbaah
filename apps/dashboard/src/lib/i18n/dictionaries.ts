@@ -21,6 +21,7 @@ export interface ChromeDictionary {
       domain: string;
     };
     apps: string;
+    support: string;
     toggleSidebar: string;
   };
   /** الإعدادات — نقطة دخول واحدة في الشريط الجانبي (سطح المكتب) والشريط السفلي (الجوال) على حد سواء، تقود لصفحة /settings المُبوَّبة (الحساب/الموظفين/الفوترة/بيانات الموقع). */
@@ -78,6 +79,7 @@ export const dictionaries: Record<Locale, ChromeDictionary> = {
         domain: 'الدومين',
       },
       apps: 'التطبيقات',
+      support: 'مركز الدعم',
       toggleSidebar: 'طي/توسيع الشريط الجانبي',
     },
     settingsNavLabel: 'الإعدادات',
@@ -132,6 +134,7 @@ export const dictionaries: Record<Locale, ChromeDictionary> = {
         domain: 'Domain',
       },
       apps: 'Apps',
+      support: 'Support Center',
       toggleSidebar: 'Collapse/expand sidebar',
     },
     settingsNavLabel: 'Settings',
