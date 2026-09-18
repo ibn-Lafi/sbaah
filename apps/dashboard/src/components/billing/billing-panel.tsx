@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { PlanCard } from './plan-card';
@@ -94,11 +93,13 @@ export function BillingPanel() {
               plan={billing.plan}
               isCurrent={false}
               selecting={false}
-              selectDisabled
-              onSelect={() => undefined}
+              selectDisabled={false}
+              currentUsage={billing.usage}
+              actionLabel={t.currentPlan.changePlanButton}
+              onSelect={() => { window.location.href = '/billing/plans'; }}
             />
 
-            <div className="rounded-[24px] border border-border-subtle bg-surface-card p-5">
+            <div className="hidden rounded-[24px] border border-border-subtle bg-surface-card p-5">
               <div className="flex flex-col gap-4">
                 <UsageBar
                   label={t.currentPlan.propertiesUsage}
@@ -125,11 +126,6 @@ export function BillingPanel() {
               </div>
             </div>
 
-            <Link href="/billing/plans" className="block">
-              <Button type="button" className="w-full">
-                {t.currentPlan.changePlanButton}
-              </Button>
-            </Link>
           </div>
 
           {error && (
