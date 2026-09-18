@@ -7,10 +7,10 @@
 ## Progress
 
 - Total tasks: **50**
-- Completed: **9**
+- Completed: **10**
 - In progress: **0**
-- Blocked: **0**
-- Remaining: **41**
+- Blocked: **1**
+- Remaining: **40**
 
 Legend: [ ] Pending · [~] In Progress · [x] Completed · [!] Blocked
 
@@ -73,8 +73,8 @@ Growth
 - [x] RBAC-002 Map legacy owner/admin/agent roles to permission sets
 - [x] RBAC-003 Add backend permission guard helpers
 - [x] RBAC-004 Add database permission/scoping foundation without breaking legacy roles
-- [~] SEC-001 Add same-tenant foreign-key ownership validation helpers
-- [ ] SEC-002 Add tenant-isolation/RLS regression tests
+- [x] SEC-001 Add same-tenant foreign-key ownership validation helpers
+- [!] SEC-002 Add tenant-isolation/RLS regression tests
 
 ## Phase 02 — Property Core
 - [ ] PROP-001 Extend property taxonomy and conditional physical fields
