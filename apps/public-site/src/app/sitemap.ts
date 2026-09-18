@@ -7,38 +7,38 @@ import { canonicalTenantOrigin, getPublicOrigin, localizedPath } from '@/lib/rou
 
 const PAGE_SIZE_FALLBACK = 20;
 
-async function allPropertyIds(): Promise<string[]> {
-  const ids: string[] = [];
+async function allPropertySlugs(): Promise<string[]> {
+  const slugs: string[] = [];
   let page = 1;
   let total = Number.POSITIVE_INFINITY;
 
-  while (ids.length < total) {
+  while (slugs.length < total) {
     const result = await listPublicProperties({ page });
     total = result.total;
-    ids.push(...result.properties.map((property) => property.id));
+    slugs.push(...result.properties.map((property) => property.slug));
     if (result.properties.length === 0 || result.page_size <= 0) break;
     page += 1;
     if (page > Math.ceil(total / (result.page_size || PAGE_SIZE_FALLBACK)) + 1) break;
   }
 
-  return ids;
+  return slugs;
 }
 
-async function allProjectIds(): Promise<string[]> {
-  const ids: string[] = [];
+async function allProjectSlugs(): Promise<string[]> {
+  const slugs: string[] = [];
   let page = 1;
   let total = Number.POSITIVE_INFINITY;
 
-  while (ids.length < total) {
+  while (slugs.length < total) {
     const result = await listPublicProjects(page);
     total = result.total;
-    ids.push(...result.projects.map((project) => project.id));
+    slugs.push(...result.projects.map((project) => project.slug));
     if (result.projects.length === 0 || result.page_size <= 0) break;
     page += 1;
     if (page > Math.ceil(total / (result.page_size || PAGE_SIZE_FALLBACK)) + 1) break;
   }
 
-  return ids;
+  return slugs;
 }
 
 function localizedEntries(origin: string, pathname: string): MetadataRoute.Sitemap {
@@ -60,13 +60,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   if (!site) return [];
   const canonicalOrigin = canonicalTenantOrigin(origin, site.tenant.custom_domain);
 
-  const [propertyIds, projectIds] = await Promise.all([allPropertyIds(), allProjectIds()]);
+  const [propertySlugs, projectSlugs] = await Promise.all([allPropertySlugs(), allProjectSlugs()]);
   const paths = [
     '/',
     '/properties',
     '/projects',
-    ...propertyIds.map((id) => `/properties/${id}`),
-    ...projectIds.map((id) => `/projects/${id}`),
+    ...propertySlugs.map((slug) => `/properties/${slug}`),
+    ...projectSlugs.map((slug) => `/projects/${slug}`),
   ];
 
   const localized = paths.flatMap((path) => localizedEntries(canonicalOrigin, path));
