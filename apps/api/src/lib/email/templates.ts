@@ -23,7 +23,7 @@ function layout(bodyHtml: string): string {
   </div>`;
 }
 
-const OTP_PURPOSE_COPY: Record<Extract<OtpPurpose, 'login' | 'reset_password'>, { intro: string; note: string }> = {
+const OTP_PURPOSE_COPY: Record<Extract<OtpPurpose, 'login' | 'reset_password' | 'change_email'>, { intro: string; note: string }> = {
   login: {
     intro: 'رمز تسجيل الدخول الخاص بك',
     note: 'إن لم تحاول تسجيل الدخول، تجاهل هذه الرسالة.',
@@ -32,12 +32,16 @@ const OTP_PURPOSE_COPY: Record<Extract<OtpPurpose, 'login' | 'reset_password'>, 
     intro: 'رمز إعادة تعيين كلمة المرور',
     note: 'إن لم تطلب تغيير كلمة المرور، تجاهل هذه الرسالة.',
   },
+  change_email: {
+    intro: 'رمز تأكيد البريد الإلكتروني الجديد',
+    note: 'إن لم تطلب تغيير بريد حسابك، تجاهل هذه الرسالة.',
+  },
 };
 
 /** (1) email-OTP login and (3) email-OTP password reset — same template, `purpose` picks the copy. */
 export function otpCodeEmail(params: {
   code: string;
-  purpose: Extract<OtpPurpose, 'login' | 'reset_password'>;
+  purpose: Extract<OtpPurpose, 'login' | 'reset_password' | 'change_email'>;
 }): EmailContent {
   const copy = OTP_PURPOSE_COPY[params.purpose];
   return {
