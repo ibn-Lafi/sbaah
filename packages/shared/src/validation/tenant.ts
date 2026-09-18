@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { BUSINESS_ACTIVITIES } from '../types/enums';
 
 /**
  * Registration (migration 0047) only asks for account_type itself — the
@@ -115,3 +116,14 @@ export const socialLinksUpdateSchema = z.object({
   social_telegram: optionalTrimmedString(200),
 });
 export type SocialLinksUpdateInput = z.infer<typeof socialLinksUpdateSchema>;
+
+
+/** حسابي — أنشطة العمل مستقلة عن نوع الكيان وعن صلاحيات الموظفين. */
+export const businessActivitiesUpdateSchema = z.object({
+  activities: z
+    .array(z.enum(BUSINESS_ACTIVITIES))
+    .min(1, 'اختر نشاطًا واحدًا على الأقل')
+    .max(BUSINESS_ACTIVITIES.length)
+    .refine((activities) => new Set(activities).size === activities.length, 'لا يمكن تكرار النشاط'),
+});
+export type BusinessActivitiesUpdateInput = z.infer<typeof businessActivitiesUpdateSchema>;
