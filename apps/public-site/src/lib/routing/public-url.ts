@@ -37,7 +37,7 @@ export async function getPublicOrigin(): Promise<string | null> {
   return `${protocol}://${host}`;
 }
 
-export async function buildLocalizedAlternates(pathname: string): Promise<{
+export async function buildLocalizedAlternates(locale: Locale, pathname: string): Promise<{
   canonical?: string;
   languages?: Record<string, string>;
 }> {
@@ -48,7 +48,7 @@ export async function buildLocalizedAlternates(pathname: string): Promise<{
   const en = `${origin}${localizedPath('en', pathname)}`;
 
   return {
-    canonical: ar,
+    canonical: locale === 'en' ? en : ar,
     languages: {
       ar,
       en,
