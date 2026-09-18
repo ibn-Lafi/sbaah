@@ -37,7 +37,7 @@ function formatDate(iso: string): string {
 /** الفوترة والاشتراك — نُقلت من مسار /billing المستقل إلى محتوى قابل لإعادة الاستخدام يُعرض أيضًا داخل تبويب "الفوترة والاشتراك" بصفحة الإعدادات الموحّدة (/billing يبقى يعمل، يعرض نفس المكوّن). يستخدم useSearchParams (نتيجة StreamPay checkout) — يتطلب Suspense من المستدعي دائمًا. */
 export function BillingPanel() {
   const { accessToken } = useCurrentUser();
-  const { locale, pages } = useLocale();
+  const { pages } = useLocale();
   const t = pages.billing;
   const searchParams = useSearchParams();
   const [billing, setBilling] = useState<BillingInfo | null>(null);
