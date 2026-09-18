@@ -68,9 +68,18 @@ export type VerifyOtpInput = z.infer<typeof verifyOtpSchema>;
  * clear it back out (email stays optional contact info, not mandatory);
  * omitting the field entirely leaves the current value untouched.
  */
-export const updateMyEmailSchema = z.object({
-  email: emailSchema.nullable(),
+export const updateMyEmailSchema = z.object({ email: emailSchema.nullable() });
+
+export const updateMyProfileSchema = z.object({
+  full_name: z.string().trim().min(3, 'الاسم الكريم مطلوب').optional(),
+  role: z.enum(['owner', 'admin', 'agent']).optional(),
 });
+export type UpdateMyProfileInput = z.infer<typeof updateMyProfileSchema>;
+
+export const verifyProfileChangeSchema = z.discriminatedUnion('channel', [
+  z.object({ channel: z.literal('sms'), phone: saudiPhoneSchema, code: otpCodeSchema }),
+  z.object({ channel: z.literal('email'), email: emailSchema, code: otpCodeSchema }),
+]);
 export type UpdateMyEmailInput = z.infer<typeof updateMyEmailSchema>;
 
 /**
