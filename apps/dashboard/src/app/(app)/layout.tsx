@@ -8,6 +8,8 @@ import { getAccessToken } from '@/lib/auth/session';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import { CurrentUserProvider } from '@/lib/auth/current-user-context';
 import { DashboardShellSkeleton } from '@/components/layout/dashboard-shell-skeleton';
+import { ApiRequestError } from '@/lib/api/client';
+import { Button } from '@/components/ui/button';
 
 /**
  * Guard for every authenticated screen (task 24/42 built this for the
@@ -21,11 +23,14 @@ import { DashboardShellSkeleton } from '@/components/layout/dashboard-shell-skel
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [state, setState] = useState<{ me: MeResponse; accessToken: string; business: BusinessActivitiesResponse } | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [retryKey, setRetryKey] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
 
     async function load() {
+      setLoadError(null);
       const accessToken = await getAccessToken();
       if (!accessToken) {
         router.replace('/login');
@@ -41,8 +46,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           configured: false,
         } satisfies BusinessActivitiesResponse));
         if (!cancelled) setState({ me, accessToken, business });
-      } catch {
-        router.replace('/login');
+      } catch (error) {
+        if (error instanceof ApiRequestError && (error.status === 401 || error.code === 'unauthenticated')) {
+          await getSupabaseBrowserClient().auth.signOut();
+          router.replace('/login');
+          return;
+        }
+        if (!cancelled) setLoadError(error instanceof Error ? error.message : 'تعذّر تحميل حسابك. حاول مرة أخرى.');
       }
     }
 
@@ -73,11 +83,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       cancelled = true;
       subscription.unsubscribe();
     };
-  }, [router]);
+  }, [router, retryKey]);
 
-  if (!state) {
-    return <DashboardShellSkeleton />;
+  if (loadError && !state) {
+    return <div className="flex min-h-screen items-center justify-center p-6"><div className="w-full max-w-md rounded-2xl border border-border-default bg-surface-card p-6 text-center"><h1 className="mb-2 text-lg font-semibold">تعذّر تحميل لوحة التحكم</h1><p className="mb-5 text-sm text-text-secondary">{loadError}</p><Button type="button" onClick={() => setRetryKey((value) => value + 1)}>إعادة المحاولة</Button></div></div>;
   }
+
+  if (!state) return <DashboardShellSkeleton />;
 
   const capabilities = resolveBusinessCapabilities(state.business.activities);
 
