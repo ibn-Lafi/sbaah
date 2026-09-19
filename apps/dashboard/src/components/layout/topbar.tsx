@@ -61,7 +61,10 @@ export function Topbar({ title, siteUrl }: TopbarProps) {
           <button type="button" onClick={() => setSearchOpen((v) => !v)} aria-label={t.topbar.searchPlaceholder} className={`flex h-9 w-9 flex-none items-center justify-center rounded-full md:h-[42px] md:w-[42px] ${searchOpen ? 'text-text-primary' : 'bg-white/15 text-white md:bg-surface-subtle md:text-text-primary'}`}>
             <SearchIcon className="h-[17px] w-[17px] md:h-[19px] md:w-[19px]" />
           </button>
-          {searchOpen && <input ref={inputRef} value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => { if (e.key === 'Escape') setSearchOpen(false); if (e.key === 'Enter' && results[0]) navigate(results[0].href); }} placeholder={t.topbar.searchPlaceholder} className="text-text-primary min-w-0 flex-1 border-none bg-transparent pe-4 text-[13px] outline-none" />}
+          <div className={`flex min-w-0 flex-1 items-center transition-opacity duration-200 ${searchOpen ? 'opacity-100' : 'pointer-events-none opacity-0'}`}>
+            <input ref={inputRef} value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => { if (e.key === 'Escape') { setSearchOpen(false); setQuery(''); } if (e.key === 'Enter' && results[0]) navigate(results[0].href); }} placeholder={t.topbar.searchPlaceholder} className="text-text-primary min-w-0 flex-1 border-none bg-transparent text-[13px] outline-none" />
+            <button type="button" onClick={() => { setSearchOpen(false); setQuery(''); }} aria-label={locale === 'ar' ? 'إغلاق البحث' : 'Close search'} className="text-text-secondary hover:bg-surface-subtle me-1 flex h-8 w-8 flex-none items-center justify-center rounded-full text-lg leading-none transition-colors">×</button>
+          </div>
         </div>
         {searchOpen && (
           <div className="bg-surface-card border-border-subtle absolute end-0 top-[48px] z-[100] max-h-[320px] w-[min(320px,calc(100vw-32px))] overflow-auto rounded-[18px] border p-2 shadow-[0_12px_36px_rgba(31,29,34,.18)] md:w-[320px]">
