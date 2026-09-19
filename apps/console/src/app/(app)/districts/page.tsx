@@ -68,10 +68,10 @@ export default function DistrictsPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="ابحث عن حي..."
-            className="w-[180px]"
+            className="w-full sm:w-[180px]"
             compact
           />
-          <Select value={cityFilter} onChange={(e) => setCityFilter(e.target.value)} className="w-[180px]" compact>
+          <Select value={cityFilter} onChange={(e) => setCityFilter(e.target.value)} className="w-full sm:w-[180px]" compact>
             <option value="">كل المدن</option>
             {cities.map((city) => (
               <option key={city.id} value={city.id}>
@@ -106,7 +106,7 @@ export default function DistrictsPage() {
 
       <FormError message={error} />
 
-      <Card className="mt-4 overflow-hidden">
+      <Card className="mt-4 overflow-x-auto">
         {visibleDistricts === null ? (
           <TableSkeleton columns={4} />
         ) : visibleDistricts.length === 0 ? (
@@ -114,7 +114,7 @@ export default function DistrictsPage() {
             {query ? 'لا يوجد حي مطابق لبحثك' : 'لا توجد أحياء بعد'}
           </p>
         ) : (
-          <table className="w-full text-sm">
+          <table className="min-w-[680px] w-full text-sm">
             <thead className="bg-surface-header text-right text-text-secondary">
               <tr>
                 <th className="px-5 py-3 font-medium">الاسم (عربي)</th>
