@@ -71,7 +71,7 @@ export default function PlatformSettingsPage() {
 
   return (
     <ConsoleShell title="إعدادات المنصة">
-      <Card className="max-w-[560px] p-6">
+      <Card className="w-full max-w-[900px] p-4 sm:p-6">
         <h2 className="mb-1 text-base font-semibold">حسابات سبعة على التواصل الاجتماعي</h2>
         <p className="mb-4 text-sm text-text-secondary">
           تظهر هذه الروابط كأيقونات في لوحة تسجيل الدخول وإنشاء حساب جديد — حسابات المنصة نفسها، وليست حسابات المستأجرين.
@@ -118,14 +118,14 @@ export default function PlatformSettingsPage() {
               />
             </div>
             <FormError message={error} />
-            <Button type="submit" disabled={loading} className="w-fit">
+            <Button type="submit" disabled={loading} className="w-full sm:w-fit">
               {loading ? 'جارٍ الحفظ...' : saved ? 'تم الحفظ ✓' : 'حفظ'}
             </Button>
           </form>
         )}
       </Card>
 
-      <Card className="mt-6 max-w-[900px] p-6">
+      <Card className="mt-4 w-full max-w-[900px] p-4 sm:mt-6 sm:p-6">
         <h2 className="mb-1 text-base font-semibold">محتوى صفحة الهبوط</h2>
         <p className="mb-5 text-sm text-text-secondary">عدّل النصوص الأساسية للواجهة العامة. الحقول الفارغة تستخدم النص الافتراضي الموجود في الموقع.</p>
         {draft && <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -136,27 +136,27 @@ export default function PlatformSettingsPage() {
           <div className="grid gap-3 sm:grid-cols-2"><Input value={draft.final_cta_title_ar} onChange={e=>setDraft({...draft,final_cta_title_ar:e.target.value})} placeholder="عنوان CTA بالعربية"/><Input dir="ltr" value={draft.final_cta_title_en} onChange={e=>setDraft({...draft,final_cta_title_en:e.target.value})} placeholder="CTA title"/></div>
           <div className="grid gap-3 sm:grid-cols-2"><textarea value={draft.final_cta_subtitle_ar} onChange={e=>setDraft({...draft,final_cta_subtitle_ar:e.target.value})} placeholder="وصف CTA بالعربية" className="min-h-20 rounded-xl border border-border-subtle bg-surface-card p-3 text-sm outline-none focus:border-brand"/><textarea dir="ltr" value={draft.final_cta_subtitle_en} onChange={e=>setDraft({...draft,final_cta_subtitle_en:e.target.value})} placeholder="CTA subtitle" className="min-h-20 rounded-xl border border-border-subtle bg-surface-card p-3 text-sm outline-none focus:border-brand"/></div>
           <div className="grid gap-3 sm:grid-cols-2"><Input value={draft.footer_tagline_ar} onChange={e=>setDraft({...draft,footer_tagline_ar:e.target.value})} placeholder="وصف الفوتر بالعربية"/><Input dir="ltr" value={draft.footer_tagline_en} onChange={e=>setDraft({...draft,footer_tagline_en:e.target.value})} placeholder="Footer tagline"/></div>
-          <FormError message={error}/><Button type="submit" disabled={loading} className="w-fit">{loading?'جارٍ الحفظ...':saved?'تم الحفظ ✓':'حفظ محتوى الصفحة'}</Button>
+          <FormError message={error}/><Button type="submit" disabled={loading} className="w-full sm:w-fit">{loading?'جارٍ الحفظ...':saved?'تم الحفظ ✓':'حفظ محتوى الصفحة'}</Button>
         </form>}
       </Card>
 
-      <Card className="mt-6 max-w-[900px] p-6">
+      <Card className="mt-4 w-full max-w-[900px] p-4 sm:mt-6 sm:p-6">
         <h2 className="mb-1 text-base font-semibold">الصفحات القانونية</h2>
         <p className="mb-5 text-sm text-text-secondary">تحكم بمحتوى سياسة الخصوصية والشروط والأحكام الظاهر في صفحة سبعة.</p>
         {draft && <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           <section className="space-y-3">
             <h3 className="font-semibold">سياسة الخصوصية</h3>
             <div className="grid gap-3 sm:grid-cols-2"><Input value={draft.privacy_title_ar} onChange={e=>setDraft({...draft,privacy_title_ar:e.target.value})} placeholder="العنوان بالعربية"/><Input dir="ltr" value={draft.privacy_title_en} onChange={e=>setDraft({...draft,privacy_title_en:e.target.value})} placeholder="English title"/></div>
-            <textarea dir="rtl" value={draft.privacy_content_ar} onChange={e=>setDraft({...draft,privacy_content_ar:e.target.value})} placeholder="محتوى سياسة الخصوصية بالعربية" className="min-h-64 w-full rounded-xl border border-border-subtle bg-surface-card p-4 text-sm leading-7 outline-none focus:border-brand"/>
-            <textarea dir="ltr" value={draft.privacy_content_en} onChange={e=>setDraft({...draft,privacy_content_en:e.target.value})} placeholder="Privacy policy content in English" className="min-h-64 w-full rounded-xl border border-border-subtle bg-surface-card p-4 text-sm leading-7 outline-none focus:border-brand"/>
+            <textarea dir="rtl" value={draft.privacy_content_ar} onChange={e=>setDraft({...draft,privacy_content_ar:e.target.value})} placeholder="محتوى سياسة الخصوصية بالعربية" className="min-h-48 w-full sm:min-h-64 rounded-xl border border-border-subtle bg-surface-card p-4 text-sm leading-7 outline-none focus:border-brand"/>
+            <textarea dir="ltr" value={draft.privacy_content_en} onChange={e=>setDraft({...draft,privacy_content_en:e.target.value})} placeholder="Privacy policy content in English" className="min-h-48 w-full sm:min-h-64 rounded-xl border border-border-subtle bg-surface-card p-4 text-sm leading-7 outline-none focus:border-brand"/>
           </section>
           <section className="space-y-3 border-t border-border-subtle pt-5">
             <h3 className="font-semibold">الشروط والأحكام</h3>
             <div className="grid gap-3 sm:grid-cols-2"><Input value={draft.terms_title_ar} onChange={e=>setDraft({...draft,terms_title_ar:e.target.value})} placeholder="العنوان بالعربية"/><Input dir="ltr" value={draft.terms_title_en} onChange={e=>setDraft({...draft,terms_title_en:e.target.value})} placeholder="English title"/></div>
-            <textarea dir="rtl" value={draft.terms_content_ar} onChange={e=>setDraft({...draft,terms_content_ar:e.target.value})} placeholder="محتوى الشروط والأحكام بالعربية" className="min-h-64 w-full rounded-xl border border-border-subtle bg-surface-card p-4 text-sm leading-7 outline-none focus:border-brand"/>
-            <textarea dir="ltr" value={draft.terms_content_en} onChange={e=>setDraft({...draft,terms_content_en:e.target.value})} placeholder="Terms and conditions content in English" className="min-h-64 w-full rounded-xl border border-border-subtle bg-surface-card p-4 text-sm leading-7 outline-none focus:border-brand"/>
+            <textarea dir="rtl" value={draft.terms_content_ar} onChange={e=>setDraft({...draft,terms_content_ar:e.target.value})} placeholder="محتوى الشروط والأحكام بالعربية" className="min-h-48 w-full sm:min-h-64 rounded-xl border border-border-subtle bg-surface-card p-4 text-sm leading-7 outline-none focus:border-brand"/>
+            <textarea dir="ltr" value={draft.terms_content_en} onChange={e=>setDraft({...draft,terms_content_en:e.target.value})} placeholder="Terms and conditions content in English" className="min-h-48 w-full sm:min-h-64 rounded-xl border border-border-subtle bg-surface-card p-4 text-sm leading-7 outline-none focus:border-brand"/>
           </section>
-          <FormError message={error}/><Button type="submit" disabled={loading} className="w-fit">{loading?'جارٍ الحفظ...':saved?'تم الحفظ ✓':'حفظ الصفحات القانونية'}</Button>
+          <FormError message={error}/><Button type="submit" disabled={loading} className="w-full sm:w-fit">{loading?'جارٍ الحفظ...':saved?'تم الحفظ ✓':'حفظ الصفحات القانونية'}</Button>
         </form>}
       </Card>
     </ConsoleShell>
