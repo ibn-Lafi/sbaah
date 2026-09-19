@@ -1,4 +1,4 @@
-import { apiDelete, apiGet, apiPatch } from './client';
+import { apiDelete, apiGet, apiPatch, apiPost } from './client';
 
 export interface GoogleAnalyticsIntegration {
   installed: boolean;
@@ -22,4 +22,8 @@ export function saveGoogleAnalyticsMeasurementId(accessToken: string, measuremen
 
 export function removeGoogleAnalyticsIntegration(accessToken: string) {
   return apiDelete<{ removed: true }>('/integrations/google-analytics', accessToken);
+}
+
+export function connectGoogleAnalytics(accessToken: string) {
+  return apiPost<{ authorization_url: string }>('/integrations/google-analytics/connect', {}, accessToken);
 }
