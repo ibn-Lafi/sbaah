@@ -6,6 +6,7 @@ import { AppShell } from '@/components/layout/app-shell';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { useLocale } from '@/lib/i18n/locale-context';
 import type { PageDictionaries } from '@/lib/i18n/page-dictionaries';
+import { GoogleAnalyticsInstallButton } from '@/components/apps/google-analytics-install-button';
 
 /**
  * سوق التطبيقات — شبكة بطاقات (نفس نمط تصميم المؤسس: أيقونة الشعار الرسمي +
@@ -67,10 +68,14 @@ function AppCard({
   app,
   entry,
   t,
+  accessToken,
+  locale,
 }: {
   app: AppConfig;
   entry: PageDictionaries['apps']['apps'][AppSlug];
   t: PageDictionaries['apps'];
+  accessToken: string;
+  locale: 'ar' | 'en';
 }) {
   const [justClicked, setJustClicked] = useState(false);
 
@@ -83,7 +88,9 @@ function AppCard({
         {entry.category}
       </span>
       <div className="mt-1 flex items-center justify-between gap-2">
-        {app.connected ? (
+        {app.slug === 'googleanalytics' ? (
+          <GoogleAnalyticsInstallButton accessToken={accessToken} locale={locale} label={t.addApp} />
+        ) : app.connected ? (
           <Link
             href="/settings"
             className="border-border-default text-text-primary hover:bg-surface-card flex items-center gap-1.5 rounded-full border px-4 py-2 text-[13px] font-semibold"
@@ -113,8 +120,8 @@ function AppCard({
 }
 
 export default function AppsPage() {
-  const { me } = useCurrentUser();
-  const { pages } = useLocale();
+  const { me, accessToken } = useCurrentUser();
+  const { pages, locale } = useLocale();
   const t = pages.apps;
   const [query, setQuery] = useState('');
 
@@ -150,7 +157,7 @@ export default function AppsPage() {
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {visibleApps.map((app) => (
-            <AppCard key={app.slug} app={app} entry={t.apps[app.slug]} t={t} />
+            <AppCard key={app.slug} app={app} entry={t.apps[app.slug]} t={t} accessToken={accessToken} locale={locale} />
           ))}
         </div>
       )}
