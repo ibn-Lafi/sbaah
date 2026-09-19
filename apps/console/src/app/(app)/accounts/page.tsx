@@ -58,13 +58,13 @@ export default function AccountsPage() {
         {result && <span className="text-sm text-text-secondary">{result.total} حساب</span>}
       </div>
 
-      <Card className="overflow-hidden">
+      <Card className="overflow-x-auto">
         {result === null ? (
           <TableSkeleton columns={5} />
         ) : result.accounts.length === 0 ? (
           <p className="p-6 text-center text-text-secondary">لا توجد حسابات</p>
         ) : (
-          <table className="w-full text-sm">
+          <table className="min-w-[760px] w-full text-sm">
             <thead className="bg-surface-header text-right text-text-secondary">
               <tr>
                 <th className="px-5 py-3 font-medium">الاسم</th>
