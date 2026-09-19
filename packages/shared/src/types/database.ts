@@ -82,6 +82,12 @@ export interface PlatformSettings {
   hero_subtitle_en: string | null;
   footer_tagline_ar: string | null;
   footer_tagline_en: string | null;
+  faq_title_ar: string | null;
+  faq_title_en: string | null;
+  final_cta_title_ar: string | null;
+  final_cta_title_en: string | null;
+  final_cta_subtitle_ar: string | null;
+  final_cta_subtitle_en: string | null;
   updated_at: string;
 }
 
