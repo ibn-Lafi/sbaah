@@ -3,7 +3,7 @@ export const settingsAr = {
   tabs: {
     account: 'الحساب',
     team: 'الموظفين',
-    billing: 'الفوترة والاشتراك',
+    billing: 'إدارة الاشتراك',
     websiteData: 'بيانات الموقع',
   },
   common: {
@@ -98,7 +98,7 @@ export const settingsEn: typeof settingsAr = {
   tabs: {
     account: 'Account',
     team: 'Team',
-    billing: 'Billing & Subscription',
+    billing: 'Subscription Management',
     websiteData: 'Website Data',
   },
   common: {
