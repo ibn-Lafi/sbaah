@@ -66,6 +66,14 @@ export interface PlatformSettings {
   social_instagram: string | null;
   social_x: string | null;
   contact_email: string | null;
+  privacy_title_ar: string;
+  privacy_title_en: string;
+  privacy_content_ar: string;
+  privacy_content_en: string;
+  terms_title_ar: string;
+  terms_title_en: string;
+  terms_content_ar: string;
+  terms_content_en: string;
   updated_at: string;
 }
 
