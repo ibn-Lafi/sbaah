@@ -70,13 +70,23 @@ export type BrokerMarketerFormSectionConfig = Record<string, never>;
 export type MapSectionConfig = Record<string, never>;
 
 
-export interface FeaturedPropertiesSectionConfig { title_ar?: string; property_ids?: string[]; }
-export interface LatestPropertiesSectionConfig { title_ar?: string; limit?: number; }
-export interface ProjectsShowcaseSectionConfig { title_ar?: string; limit?: number; }
-export interface PropertiesByCitySectionConfig { title_ar?: string; city_ids?: string[]; }
-export interface StatsSectionConfig { title_ar?: string; items?: Array<{ value: string; label: string }>; }
-export interface ServicesSectionConfig { title_ar?: string; items?: Array<{ title: string; description?: string }>; }
-export interface FaqSectionConfig { title_ar?: string; items?: Array<{ question: string; answer: string }>; }
+export type SectionTone = 'default' | 'soft';
+export type SectionHeadingAlign = 'start' | 'center';
+export type SectionColumns = 2 | 3 | 4;
+
+export interface SectionPresentationConfig {
+  tone?: SectionTone;
+  heading_align?: SectionHeadingAlign;
+  columns?: SectionColumns;
+}
+
+export interface FeaturedPropertiesSectionConfig extends SectionPresentationConfig { title_ar?: string; property_ids?: string[]; }
+export interface LatestPropertiesSectionConfig extends SectionPresentationConfig { title_ar?: string; limit?: number; }
+export interface ProjectsShowcaseSectionConfig extends SectionPresentationConfig { title_ar?: string; limit?: number; }
+export interface PropertiesByCitySectionConfig extends SectionPresentationConfig { title_ar?: string; city_ids?: string[]; }
+export interface StatsSectionConfig extends SectionPresentationConfig { title_ar?: string; items?: Array<{ value: string; label: string }>; }
+export interface ServicesSectionConfig extends SectionPresentationConfig { title_ar?: string; items?: Array<{ title: string; description?: string }>; }
+export interface FaqSectionConfig extends SectionPresentationConfig { title_ar?: string; items?: Array<{ question: string; answer: string }>; }
 export interface CtaSectionConfig { title_ar?: string; body_ar?: string; button_label?: string; button_url?: string; }
 export interface PropertyRequestSectionConfig { title_ar?: string; body_ar?: string; }
 export interface PromoBannerSectionConfig { title_ar?: string; body_ar?: string; button_label?: string; button_url?: string; image_url?: string; }

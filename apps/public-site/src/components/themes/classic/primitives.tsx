@@ -1,4 +1,15 @@
 import type { ReactNode } from 'react';
+import type { SectionColumns, SectionHeadingAlign, SectionTone } from '@sbaah/shared';
+
+export function classicToneClass(tone?: SectionTone) {
+  return tone === 'soft' ? 'bg-black/[0.025]' : '';
+}
+
+export function classicColumnsClass(columns?: SectionColumns) {
+  if (columns === 2) return 'sm:grid-cols-2';
+  if (columns === 4) return 'sm:grid-cols-2 lg:grid-cols-4';
+  return 'sm:grid-cols-2 lg:grid-cols-3';
+}
 
 export function ClassicSection({
   children,
@@ -17,13 +28,16 @@ export function ClassicSectionHeading({
   title,
   action,
   centered = false,
+  align,
 }: {
   title: string;
   action?: ReactNode;
   centered?: boolean;
+  align?: SectionHeadingAlign;
 }) {
+  const isCentered = centered || align === 'center';
   return (
-    <div className={`mb-7 flex gap-4 sm:mb-8 ${centered ? 'flex-col items-center text-center' : 'items-end justify-between'}`}>
+    <div className={`mb-7 flex gap-4 sm:mb-8 ${isCentered ? 'flex-col items-center text-center' : 'items-end justify-between'}`}>
       <h2 className="text-2xl font-bold tracking-tight text-black sm:text-3xl">
         <span className="me-3 inline-block h-7 w-1 rounded-full bg-tenant-secondary align-middle" aria-hidden="true" />
         {title}

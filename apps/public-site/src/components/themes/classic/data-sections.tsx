@@ -8,7 +8,7 @@ import { PropertyCard } from '@/components/properties/property-card';
 import { ProjectCard } from '@/components/properties/project-card';
 import { pickLocalized } from '@/lib/i18n/localized-field';
 import { localizedPath } from '@/lib/routing/public-url';
-import { ClassicEmptyState, ClassicSection, ClassicSectionHeading } from './primitives';
+import { ClassicEmptyState, ClassicSection, ClassicSectionHeading, classicColumnsClass, classicToneClass } from './primitives';
 
 const copy = {
   ar: {
@@ -45,9 +45,9 @@ export async function FeaturedPropertiesSection({ locale, config }: { locale: Lo
   const items = (selectedIds.size ? result.properties.filter((property) => selectedIds.has(property.id)) : result.properties).slice(0, 6);
   const citiesById = new Map(cities.map((city) => [city.id, city]));
   return (
-    <ClassicSection>
-      <ClassicSectionHeading title={config.title_ar || copy[locale].featured} action={<SectionLink href={localizedPath(locale, '/properties')}>{copy[locale].allProperties}</SectionLink>} />
-      {items.length ? <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{items.map((property) => <PropertyCard key={property.id} property={property} city={citiesById.get(property.city_id)} locale={locale} />)}</div> : <ClassicEmptyState>{copy[locale].propertiesEmpty}</ClassicEmptyState>}
+    <ClassicSection className={classicToneClass(config.tone)}>
+      <ClassicSectionHeading title={config.title_ar || copy[locale].featured} align={config.heading_align} action={<SectionLink href={localizedPath(locale, '/properties')}>{copy[locale].allProperties}</SectionLink>} />
+      {items.length ? <div className={`grid gap-5 ${classicColumnsClass(config.columns)}`}>{items.map((property) => <PropertyCard key={property.id} property={property} city={citiesById.get(property.city_id)} locale={locale} />)}</div> : <ClassicEmptyState>{copy[locale].propertiesEmpty}</ClassicEmptyState>}
     </ClassicSection>
   );
 }
@@ -57,9 +57,9 @@ export async function LatestPropertiesSection({ locale, config }: { locale: Loca
   const citiesById = new Map(cities.map((city) => [city.id, city]));
   const items = result.properties.slice(0, Math.min(Math.max(config.limit ?? 6, 1), 12));
   return (
-    <ClassicSection className="bg-black/[0.025]">
-      <ClassicSectionHeading title={config.title_ar || copy[locale].latest} action={<SectionLink href={localizedPath(locale, '/properties')}>{copy[locale].allProperties}</SectionLink>} />
-      {items.length ? <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{items.map((property) => <PropertyCard key={property.id} property={property} city={citiesById.get(property.city_id)} locale={locale} />)}</div> : <ClassicEmptyState>{copy[locale].propertiesEmpty}</ClassicEmptyState>}
+    <ClassicSection className={classicToneClass(config.tone ?? 'soft')}>
+      <ClassicSectionHeading title={config.title_ar || copy[locale].latest} align={config.heading_align} action={<SectionLink href={localizedPath(locale, '/properties')}>{copy[locale].allProperties}</SectionLink>} />
+      {items.length ? <div className={`grid gap-5 ${classicColumnsClass(config.columns)}`}>{items.map((property) => <PropertyCard key={property.id} property={property} city={citiesById.get(property.city_id)} locale={locale} />)}</div> : <ClassicEmptyState>{copy[locale].propertiesEmpty}</ClassicEmptyState>}
     </ClassicSection>
   );
 }
@@ -69,9 +69,9 @@ export async function ProjectsShowcaseSection({ locale, config }: { locale: Loca
   const citiesById = new Map(cities.map((city) => [city.id, city]));
   const items = result.projects.slice(0, Math.min(Math.max(config.limit ?? 6, 1), 12));
   return (
-    <ClassicSection>
-      <ClassicSectionHeading title={config.title_ar || copy[locale].projects} action={<SectionLink href={localizedPath(locale, '/projects')}>{copy[locale].allProjects}</SectionLink>} />
-      {items.length ? <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{items.map((project) => <ProjectCard key={project.id} project={project} city={citiesById.get(project.city_id)} locale={locale} />)}</div> : <ClassicEmptyState>{copy[locale].projectsEmpty}</ClassicEmptyState>}
+    <ClassicSection className={classicToneClass(config.tone)}>
+      <ClassicSectionHeading title={config.title_ar || copy[locale].projects} align={config.heading_align} action={<SectionLink href={localizedPath(locale, '/projects')}>{copy[locale].allProjects}</SectionLink>} />
+      {items.length ? <div className={`grid gap-5 ${classicColumnsClass(config.columns)}`}>{items.map((project) => <ProjectCard key={project.id} project={project} city={citiesById.get(project.city_id)} locale={locale} />)}</div> : <ClassicEmptyState>{copy[locale].projectsEmpty}</ClassicEmptyState>}
     </ClassicSection>
   );
 }
@@ -86,10 +86,10 @@ export async function PropertiesByCitySection({ locale, config }: { locale: Loca
     .slice(0, 8);
 
   return (
-    <ClassicSection className="bg-black/[0.025]">
-      <ClassicSectionHeading title={config.title_ar || copy[locale].cities} />
+    <ClassicSection className={classicToneClass(config.tone ?? 'soft')}>
+      <ClassicSectionHeading title={config.title_ar || copy[locale].cities} align={config.heading_align} />
       {selected.length ? (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+        <div className={`grid grid-cols-2 gap-3 ${classicColumnsClass(config.columns ?? 4)}`}>
           {selected.map((city) => (
             <Link
               key={city.id}
