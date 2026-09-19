@@ -23,7 +23,7 @@ const testimonials = {
 };
 
 function Arrow({direction}:{direction:'left'|'right'}) {
-  return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="h-6 w-6" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d={direction==='left'?'M15 18l-6-6 6-6':'M9 6l6 6-6 6'}/></svg>;
+  return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" className="h-8 w-8" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d={direction==='left'?'M27 12H5m8-8-8 8 8 8':'M5 12h22m-8-8 8 8-8 8'}/></svg>;
 }
 
 export function Testimonials({locale}:{locale:Locale}) {
@@ -44,28 +44,28 @@ export function Testimonials({locale}:{locale:Locale}) {
       </div>
 
       <div ref={scroller} className="mt-8 flex snap-x snap-mandatory gap-5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mt-9">
-        {testimonials[locale].map((x)=><article data-testimonial-card key={x.company} className="flex w-full min-w-full snap-center flex-col rounded-[22px] border border-border-subtle bg-surface-card p-3 sm:rounded-[28px] sm:p-7 lg:min-w-[calc(50%-10px)]">
-          <div className="aspect-[1.72/1] w-full overflow-hidden rounded-[16px] bg-surface-muted sm:aspect-[16/9] sm:rounded-[22px]">
+        {testimonials[locale].map((x)=><article data-testimonial-card key={x.company} className="flex h-[620px] w-[calc(100vw-32px)] min-w-[calc(100vw-32px)] snap-center flex-col rounded-[22px] border border-[#aaa] bg-surface-card px-[18px] pb-[26px] pt-[28px] sm:h-auto sm:w-full sm:min-w-full sm:rounded-[28px] sm:border-border-subtle sm:p-7 lg:min-w-[calc(50%-10px)]">
+          <div className="h-[245px] w-full shrink-0 overflow-hidden rounded-[14px] bg-surface-muted sm:h-auto sm:aspect-[16/9] sm:rounded-[22px]">
             <img src={x.image} alt={ar?`عرض موقع ${x.company}`:`${x.company} website preview`} className="h-full w-full object-cover" />
           </div>
 
-          <blockquote className="font-display mx-auto mt-6 max-w-3xl px-2 text-center text-[17px] font-medium leading-[1.75] text-text-primary sm:mt-8 sm:px-0 sm:text-2xl">
+          <blockquote className="font-display mx-auto mt-7 max-w-3xl px-1 text-center text-[19px] font-medium leading-[1.65] text-text-primary sm:mt-8 sm:px-0 sm:text-2xl">
             “{x.quote}”
           </blockquote>
 
-          <div className="mt-auto flex items-center justify-end gap-3 pt-8 sm:items-end sm:justify-between sm:gap-4 sm:pt-9" dir={ar?'rtl':'ltr'}>
+          <div className="mt-auto flex items-center justify-end gap-3 pb-1 pt-8 sm:items-end sm:justify-between sm:gap-4 sm:pt-9" dir={ar?'rtl':'ltr'}>
             <div className="min-w-0 text-end sm:text-start">
-              <p className="font-display text-[18px] font-semibold text-text-primary sm:text-xl">{x.person}</p>
-              <p className="mt-1 text-[13px] text-text-secondary sm:mt-1.5 sm:text-sm">{x.company}</p>
+              <p className="font-display text-[20px] font-semibold text-text-primary sm:text-xl">{x.person}</p>
+              <p className="mt-1.5 text-[16px] text-text-secondary sm:mt-1.5 sm:text-sm">{x.company}</p>
             </div>
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border-subtle bg-surface-card sm:h-14 sm:w-14">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border-subtle bg-surface-card sm:h-14 sm:w-14">
               {x.logo?<img src={x.logo} alt={x.company} className="h-full w-full object-contain"/>:<span className="text-brand text-lg font-bold">{x.company.slice(0,1)}</span>}
             </div>
           </div>
         </article>)}
       </div>
 
-      <div className="mx-auto mt-7 flex w-fit items-center rounded-full bg-surface-muted p-[6px] sm:mt-8">
+      <div className="mx-auto mt-12 flex w-fit items-center rounded-full bg-[#f4f4f4] p-[8px] sm:mt-8">
         <button type="button" onClick={()=>move(-1)} aria-label={ar?'السابق':'Previous testimonial'} className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-card text-text-primary transition hover:text-brand sm:h-14 sm:w-14"><Arrow direction="left"/></button>
         <button type="button" onClick={()=>move(1)} aria-label={ar?'التالي':'Next testimonial'} className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-card text-text-primary transition hover:text-brand sm:h-14 sm:w-14"><Arrow direction="right"/></button>
       </div>
