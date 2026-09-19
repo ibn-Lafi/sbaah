@@ -71,6 +71,10 @@ export function SectionConfigEditor({ section, accessToken, onSaved, website, on
   const hasButton = ['cta','promo_banner','free_content'].includes(section.type);
   const hasImageUrl = ['promo_banner','free_content'].includes(section.type);
   const hasVideoUrl = section.type === 'video';
+  const isGallery = section.type === 'gallery';
+  const [galleryUrls, setGalleryUrls] = useState<string[]>(() => Array.isArray(section.config.image_urls) ? section.config.image_urls as string[] : []);
+  const hasLimit = ['latest_properties','projects_showcase'].includes(section.type);
+  const [limit, setLimit] = useState(String(section.config.limit ?? 6));
 
   async function handleSave() {
     setLoading(true);
@@ -82,6 +86,8 @@ export function SectionConfigEditor({ section, accessToken, onSaved, website, on
       if (hasButton && buttonUrl) nextConfig.button_url = buttonUrl;
       if (hasImageUrl && mediaUrl) nextConfig.image_url = mediaUrl;
       if (hasVideoUrl && mediaUrl) nextConfig.video_url = mediaUrl;
+      if (isGallery) nextConfig.image_urls = galleryUrls.filter(Boolean);
+      if (hasLimit) nextConfig.limit = Math.max(1, Math.min(12, Number(limit) || 6));
       if (isHero && subtitleAr) nextConfig.subtitle_ar = subtitleAr;
       if (hasBody && bodyAr) nextConfig.body_ar = bodyAr;
       if (isHero) nextConfig.variant = variant;
@@ -127,6 +133,8 @@ export function SectionConfigEditor({ section, accessToken, onSaved, website, on
         </div>
       )}
       {hasButton && <><Input placeholder="نص الزر" value={buttonLabel} onChange={(e) => setButtonLabel(e.target.value)} /><Input placeholder="رابط الزر" value={buttonUrl} onChange={(e) => setButtonUrl(e.target.value)} /></>}
+      {hasLimit && <Input type="number" min="1" max="12" placeholder="عدد العناصر" value={limit} onChange={(e) => setLimit(e.target.value)} />}
+      {isGallery && <div className="flex flex-col gap-2">{galleryUrls.map((url,index)=><div key={index} className="flex gap-2"><Input placeholder="رابط الصورة" value={url} onChange={(e)=>setGalleryUrls(v=>v.map((x,i)=>i===index?e.target.value:x))}/><Button type="button" variant="secondary" onClick={()=>setGalleryUrls(v=>v.filter((_,i)=>i!==index))}>حذف</Button></div>)}<Button type="button" variant="secondary" className="w-fit" onClick={()=>setGalleryUrls(v=>[...v,''])}>+ إضافة صورة</Button></div>}
       {(hasImageUrl || hasVideoUrl) && <Input placeholder={hasVideoUrl ? 'رابط الفيديو' : 'رابط الصورة'} value={mediaUrl} onChange={(e) => setMediaUrl(e.target.value)} />}
 
       {isHero && (
