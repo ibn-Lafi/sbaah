@@ -6,6 +6,8 @@ import { getThemeComponents } from '@/components/themes/registry';
 import { listCities } from '@/lib/api/reference-data';
 import { BrokerMarketerForm } from '@/components/broker-marketer/broker-marketer-form';
 import { MapSection } from '@/components/map/map-section';
+import { FeaturedPropertiesSection, LatestPropertiesSection, ProjectsShowcaseSection, PropertiesByCitySection } from '@/components/themes/classic/data-sections';
+import { StatsSection, ServicesSection, FaqSection, CtaSection, PropertyRequestSection, PromoBannerSection, FreeContentSection, GallerySection, VideoSection } from '@/components/themes/classic/content-sections';
 
 /**
  * Renders `website_sections` in order (task 35/42) — replaces the
@@ -65,6 +67,19 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             );
           case 'property_grid':
             return <PropertyGridSection key={section.id} locale={locale} config={section.config} />;
+          case 'featured_properties': return <FeaturedPropertiesSection key={section.id} locale={locale} config={section.config} />;
+          case 'latest_properties': return <LatestPropertiesSection key={section.id} locale={locale} config={section.config} />;
+          case 'projects_showcase': return <ProjectsShowcaseSection key={section.id} locale={locale} config={section.config} />;
+          case 'properties_by_city': return <PropertiesByCitySection key={section.id} locale={locale} config={section.config} />;
+          case 'stats': return <StatsSection key={section.id} locale={locale} config={section.config} />;
+          case 'services': return <ServicesSection key={section.id} locale={locale} config={section.config} />;
+          case 'faq': return <FaqSection key={section.id} locale={locale} config={section.config} />;
+          case 'cta': return <CtaSection key={section.id} locale={locale} config={section.config} />;
+          case 'property_request': return <PropertyRequestSection key={section.id} locale={locale} config={section.config} />;
+          case 'promo_banner': return <PromoBannerSection key={section.id} locale={locale} config={section.config} />;
+          case 'free_content': return <FreeContentSection key={section.id} locale={locale} config={section.config} />;
+          case 'gallery': return <GallerySection key={section.id} locale={locale} config={section.config} />;
+          case 'video': return <VideoSection key={section.id} locale={locale} config={section.config} />;
           case 'about':
           case 'why_us':
             return <TextSection key={section.id} type={section.type} locale={locale} config={section.config} />;
