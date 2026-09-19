@@ -73,12 +73,21 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   // platform root domain never goes through tenant resolution or
   // renders tenant chrome at all. See components/marketing-chrome.tsx.
   if (await isMarketingHost()) {
+    const marketingAnalyticsId = process.env.NEXT_PUBLIC_MARKETING_GA_MEASUREMENT_ID;
     return (
       <html lang={locale} dir={dir}>
         <head>
           <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         </head>
         <body className={`${marketingFont.className} ${thmanyahSerifDisplay.variable}`}>
+          {marketingAnalyticsId && (
+            <>
+              <Script src={`https://www.googletagmanager.com/gtag/js?id=${marketingAnalyticsId}`} strategy="afterInteractive" />
+              <Script id="sbaah-marketing-google-analytics" strategy="afterInteractive">
+                {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${marketingAnalyticsId}');`}
+              </Script>
+            </>
+          )}
           <ThemeProvider>
             <MarketingChrome locale={locale}>{children}</MarketingChrome>
             <ServiceWorkerRegister />
