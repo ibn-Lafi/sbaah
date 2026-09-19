@@ -67,7 +67,7 @@ export function PropertySearchBar({ locale, cities }: { locale: Locale; cities: 
 
       <button
         type="submit"
-        className="flex items-center justify-center rounded-xl bg-tenant-primary px-6 py-3 text-sm font-semibold text-white hover:opacity-90 sm:my-1 sm:me-1"
+        className="flex items-center justify-center rounded-xl bg-tenant-primary px-6 py-3 text-sm font-semibold text-white ring-1 ring-tenant-secondary/25 hover:opacity-90 sm:my-1 sm:me-1"
       >
         {t.submit}
       </button>
