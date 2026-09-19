@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ApiRequestError } from '@/lib/api/client';
-import { connectGoogleAnalytics, saveGoogleAnalyticsMeasurementId } from '@/lib/api/google-analytics';
+import { connectGoogleAnalytics, getGoogleAnalyticsIntegration, removeGoogleAnalyticsIntegration, saveGoogleAnalyticsMeasurementId, type GoogleAnalyticsIntegration } from '@/lib/api/google-analytics';
 
 function PlusIcon({ className }: { className?: string }) {
   return (
@@ -25,7 +25,39 @@ export function GoogleAnalyticsInstallButton({
   const [measurementId, setMeasurementId] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [integration, setIntegration] = useState<GoogleAnalyticsIntegration | null>(null);
+  const [loading, setLoading] = useState(true);
   const ar = locale === 'ar';
+
+  useEffect(() => {
+    let active = true;
+    getGoogleAnalyticsIntegration(accessToken)
+      .then((data) => {
+        if (!active) return;
+        setIntegration(data);
+        setMeasurementId(data.measurement_id ?? '');
+      })
+      .catch(() => undefined)
+      .finally(() => active && setLoading(false));
+    return () => { active = false; };
+  }, [accessToken]);
+
+  const connected = integration?.status === 'connected';
+
+  async function remove() {
+    setSaving(true);
+    setError(null);
+    try {
+      await removeGoogleAnalyticsIntegration(accessToken);
+      setIntegration({ installed: false, status: null, measurement_id: null, property_id: null, connected_at: null });
+      setMeasurementId('');
+      setOpen(false);
+    } catch (err) {
+      setError(err instanceof ApiRequestError ? err.message : ar ? 'تعذر إلغاء التثبيت' : 'Could not uninstall');
+    } finally {
+      setSaving(false);
+    }
+  }
 
   async function save(event: React.FormEvent) {
     event.preventDefault();
@@ -55,8 +87,13 @@ export function GoogleAnalyticsInstallButton({
         className="border-border-default text-text-primary hover:bg-surface-card flex items-center gap-1.5 rounded-full border px-4 py-2 text-[13px] font-semibold"
       >
         <PlusIcon className="h-3.5 w-3.5" />
-        {label}
+        {loading ? (ar ? 'جارٍ التحقق...' : 'Checking...') : connected ? (ar ? 'إدارة' : 'Manage') : integration?.installed ? (ar ? 'إكمال الربط' : 'Continue setup') : label}
       </button>
+      {connected && (
+        <span className="border-border-default text-text-secondary flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs font-semibold">
+          <span aria-hidden="true">✓</span>{ar ? 'متصل' : 'Connected'}
+        </span>
+      )}
 
       {open && (
         <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/40 p-4 backdrop-blur-[2px]" onClick={() => setOpen(false)}>
@@ -65,7 +102,7 @@ export function GoogleAnalyticsInstallButton({
               <div>
                 <h2 className="mb-1 text-lg font-bold text-text-primary">Google Analytics</h2>
                 <p className="text-sm text-text-secondary">
-                  {ar ? 'أدخل معرّف القياس الخاص بموقعك في Google Analytics.' : 'Enter your website Measurement ID from Google Analytics.'}
+                  {connected ? (ar ? 'Google Analytics متصل بموقعك ويمكنك إدارة الاتصال من هنا.' : 'Google Analytics is connected to your website. Manage the connection here.') : (ar ? 'أدخل معرّف القياس الخاص بموقعك في Google Analytics.' : 'Enter your website Measurement ID from Google Analytics.')}
                 </p>
               </div>
               <button type="button" onClick={() => setOpen(false)} aria-label={ar ? 'إغلاق' : 'Close'} className="bg-surface-subtle text-text-secondary flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xl">×</button>
@@ -84,8 +121,13 @@ export function GoogleAnalyticsInstallButton({
               </div>
               {error && <p className="text-sm text-red-600">{error}</p>}
               <button type="submit" disabled={saving} className="bg-brand text-white h-11 rounded-full px-5 text-sm font-semibold disabled:opacity-60">
-                {saving ? (ar ? 'جارٍ الربط...' : 'Connecting...') : (ar ? 'حفظ وربط Google' : 'Save & connect Google')}
+                {saving ? (ar ? 'جارٍ الربط...' : 'Connecting...') : connected ? (ar ? 'إعادة الربط' : 'Reconnect Google') : (ar ? 'حفظ وربط Google' : 'Save & connect Google')}
               </button>
+              {connected && (
+                <button type="button" disabled={saving} onClick={() => void remove()} className="border-border-default text-text-primary h-11 rounded-full border px-5 text-sm font-semibold disabled:opacity-60">
+                  {ar ? 'إلغاء تثبيت التطبيق' : 'Uninstall app'}
+                </button>
+              )}
             </form>
           </div>
         </div>
