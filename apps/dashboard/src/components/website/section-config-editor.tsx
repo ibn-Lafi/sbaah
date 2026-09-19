@@ -62,7 +62,8 @@ export function SectionConfigEditor({ section, accessToken, onSaved, website, on
   const [bodyAr, setBodyAr] = useState(config.body_ar ?? '');
   const [variant, setVariant] = useState<HeroVariant>(config.variant ?? 'image_search');
   const [loading, setLoading] = useState(false);
-  const [itemsJson, setItemsJson] = useState(() => JSON.stringify((section.config as StatsSectionConfig & ServicesSectionConfig & FaqSectionConfig).items ?? [], null, 2));
+  type EditorItem = { value?: string; label?: string; title?: string; description?: string; question?: string; answer?: string };
+  const [items, setItems] = useState<EditorItem[]>(() => ((section.config as StatsSectionConfig & ServicesSectionConfig & FaqSectionConfig).items ?? []) as EditorItem[]);
   const [buttonLabel, setButtonLabel] = useState(String(section.config.button_label ?? ''));
   const [buttonUrl, setButtonUrl] = useState(String(section.config.button_url ?? ''));
   const [mediaUrl, setMediaUrl] = useState(String(section.config.image_url ?? section.config.video_url ?? ''));
@@ -76,7 +77,7 @@ export function SectionConfigEditor({ section, accessToken, onSaved, website, on
     try {
       const nextConfig: Record<string, unknown> = {};
       if (titleAr) nextConfig.title_ar = titleAr;
-      if (hasItems) { try { nextConfig.items = JSON.parse(itemsJson); } catch { /* keep previous config on invalid JSON */ } }
+      if (hasItems) nextConfig.items = items;
       if (hasButton && buttonLabel) nextConfig.button_label = buttonLabel;
       if (hasButton && buttonUrl) nextConfig.button_url = buttonUrl;
       if (hasImageUrl && mediaUrl) nextConfig.image_url = mediaUrl;
@@ -99,7 +100,32 @@ export function SectionConfigEditor({ section, accessToken, onSaved, website, on
     <div className="flex flex-col gap-3 rounded-input border border-border-subtle bg-surface-subtle p-4">
       {hasSimpleTitle && <Input placeholder={t.sectionConfigEditor.title} value={titleAr} onChange={(e) => setTitleAr(e.target.value)} />}
 
-      {hasItems && <Textarea placeholder="JSON items" value={itemsJson} onChange={(e) => setItemsJson(e.target.value)} className="min-h-32 font-mono text-xs" />}
+      {hasItems && (
+        <div className="flex flex-col gap-3">
+          {items.map((item, index) => (
+            <div key={index} className="rounded-input border border-border-default bg-surface-card p-3">
+              <div className="grid gap-2 sm:grid-cols-2">
+                {section.type === 'stats' && <>
+                  <Input placeholder="الرقم" value={item.value ?? ''} onChange={(e) => setItems((v) => v.map((x,i) => i===index ? {...x,value:e.target.value}:x))} />
+                  <Input placeholder="الوصف" value={item.label ?? ''} onChange={(e) => setItems((v) => v.map((x,i) => i===index ? {...x,label:e.target.value}:x))} />
+                </>}
+                {section.type === 'services' && <>
+                  <Input placeholder="اسم الخدمة" value={item.title ?? ''} onChange={(e) => setItems((v) => v.map((x,i) => i===index ? {...x,title:e.target.value}:x))} />
+                  <Input placeholder="وصف الخدمة" value={item.description ?? ''} onChange={(e) => setItems((v) => v.map((x,i) => i===index ? {...x,description:e.target.value}:x))} />
+                </>}
+                {section.type === 'faq' && <>
+                  <Input placeholder="السؤال" value={item.question ?? ''} onChange={(e) => setItems((v) => v.map((x,i) => i===index ? {...x,question:e.target.value}:x))} />
+                  <Input placeholder="الإجابة" value={item.answer ?? ''} onChange={(e) => setItems((v) => v.map((x,i) => i===index ? {...x,answer:e.target.value}:x))} />
+                </>}
+              </div>
+              <button type="button" onClick={() => setItems((v) => v.filter((_,i) => i!==index))} className="mt-2 text-xs text-red-600 hover:underline">حذف</button>
+            </div>
+          ))}
+          <Button type="button" variant="secondary" onClick={() => setItems((v) => [...v, section.type === 'stats' ? {value:'',label:''} : section.type === 'services' ? {title:'',description:''} : {question:'',answer:''}])} className="w-fit">
+            + إضافة {section.type === 'stats' ? 'رقم' : section.type === 'services' ? 'خدمة' : 'سؤال'}
+          </Button>
+        </div>
+      )}
       {hasButton && <><Input placeholder="نص الزر" value={buttonLabel} onChange={(e) => setButtonLabel(e.target.value)} /><Input placeholder="رابط الزر" value={buttonUrl} onChange={(e) => setButtonUrl(e.target.value)} /></>}
       {(hasImageUrl || hasVideoUrl) && <Input placeholder={hasVideoUrl ? 'رابط الفيديو' : 'رابط الصورة'} value={mediaUrl} onChange={(e) => setMediaUrl(e.target.value)} />}
 
