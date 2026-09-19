@@ -320,7 +320,7 @@ function SubdomainCard({
 /** الدومين — عنصر قائمة مستقل (مطابق للتصميم)، يجمع النطاق الفرعي والدومين المخصص بدل تفرقتهما بين الإعدادات ومحرر الموقع كما كان سابقًا. */
 export default function DomainPage() {
   const { me, accessToken } = useCurrentUser();
-  const { pages } = useLocale();
+  const { pages, locale } = useLocale();
   const t = pages.domain;
   const [domain, setDomainState] = useState<DomainInfo | null>(null);
   const [mode, setMode] = useState<DomainMode>('custom');
@@ -350,15 +350,17 @@ export default function DomainPage() {
           />
         ) : domain.custom_domain_allowed ? (
           <>
-            <SegmentedToggle
-              className="max-w-[320px]"
-              value={mode}
-              onChange={setMode}
-              options={[
-                { value: 'custom', label: t.modeToggle.custom },
-                { value: 'subdomain', label: t.modeToggle.subdomain },
-              ]}
-            />
+            <div className="flex w-full justify-center">
+              <SegmentedToggle
+                className="mx-auto max-w-[320px]"
+                value={mode}
+                onChange={setMode}
+                options={[
+                  { value: 'custom', label: locale === 'ar' ? 'النطاق المخصص' : 'Custom domain' },
+                  { value: 'subdomain', label: locale === 'ar' ? 'النطاق الفرعي' : 'Subdomain' },
+                ]}
+              />
+            </div>
             {mode === 'custom' ? (
               <CustomDomainCard accessToken={accessToken} domain={domain} onChanged={reload} />
             ) : (
