@@ -68,6 +68,8 @@ export default function WebsiteEditorPage() {
   const [panelView, setPanelView] = useState<PanelView>('sections');
   const [activePageKey, setActivePageKey] = useState<WebsitePageKey>('home');
   const [device, setDevice] = useState<Device>('desktop');
+  const [previewRevision, setPreviewRevision] = useState(0);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [colorsOpen, setColorsOpen] = useState(true);
   const [openZones, setOpenZones] = useState<Record<ZoneKey, boolean>>({
     top: true,
@@ -106,14 +108,24 @@ export default function WebsiteEditorPage() {
   );
 
   useEffect(() => {
-    void getWebsite(accessToken).then((result) => {
-      setWebsite(result.website);
-      setPages(result.pages);
-      setTextDraft({
-        announcement: result.website.announcement_bar_text ?? '',
-        footerDescription: result.website.footer_description ?? '',
-      });
-    });
+    let cancelled = false;
+    async function loadEditor() {
+      setLoadError(null);
+      try {
+        const result = await getWebsite(accessToken);
+        if (cancelled) return;
+        setWebsite(result.website);
+        setPages(result.pages);
+        setTextDraft({
+          announcement: result.website.announcement_bar_text ?? '',
+          footerDescription: result.website.footer_description ?? '',
+        });
+      } catch (err) {
+        if (!cancelled) setLoadError(err instanceof ApiRequestError ? err.message : 'تعذر تحميل تخصيص الموقع.');
+      }
+    }
+    void loadEditor();
+    return () => { cancelled = true; };
   }, [accessToken]);
 
   function toggleZone(zone: ZoneKey) {
@@ -125,6 +137,7 @@ export default function WebsiteEditorPage() {
     try {
       const { website: updated } = await updateWebsite(accessToken, { font_family: font });
       setWebsite((current) => (current ? { ...current, ...updated } : current));
+      setPreviewRevision((value) => value + 1);
     } catch (err) {
       setError(err instanceof ApiRequestError ? err.message : t.editor.errors.saveFont);
     }
@@ -137,6 +150,7 @@ export default function WebsiteEditorPage() {
         announcement_bar_text: value || null,
       });
       setWebsite((current) => (current ? { ...current, ...updated } : current));
+      setPreviewRevision((value) => value + 1);
     } catch (err) {
       setError(err instanceof ApiRequestError ? err.message : t.editor.errors.saveAnnouncement);
     }
@@ -149,6 +163,7 @@ export default function WebsiteEditorPage() {
         footer_description: value || null,
       });
       setWebsite((current) => (current ? { ...current, ...updated } : current));
+      setPreviewRevision((value) => value + 1);
     } catch (err) {
       setError(err instanceof ApiRequestError ? err.message : t.editor.errors.saveFooterDescription);
     }
@@ -168,6 +183,7 @@ export default function WebsiteEditorPage() {
   async function patchSection(sectionId: string, input: { is_visible?: boolean; config?: Record<string, unknown> }) {
     if (!activePage) return;
     const { section: updated } = await updateSection(accessToken, sectionId, input);
+    setPreviewRevision((value) => value + 1);
     setPages((current) =>
       current.map((p) =>
         p.id === activePage.id
@@ -193,6 +209,7 @@ export default function WebsiteEditorPage() {
       ...hiddenContentSections,
     ]);
     setEditingSectionId(null);
+    setPreviewRevision((value) => value + 1);
   }
 
   /** بند "تكرار القسم" بقائمة SectionRowMenu — ينسخ الصف عبر duplicateSection API، ويضيفه لحالة الصفحة النشطة. */
@@ -229,6 +246,18 @@ export default function WebsiteEditorPage() {
   }
 
   if (!website) {
+    if (loadError) {
+      return (
+        <div className="bg-surface-page flex min-h-screen items-center justify-center p-6">
+          <div className="bg-surface-card border-border-default flex w-full max-w-md flex-col gap-4 rounded-2xl border p-6 text-center">
+            <FormError message={loadError} />
+            <Button type="button" variant="secondary" onClick={() => window.location.reload()} className="self-center">
+              إعادة المحاولة
+            </Button>
+          </div>
+        </div>
+      );
+    }
     return <EditorSkeleton />;
   }
 
@@ -820,7 +849,7 @@ export default function WebsiteEditorPage() {
             </div>
 
             <div className="min-h-0 flex-1">
-              <SitePreview siteUrl={siteUrl} pageKey={activePageKey} device={device} accessToken={accessToken} />
+              <SitePreview siteUrl={siteUrl} pageKey={activePageKey} device={device} accessToken={accessToken} revision={previewRevision} />
             </div>
           </div>
         </div>
