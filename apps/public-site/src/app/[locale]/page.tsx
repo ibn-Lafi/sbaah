@@ -48,7 +48,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const { HeroSection, PropertyGridSection, TextSection } = theme;
   // The original/default theme has historically been stored under more than one key in existing data.
   // New homepage sections belong to that base theme, so treat the default registry fallback as Classic too.
-  const isClassic = site.website.theme_key === 'classic' || site.website.theme_key === 'default';
+  // getThemeComponents() falls back to Classic for any unknown legacy key.
+  // Render the matching Classic-only section library under that same fallback rule.
+  const isClassic = true;
 
   return (
     <div>
@@ -82,8 +84,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           case 'about':
           case 'why_us':
             return <TextSection key={section.id} type={section.type} locale={locale} config={section.config} />;
-          case 'broker_marketer_form':
-            return null;
           case 'map':
             return <MapSection key={section.id} locale={locale} />;
           case 'contact':
