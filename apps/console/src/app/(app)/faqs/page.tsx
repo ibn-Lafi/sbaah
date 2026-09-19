@@ -1,5 +1,5 @@
 'use client';
-import { useEffect,useState } from 'react';
+import { useCallback,useEffect,useState } from 'react';
 import { ConsoleShell } from '@/components/layout/console-shell';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -19,8 +19,8 @@ export default function FaqManagementPage(){
  const [editDraft,setEditDraft]=useState<EditDraft|null>(null);
  const [saving,setSaving]=useState(false);
  const [error,setError]=useState('');
- const load=()=>listFaqs(accessToken).then(setItems).catch(()=>setError('تعذّر تحميل الأسئلة'));
- useEffect(()=>{void load()},[accessToken]);
+ const load=useCallback(()=>listFaqs(accessToken).then(setItems).catch(()=>setError('تعذّر تحميل الأسئلة')),[accessToken]);
+ useEffect(()=>{void load()},[load]);
 
  async function add(){
   setError('');setSaving(true);
@@ -40,7 +40,7 @@ export default function FaqManagementPage(){
  async function patch(id:string,input:Partial<PlatformFaqInput>){try{await updateFaq(accessToken,id,input);await load()}catch{setError('تعذّر تحديث السؤال')}}
  async function move(index:number,direction:-1|1){
   if(!items)return; const target=index+direction; if(target<0||target>=items.length)return;
-  const current=items[index],other=items[target]; setError('');
+  const current=items[index],other=items[target]; if(!current||!other)return; setError('');
   try{await updateFaq(accessToken,current.id,{order_index:other.order_index});await updateFaq(accessToken,other.id,{order_index:current.order_index});await load()}
   catch{setError('تعذّر تغيير ترتيب الأسئلة')}
  }
