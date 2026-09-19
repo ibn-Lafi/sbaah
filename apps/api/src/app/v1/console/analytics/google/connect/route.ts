@@ -14,5 +14,5 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
     state_hash: hashOAuthState(state), user_id: user.id, expires_at: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
   });
   if (error) throw new Error(`Failed to create platform Google OAuth state: ${error.message}`);
-  return okResponse({ authorization_url: buildGoogleAuthorizationUrl(state, process.env.GOOGLE_ANALYTICS_PLATFORM_REDIRECT_URI) });
+  return okResponse({ authorization_url: buildGoogleAuthorizationUrl(state, process.env.GOOGLE_ANALYTICS_PLATFORM_REDIRECT_URI, process.env.GOOGLE_PLATFORM_CLIENT_ID) });
 });
