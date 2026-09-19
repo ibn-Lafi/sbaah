@@ -163,5 +163,11 @@ export const platformSettingsUpdateSchema = z.object({
   hero_subtitle_en: z.string().trim().optional().nullable(),
   footer_tagline_ar: z.string().trim().optional().nullable(),
   footer_tagline_en: z.string().trim().optional().nullable(),
+  faq_title_ar: z.string().trim().optional().nullable(),
+  faq_title_en: z.string().trim().optional().nullable(),
+  final_cta_title_ar: z.string().trim().optional().nullable(),
+  final_cta_title_en: z.string().trim().optional().nullable(),
+  final_cta_subtitle_ar: z.string().trim().optional().nullable(),
+  final_cta_subtitle_en: z.string().trim().optional().nullable(),
 });
 export type PlatformSettingsUpdateInput = z.infer<typeof platformSettingsUpdateSchema>;
