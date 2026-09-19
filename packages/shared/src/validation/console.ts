@@ -146,5 +146,13 @@ export const platformSettingsUpdateSchema = z.object({
     .optional()
     .nullable()
     .or(z.literal('').transform(() => null)),
+  privacy_title_ar: z.string().trim().min(2).optional(),
+  privacy_title_en: z.string().trim().min(2).optional(),
+  privacy_content_ar: z.string().optional(),
+  privacy_content_en: z.string().optional(),
+  terms_title_ar: z.string().trim().min(2).optional(),
+  terms_title_en: z.string().trim().min(2).optional(),
+  terms_content_ar: z.string().optional(),
+  terms_content_en: z.string().optional(),
 });
 export type PlatformSettingsUpdateInput = z.infer<typeof platformSettingsUpdateSchema>;
