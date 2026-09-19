@@ -111,8 +111,8 @@ export function MobileNav({ orgName, accountType }: MobileNavProps) {
 
   return (
     <div className="md:hidden">
-      <nav
-        className="border-border-subtle bg-surface-card fixed inset-x-3 z-40 flex h-[64px] items-center gap-1 rounded-full border p-1.5 shadow-[0_10px_30px_rgba(31,29,34,.14)]"
+      <div
+        className="fixed inset-x-3 z-40 flex items-center justify-between gap-2.5"
         style={{ bottom: 'calc(env(safe-area-inset-bottom) + 12px)' }}
       >
         <button
@@ -120,38 +120,40 @@ export function MobileNav({ orgName, accountType }: MobileNavProps) {
           onClick={() => setSheetOpen(true)}
           aria-label={t.mobileNav.morePages}
           title={t.mobileNav.morePages}
-          className="text-text-primary hover:bg-surface-subtle flex h-[50px] min-w-0 flex-1 items-center justify-center rounded-full transition-colors"
+          className="bg-brand flex h-[52px] w-[52px] flex-none items-center justify-center rounded-full text-white shadow-[0_8px_24px_rgba(104,69,138,.3)]"
         >
           <MenuIcon className="h-[20px] w-[20px]" />
         </button>
 
-        {pinnedItems.map(({ key, href, label, icon: ItemIcon, activeHrefs }) => {
-          const active = activeHrefs.includes(pathname);
-          return (
-            <Link
-              key={key}
-              href={href}
-              className={`flex h-[50px] min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-full px-1 text-[9px] leading-none transition-colors ${
-                active ? 'bg-surface-subtle text-text-primary font-semibold' : 'text-text-tertiary font-normal'
-              }`}
-            >
-              <ItemIcon className="h-[18px] w-[18px]" />
-              <span className="max-w-full truncate">{label}</span>
-            </Link>
-          );
-        })}
+        <nav className="border-border-subtle bg-surface-card flex h-[56px] min-w-0 flex-1 items-stretch rounded-full border p-1 shadow-[0_8px_24px_rgba(31,29,34,.12)]">
+          {pinnedItems.map(({ key, href, label, icon: ItemIcon, activeHrefs }) => {
+            const active = activeHrefs.includes(pathname);
+            return (
+              <Link
+                key={key}
+                href={href}
+                className={`flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-full px-2 text-[9px] leading-none transition-colors ${
+                  active ? 'bg-surface-subtle text-text-primary font-semibold' : 'text-text-tertiary font-normal'
+                }`}
+              >
+                <ItemIcon className="h-[18px] w-[18px]" />
+                <span className="max-w-full truncate">{label}</span>
+              </Link>
+            );
+          })}
+        </nav>
 
         <Link
           href="/settings"
           aria-label={t.settingsNavLabel}
           title={t.settingsNavLabel}
-          className={`flex h-[50px] min-w-0 flex-1 items-center justify-center rounded-full transition-colors ${
-            settingsActive ? 'bg-surface-subtle text-text-primary' : 'text-text-tertiary'
+          className={`border-border-subtle bg-surface-card flex h-[52px] w-[52px] flex-none items-center justify-center rounded-full border shadow-[0_8px_24px_rgba(31,29,34,.12)] transition-colors ${
+            settingsActive ? 'text-brand' : 'text-text-primary'
           }`}
         >
           <SettingsIcon className="h-[20px] w-[20px]" />
         </Link>
-      </nav>
+      </div>
 
       {/* Backdrop + partial-width slide-in drawer (founder's Zid reference: the sheet never covers the whole screen — a strip of the page stays visible, dimmed, behind it). Both stay mounted so the close transition actually plays instead of an instant unmount. */}
       <div
