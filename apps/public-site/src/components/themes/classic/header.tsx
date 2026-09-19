@@ -49,7 +49,7 @@ export function Header({ locale, dict, website, tenantName }: HeaderProps) {
         )}
         <div
           className={`mx-auto flex max-w-6xl items-center justify-between gap-4 rounded-2xl px-5 py-3 text-white transition-colors duration-300 ${
-            scrolled ? 'bg-tenant-primary shadow-lg' : 'bg-transparent'
+            scrolled ? 'bg-tenant-primary shadow-lg ring-1 ring-tenant-secondary/25' : 'bg-transparent'
           }`}
         >
           <Link href={locale === 'ar' ? '/' : '/en'} className="flex items-center gap-2 text-lg font-semibold">
