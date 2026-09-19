@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   HERO_VARIANTS,
   type AboutSectionConfig,
@@ -19,6 +19,9 @@ import { Select } from '@/components/ui/select';
 import { useLocale } from '@/lib/i18n/locale-context';
 import { updateSection, uploadBanner, uploadBannerVideo, updateWebsite } from '@/lib/api/website';
 import { AssetUploader } from './asset-uploader';
+import { listProperties } from '@/lib/api/properties';
+import { listCities } from '@/lib/api/reference-data';
+import type { City, Property } from '@sbaah/shared';
 
 interface SectionConfigEditorProps {
   section: WebsiteSection;
@@ -74,7 +77,18 @@ export function SectionConfigEditor({ section, accessToken, onSaved, website, on
   const isGallery = section.type === 'gallery';
   const [galleryUrls, setGalleryUrls] = useState<string[]>(() => Array.isArray(section.config.image_urls) ? section.config.image_urls as string[] : []);
   const hasLimit = ['latest_properties','projects_showcase'].includes(section.type);
+  const isFeaturedProperties = section.type === 'featured_properties';
+  const isPropertiesByCity = section.type === 'properties_by_city';
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [cities, setCities] = useState<City[]>([]);
+  const [selectedPropertyIds, setSelectedPropertyIds] = useState<string[]>(() => Array.isArray(section.config.property_ids) ? section.config.property_ids as string[] : []);
+  const [selectedCityIds, setSelectedCityIds] = useState<string[]>(() => Array.isArray(section.config.city_ids) ? section.config.city_ids as string[] : []);
   const [limit, setLimit] = useState(String(section.config.limit ?? 6));
+
+  useEffect(() => {
+    if (isFeaturedProperties) void listProperties(accessToken, { status: 'published' }).then((r) => setProperties(r.properties));
+    if (isPropertiesByCity) void listCities().then(setCities);
+  }, [accessToken, isFeaturedProperties, isPropertiesByCity]);
 
   async function handleSave() {
     setLoading(true);
@@ -88,6 +102,8 @@ export function SectionConfigEditor({ section, accessToken, onSaved, website, on
       if (hasVideoUrl && mediaUrl) nextConfig.video_url = mediaUrl;
       if (isGallery) nextConfig.image_urls = galleryUrls.filter(Boolean);
       if (hasLimit) nextConfig.limit = Math.max(1, Math.min(12, Number(limit) || 6));
+      if (isFeaturedProperties) nextConfig.property_ids = selectedPropertyIds;
+      if (isPropertiesByCity) nextConfig.city_ids = selectedCityIds;
       if (isHero && subtitleAr) nextConfig.subtitle_ar = subtitleAr;
       if (hasBody && bodyAr) nextConfig.body_ar = bodyAr;
       if (isHero) nextConfig.variant = variant;
@@ -134,6 +150,9 @@ export function SectionConfigEditor({ section, accessToken, onSaved, website, on
       )}
       {hasButton && <><Input placeholder="نص الزر" value={buttonLabel} onChange={(e) => setButtonLabel(e.target.value)} /><Input placeholder="رابط الزر" value={buttonUrl} onChange={(e) => setButtonUrl(e.target.value)} /></>}
       {hasLimit && <Input type="number" min="1" max="12" placeholder="عدد العناصر" value={limit} onChange={(e) => setLimit(e.target.value)} />}
+      {isFeaturedProperties && <div className="flex flex-col gap-2"><label className="text-text-secondary text-xs">اختر العقارات المميزة</label><div className="max-h-56 overflow-auto rounded-input border border-border-default bg-surface-card p-2">{properties.map((property)=><label key={property.id} className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-sm hover:bg-surface-subtle"><input type="checkbox" checked={selectedPropertyIds.includes(property.id)} onChange={(e)=>setSelectedPropertyIds(v=>e.target.checked?[...v,property.id]:v.filter(id=>id!==property.id))}/><span>{property.title_ar}</span></label>)}</div></div>}
+      {isPropertiesByCity && <div className="flex flex-col gap-2"><label className="text-text-secondary text-xs">اختر المدن</label><div className="max-h-56 overflow-auto rounded-input border border-border-default bg-surface-card p-2">{cities.map((city)=><label key={city.id} className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-sm hover:bg-surface-subtle"><input type="checkbox" checked={selectedCityIds.includes(city.id)} onChange={(e)=>setSelectedCityIds(v=>e.target.checked?[...v,city.id]:v.filter(id=>id!==city.id))}/><span>{city.name_ar}</span></label>)}</div></div>}
+
       {isGallery && <div className="flex flex-col gap-2">{galleryUrls.map((url,index)=><div key={index} className="flex gap-2"><Input placeholder="رابط الصورة" value={url} onChange={(e)=>setGalleryUrls(v=>v.map((x,i)=>i===index?e.target.value:x))}/><Button type="button" variant="secondary" onClick={()=>setGalleryUrls(v=>v.filter((_,i)=>i!==index))}>حذف</Button></div>)}<Button type="button" variant="secondary" className="w-fit" onClick={()=>setGalleryUrls(v=>[...v,''])}>+ إضافة صورة</Button></div>}
       {(hasImageUrl || hasVideoUrl) && <Input placeholder={hasVideoUrl ? 'رابط الفيديو' : 'رابط الصورة'} value={mediaUrl} onChange={(e) => setMediaUrl(e.target.value)} />}
 
