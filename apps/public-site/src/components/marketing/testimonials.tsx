@@ -4,7 +4,7 @@ type Kind = 'person' | 'company';
 
 const testimonials = {
   ar: [
-    { kind:'company' as Kind, category:'developer', name:'روّاد العقارية', person:'م. عبدالله الشهراني', role:'الرئيس التنفيذي', logo:'/brands/ruwad-real-estate.png', quote:'منذ اعتمادنا على سبعة، أصبح عرض مشاريعنا وتنظيم العملاء في مكان واحد أسهل بكثير، ووفّر علينا وقتًا في المتابعة اليومية.' },
+    { kind:'company' as Kind, category:'developer', name:'روّاد العقارية', person:'م. عبدالله الشهراني', role:'الرئيس التنفيذي', logo:'/brands/ruwad-real-estate.svg', quote:'منذ اعتمادنا على سبعة، أصبح عرض مشاريعنا وتنظيم العملاء في مكان واحد أسهل بكثير، ووفّر علينا وقتًا في المتابعة اليومية.' },
     { kind:'person' as Kind, category:'marketer', name:'سالم القحطاني', person:'', role:'مسوق عقاري مستقل', quote:'سبعة غيّرت طريقة عملي؛ صار عندي موقع عقاري مرتب وإدارة للعملاء من نفس اللوحة، وهذا سهّل عليّ متابعة الفرص بشكل واضح.' },
     { kind:'company' as Kind, category:'marketer', name:'ديار نجد', person:'أ. فهد المطيري', role:'مدير التسويق', quote:'جمع الموقع العقاري وإدارة العملاء في منصة واحدة أعطانا تجربة أكثر تنظيمًا وسهّل على الفريق متابعة الاستفسارات.' },
     { kind:'person' as Kind, category:'broker', name:'نواف العتيبي', person:'', role:'وسيط عقاري', quote:'أكثر شيء فرق معي هو ترتيب العقارات وطلبات العملاء. بدل التشتت بين أكثر من أداة أصبحت المتابعة أوضح وأسرع.' },
@@ -12,7 +12,7 @@ const testimonials = {
     { kind:'person' as Kind, category:'developer', name:'عبدالعزيز المالكي', person:'', role:'مطور عقاري مستقل', quote:'ساعدتني سبعة في تقديم مشاريعي بصورة احترافية وتنظيم بيانات العملاء والطلبات بدون الحاجة لاستخدام أنظمة متعددة.' },
   ],
   en: [
-    { kind:'company' as Kind, category:'developer', name:'Ruwad Real Estate', person:'Abdullah Alshahrani', role:'CEO', logo:'/brands/ruwad-real-estate.png', quote:'Sbaah brought our project showcase and client follow-up into one place, making daily operations much easier to organize.' },
+    { kind:'company' as Kind, category:'developer', name:'Ruwad Real Estate', person:'Abdullah Alshahrani', role:'CEO', logo:'/brands/ruwad-real-estate.svg', quote:'Sbaah brought our project showcase and client follow-up into one place, making daily operations much easier to organize.' },
     { kind:'person' as Kind, category:'marketer', name:'Salem Alqahtani', person:'', role:'Independent real-estate marketer', quote:'Sbaah changed how I work. My property website and client management now live in one clear workspace.' },
     { kind:'company' as Kind, category:'marketer', name:'Diyar Najd', person:'Fahad Almutairi', role:'Marketing Director', quote:'Combining our real-estate website and client management gave the team a more organized way to handle inquiries.' },
     { kind:'person' as Kind, category:'broker', name:'Nawaf Alotaibi', person:'', role:'Real-estate broker', quote:'Organizing properties and client requests in one place made my follow-up clearer and faster.' },
