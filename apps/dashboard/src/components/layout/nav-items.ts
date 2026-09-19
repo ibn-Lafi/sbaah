@@ -6,8 +6,8 @@
  * use that pattern: "العقارات" (الوحدات /properties، العمارات /buildings،
  * المشاريع /projects، الإيجارات /rentals — each its own real page/route,
  * not a query-param tab inside one page) and "الموقع الالكتروني" (تخصيص
- * الثيم /website/editor، متجر الثيمات /website، الصفحات /website/pages، الدومين
- * /domain).
+ * متجر الثيمات /website، الصفحات /website/pages، والدومين /domain. تخصيص الثيم
+ * يُفتح من زر تخصيص الثيم داخل بطاقة الثيم المختار في متجر الثيمات).
  *
  * "الإعدادات"/"الفوترة والاشتراك"/"إدارة الموظفين" are NOT in this list —
  * the founder's later revision moves them into the account switcher
@@ -30,7 +30,6 @@ import {
   ProjectsIcon,
   PropertiesIcon,
   RentalsIcon,
-  ThemeCustomizeIcon,
   ThemeStoreIcon,
   WebsiteIcon,
   SupportIcon,
@@ -86,7 +85,6 @@ export function getNavItems(t: ChromeDictionary): NavEntry[] {
       icon: WebsiteIcon,
       roles: ['owner', 'admin'],
       children: [
-        { href: '/website/editor', label: t.nav.website.themeEditor, icon: ThemeCustomizeIcon },
         { href: '/website', label: t.nav.website.themeStore, icon: ThemeStoreIcon },
         { href: '/website/pages', label: t.nav.website.pages, icon: PagesIcon },
         { href: '/domain', label: t.nav.website.domain, icon: DomainIcon },
