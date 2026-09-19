@@ -29,7 +29,7 @@ export function BusinessSuite({ locale }: { locale: Locale }) {
     <section className="relative overflow-hidden bg-surface-card pb-12 pt-14 sm:pb-16 sm:pt-20">
       <div className="relative z-20 mx-auto max-w-6xl px-5 text-center sm:px-6">
         <p className="text-brand text-sm font-semibold">{ar ? 'منصة واحدة لأعمالك العقارية' : 'One platform for your real-estate business'}</p>
-        <h2 className="font-display mx-auto mt-3 max-w-3xl text-3xl font-semibold leading-tight text-text-primary sm:text-4xl lg:text-5xl">
+        <h2 className="font-display mx-auto mt-3 max-w-3xl text-2xl font-semibold leading-tight text-text-primary sm:text-4xl lg:text-5xl">
           {ar ? 'كل أعمالك العقارية في مكان واحد' : 'Your real-estate business, all in one place'}
         </h2>
         <p className="mx-auto mt-4 max-w-xl text-base text-text-secondary sm:text-lg">
