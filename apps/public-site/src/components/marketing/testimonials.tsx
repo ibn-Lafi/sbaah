@@ -1,10 +1,6 @@
-'use client';
-
-import { useState } from 'react';
 import type { Locale } from '@/lib/i18n/locales';
 
 type Kind = 'person' | 'company';
-type Category = 'all' | 'marketer' | 'broker' | 'developer' | 'individual' | 'company';
 
 const testimonials = {
   ar: [
@@ -32,12 +28,6 @@ function Mark({kind,name}:{kind:Kind;name:string}) {
 
 export function Testimonials({locale}:{locale:Locale}) {
   const ar=locale==='ar';
-  const [filter,setFilter]=useState<Category>('all');
-  const filters: {key:Category; ar:string; en:string}[]=[
-    {key:'all',ar:'الكل',en:'All'},{key:'marketer',ar:'المسوقين',en:'Marketers'},{key:'broker',ar:'الوسطاء',en:'Brokers'},
-    {key:'developer',ar:'المطورين',en:'Developers'},{key:'individual',ar:'الأفراد',en:'Individuals'},{key:'company',ar:'الشركات',en:'Companies'}
-  ];
-  const visible=testimonials[locale].filter(x=>filter==='all'||(filter==='individual'?x.kind==='person':filter==='company'?x.kind==='company':x.category===filter));
   return <section className="relative overflow-hidden bg-gradient-to-b from-surface-card via-brand/[.035] to-surface-card px-5 py-16 sm:px-6 sm:py-24">
     <div className="relative z-10 mx-auto max-w-6xl">
       <div className="mx-auto max-w-3xl text-center">
@@ -45,11 +35,8 @@ export function Testimonials({locale}:{locale:Locale}) {
         <h2 className="font-display mt-4 text-3xl font-semibold text-text-primary sm:text-4xl lg:text-5xl">{ar?'قصص نجاح من عملاء سبعة':'Stories from Sbaah customers'}</h2>
         <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-text-secondary sm:text-base">{ar?'تجارب من أفراد وشركات يعملون في التسويق والوساطة والتطوير العقاري.':'Experiences from individuals and companies across real-estate marketing, brokerage and development.'}</p>
       </div>
-      <div className="mt-7 flex flex-wrap justify-center gap-2">
-        {filters.map(x=><button key={x.key} onClick={()=>setFilter(x.key)} className={`rounded-full px-5 py-2 text-xs font-medium transition sm:text-sm ${filter===x.key?'bg-text-primary text-surface-card':'bg-surface-muted text-text-secondary hover:text-text-primary'}`}>{ar?x.ar:x.en}</button>)}
-      </div>
       <div className="-mx-5 mt-8 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-4 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-3">
-        {visible.map((x)=><article key={x.name} className="flex min-h-[245px] w-[calc(50%-6px)] min-w-[calc(50%-6px)] snap-start flex-col rounded-2xl border border-border-subtle bg-surface-card/95 p-4 shadow-sm backdrop-blur sm:min-h-[285px] sm:w-auto sm:min-w-0 sm:rounded-3xl sm:p-6">
+        {testimonials[locale].map((x)=><article key={x.name} className="flex min-h-[245px] w-[calc(50%-6px)] min-w-[calc(50%-6px)] snap-start flex-col rounded-2xl border border-border-subtle bg-surface-card/95 p-4 shadow-sm backdrop-blur sm:min-h-[285px] sm:w-auto sm:min-w-0 sm:rounded-3xl sm:p-6">
           <div className="flex items-center gap-2 sm:gap-3"><Mark kind={x.kind} name={x.name}/><div className="min-w-0"><h3 className="font-display text-sm font-semibold leading-5 text-text-primary sm:text-lg">{x.name}</h3><p className="mt-0.5 text-[10px] leading-4 text-text-secondary sm:text-xs">{x.role}</p></div><span className="text-brand/20 ms-auto hidden self-start text-5xl leading-none sm:block">”</span></div>
           <p className="mt-4 flex-1 text-[11px] leading-5 text-text-secondary sm:mt-5 sm:text-sm sm:leading-7">{x.quote}</p>
           <div className="mt-4 border-t border-border-subtle pt-3 sm:mt-5 sm:pt-4">
