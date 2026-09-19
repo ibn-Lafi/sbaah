@@ -1,19 +1,24 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import type { PlatformSettings } from '@sbaah/shared';
 import type { Locale } from '@/lib/i18n/locales';
 import { MARKETING_CONTENT } from '@/lib/marketing/content';
 import { Reveal } from './reveal';
 import { ChevronDownIcon } from './icons';
+import { apiGet } from '@/lib/api/client';
 
 export function Faq({ locale }: { locale: Locale }) {
   const t = MARKETING_CONTENT[locale].faq;
+  const [settings,setSettings]=useState<PlatformSettings|null>(null);
+  useEffect(()=>{void apiGet<PlatformSettings>('/public/platform-settings').then(setSettings).catch(()=>undefined);},[]);
+  const title=(locale==='ar'?settings?.faq_title_ar:settings?.faq_title_en)?.trim() || t.title;
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
     <section id="faq" className="bg-surface-card px-6 py-16 sm:py-24">
       <Reveal className="mx-auto max-w-2xl text-center">
-        <h2 className="font-display text-2xl font-semibold text-text-primary sm:text-4xl">{t.title}</h2>
+        <h2 className="font-display text-2xl font-semibold text-text-primary sm:text-4xl">{title}</h2>
       </Reveal>
 
       <Reveal delayMs={150} className="mx-auto mt-10 flex max-w-2xl flex-col gap-3">
