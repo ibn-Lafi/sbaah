@@ -34,7 +34,11 @@ export function Hero({ locale }: { locale: Locale }) {
 
   return (
     <section className="relative -mt-20 flex min-h-[760px] flex-col items-center justify-center overflow-hidden bg-surface-card px-6 pb-52 pt-40 text-center sm:min-h-[800px] sm:pb-56 md:min-h-[860px]">
-      <HeroVideo src="/marketing/hero-motion.mp4" className="absolute inset-x-0 top-0 z-0 h-[82%] w-full object-cover sm:h-[83%]" />
+      <HeroVideo
+        src="https://raw.githubusercontent.com/ibn-Lafi/sbaah/claude/real-estate-saas-platform-sp7ua9/Create_real_estate_video_sequence_20260919214615.mp4"
+        className="absolute inset-x-0 top-0 z-0 h-[82%] w-full object-cover object-center sm:h-[83%]"
+        style={{ objectPosition: '50% 50%' }}
+      />
       <div className="pointer-events-none absolute inset-x-0 top-0 z-[1] h-[62%] bg-gradient-to-b from-black/60 via-black/30 to-transparent" />
 
       {/* White page background starts solid at the video's lower edge and dissolves upward. */}
