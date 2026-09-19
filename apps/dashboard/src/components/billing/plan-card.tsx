@@ -34,15 +34,15 @@ export function PlanCard({ plan, monthlyEquivalent, isCurrent, selected=false, o
   const normalizedName=(plan.name_en||plan.name_ar).toLowerCase();
   const tone: 'platinum'|'gold'=normalizedName.includes('plat')||normalizedName.includes('بلات')?'platinum':'gold';
 
-  return <article className={`relative min-h-[430px] w-full overflow-hidden rounded-[30px] border text-white transition-all ${isCurrent||selected?'border-white/70 ring-2 ring-brand ring-offset-2 ring-offset-surface-page':'border-white/15'}`}>
+  return <article className={`relative min-h-[390px] w-full overflow-hidden rounded-[26px] sm:min-h-[430px] sm:rounded-[30px] border text-white transition-all ${isCurrent||selected?'border-white/70 ring-2 ring-brand ring-offset-2 ring-offset-surface-page':'border-white/15'}`}>
     <MetallicBackdrop tone={tone}/>
-    <div className="relative z-10 flex min-h-[430px] flex-col p-7 sm:p-8">
+    <div className="relative z-10 flex min-h-[390px] flex-col p-5 sm:min-h-[430px] sm:p-8">
       <div className="flex min-h-[28px] items-start justify-between gap-4">
-        <div><div className="flex items-center gap-2"><h3 className="text-xl font-bold">{locale==='en'?plan.name_en:plan.name_ar}</h3><svg viewBox="0 0 24 24" className="h-5 w-5 text-white/65" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 16l5-5 4 4 7-8"/><path d="M15 7h5v5"/></svg></div>{savingsMonths>0&&<span className="mt-2 inline-flex rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-white/75 backdrop-blur">{t.savingsLabel(savingsMonths)}</span>}{isCurrent&&<span className="mt-2 inline-flex rounded-full bg-white/15 px-2.5 py-1 text-[11px] font-semibold text-white">{t.currentPlanBadge}</span>}</div>
-        <div className="text-end">{hasIntroPrice?<><div className="text-sm text-white/55 line-through" dir="ltr">{plan.price.toLocaleString('en-US')}</div><div className="text-4xl font-bold tracking-tight" dir="ltr">{plan.intro_price!.toLocaleString('en-US')}</div><div className="mt-1 text-xs text-white/65">{t.currency} {t.introPriceNote(cycleLabel,t.introMonthsLabel(plan.intro_months!),plan.price.toLocaleString('en-US'))}</div></>:<><div className="text-4xl font-bold tracking-tight" dir="ltr">{plan.price.toLocaleString('en-US')}</div><div className="mt-1 text-xs text-white/65">{t.currency} {t.regularPriceNote(cycleLabel)}</div></>}</div>
+        <div><div className="flex items-center gap-2"><h3 className="text-lg font-bold sm:text-xl">{locale==='en'?plan.name_en:plan.name_ar}</h3><svg viewBox="0 0 24 24" className="h-5 w-5 text-white/65" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 16l5-5 4 4 7-8"/><path d="M15 7h5v5"/></svg></div>{savingsMonths>0&&<span className="mt-2 inline-flex rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-white/75 backdrop-blur">{t.savingsLabel(savingsMonths)}</span>}{isCurrent&&<span className="mt-2 inline-flex rounded-full bg-white/15 px-2.5 py-1 text-[11px] font-semibold text-white">{t.currentPlanBadge}</span>}</div>
+        <div className="text-end">{hasIntroPrice?<><div className="text-sm text-white/55 line-through" dir="ltr">{plan.price.toLocaleString('en-US')}</div><div className="text-3xl font-bold tracking-tight sm:text-4xl" dir="ltr">{plan.intro_price!.toLocaleString('en-US')}</div><div className="mt-1 text-xs text-white/65">{t.currency} {t.introPriceNote(cycleLabel,t.introMonthsLabel(plan.intro_months!),plan.price.toLocaleString('en-US'))}</div></>:<><div className="text-4xl font-bold tracking-tight" dir="ltr">{plan.price.toLocaleString('en-US')}</div><div className="mt-1 text-xs text-white/65">{t.currency} {t.regularPriceNote(cycleLabel)}</div></>}</div>
       </div>
-      <div className="my-7 h-px bg-white/65"/>
-      <ul className="flex flex-1 flex-col gap-4 text-sm text-white/90">
+      <div className="my-5 h-px bg-white/65 sm:my-7"/>
+      <ul className="flex flex-1 flex-col gap-3 text-[13px] text-white/90 sm:gap-4 sm:text-sm">
         {currentUsage ? <>
           <li className="flex items-center justify-between gap-3"><span>{pages.billing.currentPlan.propertiesUsage}</span><strong>{plan.max_properties!=null?`${currentUsage.properties} / ${plan.max_properties}`:pages.billing.unlimited}</strong></li>
           <li className="flex items-center justify-between gap-3"><span>{pages.billing.currentPlan.usersUsage}</span><strong dir="ltr">{plan.max_users!=null?`${currentUsage.users} / ${plan.max_users}`:pages.billing.unlimited}</strong></li>
@@ -53,7 +53,7 @@ export function PlanCard({ plan, monthlyEquivalent, isCurrent, selected=false, o
         </>}
       </ul>
       <p className="mt-5 text-[11px] text-white/55">{t.vatNote}</p>
-      <button type="button" disabled={isCurrent||selectDisabled} onClick={onSelect} className="mt-5 flex h-12 w-full items-center justify-center rounded-2xl border border-white/35 bg-white/10 text-sm font-semibold text-white backdrop-blur-md transition-all hover:bg-white hover:text-neutral-950 disabled:cursor-not-allowed disabled:opacity-60">
+      <button type="button" disabled={isCurrent||selectDisabled} onClick={onSelect} className="mt-4 flex h-11 w-full sm:mt-5 sm:h-12 items-center justify-center rounded-2xl border border-white/35 bg-white/10 text-sm font-semibold text-white backdrop-blur-md transition-all hover:bg-white hover:text-neutral-950 disabled:cursor-not-allowed disabled:opacity-60">
         {selecting?t.selectButton:actionLabel??(isCurrent?t.currentPlanBadge:t.selectButton)}
       </button>
     </div>
