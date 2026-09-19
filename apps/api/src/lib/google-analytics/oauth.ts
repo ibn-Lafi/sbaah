@@ -97,7 +97,7 @@ export async function resolveAnalyticsProperty(accessToken: string, measurementI
   const properties = (summaries.accountSummaries ?? []).flatMap((account) => account.propertySummaries ?? []);
   for (const summary of properties) {
     const propertyName = summary.property;
-    if (!propertyName) continue;
+    if (!propertyName || !/^properties\/\d+$/.test(propertyName)) continue;
     const streams = await googleGet<{ dataStreams?: Array<{ name: string; type: string; webStreamData?: { measurementId?: string } }> }>(
       `https://analyticsadmin.googleapis.com/v1beta/${propertyName}/dataStreams?pageSize=200`,
       accessToken,
