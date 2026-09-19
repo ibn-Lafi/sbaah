@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import { notFound, permanentRedirect } from 'next/navigation';
 import { headers } from 'next/headers';
 import { IBM_Plex_Sans_Arabic } from 'next/font/google';
@@ -162,6 +163,17 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
       }
     >
       <body className={font.className}>
+        {site.google_analytics_measurement_id && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${site.google_analytics_measurement_id}`}
+              strategy="afterInteractive"
+            />
+            <Script id="sbaah-google-analytics" strategy="afterInteractive">
+              {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${site.google_analytics_measurement_id}');`}
+            </Script>
+          </>
+        )}
         <Header locale={locale} dict={dict} website={site.website} tenantName={tenantName} otherLocaleHref={otherLocaleHref} />
 
         <main>{children}</main>
