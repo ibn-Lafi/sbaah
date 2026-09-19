@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { ApiRequestError } from '@/lib/api/client';
-import { saveGoogleAnalyticsMeasurementId } from '@/lib/api/google-analytics';
+import { connectGoogleAnalytics, saveGoogleAnalyticsMeasurementId } from '@/lib/api/google-analytics';
 
 function PlusIcon({ className }: { className?: string }) {
   return (
@@ -38,7 +38,8 @@ export function GoogleAnalyticsInstallButton({
     setSaving(true);
     try {
       await saveGoogleAnalyticsMeasurementId(accessToken, normalized);
-      setOpen(false);
+      const { authorization_url } = await connectGoogleAnalytics(accessToken);
+      window.location.assign(authorization_url);
     } catch (err) {
       setError(err instanceof ApiRequestError ? err.message : ar ? 'تعذر حفظ الإعداد' : 'Could not save the setting');
     } finally {
@@ -83,7 +84,7 @@ export function GoogleAnalyticsInstallButton({
               </div>
               {error && <p className="text-sm text-red-600">{error}</p>}
               <button type="submit" disabled={saving} className="bg-brand text-white h-11 rounded-full px-5 text-sm font-semibold disabled:opacity-60">
-                {saving ? (ar ? 'جارٍ الحفظ...' : 'Saving...') : (ar ? 'حفظ وتثبيت' : 'Save & install')}
+                {saving ? (ar ? 'جارٍ الربط...' : 'Connecting...') : (ar ? 'حفظ وربط Google' : 'Save & connect Google')}
               </button>
             </form>
           </div>
