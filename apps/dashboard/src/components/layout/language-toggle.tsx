@@ -52,7 +52,7 @@ export function LanguageToggle({
       title={title}
       className={`flex flex-none items-center justify-center rounded-full text-[13px] font-semibold ${variantClasses} ${className}`}
     >
-      {iconOnly ? <GlobeIcon className="h-[19px] w-[19px]" /> : nextLabel}
+      {iconOnly ? <GlobeIcon className="h-[19px] w-[19px]" /> : <><span className="md:hidden">{nextLabel}</span><GlobeIcon className="hidden h-[19px] w-[19px] md:block" /></>}
     </button>
   );
 }
