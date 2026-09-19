@@ -23,7 +23,7 @@ const testimonials = {
 };
 
 function Arrow({direction}:{direction:'left'|'right'}) {
-  return <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="2.6" className="h-7 w-7" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d={direction==='left'?'M27 16H6m8-8-8 8 8 8':'M5 16h21m-8-8 8 8-8 8'}/></svg>;
+  return <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="2.6" className="h-5 w-5 sm:h-7 sm:w-7" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d={direction==='left'?'M27 16H6m8-8-8 8 8 8':'M5 16h21m-8-8 8 8-8 8'}/></svg>;
 }
 
 export function Testimonials({locale}:{locale:Locale}) {
@@ -49,7 +49,7 @@ export function Testimonials({locale}:{locale:Locale}) {
       </div>
 
       <div ref={scroller} className="mt-8 flex snap-x snap-mandatory gap-0 overflow-x-hidden scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mt-9">
-        {items.map((x,i)=><article data-testimonial-card key={`${x.person}-${i}`} className="mx-auto flex h-[360px] w-full min-w-full snap-center flex-col rounded-[20px] border border-border-subtle bg-surface-card px-[20px] pb-[24px] pt-[24px] sm:h-auto sm:w-full sm:min-w-full sm:rounded-[28px] sm:border-border-subtle sm:p-7 lg:min-w-[calc(50%-10px)]">
+        {items.map((x,i)=><article data-testimonial-card key={`${x.person}-${i}`} className="mx-auto flex h-[360px] w-full min-w-full snap-center flex-col rounded-[20px] border border-border-subtle bg-surface-card px-[14px] pb-[16px] pt-[16px] sm:h-auto sm:w-full sm:min-w-full sm:rounded-[28px] sm:border-border-subtle sm:p-7 lg:min-w-[calc(50%-10px)]">
 
           <blockquote className="font-display mx-auto mt-3 max-w-3xl px-2 text-center text-[17px] font-medium leading-[1.65] text-text-primary sm:mt-8 sm:px-0 sm:text-2xl">
             “{x.quote}”
@@ -66,9 +66,9 @@ export function Testimonials({locale}:{locale:Locale}) {
         </article>)}
       </div>
 
-      <div className="mx-auto mt-10 flex w-fit items-center gap-[2px] rounded-[999px] bg-brand/10 p-[6px] sm:mt-8">
-        <button type="button" disabled={active===0} onClick={()=>move(-1)} aria-label={ar?'السابق':'Previous testimonial'} className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-card text-brand transition hover:bg-brand/5 disabled:cursor-default disabled:opacity-30 sm:h-14 sm:w-14"><Arrow direction="left"/></button>
-        <button type="button" disabled={active===items.length-1} onClick={()=>move(1)} aria-label={ar?'التالي':'Next testimonial'} className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-card text-brand transition hover:bg-brand/5 disabled:cursor-default disabled:opacity-30 sm:h-14 sm:w-14"><Arrow direction="right"/></button>
+      <div className="mx-auto mt-8 flex w-fit items-center gap-[2px] rounded-[999px] bg-brand/10 p-[5px] sm:mt-8">
+        <button type="button" disabled={active===0} onClick={()=>move(-1)} aria-label={ar?'السابق':'Previous testimonial'} className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-card text-brand transition hover:bg-brand/5 disabled:cursor-default disabled:opacity-30 sm:h-14 sm:w-14"><Arrow direction="left"/></button>
+        <button type="button" disabled={active===items.length-1} onClick={()=>move(1)} aria-label={ar?'التالي':'Next testimonial'} className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-card text-brand transition hover:bg-brand/5 disabled:cursor-default disabled:opacity-30 sm:h-14 sm:w-14"><Arrow direction="right"/></button>
       </div>
     </div>
   </section>;
