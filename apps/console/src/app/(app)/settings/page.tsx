@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState, type FormEvent } from 'react';
+import { Suspense, useEffect, useState, type FormEvent } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { platformSettingsUpdateSchema, type PlatformSettings } from '@sbaah/shared';
 import { ConsoleShell } from '@/components/layout/console-shell';
 import { Card } from '@/components/ui/card';
@@ -36,8 +37,16 @@ const toDraft = (s: PlatformSettings): Draft => ({
 });
 
 /** إعدادات المنصة — روابط حسابات سبعة نفسها (تيك توك/إنستغرام/إكس/البريد)، تظهر بدل شريط "عقار←موقع←زائر←Lead←متابعة" في لوحة تسجيل الدخول/إنشاء حساب. */
-export default function PlatformSettingsPage() {
-  const { accessToken } = useCurrentAdmin();
+type SettingsSection = 'account' | 'team' | 'contact' | 'landing' | 'legal';
+const SETTINGS_SECTIONS: { key: SettingsSection; label: string }[] = [
+  { key: 'account', label: 'بيانات الحساب' }, { key: 'team', label: 'الفريق والصلاحيات' }, { key: 'contact', label: 'التواصل' }, { key: 'landing', label: 'صفحة الهبوط' }, { key: 'legal', label: 'الصفحات القانونية' },
+];
+
+function PlatformSettingsContent() {
+  const { accessToken, admin } = useCurrentAdmin();
+  const searchParams = useSearchParams();
+  const requested = searchParams.get('section');
+  const section: SettingsSection = SETTINGS_SECTIONS.some((item) => item.key === requested) ? requested as SettingsSection : 'account';
   const [draft, setDraft] = useState<Draft | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -70,12 +79,16 @@ export default function PlatformSettingsPage() {
   }
 
   return (
-    <ConsoleShell title="إعدادات المنصة">
-      <Card className="w-full max-w-[900px] p-4 sm:p-6">
-        <h2 className="mb-1 text-base font-semibold">حسابات سبعة على التواصل الاجتماعي</h2>
-        <p className="mb-4 text-sm text-text-secondary">
-          تظهر هذه الروابط كأيقونات في لوحة تسجيل الدخول وإنشاء حساب جديد — حسابات المنصة نفسها، وليست حسابات المستأجرين.
-        </p>
+    <ConsoleShell title="الإعدادات">
+      <div className="mb-5 overflow-x-auto border-b border-border-subtle"><div className="flex min-w-max gap-1">{SETTINGS_SECTIONS.map((item) => <a key={item.key} href={`/settings?section=${item.key}`} className={`relative whitespace-nowrap px-4 py-3 text-sm font-medium transition-colors ${section===item.key?'text-brand':'text-text-secondary hover:text-text-primary'}`}>{item.label}{section===item.key&&<span className="absolute inset-x-3 bottom-0 h-0.5 rounded-full bg-brand"/>}</a>)}</div></div>
+
+      {section==='account' && <Card className="w-full max-w-[900px] p-4 sm:p-6"><h2 className="text-base font-semibold text-text-primary">بيانات الحساب</h2><p className="mt-1 text-sm text-text-secondary">معلومات حساب إدارة منصة سبعة.</p><div className="mt-5 grid gap-4 sm:grid-cols-2"><div><p className="text-xs text-text-secondary">الاسم</p><p className="mt-1 text-sm font-medium text-text-primary">{admin.full_name}</p></div><div><p className="text-xs text-text-secondary">رقم الجوال</p><p dir="ltr" className="mt-1 text-sm font-medium text-text-primary">{admin.phone}</p></div></div></Card>}
+
+      {section==='team' && <Card className="w-full max-w-[900px] p-4 sm:p-6"><h2 className="text-base font-semibold text-text-primary">الفريق والصلاحيات</h2><p className="mt-1 text-sm text-text-secondary">إدارة أعضاء فريق المنصة ومستويات الوصول من مكان واحد.</p><div className="mt-5 rounded-xl border border-dashed border-border-default p-5 text-sm text-text-secondary">إدارة أعضاء فريق المنصة ستظهر هنا عند تفعيل نظام الأدوار والصلاحيات.</div></Card>}
+
+      {section==='contact' && <Card className="w-full max-w-[900px] p-4 sm:p-6">
+        <h2 className="mb-1 text-base font-semibold">قنوات التواصل</h2>
+        <p className="mb-4 text-sm text-text-secondary">حدّث البريد وروابط حسابات سبعة الرسمية المستخدمة في واجهات المنصة.</p>
 
         {draft === null ? (
           <LoadingState />
@@ -123,10 +136,10 @@ export default function PlatformSettingsPage() {
             </Button>
           </form>
         )}
-      </Card>
+      </Card>}
 
-      <Card className="mt-4 w-full max-w-[900px] p-4 sm:mt-6 sm:p-6">
-        <h2 className="mb-1 text-base font-semibold">محتوى صفحة الهبوط</h2>
+      {section==='landing' && <Card className="w-full max-w-[900px] p-4 sm:p-6">
+        <h2 className="mb-1 text-base font-semibold">صفحة الهبوط</h2>
         <p className="mb-5 text-sm text-text-secondary">عدّل النصوص الأساسية للواجهة العامة. الحقول الفارغة تستخدم النص الافتراضي الموجود في الموقع.</p>
         {draft && <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="grid gap-3 sm:grid-cols-2"><Input value={draft.hero_eyebrow_ar} onChange={e=>setDraft({...draft,hero_eyebrow_ar:e.target.value})} placeholder="النص العلوي بالعربية"/><Input dir="ltr" value={draft.hero_eyebrow_en} onChange={e=>setDraft({...draft,hero_eyebrow_en:e.target.value})} placeholder="Hero eyebrow"/></div>
@@ -138,9 +151,9 @@ export default function PlatformSettingsPage() {
           <div className="grid gap-3 sm:grid-cols-2"><Input value={draft.footer_tagline_ar} onChange={e=>setDraft({...draft,footer_tagline_ar:e.target.value})} placeholder="وصف الفوتر بالعربية"/><Input dir="ltr" value={draft.footer_tagline_en} onChange={e=>setDraft({...draft,footer_tagline_en:e.target.value})} placeholder="Footer tagline"/></div>
           <FormError message={error}/><Button type="submit" disabled={loading} className="w-full sm:w-fit">{loading?'جارٍ الحفظ...':saved?'تم الحفظ ✓':'حفظ محتوى الصفحة'}</Button>
         </form>}
-      </Card>
+      </Card>}
 
-      <Card className="mt-4 w-full max-w-[900px] p-4 sm:mt-6 sm:p-6">
+      {section==='legal' && <Card className="w-full max-w-[900px] p-4 sm:p-6">
         <h2 className="mb-1 text-base font-semibold">الصفحات القانونية</h2>
         <p className="mb-5 text-sm text-text-secondary">تحكم بمحتوى سياسة الخصوصية والشروط والأحكام الظاهر في صفحة سبعة.</p>
         {draft && <form onSubmit={handleSubmit} className="flex flex-col gap-6">
@@ -158,7 +171,9 @@ export default function PlatformSettingsPage() {
           </section>
           <FormError message={error}/><Button type="submit" disabled={loading} className="w-full sm:w-fit">{loading?'جارٍ الحفظ...':saved?'تم الحفظ ✓':'حفظ الصفحات القانونية'}</Button>
         </form>}
-      </Card>
+      </Card>}
     </ConsoleShell>
   );
 }
+
+export default function PlatformSettingsPage(){return <Suspense fallback={<ConsoleShell title="الإعدادات"><LoadingState/></ConsoleShell>}><PlatformSettingsContent/></Suspense>}
