@@ -129,9 +129,9 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     .eq('provider', 'google_analytics')
     .in('status', ['installed', 'connected'])
     .maybeSingle();
-  if (analyticsError) {
-    throw new Error(`Failed to load public analytics config: ${analyticsError.message}`);
-  }
+  // Analytics is optional and must never make a tenant's public site unavailable.
+  // This also keeps deploys safe while the DB migration is being rolled out.
+  const analyticsMeasurementId = analyticsError ? null : analyticsIntegration?.measurement_id ?? null;
 
   const { data: owner, error: ownerError } = await serviceRole
     .from('users')
@@ -155,5 +155,5 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     throw new Error(`Failed to load custom pages: ${customPagesError.message}`);
   }
 
-  return okResponse({ tenant, website: websiteConfig, sections, whatsapp_phone: owner.phone, custom_pages: customPages, google_analytics_measurement_id: analyticsIntegration?.measurement_id ?? null });
+  return okResponse({ tenant, website: websiteConfig, sections, whatsapp_phone: owner.phone, custom_pages: customPages, google_analytics_measurement_id: analyticsMeasurementId });
 });
