@@ -5,7 +5,7 @@ import { ConsoleShell } from '@/components/layout/console-shell';
 import { Card } from '@/components/ui/card';
 import { LoadingState } from '@/components/ui/loading-state';
 import { useCurrentAdmin } from '@/lib/auth/current-admin-context';
-import { getConsoleOverview, type ConsoleOverview } from '@/lib/api/overview';
+import { connectPlatformGoogleAnalytics, getConsoleOverview, type ConsoleOverview } from '@/lib/api/overview';
 
 const adminShortcuts = [
  ['الحسابات','/accounts'],['الباقات','/plans'],['الثيمات','/themes'],['التذاكر والدعم','/support'],['إعدادات المنصة','/settings'],
@@ -17,7 +17,8 @@ const metricMeta=[
 ] as const;
 
 export default function ConsoleHomePage(){
- const {accessToken}=useCurrentAdmin(); const [data,setData]=useState<ConsoleOverview|null>(null); const [error,setError]=useState(false);
+ const {accessToken}=useCurrentAdmin(); const [data,setData]=useState<ConsoleOverview|null>(null); const [error,setError]=useState(false); const [connecting,setConnecting]=useState(false);
+ const connectAnalytics=async()=>{setConnecting(true);try{const result=await connectPlatformGoogleAnalytics(accessToken);window.location.assign(result.authorization_url);}catch{setConnecting(false);setError(true);}};
  useEffect(()=>{void getConsoleOverview(accessToken).then(setData).catch(()=>setError(true));},[accessToken]);
  return <ConsoleShell title="نظرة عامة">
   <div className="mb-6"><h1 className="text-xl font-semibold text-text-primary sm:text-2xl">إدارة منصة سبعة</h1><p className="mt-1 text-sm text-text-secondary">متابعة تشغيل المنصة والعملاء والمحتوى من مكان واحد.</p></div>
@@ -31,7 +32,7 @@ export default function ConsoleHomePage(){
      <div className="rounded-xl bg-surface-subtle p-4"><p className="text-xs text-text-secondary">المستخدمون النشطون</p><p className="mt-2 text-2xl font-semibold text-text-primary">{data.marketing_analytics.visitors.toLocaleString('ar-SA')}</p></div>
      <div className="rounded-xl bg-surface-subtle p-4"><p className="text-xs text-text-secondary">الجلسات</p><p className="mt-2 text-2xl font-semibold text-text-primary">{data.marketing_analytics.sessions.toLocaleString('ar-SA')}</p></div>
      <div className="rounded-xl bg-surface-subtle p-4"><p className="text-xs text-text-secondary">مشاهدات الصفحات</p><p className="mt-2 text-2xl font-semibold text-text-primary">{data.marketing_analytics.page_views.toLocaleString('ar-SA')}</p></div>
-    </div>:<div className="rounded-xl bg-surface-subtle p-4 text-sm text-text-secondary">إرسال البيانات إلى Google Analytics مفعّل. يلزم إكمال صلاحية القراءة لعرض الإحصائيات هنا.</div>}
+    </div>:<div className="flex flex-col gap-3 rounded-xl bg-surface-subtle p-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-sm font-medium text-text-primary">Google Analytics غير مربوط بالـAdmin</p><p className="mt-1 text-xs text-text-secondary">اربط حساب Google الذي يحتوي على G-FTKMLGPP6R لعرض إحصائيات صفحة الهبوط هنا.</p></div><button type="button" onClick={connectAnalytics} disabled={connecting} className="rounded-xl bg-brand px-4 py-2.5 text-sm font-medium text-white disabled:opacity-60">{connecting?'جاري التحويل...':'ربط Google Analytics'}</button></div>}
    </Card>
    <div className="mt-6 grid gap-4 lg:grid-cols-[1.5fr_1fr]">
     <Card className="p-4 sm:p-5"><div className="mb-4 flex items-center justify-between"><h2 className="font-semibold text-text-primary">أحدث الحسابات</h2><Link href="/accounts" className="text-sm font-medium text-brand">عرض الكل</Link></div>
