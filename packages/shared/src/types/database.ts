@@ -19,7 +19,6 @@ import type {
   PropertyAvailability,
   PropertyStatus,
   PropertyType,
-  RentalStatus,
   TenantStatus,
   UserRole,
   UserStatus,
@@ -321,21 +320,6 @@ export interface PropertyMedia {
   media_type: MediaType;
   url: string;
   order_index: number;
-}
-
-/** PRODUCT_SPEC section 4.2 — simple lease tracking, added with migration 0008. */
-export interface Rental {
-  id: string;
-  tenant_id: string;
-  property_id: string;
-  tenant_name: string;
-  tenant_phone: string;
-  rent_amount: number;
-  contract_start_date: string;
-  contract_end_date: string;
-  status: RentalStatus;
-  notes: string | null;
-  created_at: string;
 }
 
 export interface Lead {
