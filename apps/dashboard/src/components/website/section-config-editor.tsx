@@ -74,7 +74,7 @@ export function SectionConfigEditor({ section, accessToken, onSaved, website, on
   async function handleSave() {
     setLoading(true);
     try {
-      const nextConfig: Record<string, string> = {};
+      const nextConfig: Record<string, unknown> = {};
       if (titleAr) nextConfig.title_ar = titleAr;
       if (hasItems) { try { nextConfig.items = JSON.parse(itemsJson); } catch { /* keep previous config on invalid JSON */ } }
       if (hasButton && buttonLabel) nextConfig.button_label = buttonLabel;
