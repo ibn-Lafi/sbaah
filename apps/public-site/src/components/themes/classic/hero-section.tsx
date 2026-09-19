@@ -35,7 +35,7 @@ export async function HeroSection({ locale, config, bannerUrl, bannerVideoUrl }:
 
   return (
     <section
-      className={`relative flex min-h-[520px] flex-col items-center justify-center gap-7 overflow-hidden px-5 pb-20 text-center text-white sm:px-6 lg:min-h-[600px] ${hasBackground ? '-mt-20 pt-36' : 'pt-20'}`}
+      className={`relative flex min-h-[500px] flex-col items-center justify-center gap-8 overflow-hidden px-5 pb-16 text-center text-white sm:min-h-[560px] sm:px-6 sm:pb-20 lg:min-h-[640px] ${hasBackground ? '-mt-20 pt-36' : 'pt-24'}`}
       style={useImage ? { backgroundImage: `url(${bannerUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}
     >
       {useVideo && (
@@ -45,18 +45,18 @@ export async function HeroSection({ locale, config, bannerUrl, bannerVideoUrl }:
           muted
           loop
           playsInline
-          className="absolute inset-0 h-full w-full object-cover"
+          className="absolute inset-0 h-full w-full object-cover" aria-hidden="true"
         />
       )}
-      {hasBackground && <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-black/45 to-black/60" />}
-      <div className="relative flex max-w-4xl flex-col items-center gap-4">
+      {hasBackground && <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/45 to-black/65" />}
+      <div className="relative flex max-w-4xl flex-col items-center gap-5">
         {title && (
-          <h1 className={`text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl ${hasBackground ? 'text-white' : 'text-tenant-primary'}`}>{title}</h1>
+          <h1 className={`text-3xl font-bold leading-[1.2] tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl ${hasBackground ? 'text-white' : 'text-tenant-primary'}`}>{title}</h1>
         )}
-        {subtitle && <p className={`max-w-2xl text-base leading-7 sm:text-lg ${hasBackground ? 'text-white/90' : 'text-black/65'}`}>{subtitle}</p>}
+        {subtitle && <p className={`max-w-2xl text-base leading-7 sm:text-lg sm:leading-8 ${hasBackground ? 'text-white/90' : 'text-black/65'}`}>{subtitle}</p>}
       </div>
       {showSearch && (
-        <div className="relative w-full max-w-5xl">
+        <div className="relative w-full max-w-5xl rounded-2xl">
           <PropertySearchBar locale={locale} cities={cities} />
         </div>
       )}
