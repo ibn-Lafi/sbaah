@@ -1,6 +1,10 @@
+'use client';
+import { useEffect, useState } from 'react';
+import type { PlatformSettings } from '@sbaah/shared';
 import type { Locale } from '@/lib/i18n/locales';
 import { MARKETING_CONTENT } from '@/lib/marketing/content';
 import { HeroVideo } from './hero-video';
+import { apiGet } from '@/lib/api/client';
 
 const partnerLogos = [
   { name: 'Saudi Real Estate Arbitration Center', src: 'https://raw.githubusercontent.com/ibn-Lafi/sbaah/claude/real-estate-saas-platform-sp7ua9/%D8%B4%D8%B9%D8%A7%D8%B1%20%D8%A7%D9%84%D9%85%D8%B1%D9%83%D8%B2%20%D8%A7%D9%84%D8%B3%D8%B9%D9%88%D8%AF%D9%8A%20%D9%84%D9%84%D8%AA%D8%AD%D9%83%D9%8A%D9%85%20%D8%A7%D9%84%D8%B9%D9%82%D8%A7%D8%B1%20%D8%A8%D8%AF%D9%82%D8%A9%20%D8%B9%D8%A7%D9%84%D9%8A%D8%A9%20svg%20-%20png.svg' },
@@ -15,6 +19,10 @@ const partnerLogos = [
 
 export function Hero({ locale }: { locale: Locale }) {
   const t = MARKETING_CONTENT[locale].hero;
+  const [settings,setSettings]=useState<PlatformSettings|null>(null);
+  useEffect(()=>{void apiGet<PlatformSettings>('/public/platform-settings').then(setSettings).catch(()=>undefined);},[]);
+  const title=(locale==='ar'?settings?.hero_title_ar:settings?.hero_title_en)?.trim() || t.title;
+  const subtitle=(locale==='ar'?settings?.hero_subtitle_ar:settings?.hero_subtitle_en)?.trim() || t.subtitle;
   const ar = locale === 'ar';
   const LogoSet = ({ copy }: { copy: number }) => (
     <div className="hero-partners-set flex shrink-0 items-center" aria-hidden={copy > 1}>
@@ -48,8 +56,8 @@ export function Hero({ locale }: { locale: Locale }) {
       />
 
       <div className="relative z-10 mx-auto -mt-28 flex max-w-3xl flex-col items-center gap-6 sm:-mt-32">
-        <h1 className="font-display text-4xl leading-[1.15] font-semibold text-white sm:text-5xl md:text-6xl">{t.title}</h1>
-        <p className="whitespace-nowrap text-[11px] text-white sm:max-w-xl sm:whitespace-normal sm:text-lg">{t.subtitle}</p>
+        <h1 className="font-display text-4xl leading-[1.15] font-semibold text-white sm:text-5xl md:text-6xl">{title}</h1>
+        <p className="whitespace-nowrap text-[11px] text-white sm:max-w-xl sm:whitespace-normal sm:text-lg">{subtitle}</p>
       </div>
 
       <div className="absolute inset-x-0 bottom-5 z-[5] sm:bottom-7">
