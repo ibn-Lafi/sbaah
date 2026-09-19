@@ -28,7 +28,7 @@ export function Button({
   return (
     <button
       disabled={disabled || loading}
-      className={`rounded-control inline-flex h-[46px] cursor-pointer items-center justify-center gap-2 px-5 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${VARIANT_CLASSES[variant]} ${className}`}
+      className={`rounded-control inline-flex h-[42px] cursor-pointer md:h-[46px] items-center justify-center gap-1.5 px-4 text-[13px] md:gap-2 md:px-5 md:text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${VARIANT_CLASSES[variant]} ${className}`}
       {...props}
     >
       {loading && <Spinner className="h-4 w-4" />}
