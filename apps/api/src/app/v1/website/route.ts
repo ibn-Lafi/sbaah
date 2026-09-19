@@ -46,10 +46,10 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     'stats','services','faq','cta','promo_banner','free_content','gallery','video',
   ];
   if (homePage) {
-    const existing = new Set(homePage.website_sections.map((section) => section.type));
+    const existing = new Set(homePage.website_sections.map((section: { type: WebsiteSectionType }) => section.type));
     const missing = homeLibrary.filter((type) => !existing.has(type));
     if (missing.length) {
-      const maxOrder = homePage.website_sections.reduce((max, section) => Math.max(max, section.order_index), -1);
+      const maxOrder = homePage.website_sections.reduce((max: number, section: { order_index: number }) => Math.max(max, section.order_index), -1);
       const { data: created, error: createError } = await supabase
         .from('website_sections')
         .insert(missing.map((type, index) => ({
@@ -63,7 +63,7 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
         .select();
       if (createError) throw new Error(`Failed to reconcile home section library: ${createError.message}`);
       homePage.website_sections.push(...(created ?? []));
-      homePage.website_sections.sort((a, b) => a.order_index - b.order_index);
+      homePage.website_sections.sort((a: { order_index: number }, b: { order_index: number }) => a.order_index - b.order_index);
     }
   }
 

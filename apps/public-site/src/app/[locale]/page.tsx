@@ -3,8 +3,6 @@ import { getTenantSite } from '@/lib/tenant/get-tenant-site';
 import { isMarketingHost } from '@/lib/tenant/get-host';
 import { MarketingHome } from '@/components/marketing-home';
 import { getThemeComponents } from '@/components/themes/registry';
-import { listCities } from '@/lib/api/reference-data';
-import { BrokerMarketerForm } from '@/components/broker-marketer/broker-marketer-form';
 import { MapSection } from '@/components/map/map-section';
 import { FeaturedPropertiesSection, LatestPropertiesSection, ProjectsShowcaseSection, PropertiesByCitySection } from '@/components/themes/classic/data-sections';
 import { StatsSection, ServicesSection, FaqSection, CtaSection, PromoBannerSection, FreeContentSection, GallerySection, VideoSection } from '@/components/themes/classic/content-sections';
@@ -49,8 +47,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const theme = getThemeComponents(site.website.theme_key);
   const { HeroSection, PropertyGridSection, TextSection } = theme;
   const isClassic = site.website.theme_key === 'classic';
-  const hasBrokerMarketerForm = site.sections.some((s) => s.type === 'broker_marketer_form');
-  const cities = hasBrokerMarketerForm ? await listCities() : [];
 
   return (
     <div>
@@ -85,7 +81,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           case 'why_us':
             return <TextSection key={section.id} type={section.type} locale={locale} config={section.config} />;
           case 'broker_marketer_form':
-            return <BrokerMarketerForm key={section.id} locale={locale} tenantId={site.tenant.id} cities={cities} />;
+            return null;
           case 'map':
             return <MapSection key={section.id} locale={locale} />;
           case 'contact':
