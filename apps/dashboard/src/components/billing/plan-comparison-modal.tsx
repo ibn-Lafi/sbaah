@@ -37,13 +37,13 @@ export function PlanComparisonButton() {
           <div><h2 className="text-lg font-bold text-text-primary">{locale === 'ar' ? 'مقارنة الباقات' : 'Compare plans'}</h2><p className="mt-0.5 text-xs text-text-secondary">{locale === 'ar' ? 'اختر الباقة التي تناسب احتياجك' : 'Choose the plan that fits your needs'}</p></div>
           <button type="button" onClick={() => setOpen(false)} aria-label={locale === 'ar' ? 'إغلاق' : 'Close'} className="bg-surface-subtle text-text-secondary flex h-9 w-9 items-center justify-center rounded-full text-xl">×</button>
         </div>
-        <div className="overflow-auto px-4 py-4 sm:px-6 sm:py-5">
-          <div className="border-border-subtle min-w-[440px] overflow-hidden rounded-[20px] border">
-            <div className="bg-surface-header grid grid-cols-[minmax(190px,1fr)_120px_120px] sm:grid-cols-[minmax(240px,1fr)_160px_160px]">
-              <div className="px-4 py-3 text-sm font-semibold text-text-secondary">{locale === 'ar' ? 'الميزة' : 'Feature'}</div><div className="px-3 py-3 text-center text-sm font-bold text-text-primary">Platinum</div><div className="px-3 py-3 text-center text-sm font-bold text-text-primary">Gold</div>
+        <div className="overflow-y-auto px-3 py-4 sm:px-6 sm:py-5">
+          <div className="border-border-subtle w-full overflow-hidden rounded-[20px] border">
+            <div className="bg-surface-header grid grid-cols-[minmax(0,1.55fr)_minmax(72px,.72fr)_minmax(72px,.72fr)] sm:grid-cols-[minmax(240px,1fr)_160px_160px]">
+              <div className="px-2.5 py-3 text-xs sm:px-4 sm:text-sm font-semibold text-text-secondary">{locale === 'ar' ? 'الميزة' : 'Feature'}</div><div className="px-1.5 py-3 text-center text-[11px] sm:px-3 sm:text-sm font-bold text-text-primary">Platinum</div><div className="px-1.5 py-3 text-center text-[11px] sm:px-3 sm:text-sm font-bold text-text-primary">Gold</div>
             </div>
             {FEATURES.map((feature) => <div key={feature.en} className="border-border-subtle grid grid-cols-[minmax(190px,1fr)_120px_120px] border-t sm:grid-cols-[minmax(240px,1fr)_160px_160px]">
-              <div className="px-4 py-3 text-sm text-text-primary">{locale === 'ar' ? feature.ar : feature.en}</div><div className="flex items-center justify-center px-3 py-3"><Value value={feature.platinum} locale={locale} /></div><div className="flex items-center justify-center px-3 py-3"><Value value={feature.gold} locale={locale} /></div>
+              <div className="px-2.5 py-3 text-xs sm:px-4 sm:text-sm text-text-primary">{locale === 'ar' ? feature.ar : feature.en}</div><div className="flex items-center justify-center px-1.5 py-3 sm:px-3"><Value value={feature.platinum} locale={locale} /></div><div className="flex items-center justify-center px-1.5 py-3 sm:px-3"><Value value={feature.gold} locale={locale} /></div>
             </div>)}
           </div>
         </div>
