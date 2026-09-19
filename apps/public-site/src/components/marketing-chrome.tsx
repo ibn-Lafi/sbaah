@@ -104,8 +104,8 @@ export function MarketingChrome({ locale, children }: { locale: Locale; children
             </div>
 
             <div className="mt-14 flex flex-wrap items-center justify-center gap-3 text-xs sm:text-sm">
-              <a href="#" className="rounded-full border border-white/55 px-5 py-2.5 text-white/85 hover:bg-white/10">{locale === 'ar' ? 'سياسة الخصوصية' : 'Privacy Policy'}</a>
-              <a href="#" className="rounded-full border border-white/55 px-5 py-2.5 text-white/85 hover:bg-white/10">{locale === 'ar' ? 'الشروط والأحكام' : 'Terms & Conditions'}</a>
+              <Link href={`/${locale}/privacy`} className="rounded-full border border-white/55 px-5 py-2.5 text-white/85 hover:bg-white/10">{locale === 'ar' ? 'سياسة الخصوصية' : 'Privacy Policy'}</Link>
+              <Link href={`/${locale}/terms`} className="rounded-full border border-white/55 px-5 py-2.5 text-white/85 hover:bg-white/10">{locale === 'ar' ? 'الشروط والأحكام' : 'Terms & Conditions'}</Link>
             </div>
             <p className="mt-6 text-xs text-white/65 sm:text-sm">{locale === 'ar' ? 'جميع الحقوق محفوظة © سبعة 2026' : '© Sbaah 2026. All rights reserved.'}</p>
           </div>
