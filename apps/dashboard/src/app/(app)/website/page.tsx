@@ -36,7 +36,7 @@ export default function ThemeStorePage() {
         setThemes(themesResult);
       } catch (err) {
         if (cancelled) return;
-        setError(err instanceof ApiRequestError ? err.message : t.themeStore.errors.load);
+        setError(err instanceof ApiRequestError ? err.message : t.themeStore.errors.loadStore);
       }
     }
 
