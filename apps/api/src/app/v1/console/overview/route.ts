@@ -2,6 +2,7 @@ import type { NextRequest } from 'next/server';
 import { okResponse, withErrorHandling } from '@/lib/http';
 import { getPlatformAdminClient } from '@/lib/auth/get-platform-admin-client';
 import { refreshGoogleAccessToken, runAnalyticsReport } from '@/lib/google-analytics/oauth';
+import { createServiceRoleClient } from '@sbaah/shared';
 
 export const GET = withErrorHandling(async (request: NextRequest) => {
   const { supabase } = await getPlatformAdminClient(request);
@@ -26,16 +27,20 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     page_views: 0,
     daily: [] as { date: string; visitors: number; sessions: number; page_views: number }[],
   };
-  const propertyId = process.env.SBAAH_MARKETING_GA_PROPERTY_ID;
-  const refreshToken = process.env.SBAAH_MARKETING_GA_REFRESH_TOKEN;
-  if (propertyId && refreshToken) {
-    try {
-      const accessToken = await refreshGoogleAccessToken(refreshToken);
-      const report = await runAnalyticsReport(accessToken, propertyId, 30);
+  try {
+    const serviceRole = createServiceRoleClient();
+    const { data: analytics } = await serviceRole
+      .from('platform_google_analytics')
+      .select('external_property_id, oauth_refresh_token_ciphertext')
+      .eq('id', true)
+      .maybeSingle();
+    if (analytics?.external_property_id && analytics.oauth_refresh_token_ciphertext) {
+      const accessToken = await refreshGoogleAccessToken(analytics.oauth_refresh_token_ciphertext);
+      const report = await runAnalyticsReport(accessToken, analytics.external_property_id, 30);
       marketingAnalytics = { configured: true, ...report };
-    } catch (error) {
-      console.error('Sbaah marketing Google Analytics unavailable', error);
     }
+  } catch (error) {
+    console.error('Sbaah marketing Google Analytics unavailable', error);
   }
 
   return okResponse({
