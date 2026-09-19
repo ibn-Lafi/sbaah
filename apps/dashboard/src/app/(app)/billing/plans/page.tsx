@@ -7,6 +7,7 @@ import { BackButton } from '@/components/ui/back-button';
 import { LoadingState } from '@/components/ui/loading-state';
 import { PlanCycleToggle } from '@/components/billing/plan-cycle-toggle';
 import { PlanCard } from '@/components/billing/plan-card';
+import { PlanComparisonButton } from '@/components/billing/plan-comparison-modal';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { useLocale } from '@/lib/i18n/locale-context';
 import { getBilling, startCheckout, type BillingInfo } from '@/lib/api/billing';
@@ -58,7 +59,7 @@ export default function ChangePlanPage() {
           <p className="mt-1 text-sm text-text-secondary">{t.plans.subheading}</p>
         </div>
 
-        <PlanCycleToggle value={cycle} onChange={setCycle} />
+        <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center"><PlanCycleToggle value={cycle} onChange={setCycle} /><PlanComparisonButton /></div>
 
         {billing === null || tiers === null ? (
           <LoadingState />

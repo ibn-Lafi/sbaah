@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { PlanCard } from './plan-card';
 import { BillingSkeleton } from './billing-skeleton';
+import { PlanComparisonButton } from './plan-comparison-modal';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { useLocale } from '@/lib/i18n/locale-context';
 import { getBilling, startCheckout, type BillingInfo } from '@/lib/api/billing';
@@ -89,6 +90,7 @@ export function BillingPanel() {
           )}
 
           <div className="flex flex-col gap-4">
+            <div className="flex justify-center"><PlanComparisonButton /></div>
             <PlanCard
               plan={billing.plan}
               isCurrent={false}
