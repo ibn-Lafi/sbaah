@@ -8,9 +8,10 @@ export interface AccountListResponse {
   total: number;
 }
 
-export function listAccounts(accessToken: string, params: { status?: TenantStatus; page?: number; page_size?: number } = {}) {
+export function listAccounts(accessToken: string, params: { status?: TenantStatus; search?: string; page?: number; page_size?: number } = {}) {
   const query = new URLSearchParams();
   if (params.status) query.set('status', params.status);
+  if (params.search) query.set('search', params.search);
   if (params.page) query.set('page', String(params.page));
   if (params.page_size) query.set('page_size', String(params.page_size));
   const qs = query.toString();
