@@ -70,3 +70,5 @@ export function SettingsIcon({ className }: IconProps) {
 }
 
 export function SupportIcon({ className }: IconProps) { return <Svg className={className}><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-5 4v-4.5A2.5 2.5 0 0 1 4 13.5z"/><path d="M8 8h8M8 12h5"/></Svg>; }
+
+export function FaqIcon({ className }: IconProps) { return <Svg className={className}><circle cx="12" cy="12" r="9"/><path d="M9.7 9a2.4 2.4 0 1 1 3.7 2c-.9.6-1.4 1-1.4 2"/><path d="M12 16.5h.01"/></Svg>; }
