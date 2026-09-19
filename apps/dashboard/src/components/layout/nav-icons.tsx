@@ -21,10 +21,9 @@ function Svg({ children, className }: { children: React.ReactNode; className?: s
 export function DashboardIcon({ className }: IconProps) {
   return (
     <Svg className={className}>
-      <rect x="3" y="3" width="7.5" height="7.5" rx="1.5" />
-      <rect x="13.5" y="3" width="7.5" height="7.5" rx="1.5" />
-      <rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5" />
-      <rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.5" />
+      <path d="M3.5 10.5 12 3l8.5 7.5" />
+      <path d="M5.5 9.5V20h13V9.5" />
+      <path d="M9.5 20v-6h5v6" />
     </Svg>
   );
 }
