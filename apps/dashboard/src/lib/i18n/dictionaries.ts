@@ -12,6 +12,14 @@ export interface ChromeDictionary {
       projects: string;
       rentals: string;
     };
+    rentPlus: {
+      label: string;
+      properties: string;
+      contracts: string;
+      maintenance: string;
+      payments: string;
+      tenants: string;
+    };
     website: {
       label: string;
       themeEditor: string;
@@ -69,6 +77,14 @@ export const dictionaries: Record<Locale, ChromeDictionary> = {
         projects: 'المشاريع',
         rentals: 'الإيجارات',
       },
+      rentPlus: {
+        label: 'إيجار Plus',
+        properties: 'العقار',
+        contracts: 'العقود',
+        maintenance: 'الصيانة',
+        payments: 'إدارة الدفعات',
+        tenants: 'المستأجرين',
+      },
       website: {
         label: 'الموقع الالكتروني',
         themeEditor: 'تخصيص الثيم',
@@ -122,6 +138,14 @@ export const dictionaries: Record<Locale, ChromeDictionary> = {
         buildings: 'Buildings',
         projects: 'Projects',
         rentals: 'Rentals',
+      },
+      rentPlus: {
+        label: 'Ejar Plus',
+        properties: 'Properties',
+        contracts: 'Contracts',
+        maintenance: 'Maintenance',
+        payments: 'Payment Management',
+        tenants: 'Tenants',
       },
       website: {
         label: 'Website',
