@@ -56,7 +56,7 @@ export function Testimonials({locale}:{locale:Locale}) {
           </blockquote>
 
           <div className="mt-4 flex items-end justify-start gap-3 pb-0 pt-1 sm:items-end sm:justify-between sm:gap-4 sm:pt-9" dir={ar?'rtl':'ltr'}>
-            <div className="min-w-0 flex-1 text-end sm:text-start">
+            <div className="min-w-0 flex-1 text-right sm:text-start">
               {x.type==='company'?<>
                 <p className="font-display text-[15px] font-semibold text-text-primary sm:text-lg">{x.company}</p>
                 <p className="mt-1 text-[12px] text-text-secondary sm:mt-1.5 sm:text-sm">{x.person}</p>
