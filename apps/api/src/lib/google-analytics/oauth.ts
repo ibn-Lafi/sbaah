@@ -109,3 +109,48 @@ export async function resolveAnalyticsProperty(accessToken: string, measurementI
   }
   throw new ApiError(409, 'measurement_id_not_accessible', 'لم نجد معرّف القياس داخل حساب Google الذي تم ربطه');
 }
+
+export async function refreshGoogleAccessToken(encryptedRefreshToken: string): Promise<string> {
+  const response = await fetch(GOOGLE_TOKEN_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      refresh_token: decryptRefreshToken(encryptedRefreshToken),
+      client_id: requireEnv('GOOGLE_CLIENT_ID'),
+      client_secret: requireEnv('GOOGLE_CLIENT_SECRET'),
+      grant_type: 'refresh_token',
+    }),
+    cache: 'no-store',
+  });
+  const body = await response.json().catch(() => null);
+  if (!response.ok || !body?.access_token) throw new ApiError(502, 'google_token_refresh_failed', 'تعذر تحديث اتصال Google Analytics');
+  return body.access_token as string;
+}
+
+export async function runAnalyticsReport(accessToken: string, propertyId: string, days = 30) {
+  const response = await fetch(`https://analyticsdata.googleapis.com/v1beta/properties/${encodeURIComponent(propertyId)}:runReport`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      dateRanges: [{ startDate: `${days}daysAgo`, endDate: 'today' }],
+      dimensions: [{ name: 'date' }],
+      metrics: [{ name: 'activeUsers' }, { name: 'sessions' }, { name: 'screenPageViews' }],
+      orderBys: [{ dimension: { dimensionName: 'date' } }],
+    }),
+    cache: 'no-store',
+  });
+  if (!response.ok) throw new ApiError(502, 'google_analytics_report_failed', 'تعذر قراءة إحصائيات Google Analytics');
+  const body = await response.json() as { rows?: Array<{ dimensionValues?: Array<{ value?: string }>; metricValues?: Array<{ value?: string }> }> };
+  const daily = (body.rows ?? []).map((row) => ({
+    date: row.dimensionValues?.[0]?.value ?? '',
+    visitors: Number(row.metricValues?.[0]?.value ?? 0),
+    sessions: Number(row.metricValues?.[1]?.value ?? 0),
+    page_views: Number(row.metricValues?.[2]?.value ?? 0),
+  }));
+  return {
+    visitors: daily.reduce((sum, row) => sum + row.visitors, 0),
+    sessions: daily.reduce((sum, row) => sum + row.sessions, 0),
+    page_views: daily.reduce((sum, row) => sum + row.page_views, 0),
+    daily,
+  };
+}
