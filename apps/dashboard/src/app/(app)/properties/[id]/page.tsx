@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { PropertyUpdateInput, Rental, RentalInput } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
+import { BackButton } from '@/components/ui/back-button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { DeleteButton } from '@/components/ui/delete-button';
@@ -82,6 +83,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
         <FormPageSkeleton fields={6} extraCards={2} />
       ) : (
         <div className="mx-auto flex max-w-[720px] flex-col gap-6">
+          <BackButton href="/properties" label="رجوع" className="self-start" />
           <Card className="p-8">
             <PropertyForm
               mode="edit"

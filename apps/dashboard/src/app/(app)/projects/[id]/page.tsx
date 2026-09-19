@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { Building, BuildingInput, Project, ProjectUpdateInput } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
+import { BackButton } from '@/components/ui/back-button';
 import { Card } from '@/components/ui/card';
 import { DeleteButton } from '@/components/ui/delete-button';
 import { Modal } from '@/components/ui/modal';
@@ -79,6 +80,7 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
         <FormPageSkeleton fields={4} />
       ) : (
         <div className="mx-auto flex max-w-[720px] flex-col gap-6">
+          <BackButton href="/projects" label="رجوع" className="self-start" />
           <Card className="p-8">
             <ProjectForm
               mode="edit"

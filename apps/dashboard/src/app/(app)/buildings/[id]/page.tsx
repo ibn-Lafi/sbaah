@@ -4,6 +4,7 @@ import { use, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Building, BuildingUpdateInput } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
+import { BackButton } from '@/components/ui/back-button';
 import { Card } from '@/components/ui/card';
 import { DeleteButton } from '@/components/ui/delete-button';
 import { BuildingForm } from '@/components/hierarchy/building-form';
@@ -69,6 +70,7 @@ export default function EditBuildingPage({ params }: { params: Promise<{ id: str
         <FormPageSkeleton fields={3} />
       ) : (
         <div className="mx-auto flex max-w-[720px] flex-col gap-6">
+          <BackButton href="/buildings" label="رجوع" className="self-start" />
           <Card className="p-8">
             <BuildingForm
               mode="edit"

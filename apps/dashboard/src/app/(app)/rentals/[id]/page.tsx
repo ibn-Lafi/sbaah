@@ -4,6 +4,7 @@ import { use, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Rental, RentalUpdateInput } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
+import { BackButton } from '@/components/ui/back-button';
 import { Card } from '@/components/ui/card';
 import { DeleteButton } from '@/components/ui/delete-button';
 import { FormPageSkeleton } from '@/components/ui/form-page-skeleton';
@@ -67,6 +68,7 @@ export default function EditRentalPage({ params }: { params: Promise<{ id: strin
         <FormPageSkeleton fields={5} />
       ) : (
         <div className="mx-auto flex max-w-[720px] flex-col gap-6">
+          <BackButton href="/rentals" label="رجوع" className="self-start" />
           <Card className="p-8">
             <RentalForm
               mode="edit"
