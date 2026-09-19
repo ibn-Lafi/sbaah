@@ -48,14 +48,14 @@ export function Header({ locale, dict, website, tenantName }: HeaderProps) {
           <div className="mb-2 text-center text-xs font-medium text-white">{website.announcement_bar_text}</div>
         )}
         <div
-          className={`mx-auto flex max-w-6xl items-center justify-between gap-4 rounded-2xl px-5 py-3 text-white transition-colors duration-300 ${
-            scrolled ? 'bg-tenant-primary shadow-lg ring-1 ring-tenant-secondary/25' : 'bg-transparent'
+          className={`mx-auto flex min-h-14 max-w-6xl items-center justify-between gap-4 rounded-2xl px-4 py-2.5 text-white transition-all duration-300 sm:px-5 ${
+            scrolled ? 'bg-tenant-primary shadow-lg ring-1 ring-tenant-secondary/25 backdrop-blur-md' : 'bg-black/20 shadow-sm backdrop-blur-[2px]'
           }`}
         >
-          <Link href={locale === 'ar' ? '/' : '/en'} className="flex items-center gap-2 text-lg font-semibold">
+          <Link href={locale === 'ar' ? '/' : '/en'} className="flex min-w-0 items-center gap-2 text-lg font-semibold">
             {website.logo_url ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={website.logo_url} alt={tenantName} className="h-8 w-auto" />
+              <img src={website.logo_url} alt={tenantName} className="max-h-9 max-w-[180px] w-auto object-contain sm:max-w-[220px]" />
             ) : (
               tenantName
             )}
@@ -83,7 +83,7 @@ export function Header({ locale, dict, website, tenantName }: HeaderProps) {
         </div>
 
         {menuOpen && (
-          <div className="mx-auto mt-2 flex max-w-6xl flex-col gap-1 rounded-2xl bg-white p-2 text-sm font-medium text-black/80 shadow-lg sm:hidden">
+          <div className="mx-auto mt-2 flex max-w-6xl flex-col gap-1 rounded-2xl border border-black/5 bg-white p-2 text-sm font-medium text-black/80 shadow-xl sm:hidden">
             {navLinks.map(({ href, label }) => (
               <Link key={href} href={href} onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-2.5 hover:bg-black/5">
                 {label}
