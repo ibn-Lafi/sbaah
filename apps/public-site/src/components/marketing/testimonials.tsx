@@ -48,12 +48,12 @@ export function Testimonials({locale}:{locale:Locale}) {
       <div className="mt-7 flex flex-wrap justify-center gap-2">
         {filters.map(x=><button key={x.key} onClick={()=>setFilter(x.key)} className={`rounded-full px-5 py-2 text-xs font-medium transition sm:text-sm ${filter===x.key?'bg-text-primary text-surface-card':'bg-surface-muted text-text-secondary hover:text-text-primary'}`}>{ar?x.ar:x.en}</button>)}
       </div>
-      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {visible.map((x)=><article key={x.name} className="flex min-h-[285px] flex-col rounded-3xl border border-border-subtle bg-surface-card/95 p-6 shadow-sm backdrop-blur">
-          <div className="flex items-center gap-3"><Mark kind={x.kind} name={x.name}/><div className="min-w-0"><h3 className="font-display text-lg font-semibold text-text-primary">{x.name}</h3><p className="text-xs text-text-secondary">{x.role}</p></div><span className="text-brand/20 ms-auto self-start text-5xl leading-none">”</span></div>
-          <p className="mt-5 flex-1 text-sm leading-7 text-text-secondary">{x.quote}</p>
-          <div className="mt-5 border-t border-border-subtle pt-4">
-            <div className="flex items-center justify-between gap-3"><span className="text-[15px] tracking-[2px] text-amber-500" aria-label={ar?'5 من 5':'5 out of 5'}>★★★★★</span><span className="bg-brand/10 text-brand rounded-full px-3 py-1 text-[11px] font-medium">{x.kind==='company'?(ar?'شركة عقارية':'Real-estate company'):(ar?'فرد':'Individual')}</span></div>
+      <div className="-mx-5 mt-8 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-4 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-3">
+        {visible.map((x)=><article key={x.name} className="flex min-h-[245px] w-[calc(50%-6px)] min-w-[calc(50%-6px)] snap-start flex-col rounded-2xl border border-border-subtle bg-surface-card/95 p-4 shadow-sm backdrop-blur sm:min-h-[285px] sm:w-auto sm:min-w-0 sm:rounded-3xl sm:p-6">
+          <div className="flex items-center gap-2 sm:gap-3"><Mark kind={x.kind} name={x.name}/><div className="min-w-0"><h3 className="font-display text-sm font-semibold leading-5 text-text-primary sm:text-lg">{x.name}</h3><p className="mt-0.5 text-[10px] leading-4 text-text-secondary sm:text-xs">{x.role}</p></div><span className="text-brand/20 ms-auto hidden self-start text-5xl leading-none sm:block">”</span></div>
+          <p className="mt-4 flex-1 text-[11px] leading-5 text-text-secondary sm:mt-5 sm:text-sm sm:leading-7">{x.quote}</p>
+          <div className="mt-4 border-t border-border-subtle pt-3 sm:mt-5 sm:pt-4">
+            <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-3"><span className="text-[10px] tracking-[1px] text-amber-500 sm:text-[15px] sm:tracking-[2px]" aria-label={ar?'5 من 5':'5 out of 5'}>★★★★★</span><span className="bg-brand/10 text-brand rounded-full px-3 py-1 text-[11px] font-medium">{x.kind==='company'?(ar?'شركة عقارية':'Real-estate company'):(ar?'فرد':'Individual')}</span></div>
             {x.person&&<p className="mt-3 text-xs font-semibold text-text-primary">{x.person}</p>}
           </div>
         </article>)}
