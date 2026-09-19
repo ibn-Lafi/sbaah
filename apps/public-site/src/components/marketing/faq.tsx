@@ -13,7 +13,7 @@ export function Faq({ locale }: { locale: Locale }) {
   return (
     <section id="faq" className="bg-surface-card px-6 py-16 sm:py-24">
       <Reveal className="mx-auto max-w-2xl text-center">
-        <h2 className="font-display text-3xl font-semibold text-text-primary sm:text-4xl">{t.title}</h2>
+        <h2 className="font-display text-2xl font-semibold text-text-primary sm:text-4xl">{t.title}</h2>
       </Reveal>
 
       <Reveal delayMs={150} className="mx-auto mt-10 flex max-w-2xl flex-col gap-3">
