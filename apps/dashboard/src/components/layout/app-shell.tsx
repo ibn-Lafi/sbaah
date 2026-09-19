@@ -88,7 +88,7 @@ export function AppShell({ title, orgName, accountType, children }: AppShellProp
               </Link>
             </div>
           )}
-          <div className="flex-1 overflow-auto overscroll-contain p-4 pb-28 md:p-7">{children}</div>
+          <div className="flex-1 overflow-auto overscroll-contain p-3.5 pb-24 md:p-7 md:pb-7">{children}</div>
         </div>
       </div>
       <MobileNav orgName={orgName} accountType={accountType} />

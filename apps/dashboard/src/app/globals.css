@@ -124,3 +124,18 @@ body {
 ::placeholder {
   color: var(--color-text-placeholder);
 }
+
+
+/* Mobile dashboard density — scale the dashboard UI down slightly on phones
+   without changing desktop sizing or the established visual system. */
+@media (max-width: 767px) {
+  html {
+    font-size: 14px;
+  }
+
+  :root {
+    --radius-control: 10px;
+    --radius-input: 12px;
+    --radius-card: 18px;
+  }
+}
