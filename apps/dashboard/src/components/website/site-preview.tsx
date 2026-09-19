@@ -14,6 +14,8 @@ interface SitePreviewProps {
   pageKey: WebsitePageKey;
   device: Device;
   accessToken: string;
+  /** Increment after a successful customization write to reload the real tenant preview. */
+  revision?: number;
 }
 
 /**
@@ -26,7 +28,7 @@ interface SitePreviewProps {
  * العقارات (السلوك السابق، مطابقة لصفحة أخرى بالخطأ) حتى تكون المعاينة
  * صورة حقيقية لما يراه الزائر (صور/وصف/سعر)، لا صفحة عامة لا صلة لها.
  */
-export function SitePreview({ siteUrl, pageKey, device, accessToken }: SitePreviewProps) {
+export function SitePreview({ siteUrl, pageKey, device, accessToken, revision = 0 }: SitePreviewProps) {
   const { pages } = useLocale();
   const t = pages.website;
   const [previewPropertyId, setPreviewPropertyId] = useState<string | null>(null);
@@ -48,7 +50,7 @@ export function SitePreview({ siteUrl, pageKey, device, accessToken }: SitePrevi
     <div className="flex h-full items-center justify-center overflow-auto bg-surface-page p-6">
       {path ? (
         <iframe
-          key={pageKey + device + path}
+          key={pageKey + device + path + revision}
           src={`${siteUrl}${path}`}
           title={t.editor.sitePreviewTitle}
           className="h-full max-h-full rounded-input border border-border-subtle bg-white shadow-[0_2px_12px_rgba(31,29,34,.06)] transition-[width]"
