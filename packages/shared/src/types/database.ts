@@ -74,6 +74,14 @@ export interface PlatformSettings {
   terms_title_en: string;
   terms_content_ar: string;
   terms_content_en: string;
+  hero_eyebrow_ar: string | null;
+  hero_eyebrow_en: string | null;
+  hero_title_ar: string | null;
+  hero_title_en: string | null;
+  hero_subtitle_ar: string | null;
+  hero_subtitle_en: string | null;
+  footer_tagline_ar: string | null;
+  footer_tagline_en: string | null;
   updated_at: string;
 }
 
