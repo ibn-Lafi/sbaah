@@ -24,6 +24,9 @@ interface PublicPlatformSettings {
   social_tiktok: string | null;
   social_instagram: string | null;
   social_x: string | null;
+  contact_email: string | null;
+  footer_tagline_ar: string | null;
+  footer_tagline_en: string | null;
 }
 
 function SocialIcon({ type }: { type: 'tiktok' | 'instagram' | 'x' }) {
@@ -82,10 +85,11 @@ export function MarketingChrome({ locale, children }: { locale: Locale; children
           <div aria-hidden="true" className="absolute inset-0 bg-[#321846]/20" />
           <div className="relative flex flex-col items-center px-6 py-12 text-center sm:px-10 sm:py-16">
             <BrandMark label={t.brand} invert className="h-10 sm:h-12" />
+            <p className="mt-4 max-w-xl text-sm leading-7 text-white/75 sm:text-base">{(locale === 'ar' ? platformSettings?.footer_tagline_ar : platformSettings?.footer_tagline_en)?.trim() || t.footer.tagline}</p>
 
             <div className="mt-10">
               <h2 className="text-2xl font-bold sm:text-3xl">{locale === 'ar' ? 'تواصل معنا' : 'Contact us'}</h2>
-              <a href="mailto:info@sbaah.com" dir="ltr" className="mt-4 inline-block border-b border-white/70 pb-1 text-base text-white/90 transition-opacity hover:opacity-75 sm:text-lg">info@sbaah.com</a>
+              <a href="mailto:${platformSettings?.contact_email || 'info@sbaah.com'}" dir="ltr" className="mt-4 inline-block border-b border-white/70 pb-1 text-base text-white/90 transition-opacity hover:opacity-75 sm:text-lg">{platformSettings?.contact_email || 'info@sbaah.com'}</a>
               <div className="mt-6 flex items-center justify-center gap-6">
                 {platformSettings?.social_tiktok && <a href={platformSettings.social_tiktok} target="_blank" rel="noopener noreferrer" aria-label="TikTok" className="text-white/85 transition-transform hover:scale-110 hover:text-white"><SocialIcon type="tiktok"/></a>}
                 {platformSettings?.social_instagram && <a href={platformSettings.social_instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="text-white/85 transition-transform hover:scale-110 hover:text-white"><SocialIcon type="instagram"/></a>}
