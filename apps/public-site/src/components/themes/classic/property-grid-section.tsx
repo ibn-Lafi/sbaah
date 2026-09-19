@@ -23,7 +23,7 @@ export async function PropertyGridSection({ locale, config }: PropertyGridSectio
   return (
     <section className="mx-auto max-w-6xl px-6 py-12">
       <div className="mb-6 flex items-center justify-between">
-        <h2 className="text-2xl font-bold">{title}</h2>
+        <h2 className="border-s-4 border-tenant-secondary ps-3 text-2xl font-bold">{title}</h2>
         <Link href={propertiesHref} className="text-sm font-semibold text-tenant-primary hover:underline">
           {SEE_ALL_LABEL[locale]}
         </Link>
