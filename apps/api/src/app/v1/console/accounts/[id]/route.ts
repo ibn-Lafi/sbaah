@@ -18,7 +18,16 @@ export const GET = withErrorHandling<RouteContext>(async (request, { params }) =
     throw new ApiError(404, 'account_not_found', 'الحساب غير موجود');
   }
 
-  return okResponse({ account: data });
+  const [properties, projects, leads, websites, users, tickets] = await Promise.all([
+    supabase.from('properties').select('id', { count: 'exact', head: true }).eq('tenant_id', id),
+    supabase.from('projects').select('id', { count: 'exact', head: true }).eq('tenant_id', id),
+    supabase.from('leads').select('id', { count: 'exact', head: true }).eq('tenant_id', id),
+    supabase.from('websites').select('id', { count: 'exact', head: true }).eq('tenant_id', id),
+    supabase.from('users').select('id', { count: 'exact', head: true }).eq('tenant_id', id),
+    supabase.from('support_tickets').select('id', { count: 'exact', head: true }).eq('tenant_id', id),
+  ]);
+  const metrics = { properties: properties.count ?? 0, projects: projects.count ?? 0, leads: leads.count ?? 0, websites: websites.count ?? 0, users: users.count ?? 0, tickets: tickets.count ?? 0 };
+  return okResponse({ account: data, metrics });
 });
 
 /**
