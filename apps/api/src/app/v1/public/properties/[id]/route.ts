@@ -28,13 +28,19 @@ export const GET = withErrorHandling<RouteContext>(async (request, { params }) =
   const supabase = createAnonClient();
   const tenantId = await resolvePublicTenantId(domain, supabase);
 
-  const { data, error } = await supabase
+  // Do not put a human-readable slug into an `id.eq` UUID filter.
+  // PostgREST/Postgres attempts to cast every OR operand to its column type,
+  // so a slug such as "villa-riyadh" can make the whole query fail before
+  // `slug.eq` is evaluated. Route UUIDs to id, everything else to slug.
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id);
+  let query = supabase
     .from('properties')
     .select('*, property_media(id, media_type, url, order_index)')
     .eq('tenant_id', tenantId)
-    .eq('status', 'published')
-    .or(`id.eq.${id},slug.eq.${id}`)
-    .maybeSingle();
+    .eq('status', 'published');
+
+  query = isUuid ? query.eq('id', id) : query.eq('slug', id);
+  const { data, error } = await query.maybeSingle();
   if (error) {
     throw new Error(`Failed to load public property: ${error.message}`);
   }
