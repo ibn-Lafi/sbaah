@@ -1,14 +1,10 @@
 import Link from 'next/link';
 import { SiteBadge } from '@/components/site-badge';
 import {
-  BUSINESS_BADGE_COLOR,
   CallIcon,
-  CrIcon,
-  FalIcon,
   InstagramIcon,
   LocationIcon,
   SnapchatIcon,
-  TaxIcon,
   TiktokIcon,
   WhatsappIcon,
 } from '@/components/footer-icons';
@@ -36,10 +32,40 @@ export function Footer({ locale, dict, tenant, website, customPages }: FooterPro
   ].filter((entry): entry is { key: string; href: string; Icon: typeof InstagramIcon } => Boolean(entry));
 
   const businessNumbers = [
-    tenant.cr_number && { key: 'cr' as const, label: dict.crNumber, Icon: CrIcon },
-    tenant.tax_number && { key: 'tax' as const, label: dict.taxNumber, Icon: TaxIcon },
-    tenant.fal_license_number && { key: 'fal' as const, label: dict.falLicense, Icon: FalIcon },
-  ].filter((entry): entry is { key: 'cr' | 'tax' | 'fal'; label: string; Icon: typeof CrIcon } => Boolean(entry));
+    tenant.cr_number && {
+      key: 'cr' as const,
+      label: dict.crNumber,
+      src: '/business-badges/saudi-business-center.png',
+      alt: 'المركز السعودي للأعمال',
+      objectPosition: '50% 50%',
+      scale: 'scale-[1.85]',
+    },
+    tenant.tax_number && {
+      key: 'tax' as const,
+      label: dict.taxNumber,
+      src: '/business-badges/zatca.jpeg',
+      alt: 'هيئة الزكاة والضريبة والجمارك',
+      objectPosition: '50% 50%',
+      scale: 'scale-[1.35]',
+    },
+    tenant.fal_license_number && {
+      key: 'fal' as const,
+      label: dict.falLicense,
+      src: '/business-badges/rega.png',
+      alt: 'الهيئة العامة للعقار',
+      objectPosition: '50% 50%',
+      scale: 'scale-[1.3]',
+    },
+  ].filter(
+    (entry): entry is {
+      key: 'cr' | 'tax' | 'fal';
+      label: string;
+      src: string;
+      alt: string;
+      objectPosition: string;
+      scale: string;
+    } => Boolean(entry),
+  );
 
   return (
     <footer className="flex flex-col gap-8 bg-tenant-secondary px-6 py-10 text-sm text-white/60">
@@ -131,14 +157,20 @@ export function Footer({ locale, dict, tenant, website, customPages }: FooterPro
       <div className="flex flex-col items-center gap-3 border-t border-white/10 pt-6">
         {businessNumbers.length > 0 && (
           <div className="flex flex-wrap items-center justify-center gap-3">
-            {businessNumbers.map(({ key, label, Icon }) => (
+            {businessNumbers.map(({ key, label, src, alt, objectPosition, scale }) => (
               <span
                 key={key}
                 title={label}
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10"
-                style={{ color: BUSINESS_BADGE_COLOR[key] }}
+                className="relative flex h-10 w-10 flex-none items-center justify-center overflow-hidden rounded-full bg-white/10"
               >
-                <Icon className="h-[18px] w-[18px]" />
+                {/* Keep the existing 40×40 badge footprint while cropping the whitespace baked into some official source files. */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={src}
+                  alt={alt}
+                  className={`h-full w-full object-contain ${scale}`}
+                  style={{ objectPosition }}
+                />
               </span>
             ))}
           </div>
