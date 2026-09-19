@@ -32,5 +32,5 @@ function CtaBanner({ locale }: { locale: Locale }) {
 }
 
 export function MarketingHome({locale}:{locale:Locale}) {
-  return <div><Hero locale={locale}/><BusinessSuite locale={locale}/><Testimonials locale={locale}/><Pricing locale={locale}/><CtaBanner locale={locale}/><Faq locale={locale}/></div>;
+  return <div><Hero locale={locale}/><BusinessSuite locale={locale}/><Pricing locale={locale}/><Testimonials locale={locale}/><CtaBanner locale={locale}/><Faq locale={locale}/></div>;
 }
