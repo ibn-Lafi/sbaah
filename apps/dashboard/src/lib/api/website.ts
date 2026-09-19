@@ -78,3 +78,8 @@ export function updateCustomPage(
 export function deleteCustomPage(accessToken: string, id: string): Promise<{ status: string }> {
   return apiDelete<{ status: string }>(`/website/custom-pages/${id}`, accessToken);
 }
+
+export function uploadSectionAsset(accessToken: string, sectionId: string, file: File): Promise<{ url: string }> {
+  const formData = new FormData(); formData.append('file', file);
+  return apiUpload<{ url: string }>(`/website/sections/${sectionId}/asset`, formData, accessToken);
+}
