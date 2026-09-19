@@ -58,10 +58,10 @@ export default function CitiesPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="ابحث عن مدينة..."
-            className="w-[180px]"
+            className="w-full sm:w-[180px]"
             compact
           />
-          <Select value={regionFilter} onChange={(e) => setRegionFilter(e.target.value)} className="w-[180px]" compact>
+          <Select value={regionFilter} onChange={(e) => setRegionFilter(e.target.value)} className="w-full sm:w-[180px]" compact>
             <option value="">كل المناطق</option>
             {regions.map((region) => (
               <option key={region.id} value={region.id}>
@@ -88,7 +88,7 @@ export default function CitiesPage() {
 
       <FormError message={error} />
 
-      <Card className="mt-4 overflow-hidden">
+      <Card className="mt-4 overflow-x-auto">
         {visibleCities === null ? (
           <TableSkeleton columns={4} />
         ) : visibleCities.length === 0 ? (
@@ -96,7 +96,7 @@ export default function CitiesPage() {
             {query ? 'لا توجد مدينة مطابقة لبحثك' : 'لا توجد مدن بعد'}
           </p>
         ) : (
-          <table className="w-full text-sm">
+          <table className="min-w-[680px] w-full text-sm">
             <thead className="bg-surface-header text-right text-text-secondary">
               <tr>
                 <th className="px-5 py-3 font-medium">الاسم (عربي)</th>
