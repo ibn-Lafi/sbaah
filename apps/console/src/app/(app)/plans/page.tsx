@@ -69,13 +69,13 @@ export default function PlansPage() {
         <Card className="p-4"><p className="text-xs text-text-secondary">الفترات التجريبية النشطة</p><p className="mt-2 text-2xl font-semibold text-text-primary">{Object.values(usage).reduce((n,u)=>n+u.active_trials,0).toLocaleString('ar-SA')}</p></Card>
       </div>}
 
-      <Card className="mt-4 overflow-hidden">
+      <Card className="mt-4 overflow-x-auto">
         {plans === null ? (
           <TableSkeleton columns={9} />
         ) : plans.length === 0 ? (
           <p className="p-6 text-center text-text-secondary">لا توجد باقات بعد</p>
         ) : (
-          <table className="w-full text-sm">
+          <table className="min-w-[760px] w-full text-sm">
             <thead className="bg-surface-header text-right text-text-secondary">
               <tr>
                 <th className="px-5 py-3 font-medium">الاسم</th>
