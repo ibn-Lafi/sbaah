@@ -25,6 +25,8 @@ export interface TenantSite {
   sections: Pick<WebsiteSection, 'id' | 'type' | 'order_index' | 'config'>[];
   /** The tenant Owner's phone (task 34/42's WhatsApp click-to-chat button) — `users` has no anon SELECT policy, so `api` resolves this server-side, never queried directly from here. */
   whatsapp_phone: string;
+  /** Public GA4 measurement id only; OAuth credentials/tokens never leave the API. */
+  google_analytics_measurement_id: string | null;
   /** الصفحات (footer links) — title + slug only; a page's content is fetched separately when a visitor opens it (getTenantCustomPage). */
   custom_pages: { id: string; title: string; slug: string }[];
 }
