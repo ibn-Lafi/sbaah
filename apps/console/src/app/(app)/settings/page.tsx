@@ -12,7 +12,7 @@ import { useCurrentAdmin } from '@/lib/auth/current-admin-context';
 import { getPlatformSettings, updatePlatformSettings } from '@/lib/api/platform-settings';
 import { ApiRequestError } from '@/lib/api/client';
 
-type Draft = { social_tiktok:string; social_instagram:string; social_x:string; contact_email:string; privacy_title_ar:string; privacy_title_en:string; privacy_content_ar:string; privacy_content_en:string; terms_title_ar:string; terms_title_en:string; terms_content_ar:string; terms_content_en:string; hero_eyebrow_ar:string; hero_eyebrow_en:string; hero_title_ar:string; hero_title_en:string; hero_subtitle_ar:string; hero_subtitle_en:string; footer_tagline_ar:string; footer_tagline_en:string };
+type Draft = { social_tiktok:string; social_instagram:string; social_x:string; contact_email:string; privacy_title_ar:string; privacy_title_en:string; privacy_content_ar:string; privacy_content_en:string; terms_title_ar:string; terms_title_en:string; terms_content_ar:string; terms_content_en:string; hero_eyebrow_ar:string; hero_eyebrow_en:string; hero_title_ar:string; hero_title_en:string; hero_subtitle_ar:string; hero_subtitle_en:string; footer_tagline_ar:string; footer_tagline_en:string; faq_title_ar:string; faq_title_en:string; final_cta_title_ar:string; final_cta_title_en:string; final_cta_subtitle_ar:string; final_cta_subtitle_en:string };
 const toDraft = (s: PlatformSettings): Draft => ({
   social_tiktok: s.social_tiktok ?? '',
   social_instagram: s.social_instagram ?? '',
@@ -30,6 +30,9 @@ const toDraft = (s: PlatformSettings): Draft => ({
   hero_title_ar: s.hero_title_ar ?? '', hero_title_en: s.hero_title_en ?? '',
   hero_subtitle_ar: s.hero_subtitle_ar ?? '', hero_subtitle_en: s.hero_subtitle_en ?? '',
   footer_tagline_ar: s.footer_tagline_ar ?? '', footer_tagline_en: s.footer_tagline_en ?? '',
+  faq_title_ar: s.faq_title_ar ?? '', faq_title_en: s.faq_title_en ?? '',
+  final_cta_title_ar: s.final_cta_title_ar ?? '', final_cta_title_en: s.final_cta_title_en ?? '',
+  final_cta_subtitle_ar: s.final_cta_subtitle_ar ?? '', final_cta_subtitle_en: s.final_cta_subtitle_en ?? '',
 });
 
 /** إعدادات المنصة — روابط حسابات سبعة نفسها (تيك توك/إنستغرام/إكس/البريد)، تظهر بدل شريط "عقار←موقع←زائر←Lead←متابعة" في لوحة تسجيل الدخول/إنشاء حساب. */
@@ -129,6 +132,9 @@ export default function PlatformSettingsPage() {
           <div className="grid gap-3 sm:grid-cols-2"><Input value={draft.hero_eyebrow_ar} onChange={e=>setDraft({...draft,hero_eyebrow_ar:e.target.value})} placeholder="النص العلوي بالعربية"/><Input dir="ltr" value={draft.hero_eyebrow_en} onChange={e=>setDraft({...draft,hero_eyebrow_en:e.target.value})} placeholder="Hero eyebrow"/></div>
           <div className="grid gap-3 sm:grid-cols-2"><Input value={draft.hero_title_ar} onChange={e=>setDraft({...draft,hero_title_ar:e.target.value})} placeholder="العنوان الرئيسي بالعربية"/><Input dir="ltr" value={draft.hero_title_en} onChange={e=>setDraft({...draft,hero_title_en:e.target.value})} placeholder="Main hero title"/></div>
           <div className="grid gap-3 sm:grid-cols-2"><textarea value={draft.hero_subtitle_ar} onChange={e=>setDraft({...draft,hero_subtitle_ar:e.target.value})} placeholder="وصف الهيرو بالعربية" className="min-h-24 rounded-xl border border-border-subtle bg-surface-card p-3 text-sm outline-none focus:border-brand"/><textarea dir="ltr" value={draft.hero_subtitle_en} onChange={e=>setDraft({...draft,hero_subtitle_en:e.target.value})} placeholder="Hero subtitle" className="min-h-24 rounded-xl border border-border-subtle bg-surface-card p-3 text-sm outline-none focus:border-brand"/></div>
+          <div className="grid gap-3 sm:grid-cols-2"><Input value={draft.faq_title_ar} onChange={e=>setDraft({...draft,faq_title_ar:e.target.value})} placeholder="عنوان الأسئلة الشائعة"/><Input dir="ltr" value={draft.faq_title_en} onChange={e=>setDraft({...draft,faq_title_en:e.target.value})} placeholder="FAQ heading"/></div>
+          <div className="grid gap-3 sm:grid-cols-2"><Input value={draft.final_cta_title_ar} onChange={e=>setDraft({...draft,final_cta_title_ar:e.target.value})} placeholder="عنوان CTA بالعربية"/><Input dir="ltr" value={draft.final_cta_title_en} onChange={e=>setDraft({...draft,final_cta_title_en:e.target.value})} placeholder="CTA title"/></div>
+          <div className="grid gap-3 sm:grid-cols-2"><textarea value={draft.final_cta_subtitle_ar} onChange={e=>setDraft({...draft,final_cta_subtitle_ar:e.target.value})} placeholder="وصف CTA بالعربية" className="min-h-20 rounded-xl border border-border-subtle bg-surface-card p-3 text-sm outline-none focus:border-brand"/><textarea dir="ltr" value={draft.final_cta_subtitle_en} onChange={e=>setDraft({...draft,final_cta_subtitle_en:e.target.value})} placeholder="CTA subtitle" className="min-h-20 rounded-xl border border-border-subtle bg-surface-card p-3 text-sm outline-none focus:border-brand"/></div>
           <div className="grid gap-3 sm:grid-cols-2"><Input value={draft.footer_tagline_ar} onChange={e=>setDraft({...draft,footer_tagline_ar:e.target.value})} placeholder="وصف الفوتر بالعربية"/><Input dir="ltr" value={draft.footer_tagline_en} onChange={e=>setDraft({...draft,footer_tagline_en:e.target.value})} placeholder="Footer tagline"/></div>
           <FormError message={error}/><Button type="submit" disabled={loading} className="w-fit">{loading?'جارٍ الحفظ...':saved?'تم الحفظ ✓':'حفظ محتوى الصفحة'}</Button>
         </form>}
