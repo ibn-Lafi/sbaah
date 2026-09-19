@@ -46,7 +46,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const tenantName = locale === 'ar' ? site.tenant.name_ar : site.tenant.name_en;
   const theme = getThemeComponents(site.website.theme_key);
   const { HeroSection, PropertyGridSection, TextSection } = theme;
-  const isClassic = site.website.theme_key === 'classic';
+  // The original/default theme has historically been stored under more than one key in existing data.
+  // New homepage sections belong to that base theme, so treat the default registry fallback as Classic too.
+  const isClassic = site.website.theme_key === 'classic' || site.website.theme_key === 'default';
 
   return (
     <div>
