@@ -1,12 +1,13 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { AppShell } from '@/components/layout/app-shell';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { useLocale } from '@/lib/i18n/locale-context';
 import type { PageDictionaries } from '@/lib/i18n/page-dictionaries';
 import { GoogleAnalyticsInstallButton } from '@/components/apps/google-analytics-install-button';
+import { getGoogleAnalyticsIntegration } from '@/lib/api/google-analytics';
 
 /**
  * سوق التطبيقات — شبكة بطاقات (نفس نمط تصميم المؤسس: أيقونة الشعار الرسمي +
@@ -123,6 +124,22 @@ export default function AppsPage() {
   const { pages, locale } = useLocale();
   const t = pages.apps;
   const [query, setQuery] = useState('');
+  const [googleInstalled, setGoogleInstalled] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    getGoogleAnalyticsIntegration(accessToken)
+      .then((integration) => {
+        if (active) setGoogleInstalled(integration.installed);
+      })
+      .catch(() => undefined);
+    return () => { active = false; };
+  }, [accessToken]);
+
+  const installedApps = useMemo(
+    () => APPS.filter((app) => app.slug === 'whatsapp' ? app.connected : app.slug === 'googleanalytics' ? googleInstalled : false),
+    [googleInstalled],
+  );
 
   const visibleApps = useMemo(
     () =>
@@ -150,6 +167,19 @@ export default function AppsPage() {
         />
         <SearchIcon className="text-text-secondary h-[18px] w-[18px] flex-none" />
       </div>
+
+      {installedApps.length > 0 && (
+        <section className="mb-6">
+          <h2 className="text-text-primary mb-3 text-base font-bold">{locale === 'ar' ? 'التطبيقات المثبتة' : 'Installed apps'}</h2>
+          <div className="flex gap-4 overflow-x-auto pb-1">
+            {installedApps.map((app) => (
+              <div key={app.slug} className="min-w-[280px] max-w-[360px] flex-1">
+                <AppCard app={app} entry={t.apps[app.slug]} t={t} accessToken={accessToken} locale={locale} />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {visibleApps.length === 0 ? (
         <p className="text-text-secondary py-10 text-center">{t.noResults}</p>
