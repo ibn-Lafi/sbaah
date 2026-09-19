@@ -8,7 +8,9 @@ import { safeExtensionFromMime } from '@/lib/storage/safe-extension';
 const BUCKET='website-assets', BYTES=1024*1024;
 export const POST=withErrorHandling(async(request:NextRequest,{params}:{params:Promise<{id:string}>})=>{
  const {id}=await params; const {supabase}=getAuthenticatedClient(request); const caller=await getCallerContext(supabase); assertNotAgent(caller.role);
- const {data:section}=await supabase.from('website_sections').select('id,website_id').eq('id',id).maybeSingle();
+ const {data:website}=await supabase.from('websites').select('id').eq('tenant_id',caller.tenantId).maybeSingle();
+ if(!website) throw new ApiError(404,'website_not_found','الموقع غير موجود');
+ const {data:section}=await supabase.from('website_sections').select('id,website_id').eq('id',id).eq('website_id',website.id).maybeSingle();
  if(!section) throw new ApiError(404,'section_not_found','القسم غير موجود');
  const form=await request.formData(); const file=form.get('file'); if(!(file instanceof File)) throw new ApiError(400,'file_required','الملف مطلوب');
  if(!file.type.startsWith('image/')) throw new ApiError(400,'unsupported_file_type','صورة فقط مسموحة');
