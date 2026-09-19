@@ -26,6 +26,9 @@ export const NAV_ITEMS:NavEntry[]=[
  ]},
  {group:'content',label:'محتوى المنصة',icon:FaqIcon,children:[
   {href:'/faqs',label:'الأسئلة الشائعة',icon:FaqIcon},
+  {href:'/settings?section=contact',label:'التواصل',icon:SettingsIcon},
+  {href:'/settings?section=landing',label:'صفحة الهبوط',icon:SettingsIcon},
+  {href:'/settings?section=legal',label:'الصفحات القانونية',icon:SettingsIcon},
  ]},
  {group:'locations',label:'المواقع الجغرافية',icon:CitiesIcon,children:[
   {href:'/cities',label:'المدن',icon:CitiesIcon},
@@ -33,4 +36,4 @@ export const NAV_ITEMS:NavEntry[]=[
  ]},
 ];
 
-export const SETTINGS_ITEM:NavLeaf={href:'/settings',label:'إعدادات المنصة',icon:SettingsIcon};
+export const SETTINGS_ITEM:NavLeaf={href:'/settings?section=account',label:'إعدادات الحساب',icon:SettingsIcon};
