@@ -18,8 +18,8 @@ function flyoutStyle(rect:DOMRect,top:number):CSSProperties{return {position:'fi
 export function Sidebar(){
  const pathname=usePathname(),router=useRouter(); const {admin}=useCurrentAdmin();
  const [collapsed,setCollapsed]=useState(false),[accountOpen,setAccountOpen]=useState(false),[openGroups,setOpenGroups]=useState<Record<string,boolean>>({}),[hovered,setHovered]=useState<string|null>(null),[rect,setRect]=useState<DOMRect|null>(null);
- useEffect(()=>{try{setCollapsed(localStorage.getItem(COLLAPSED_STORAGE_KEY)==='1')}catch{}},[]);
- function toggle(){setCollapsed(v=>{const n=!v;try{localStorage.setItem(COLLAPSED_STORAGE_KEY,n?'1':'0')}catch{}return n})}
+ useEffect(()=>{try{setCollapsed(localStorage.getItem(COLLAPSED_STORAGE_KEY)==='1')}catch{setCollapsed(false)}},[]);
+ function toggle(){setCollapsed(v=>{const n=!v;try{localStorage.setItem(COLLAPSED_STORAGE_KEY,n?'1':'0')}catch{setCollapsed(n)}return n})}
  function enter(key:string,e:React.MouseEvent<HTMLElement>){if(collapsed){setHovered(key);setRect(e.currentTarget.getBoundingClientRect())}}
  function logout(){void signOut().then(()=>router.replace('/login'))}
  return <aside className={`relative z-20 hidden flex-none flex-col p-[10px_10px_18px] transition-[width] duration-200 md:flex ${collapsed?'w-[72px]':'w-[216px]'}`}>
