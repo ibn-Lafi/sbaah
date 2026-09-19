@@ -43,7 +43,7 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
   const homePage = pages.find((page) => page.key === 'home');
   const homeLibrary: WebsiteSectionType[] = [
     'featured_properties','latest_properties','projects_showcase','properties_by_city',
-    'stats','services','faq','cta','property_request','promo_banner','free_content','gallery','video',
+    'stats','services','faq','cta','promo_banner','free_content','gallery','video',
   ];
   if (homePage) {
     const existing = new Set(homePage.website_sections.map((section) => section.type));
