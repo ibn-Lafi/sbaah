@@ -21,6 +21,8 @@ export function Topbar({ title, siteUrl }: TopbarProps) {
   const { me, business, capabilities } = useCurrentUser();
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState('');
+  const [siteMenuOpen, setSiteMenuOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const searchable = useMemo(() => {
@@ -79,9 +81,24 @@ export function Topbar({ title, siteUrl }: TopbarProps) {
       </div>
 
       <div className="hidden items-center gap-4 md:flex"><ThemeToggle /><LanguageToggle /></div>
-      <a href={siteUrl} target="_blank" rel="noreferrer" aria-label={t.topbar.visitSite} title={t.topbar.visitSite} className="md:bg-surface-subtle flex h-9 w-9 flex-none items-center justify-center rounded-full bg-white/15 text-white md:h-[42px] md:w-[42px] md:text-text-primary">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="h-[17px] w-[17px] md:h-[19px] md:w-[19px]"><path d="M14 4h6v6M10 14 20 4M13 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-6" /></svg>
-      </a>
+      <div className="relative flex-none">
+        <button type="button" onClick={() => setSiteMenuOpen((v) => !v)} aria-label={t.topbar.visitSite} title={t.topbar.visitSite} className="md:bg-surface-subtle flex h-9 w-9 flex-none items-center justify-center rounded-full bg-white/15 text-white md:h-[42px] md:w-[42px] md:text-text-primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="h-[17px] w-[17px] md:h-[19px] md:w-[19px]"><path d="M14 4h6v6M10 14 20 4M13 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3-3v-6" /></svg>
+        </button>
+        {siteMenuOpen && (
+          <div className="bg-surface-card border-border-subtle absolute end-0 top-[48px] z-[110] w-[min(340px,calc(100vw-32px))] rounded-[18px] border p-3 shadow-[0_12px_36px_rgba(31,29,34,.18)]">
+            <div className="mb-2 flex items-center gap-2">
+              <div dir="ltr" className="bg-surface-subtle text-text-secondary min-w-0 flex-1 truncate rounded-full px-3 py-2 text-xs">{siteUrl.replace(/^https?:\/\//, '')}</div>
+              <button type="button" onClick={async () => { await navigator.clipboard.writeText(siteUrl); setCopied(true); window.setTimeout(() => setCopied(false), 1500); }} className="border-border-default text-text-primary hover:bg-surface-subtle flex h-9 flex-none items-center rounded-full border px-3 text-xs font-semibold">
+                {copied ? (locale === 'ar' ? 'تم النسخ' : 'Copied') : (locale === 'ar' ? 'نسخ الرابط' : 'Copy link')}
+              </button>
+            </div>
+            <a href={siteUrl} target="_blank" rel="noreferrer" onClick={() => setSiteMenuOpen(false)} className="bg-brand flex h-10 w-full items-center justify-center rounded-full px-4 text-sm font-semibold text-white">
+              {locale === 'ar' ? 'فتح الموقع' : 'Open website'}
+            </a>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
