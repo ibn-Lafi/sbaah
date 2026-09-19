@@ -4,6 +4,9 @@ import { useState } from 'react';
 import {
   HERO_VARIANTS,
   type AboutSectionConfig,
+  type StatsSectionConfig,
+  type ServicesSectionConfig,
+  type FaqSectionConfig,
   type HeroSectionConfig,
   type HeroVariant,
   type Website,
@@ -50,7 +53,8 @@ export function SectionConfigEditor({ section, accessToken, onSaved, website, on
   const { pages } = useLocale();
   const t = pages.website;
   const isHero = section.type === 'hero';
-  const hasBody = section.type === 'about' || section.type === 'why_us';
+  const hasBody = ['about','why_us','cta','property_request','promo_banner','free_content'].includes(section.type);
+  const hasSimpleTitle = !['property_detail','map','footer'].includes(section.type);
   const config = section.config as HeroSectionConfig & AboutSectionConfig;
 
   const [titleAr, setTitleAr] = useState(config.title_ar ?? '');
@@ -58,12 +62,25 @@ export function SectionConfigEditor({ section, accessToken, onSaved, website, on
   const [bodyAr, setBodyAr] = useState(config.body_ar ?? '');
   const [variant, setVariant] = useState<HeroVariant>(config.variant ?? 'image_search');
   const [loading, setLoading] = useState(false);
+  const [itemsJson, setItemsJson] = useState(() => JSON.stringify((section.config as StatsSectionConfig & ServicesSectionConfig & FaqSectionConfig).items ?? [], null, 2));
+  const [buttonLabel, setButtonLabel] = useState(String(section.config.button_label ?? ''));
+  const [buttonUrl, setButtonUrl] = useState(String(section.config.button_url ?? ''));
+  const [mediaUrl, setMediaUrl] = useState(String(section.config.image_url ?? section.config.video_url ?? ''));
+  const hasItems = ['stats','services','faq'].includes(section.type);
+  const hasButton = ['cta','promo_banner','free_content'].includes(section.type);
+  const hasImageUrl = ['promo_banner','free_content'].includes(section.type);
+  const hasVideoUrl = section.type === 'video';
 
   async function handleSave() {
     setLoading(true);
     try {
       const nextConfig: Record<string, string> = {};
       if (titleAr) nextConfig.title_ar = titleAr;
+      if (hasItems) { try { nextConfig.items = JSON.parse(itemsJson); } catch { /* keep previous config on invalid JSON */ } }
+      if (hasButton && buttonLabel) nextConfig.button_label = buttonLabel;
+      if (hasButton && buttonUrl) nextConfig.button_url = buttonUrl;
+      if (hasImageUrl && mediaUrl) nextConfig.image_url = mediaUrl;
+      if (hasVideoUrl && mediaUrl) nextConfig.video_url = mediaUrl;
       if (isHero && subtitleAr) nextConfig.subtitle_ar = subtitleAr;
       if (hasBody && bodyAr) nextConfig.body_ar = bodyAr;
       if (isHero) nextConfig.variant = variant;
@@ -80,7 +97,11 @@ export function SectionConfigEditor({ section, accessToken, onSaved, website, on
 
   return (
     <div className="flex flex-col gap-3 rounded-input border border-border-subtle bg-surface-subtle p-4">
-      <Input placeholder={t.sectionConfigEditor.title} value={titleAr} onChange={(e) => setTitleAr(e.target.value)} />
+      {hasSimpleTitle && <Input placeholder={t.sectionConfigEditor.title} value={titleAr} onChange={(e) => setTitleAr(e.target.value)} />}
+
+      {hasItems && <Textarea placeholder="JSON items" value={itemsJson} onChange={(e) => setItemsJson(e.target.value)} className="min-h-32 font-mono text-xs" />}
+      {hasButton && <><Input placeholder="نص الزر" value={buttonLabel} onChange={(e) => setButtonLabel(e.target.value)} /><Input placeholder="رابط الزر" value={buttonUrl} onChange={(e) => setButtonUrl(e.target.value)} /></>}
+      {(hasImageUrl || hasVideoUrl) && <Input placeholder={hasVideoUrl ? 'رابط الفيديو' : 'رابط الصورة'} value={mediaUrl} onChange={(e) => setMediaUrl(e.target.value)} />}
 
       {isHero && (
         <Input placeholder={t.sectionConfigEditor.subtitle} value={subtitleAr} onChange={(e) => setSubtitleAr(e.target.value)} />
