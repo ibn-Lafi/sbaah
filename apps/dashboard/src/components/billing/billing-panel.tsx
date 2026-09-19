@@ -64,7 +64,7 @@ export function BillingPanel() {
   }
 
   return (
-    <div className="mx-auto flex max-w-[560px] flex-col gap-5">
+    <div className="mx-auto flex w-full max-w-[820px] flex-col gap-5">
       {checkoutResult === 'success' && (
         <div className="rounded-input bg-success-surface px-4 py-3 text-sm font-medium text-success">
           {t.checkout.success}
@@ -91,6 +91,7 @@ export function BillingPanel() {
 
           <div className="flex flex-col gap-4">
             <div className="flex justify-center"><PlanComparisonButton /></div>
+            <div className="mx-auto w-full max-w-[360px] sm:max-w-[390px]">
             <PlanCard
               plan={billing.plan}
               isCurrent={false}
@@ -100,6 +101,7 @@ export function BillingPanel() {
               actionLabel={t.currentPlan.changePlanButton}
               onSelect={() => { window.location.href = '/billing/plans'; }}
             />
+            </div>
 
             <div className="hidden rounded-[24px] border border-border-subtle bg-surface-card p-5">
               <div className="flex flex-col gap-4">
