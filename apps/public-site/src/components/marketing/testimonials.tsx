@@ -23,7 +23,7 @@ const testimonials = {
 
 function Mark({kind,name,logo}:{kind:Kind;name:string;logo?:string}) {
   const initials=name.split(' ').slice(0,2).map(x=>x[0]).join('');
-  return <div className="bg-brand/10 text-brand flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl text-lg font-bold">{logo?<img src={logo} alt={name} className="h-full w-full object-contain p-1"/>:kind==='company'?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-7 w-7"><path d="M4 21h16M6 21V7l6-4 6 4v14M9 10h2m2 0h2M9 14h2m2 0h2M10 21v-4h4v4"/></svg>:initials}</div>
+  return <div className={`${logo?'bg-transparent':'bg-brand/10'} text-brand flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl text-lg font-bold`}>{logo?<img src={logo} alt={name} className="block h-full w-full object-contain"/>:kind==='company'?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-7 w-7"><path d="M4 21h16M6 21V7l6-4 6 4v14M9 10h2m2 0h2M9 14h2m2 0h2M10 21v-4h4v4"/></svg>:initials}</div>
 }
 
 export function Testimonials({locale}:{locale:Locale}) {
@@ -37,7 +37,7 @@ export function Testimonials({locale}:{locale:Locale}) {
       </div>
       <div className="-mx-5 mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-4 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-3">
         {testimonials[locale].map((x)=><article key={x.name} className="flex min-h-[390px] w-[78vw] min-w-[78vw] max-w-[310px] snap-start flex-col rounded-[28px] border border-border-subtle bg-surface-muted/70 p-5 shadow-sm sm:min-h-[285px] sm:w-auto sm:min-w-0 sm:max-w-none sm:rounded-3xl sm:bg-surface-card/95 sm:p-6">
-          <div className="flex items-center gap-3"><div className="scale-75 sm:scale-100"><Mark kind={x.kind} name={x.name} logo={'logo' in x ? x.logo : undefined}/></div><div className="min-w-0"><h3 className="font-display text-base font-semibold leading-5 text-text-primary sm:text-lg">{x.name}</h3><p className="mt-1 text-xs font-medium text-brand">{x.role}</p></div><span className="text-brand/20 ms-auto hidden self-start text-5xl leading-none sm:block">”</span></div>
+          <div className="flex items-center gap-3"><Mark kind={x.kind} name={x.name} logo={'logo' in x ? x.logo : undefined}/><div className="min-w-0"><h3 className="font-display text-base font-semibold leading-5 text-text-primary sm:text-lg">{x.name}</h3><p className="mt-1 text-xs font-medium text-brand">{x.role}</p></div><span className="text-brand/20 ms-auto hidden self-start text-5xl leading-none sm:block">”</span></div>
           <p className="mt-6 flex-1 text-base leading-8 text-text-primary sm:mt-5 sm:text-sm sm:leading-7">{x.quote}</p>
           <div className="mt-4 border-t border-border-subtle pt-3 sm:mt-5 sm:pt-4">
             <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-3"><span className="text-[10px] tracking-[1px] text-amber-500 sm:text-[15px] sm:tracking-[2px]" aria-label={ar?'5 من 5':'5 out of 5'}>★★★★★</span><span className="bg-brand/10 text-brand rounded-full px-3 py-1 text-[11px] font-medium">{x.kind==='company'?(ar?'شركة عقارية':'Real-estate company'):(ar?'فرد':'Individual')}</span></div>
