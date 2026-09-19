@@ -44,7 +44,7 @@ export default function ThemeStorePage() {
     return () => {
       cancelled = true;
     };
-  }, [accessToken, t.themeStore.errors.load]);
+  }, [accessToken, t.themeStore.errors.loadStore]);
 
   async function saveTheme(themeId: string) {
     setError(null);
