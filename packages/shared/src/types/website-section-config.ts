@@ -69,10 +69,38 @@ export type BrokerMarketerFormSectionConfig = Record<string, never>;
 /** No editable fields — pins are entirely data-driven (every published property/project/building with a location set), same as property_detail/footer. Toggle/reposition only (migration 0044). */
 export type MapSectionConfig = Record<string, never>;
 
+
+export interface FeaturedPropertiesSectionConfig { title_ar?: string; property_ids?: string[]; }
+export interface LatestPropertiesSectionConfig { title_ar?: string; limit?: number; }
+export interface ProjectsShowcaseSectionConfig { title_ar?: string; limit?: number; }
+export interface PropertiesByCitySectionConfig { title_ar?: string; city_ids?: string[]; }
+export interface StatsSectionConfig { title_ar?: string; items?: Array<{ value: string; label: string }>; }
+export interface ServicesSectionConfig { title_ar?: string; items?: Array<{ title: string; description?: string }>; }
+export interface FaqSectionConfig { title_ar?: string; items?: Array<{ question: string; answer: string }>; }
+export interface CtaSectionConfig { title_ar?: string; body_ar?: string; button_label?: string; button_url?: string; }
+export interface PropertyRequestSectionConfig { title_ar?: string; body_ar?: string; }
+export interface PromoBannerSectionConfig { title_ar?: string; body_ar?: string; button_label?: string; button_url?: string; image_url?: string; }
+export interface FreeContentSectionConfig { title_ar?: string; body_ar?: string; button_label?: string; button_url?: string; image_url?: string; }
+export interface GallerySectionConfig { title_ar?: string; image_urls?: string[]; }
+export interface VideoSectionConfig { title_ar?: string; video_url?: string; }
+
 export type WebsiteSectionConfigByType = {
   hero: HeroSectionConfig;
   property_grid: PropertyGridSectionConfig;
+  featured_properties: FeaturedPropertiesSectionConfig;
+  latest_properties: LatestPropertiesSectionConfig;
   project_grid: ProjectGridSectionConfig;
+  projects_showcase: ProjectsShowcaseSectionConfig;
+  properties_by_city: PropertiesByCitySectionConfig;
+  stats: StatsSectionConfig;
+  services: ServicesSectionConfig;
+  faq: FaqSectionConfig;
+  cta: CtaSectionConfig;
+  property_request: PropertyRequestSectionConfig;
+  promo_banner: PromoBannerSectionConfig;
+  free_content: FreeContentSectionConfig;
+  gallery: GallerySectionConfig;
+  video: VideoSectionConfig;
   property_detail: PropertyDetailSectionConfig;
   about: AboutSectionConfig;
   why_us: AboutSectionConfig;
