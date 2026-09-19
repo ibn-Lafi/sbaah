@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { formatDate, type Plan, type Tenant, type TenantStatus } from '@sbaah/shared';
 import { ConsoleShell } from '@/components/layout/console-shell';
 import { Card } from '@/components/ui/card';
@@ -24,6 +24,7 @@ const STATUS_ACTIONS: { status: TenantStatus; label: string; confirm: string }[]
 
 export default function AccountDetailPage() {
   const params = useParams<{ id: string }>();
+  const router = useRouter();
   const { accessToken } = useCurrentAdmin();
   const [account, setAccount] = useState<Tenant | null>(null);
   const [plans, setPlans] = useState<Plan[]>([]);
@@ -78,8 +79,8 @@ export default function AccountDetailPage() {
       {account === null ? (
         <LoadingState />
       ) : (
-        <div className="flex flex-col gap-5">
-          <Card className="flex items-center justify-between p-6">
+        <div className="flex flex-col gap-4 md:gap-5">
+          <div><button type="button" onClick={() => router.back()} className="mb-3 inline-flex h-9 items-center gap-2 rounded-full border border-border-default bg-surface-card px-3 text-sm font-medium text-text-primary hover:bg-surface-subtle">← رجوع</button><Card className="flex items-center justify-between gap-3 p-4 sm:p-6">
             <div>
               <h2 className="text-lg font-bold">{account.name_ar}</h2>
               <p className="text-sm text-text-secondary" dir="ltr">
@@ -87,7 +88,7 @@ export default function AccountDetailPage() {
               </p>
             </div>
             <TenantStatusBadge status={account.status} />
-          </Card>
+          </Card></div>
 
           {metrics && <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
             {[
@@ -100,9 +101,9 @@ export default function AccountDetailPage() {
             ].map(([label, value]) => <Card key={String(label)} className="p-4"><p className="text-xs text-text-secondary">{label}</p><p className="mt-2 text-2xl font-semibold text-text-primary">{value}</p></Card>)}
           </div>}
 
-          <Card className="p-6">
+          <Card className="p-4 sm:p-6">
             <h3 className="mb-4 font-semibold">بيانات الحساب</h3>
-            <dl className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
+            <dl className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2 lg:grid-cols-3">
               <div>
                 <dt className="text-text-muted">نوع الحساب</dt>
                 <dd className="mt-0.5 font-medium">{ACCOUNT_TYPE_LABELS[account.account_type]}</dd>
@@ -147,7 +148,7 @@ export default function AccountDetailPage() {
             </dl>
           </Card>
 
-          <Card className="p-6">
+          <Card className="p-4 sm:p-6">
             <h3 className="mb-1 font-semibold">حالة الحساب</h3>
             <p className="mb-4 text-sm text-text-secondary">الحالة الحالية: {TENANT_STATUS_LABELS[account.status]}</p>
             <div className="flex flex-wrap gap-3">
@@ -165,9 +166,9 @@ export default function AccountDetailPage() {
             </div>
           </Card>
 
-          <Card className="p-6">
+          <Card className="p-4 sm:p-6">
             <h3 className="mb-4 font-semibold">الباقة</h3>
-            <Select value={account.plan_id} onChange={(e) => void handlePlanChange(e.target.value)} disabled={busy} className="w-[260px]">
+            <Select value={account.plan_id} onChange={(e) => void handlePlanChange(e.target.value)} disabled={busy} className="w-full sm:w-[260px]">
               {plans.map((plan) => (
                 <option key={plan.id} value={plan.id}>
                   {plan.name_ar} — {plan.price.toLocaleString('en-US')} ريال/شهريًا
