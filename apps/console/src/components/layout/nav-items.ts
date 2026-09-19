@@ -12,6 +12,8 @@ export interface NavItem {
 
 /** No "طلبات الدومين" entry — custom-domain verification is fully self-service now (real DNS check triggered from the owner's own dashboard), no console review step exists to link to. */
 export const NAV_ITEMS: NavItem[] = [
+  { href: '/', label: 'نظرة عامة', icon: AccountsIcon },
+  { href: '/operations', label: 'تشغيل المنصة', icon: AccountsIcon },
   { href: '/accounts', label: 'الحسابات', icon: AccountsIcon },
   { href: '/plans', label: 'الباقات', icon: PlansIcon },
   { href: '/themes', label: 'الثيمات', icon: ThemesIcon },
