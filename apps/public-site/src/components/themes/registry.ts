@@ -9,11 +9,11 @@ import { classicTheme } from './classic';
  * This is important for theme-specific section libraries (Classic today,
  * additional marketplace themes later).
  */
-const THEME_REGISTRY: Record<string, ThemeSectionComponents> = {
-  classic: classicTheme,
-};
+export const DEFAULT_THEME_KEY = 'classic' as const;
 
-export const DEFAULT_THEME_KEY = 'classic';
+const THEME_REGISTRY = {
+  [DEFAULT_THEME_KEY]: classicTheme,
+} satisfies Record<string, ThemeSectionComponents>;
 
 export interface ResolvedTheme {
   key: string;
@@ -22,10 +22,16 @@ export interface ResolvedTheme {
 
 /** Unknown/deactivated legacy keys resolve safely to the marketplace default. */
 export function resolveTheme(themeKey: string | null | undefined): ResolvedTheme {
-  if (themeKey && THEME_REGISTRY[themeKey]) {
-    return { key: themeKey, components: THEME_REGISTRY[themeKey] };
+  const fallback = THEME_REGISTRY[DEFAULT_THEME_KEY];
+
+  if (themeKey && Object.prototype.hasOwnProperty.call(THEME_REGISTRY, themeKey)) {
+    return {
+      key: themeKey,
+      components: THEME_REGISTRY[themeKey as keyof typeof THEME_REGISTRY],
+    };
   }
-  return { key: DEFAULT_THEME_KEY, components: THEME_REGISTRY[DEFAULT_THEME_KEY] };
+
+  return { key: DEFAULT_THEME_KEY, components: fallback };
 }
 
 /** Backwards-compatible component-only helper for layouts and existing pages. */
