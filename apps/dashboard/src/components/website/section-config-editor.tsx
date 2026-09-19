@@ -13,6 +13,9 @@ import {
   type WebsiteSection,
   type City,
   type Property,
+  type SectionTone,
+  type SectionHeadingAlign,
+  type SectionColumns,
 } from '@sbaah/shared';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -85,6 +88,11 @@ export function SectionConfigEditor({ section, accessToken, onSaved, website, on
   const [selectedPropertyIds, setSelectedPropertyIds] = useState<string[]>(() => Array.isArray(section.config.property_ids) ? section.config.property_ids as string[] : []);
   const [selectedCityIds, setSelectedCityIds] = useState<string[]>(() => Array.isArray(section.config.city_ids) ? section.config.city_ids as string[] : []);
   const [limit, setLimit] = useState(String(section.config.limit ?? 6));
+  const supportsPresentation = ['featured_properties','latest_properties','projects_showcase','properties_by_city','stats','services','faq'].includes(section.type);
+  const supportsColumns = ['featured_properties','latest_properties','projects_showcase','properties_by_city','stats','services'].includes(section.type);
+  const [tone, setTone] = useState<SectionTone>((section.config.tone as SectionTone) ?? 'default');
+  const [headingAlign, setHeadingAlign] = useState<SectionHeadingAlign>((section.config.heading_align as SectionHeadingAlign) ?? 'start');
+  const [columns, setColumns] = useState<SectionColumns>((section.config.columns as SectionColumns) ?? 3);
 
   useEffect(() => {
     if (isFeaturedProperties) void listProperties(accessToken, { status: 'published' }).then((r) => setProperties(r.properties));
@@ -108,6 +116,11 @@ export function SectionConfigEditor({ section, accessToken, onSaved, website, on
       if (isHero && subtitleAr) nextConfig.subtitle_ar = subtitleAr;
       if (hasBody && bodyAr) nextConfig.body_ar = bodyAr;
       if (isHero) nextConfig.variant = variant;
+      if (supportsPresentation) {
+        nextConfig.tone = tone;
+        nextConfig.heading_align = headingAlign;
+      }
+      if (supportsColumns) nextConfig.columns = columns;
 
       const { section: updated } = await updateSection(accessToken, section.id, { config: nextConfig });
       onSaved(updated);
@@ -150,6 +163,34 @@ export function SectionConfigEditor({ section, accessToken, onSaved, website, on
         </div>
       )}
       {hasButton && <><Input placeholder="نص الزر" value={buttonLabel} onChange={(e) => setButtonLabel(e.target.value)} /><Input placeholder="رابط الزر" value={buttonUrl} onChange={(e) => setButtonUrl(e.target.value)} /></>}
+      {supportsPresentation && (
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="flex flex-col gap-2">
+            <label className="text-text-secondary text-xs">خلفية القسم</label>
+            <Select value={tone} onChange={(e) => setTone(e.target.value as SectionTone)} className="h-10">
+              <option value="default">افتراضية</option>
+              <option value="soft">هادئة</option>
+            </Select>
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="text-text-secondary text-xs">محاذاة عنوان القسم</label>
+            <Select value={headingAlign} onChange={(e) => setHeadingAlign(e.target.value as SectionHeadingAlign)} className="h-10">
+              <option value="start">بداية القسم</option>
+              <option value="center">توسيط</option>
+            </Select>
+          </div>
+          {supportsColumns && (
+            <div className="flex flex-col gap-2">
+              <label className="text-text-secondary text-xs">عدد الأعمدة على الشاشات الكبيرة</label>
+              <Select value={String(columns)} onChange={(e) => setColumns(Number(e.target.value) as SectionColumns)} className="h-10">
+                <option value="2">عمودان</option>
+                <option value="3">3 أعمدة</option>
+                <option value="4">4 أعمدة</option>
+              </Select>
+            </div>
+          )}
+        </div>
+      )}
       {hasLimit && <Input type="number" min="1" max="12" placeholder="عدد العناصر" value={limit} onChange={(e) => setLimit(e.target.value)} />}
       {isFeaturedProperties && <div className="flex flex-col gap-2"><label className="text-text-secondary text-xs">اختر العقارات المميزة</label><div className="max-h-56 overflow-auto rounded-input border border-border-default bg-surface-card p-2">{properties.map((property)=><label key={property.id} className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-sm hover:bg-surface-subtle"><input type="checkbox" checked={selectedPropertyIds.includes(property.id)} onChange={(e)=>setSelectedPropertyIds(v=>e.target.checked?[...v,property.id]:v.filter(id=>id!==property.id))}/><span>{property.title_ar}</span></label>)}</div></div>}
       {isPropertiesByCity && <div className="flex flex-col gap-2"><label className="text-text-secondary text-xs">اختر المدن</label><div className="max-h-56 overflow-auto rounded-input border border-border-default bg-surface-card p-2">{cities.map((city)=><label key={city.id} className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-sm hover:bg-surface-subtle"><input type="checkbox" checked={selectedCityIds.includes(city.id)} onChange={(e)=>setSelectedCityIds(v=>e.target.checked?[...v,city.id]:v.filter(id=>id!==city.id))}/><span>{city.name_ar}</span></label>)}</div></div>}
