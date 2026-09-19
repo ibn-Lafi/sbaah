@@ -45,7 +45,7 @@ export function Hero({ locale }: { locale: Locale }) {
 
       <div className="relative z-10 mx-auto -mt-28 flex max-w-3xl flex-col items-center gap-6 sm:-mt-32">
         <h1 className="font-display text-4xl leading-[1.15] font-semibold text-white sm:text-5xl md:text-6xl">{t.title}</h1>
-        <p className="max-w-xl text-lg text-white/85">{t.subtitle}</p>
+        <p className="max-w-xl text-lg text-brand">{t.subtitle}</p>
       </div>
 
       <div className="absolute inset-x-0 bottom-5 z-[5] sm:bottom-7">
