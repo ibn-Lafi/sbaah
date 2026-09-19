@@ -12,7 +12,7 @@ export const GET = withErrorHandling(async () => {
   const supabase = createAnonClient();
   const { data, error } = await supabase
     .from('platform_settings')
-    .select('social_tiktok, social_instagram, social_x, contact_email, privacy_title_ar, privacy_title_en, privacy_content_ar, privacy_content_en, terms_title_ar, terms_title_en, terms_content_ar, terms_content_en, hero_eyebrow_ar, hero_eyebrow_en, hero_title_ar, hero_title_en, hero_subtitle_ar, hero_subtitle_en, footer_tagline_ar, footer_tagline_en')
+    .select('social_tiktok, social_instagram, social_x, contact_email, privacy_title_ar, privacy_title_en, privacy_content_ar, privacy_content_en, terms_title_ar, terms_title_en, terms_content_ar, terms_content_en, hero_eyebrow_ar, hero_eyebrow_en, hero_title_ar, hero_title_en, hero_subtitle_ar, hero_subtitle_en, footer_tagline_ar, footer_tagline_en, faq_title_ar, faq_title_en, final_cta_title_ar, final_cta_title_en, final_cta_subtitle_ar, final_cta_subtitle_en')
     .eq('id', true)
     .single();
   if (error || !data) {
