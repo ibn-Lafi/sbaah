@@ -17,8 +17,10 @@ export function listAccounts(accessToken: string, params: { status?: TenantStatu
   return apiGet<AccountListResponse>(`/console/accounts${qs ? `?${qs}` : ''}`, accessToken);
 }
 
+export interface AccountMetrics { properties:number; projects:number; leads:number; websites:number; users:number; tickets:number }
+
 export function getAccount(accessToken: string, id: string) {
-  return apiGet<{ account: Tenant }>(`/console/accounts/${id}`, accessToken);
+  return apiGet<{ account: Tenant; metrics: AccountMetrics }>(`/console/accounts/${id}`, accessToken);
 }
 
 export function updateAccount(accessToken: string, id: string, input: ConsoleAccountUpdateInput) {
