@@ -165,11 +165,14 @@ export function Footer({ locale, dict, tenant, website, customPages }: FooterPro
               >
                 {/* Keep the existing 40×40 badge footprint while cropping the whitespace baked into some official source files. */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={src}
-                  alt={alt}
-                  className={`h-full w-full object-contain ${scale}`}
-                  style={{ objectPosition }}
+                <span
+                  role="img"
+                  aria-label={alt}
+                  className={`block h-full w-full bg-contain bg-center bg-no-repeat ${scale}`}
+                  style={{
+                    backgroundImage: `url("${src}")`,
+                    backgroundPosition: objectPosition,
+                  }}
                 />
               </span>
             ))}
