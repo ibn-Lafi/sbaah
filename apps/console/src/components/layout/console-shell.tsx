@@ -1,26 +1,7 @@
 'use client';
-
-import { useState } from 'react';
-import { Sidebar } from './sidebar';
-import { Topbar } from './topbar';
-
-/**
- * The authenticated console chrome — matches apps/dashboard's AppShell
- * structure (Sidebar + Topbar). Every route under `(app)` renders inside
- * this. Owns the mobile drawer's open state (Topbar's hamburger button
- * triggers it, Sidebar renders it) — UI/UX audit finding: console had no
- * responsive handling for the sidebar at all below `md`.
- */
-export function ConsoleShell({ title, children }: { title: string; children: React.ReactNode }) {
-  const [mobileNavOpen, setMobileNavOpen] = useState(false);
-
-  return (
-    <div className="flex min-h-screen">
-      <Sidebar mobileOpen={mobileNavOpen} onMobileClose={() => setMobileNavOpen(false)} />
-      <div className="flex min-w-0 flex-1 flex-col">
-        <Topbar title={title} onMenuClick={() => setMobileNavOpen(true)} />
-        <div className="flex-1 overflow-auto p-4 md:p-7">{children}</div>
-      </div>
-    </div>
-  );
+import {Sidebar} from './sidebar';
+import {Topbar} from './topbar';
+import {MobileNav} from './mobile-nav';
+export function ConsoleShell({title,children}:{title:string;children:React.ReactNode}){
+ return <div className="flex h-dvh overflow-hidden"><Sidebar/><div className="flex min-h-0 min-w-0 flex-1 flex-col"><Topbar title={title}/><div className="bg-surface-page relative z-10 -mt-5 flex min-h-0 flex-1 flex-col rounded-t-[28px] md:mt-0 md:rounded-none md:bg-transparent"><main className="flex-1 overflow-auto overscroll-contain p-3.5 pb-24 md:p-7 md:pb-7">{children}</main></div></div><MobileNav/></div>
 }
