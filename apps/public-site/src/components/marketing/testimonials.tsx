@@ -49,7 +49,7 @@ export function Testimonials({locale}:{locale:Locale}) {
         {filters.map(x=><button key={x.key} onClick={()=>setFilter(x.key)} className={`rounded-full px-5 py-2 text-xs font-medium transition sm:text-sm ${filter===x.key?'bg-text-primary text-surface-card':'bg-surface-muted text-text-secondary hover:text-text-primary'}`}>{ar?x.ar:x.en}</button>)}
       </div>
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {visible.map((x,i)=><article key={x.name} className="flex min-h-[285px] flex-col rounded-3xl border border-border-subtle bg-surface-card/95 p-6 shadow-sm backdrop-blur">
+        {visible.map((x)=><article key={x.name} className="flex min-h-[285px] flex-col rounded-3xl border border-border-subtle bg-surface-card/95 p-6 shadow-sm backdrop-blur">
           <div className="flex items-center gap-3"><Mark kind={x.kind} name={x.name}/><div className="min-w-0"><h3 className="font-display text-lg font-semibold text-text-primary">{x.name}</h3><p className="text-xs text-text-secondary">{x.role}</p></div><span className="text-brand/20 ms-auto self-start text-5xl leading-none">”</span></div>
           <p className="mt-5 flex-1 text-sm leading-7 text-text-secondary">{x.quote}</p>
           <div className="mt-5 border-t border-border-subtle pt-4">
