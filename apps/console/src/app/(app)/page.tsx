@@ -7,6 +7,10 @@ import { LoadingState } from '@/components/ui/loading-state';
 import { useCurrentAdmin } from '@/lib/auth/current-admin-context';
 import { getConsoleOverview, type ConsoleOverview } from '@/lib/api/overview';
 
+const adminShortcuts = [
+ ['الحسابات','/accounts'],['الباقات','/plans'],['الثيمات','/themes'],['التذاكر والدعم','/support'],['إعدادات المنصة','/settings'],
+] as const;
+
 const metricMeta=[
  ['accounts','الحسابات','/accounts'],['active_accounts','الحسابات النشطة','/accounts'],['properties','العقارات','/accounts'],
  ['projects','المشاريع','/accounts'],['leads','العملاء المحتملون','/accounts'],['websites','المواقع','/themes'],['open_tickets','التذاكر المفتوحة','/support'],
@@ -25,7 +29,7 @@ export default function ConsoleHomePage(){
     <Card className="p-5"><div className="mb-4 flex items-center justify-between"><h2 className="font-semibold text-text-primary">أحدث الحسابات</h2><Link href="/accounts" className="text-sm font-medium text-brand">عرض الكل</Link></div>
      <div className="divide-y divide-border-subtle">{data.recent_accounts.map(a=><Link href={`/accounts/${a.id}`} key={a.id} className="flex items-center justify-between gap-3 py-3"><div className="min-w-0"><p className="truncate text-sm font-medium text-text-primary">{a.name_ar||a.name_en}</p><p className="mt-1 text-xs text-text-secondary">{new Date(a.created_at).toLocaleDateString('ar-SA')}</p></div><span className="rounded-full bg-surface-subtle px-2.5 py-1 text-xs text-text-secondary">{a.status}</span></Link>)}</div>
     </Card>
-    <Card className="p-5"><h2 className="font-semibold text-text-primary">اختصارات الإدارة</h2><div className="mt-4 grid gap-2">{[['الحسابات','/accounts'],['الباقات','/plans'],['الثيمات','/themes'],['التذاكر والدعم','/support'],['إعدادات المنصة','/settings']].map(([l,h])=><Link key={h} href={h} className="rounded-xl bg-surface-subtle px-4 py-3 text-sm font-medium text-text-primary hover:bg-brand-surface hover:text-brand">{l}</Link>)}</div></Card>
+    <Card className="p-5"><h2 className="font-semibold text-text-primary">اختصارات الإدارة</h2><div className="mt-4 grid gap-2">{adminShortcuts.map(([l,h])=><Link key={h} href={h} className="rounded-xl bg-surface-subtle px-4 py-3 text-sm font-medium text-text-primary hover:bg-brand-surface hover:text-brand">{l}</Link>)}</div></Card>
    </div>
   </>}
  </ConsoleShell>;
