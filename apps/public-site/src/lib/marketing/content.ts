@@ -8,8 +8,8 @@ export const MARKETING_CONTENT = {
     },
     hero: {
       eyebrow: 'منصة عقارية سعودية',
-      title: 'موقعك العقاري وعملاؤك، من مكان واحد',
-      subtitle: 'أنشئ موقعك، اعرض عقاراتك، ونظّم عملاءك وطلباتك من لوحة تحكم واحدة.',
+      title: 'أدر أعمالك العقارية من مكان واحد',
+      subtitle: 'عقاراتك، عملاؤك، موقعك — أدرها كلها بسهولة مع سبعة.',
       primaryCta: 'أنشئ حسابك', secondaryCta: 'اكتشف سبعة',
       trustChips: ['موقع بهويتك', 'إدارة عملاء CRM', 'دعم بالعربية'],
     },
@@ -90,8 +90,8 @@ export const MARKETING_CONTENT = {
       createSite: 'Create your site', languageSwitch: 'العربية', menuOpen: 'Open menu', menuClose: 'Close menu', switchToDark: 'Dark mode', switchToLight: 'Light mode',
     },
     hero: {
-      eyebrow: 'Saudi real-estate platform', title: 'Your real-estate website and clients, in one place',
-      subtitle: 'Build your website, showcase properties, and organize clients and requests from one dashboard.',
+      eyebrow: 'Saudi real-estate platform', title: 'Manage your real-estate business in one place',
+      subtitle: 'Your properties, clients, and website — manage them all easily with Sbaah.',
       primaryCta: 'Create account', secondaryCta: 'Explore Sbaah', trustChips: ['Your branded website', 'Client CRM', 'Arabic support'],
     },
     howItWorks: {
