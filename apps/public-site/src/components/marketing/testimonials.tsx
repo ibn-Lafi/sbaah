@@ -23,7 +23,7 @@ const testimonials = {
 };
 
 function Arrow({direction}:{direction:'left'|'right'}) {
-  return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-7 w-7" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d={direction==='left'?'M19 12H5m6-6-6 6 6 6':'M5 12h14m-6-6 6 6-6 6'}/></svg>;
+  return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="h-6 w-6" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d={direction==='left'?'M15 18l-6-6 6-6':'M9 6l6 6-6 6'}/></svg>;
 }
 
 export function Testimonials({locale}:{locale:Locale}) {
@@ -36,38 +36,38 @@ export function Testimonials({locale}:{locale:Locale}) {
     el.scrollBy({left:direction*(card?.offsetWidth ?? el.clientWidth),behavior:'smooth'});
   };
 
-  return <section className="bg-surface-card px-5 py-16 sm:px-6 sm:py-24">
+  return <section className="bg-surface-card px-4 py-14 sm:px-6 sm:py-24">
     <div className="mx-auto max-w-6xl">
       <div className="mx-auto max-w-3xl text-center">
         <span className="bg-brand/10 text-brand inline-flex rounded-full px-4 py-1.5 text-xs font-semibold">{ar?'آراء عملاء سبعة':'Sbaah customer stories'}</span>
         <h2 className="font-display mt-4 text-3xl font-semibold text-text-primary sm:text-4xl lg:text-5xl">{ar?'قصص نجاح من عملاء سبعة':'Stories from Sbaah customers'}</h2>
       </div>
 
-      <div ref={scroller} className="mt-9 flex snap-x snap-mandatory gap-5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {testimonials[locale].map((x)=><article data-testimonial-card key={x.company} className="flex w-full min-w-full snap-center flex-col rounded-[28px] border border-border-subtle bg-surface-card p-4 sm:p-7 lg:min-w-[calc(50%-10px)]">
-          <div className="aspect-[16/9] w-full overflow-hidden rounded-[22px] bg-surface-muted">
+      <div ref={scroller} className="mt-8 flex snap-x snap-mandatory gap-5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mt-9">
+        {testimonials[locale].map((x)=><article data-testimonial-card key={x.company} className="flex w-full min-w-full snap-center flex-col rounded-[22px] border border-border-subtle bg-surface-card p-3 sm:rounded-[28px] sm:p-7 lg:min-w-[calc(50%-10px)]">
+          <div className="aspect-[1.72/1] w-full overflow-hidden rounded-[16px] bg-surface-muted sm:aspect-[16/9] sm:rounded-[22px]">
             <img src={x.image} alt={ar?`عرض موقع ${x.company}`:`${x.company} website preview`} className="h-full w-full object-cover" />
           </div>
 
-          <blockquote className="font-display mx-auto mt-7 max-w-3xl text-center text-[20px] font-medium leading-[1.8] text-text-primary sm:mt-8 sm:text-2xl">
+          <blockquote className="font-display mx-auto mt-6 max-w-3xl px-2 text-center text-[17px] font-medium leading-[1.75] text-text-primary sm:mt-8 sm:px-0 sm:text-2xl">
             “{x.quote}”
           </blockquote>
 
-          <div className="mt-auto flex items-end justify-between gap-4 pt-9" dir={ar?'rtl':'ltr'}>
-            <div className="min-w-0 text-start">
-              <p className="font-display text-xl font-semibold text-text-primary">{x.person}</p>
-              <p className="mt-1.5 text-sm text-text-secondary">{x.company}</p>
+          <div className="mt-auto flex items-center justify-end gap-3 pt-8 sm:items-end sm:justify-between sm:gap-4 sm:pt-9" dir={ar?'rtl':'ltr'}>
+            <div className="min-w-0 text-end sm:text-start">
+              <p className="font-display text-[18px] font-semibold text-text-primary sm:text-xl">{x.person}</p>
+              <p className="mt-1 text-[13px] text-text-secondary sm:mt-1.5 sm:text-sm">{x.company}</p>
             </div>
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border-subtle bg-surface-card">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border-subtle bg-surface-card sm:h-14 sm:w-14">
               {x.logo?<img src={x.logo} alt={x.company} className="h-full w-full object-contain"/>:<span className="text-brand text-lg font-bold">{x.company.slice(0,1)}</span>}
             </div>
           </div>
         </article>)}
       </div>
 
-      <div className="mx-auto mt-8 flex w-fit items-center gap-1 rounded-full bg-surface-muted p-2">
-        <button type="button" onClick={()=>move(-1)} aria-label={ar?'السابق':'Previous testimonial'} className="flex h-14 w-14 items-center justify-center rounded-full bg-surface-card text-text-primary shadow-sm transition hover:text-brand"><Arrow direction="left"/></button>
-        <button type="button" onClick={()=>move(1)} aria-label={ar?'التالي':'Next testimonial'} className="flex h-14 w-14 items-center justify-center rounded-full bg-surface-card text-text-primary shadow-sm transition hover:text-brand"><Arrow direction="right"/></button>
+      <div className="mx-auto mt-7 flex w-fit items-center rounded-full bg-surface-muted p-[6px] sm:mt-8">
+        <button type="button" onClick={()=>move(-1)} aria-label={ar?'السابق':'Previous testimonial'} className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-card text-text-primary transition hover:text-brand sm:h-14 sm:w-14"><Arrow direction="left"/></button>
+        <button type="button" onClick={()=>move(1)} aria-label={ar?'التالي':'Next testimonial'} className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-card text-text-primary transition hover:text-brand sm:h-14 sm:w-14"><Arrow direction="right"/></button>
       </div>
     </div>
   </section>;
