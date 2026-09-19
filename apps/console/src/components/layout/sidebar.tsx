@@ -27,7 +27,7 @@ function SidebarContent({ pathname, onNavigate }: SidebarContentProps) {
   return (
     <>
       <div className="px-2 pb-[18px]">
-        <BrandMark />
+        <BrandMark invert />
       </div>
 
       <nav className="flex flex-1 flex-col gap-px overflow-auto">
@@ -40,7 +40,7 @@ function SidebarContent({ pathname, onNavigate }: SidebarContentProps) {
               href={item.href}
               onClick={onNavigate}
               className={`flex h-[34px] flex-none items-center gap-2 rounded-[9px] px-[10px] text-[13px] ${
-                active ? 'bg-brand-surface font-semibold text-brand' : 'font-normal text-text-tertiary'
+                active ? 'bg-white/15 font-semibold text-white' : 'font-normal text-white/70 hover:bg-white/10 hover:text-white'
               }`}
             >
               <ItemIcon className="h-[16px] w-[16px] flex-none" />
@@ -50,7 +50,7 @@ function SidebarContent({ pathname, onNavigate }: SidebarContentProps) {
         })}
       </nav>
 
-      <div className="relative border-t border-border-subtle pt-[10px]">
+      <div className="relative border-t border-white/15 pt-[10px]">
         <button
           type="button"
           onClick={() => setAccountMenuOpen((open) => !open)}
@@ -58,8 +58,8 @@ function SidebarContent({ pathname, onNavigate }: SidebarContentProps) {
         >
           <AdminAvatar />
           <div className="flex min-w-0 flex-1 flex-col gap-px">
-            <div className="truncate text-xs font-semibold text-text-primary">{admin.full_name}</div>
-            <div className="text-[11px] text-text-secondary">مالك المنصة</div>
+            <div className="truncate text-xs font-semibold text-white">{admin.full_name}</div>
+            <div className="text-[11px] text-white/60">مالك المنصة</div>
           </div>
         </button>
 
@@ -101,7 +101,7 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
   return (
     <>
       {/* Desktop: always visible, static */}
-      <div className="hidden w-[216px] flex-none flex-col border-e border-border-subtle bg-surface-card p-[10px_10px_18px] md:flex">
+      <div className="hidden w-[216px] flex-none flex-col bg-brand p-[10px_10px_18px] md:flex">
         <SidebarContent pathname={pathname} />
       </div>
 
@@ -109,7 +109,7 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
       {mobileOpen && (
         <div className="fixed inset-0 z-40 flex md:hidden">
           <div className="absolute inset-0 bg-black/40" onClick={onMobileClose} />
-          <div className="relative flex w-[240px] flex-none flex-col bg-surface-card p-[10px_10px_18px] shadow-[0_0_30px_rgba(31,29,34,.25)]">
+          <div className="relative flex w-[240px] flex-none flex-col bg-brand p-[10px_10px_18px] shadow-[0_0_30px_rgba(31,29,34,.25)]">
             <SidebarContent pathname={pathname} onNavigate={onMobileClose} />
           </div>
         </div>
