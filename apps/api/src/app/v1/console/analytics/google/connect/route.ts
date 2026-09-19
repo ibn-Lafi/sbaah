@@ -11,7 +11,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   const state = createOAuthState();
   const serviceRole = createServiceRoleClient();
   const { error } = await serviceRole.from('platform_google_analytics_oauth_states').insert({
-    state_hash: hashOAuthState(state), user_id: user.id, expires_at: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
+    state_hash: hashOAuthState(state), user_id: null, expires_at: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
   });
   if (error) throw new Error(`Failed to create platform Google OAuth state: ${error.message}`);
   return okResponse({ authorization_url: buildGoogleAuthorizationUrl(state, process.env.GOOGLE_ANALYTICS_PLATFORM_REDIRECT_URI, process.env.GOOGLE_PLATFORM_CLIENT_ID) });
