@@ -1,8 +1,9 @@
 import type { Plan, PlanInput, PlanUpdateInput } from '@sbaah/shared';
 import { apiDelete, apiGet, apiPatch, apiPost } from './client';
 
+export interface PlanUsage { accounts:number; active_accounts:number; active_trials:number }
 export function listPlans(accessToken: string) {
-  return apiGet<{ plans: Plan[] }>('/console/plans', accessToken);
+  return apiGet<{ plans: Plan[]; usage: Record<string, PlanUsage> }>('/console/plans', accessToken);
 }
 
 export function createPlan(accessToken: string, input: PlanInput) {
