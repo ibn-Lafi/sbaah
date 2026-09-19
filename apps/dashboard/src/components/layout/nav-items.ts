@@ -76,7 +76,6 @@ export function getNavItems(t: ChromeDictionary): NavEntry[] {
         { href: '/properties', label: t.nav.propertiesGroup.units, icon: PropertiesIcon },
         { href: '/buildings', label: t.nav.propertiesGroup.buildings, icon: BuildingsIcon },
         { href: '/projects', label: t.nav.propertiesGroup.projects, icon: ProjectsIcon, capability: 'projects' },
-        { href: '/rentals', label: t.nav.propertiesGroup.rentals, icon: RentalsIcon },
       ],
     },
     {
