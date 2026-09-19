@@ -849,7 +849,7 @@ export default function WebsiteEditorPage() {
             </div>
 
             <div className="min-h-0 flex-1">
-              <SitePreview siteUrl={siteUrl} pageKey={activePageKey} device={device} accessToken={accessToken} />
+              <SitePreview siteUrl={siteUrl} pageKey={activePageKey} device={device} accessToken={accessToken} revision={previewRevision} />
             </div>
           </div>
         </div>
