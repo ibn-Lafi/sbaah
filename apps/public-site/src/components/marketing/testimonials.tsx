@@ -67,8 +67,8 @@ export function Testimonials({locale}:{locale:Locale}) {
       </div>
 
       <div className="mx-auto mt-8 flex w-fit items-center gap-[2px] rounded-[999px] bg-brand/10 p-[5px] sm:mt-8">
-        <button type="button" disabled={active===0} onClick={()=>move(-1)} aria-label={ar?'السابق':'Previous testimonial'} className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-card text-brand transition hover:bg-brand/5 disabled:cursor-default disabled:opacity-30 sm:h-14 sm:w-14"><Arrow direction="left"/></button>
         <button type="button" disabled={active===items.length-1} onClick={()=>move(1)} aria-label={ar?'التالي':'Next testimonial'} className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-card text-brand transition hover:bg-brand/5 disabled:cursor-default disabled:opacity-30 sm:h-14 sm:w-14"><Arrow direction="right"/></button>
+        <button type="button" disabled={active===0} onClick={()=>move(-1)} aria-label={ar?'السابق':'Previous testimonial'} className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-card text-brand transition hover:bg-brand/5 disabled:cursor-default disabled:opacity-30 sm:h-14 sm:w-14"><Arrow direction="left"/></button>
       </div>
     </div>
   </section>;
