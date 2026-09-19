@@ -49,13 +49,13 @@ export function Testimonials({locale}:{locale:Locale}) {
       </div>
 
       <div ref={scroller} className="mt-8 flex snap-x snap-mandatory gap-0 overflow-x-hidden scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mt-9">
-        {items.map((x,i)=><article data-testimonial-card key={`${x.person}-${i}`} className="mx-auto flex h-[245px] w-full min-w-full snap-center flex-col rounded-[20px] border border-border-subtle bg-surface-card px-[14px] pb-[16px] pt-[16px] sm:h-auto sm:w-full sm:min-w-full sm:rounded-[28px] sm:border-border-subtle sm:p-7 lg:min-w-[calc(50%-10px)]">
+        {items.map((x,i)=><article data-testimonial-card key={`${x.person}-${i}`} className="mx-auto flex h-auto w-full min-w-full snap-center flex-col rounded-[20px] border border-border-subtle bg-surface-card px-[14px] pb-[8px] pt-[16px] sm:h-auto sm:w-full sm:min-w-full sm:rounded-[28px] sm:border-border-subtle sm:p-7 lg:min-w-[calc(50%-10px)]">
 
           <blockquote className="font-display mx-auto mt-2 max-w-3xl px-2 text-center text-[15px] font-medium leading-[1.6] text-text-primary sm:mt-7 sm:px-0 sm:text-xl">
             “{x.quote}”
           </blockquote>
 
-          <div className="mt-5 flex items-end justify-start gap-3 pb-0 pt-2 sm:items-end sm:justify-between sm:gap-4 sm:pt-9" dir={ar?'rtl':'ltr'}>
+          <div className="mt-4 flex items-end justify-start gap-3 pb-0 pt-1 sm:items-end sm:justify-between sm:gap-4 sm:pt-9" dir={ar?'rtl':'ltr'}>
             <div className="min-w-0 flex-1 text-end sm:text-start">
               {x.type==='company'?<>
                 <p className="font-display text-[15px] font-semibold text-text-primary sm:text-lg">{x.company}</p>
@@ -67,8 +67,8 @@ export function Testimonials({locale}:{locale:Locale}) {
       </div>
 
       <div className="mx-auto mt-8 flex w-fit items-center gap-[2px] rounded-[999px] bg-brand/10 p-[5px] sm:mt-8">
-        <button type="button" disabled={active===items.length-1} onClick={()=>move(1)} aria-label={ar?'التالي':'Next testimonial'} className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-card text-brand transition hover:bg-brand/5 disabled:cursor-default disabled:opacity-30 sm:h-14 sm:w-14"><Arrow direction="right"/></button>
-        <button type="button" disabled={active===0} onClick={()=>move(-1)} aria-label={ar?'السابق':'Previous testimonial'} className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-card text-brand transition hover:bg-brand/5 disabled:cursor-default disabled:opacity-30 sm:h-14 sm:w-14"><Arrow direction="left"/></button>
+        <button type="button" disabled={active===0} onClick={()=>move(-1)} aria-label={ar?'السابق':'Previous testimonial'} className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-card text-brand transition hover:bg-brand/5 disabled:cursor-default disabled:opacity-30 sm:h-14 sm:w-14"><Arrow direction="right"/></button>
+        <button type="button" disabled={active===items.length-1} onClick={()=>move(1)} aria-label={ar?'التالي':'Next testimonial'} className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-card text-brand transition hover:bg-brand/5 disabled:cursor-default disabled:opacity-30 sm:h-14 sm:w-14"><Arrow direction="left"/></button>
       </div>
     </div>
   </section>;
