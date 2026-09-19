@@ -25,6 +25,7 @@ export type ConsoleAccountUpdateInput = z.infer<typeof consoleAccountUpdateSchem
 
 export const consoleAccountListQuerySchema = z.object({
   status: z.enum(TENANT_STATUSES).optional(),
+  search: z.string().trim().max(100).optional(),
   page: z.coerce.number().int().positive().default(1),
   page_size: z.coerce.number().int().positive().max(50).default(20),
 });
