@@ -4,8 +4,8 @@ import { okResponse, withErrorHandling } from '@/lib/http';
 import { getPlatformAdminClient } from '@/lib/auth/get-platform-admin-client';
 
 const faqInput = z.object({
-  question_ar:z.string().trim().min(2), answer_ar:z.string().trim().min(2),
-  question_en:z.string().trim().min(2), answer_en:z.string().trim().min(2),
+  question_ar:z.string().trim().min(2).max(300), answer_ar:z.string().trim().min(2).max(5000),
+  question_en:z.string().trim().min(2).max(300), answer_en:z.string().trim().min(2).max(5000),
   order_index:z.number().int().nonnegative().default(0), is_active:z.boolean().default(true),
 });
 
