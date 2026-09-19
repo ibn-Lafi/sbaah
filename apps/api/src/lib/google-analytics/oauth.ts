@@ -31,9 +31,9 @@ export function createOAuthState(): string {
   return randomBytes(32).toString('base64url');
 }
 
-export function buildGoogleAuthorizationUrl(state: string, redirectUri = requireEnv('GOOGLE_ANALYTICS_REDIRECT_URI')): string {
+export function buildGoogleAuthorizationUrl(state: string, redirectUri = requireEnv('GOOGLE_ANALYTICS_REDIRECT_URI'), clientId = requireEnv('GOOGLE_CLIENT_ID')): string {
   const params = new URLSearchParams({
-    client_id: requireEnv('GOOGLE_CLIENT_ID'),
+    client_id: clientId,
     redirect_uri: redirectUri,
     response_type: 'code',
     scope: ANALYTICS_SCOPE,
@@ -45,14 +45,14 @@ export function buildGoogleAuthorizationUrl(state: string, redirectUri = require
   return `${GOOGLE_AUTH_URL}?${params.toString()}`;
 }
 
-export async function exchangeAuthorizationCode(code: string, redirectUri = requireEnv('GOOGLE_ANALYTICS_REDIRECT_URI')) {
+export async function exchangeAuthorizationCode(code: string, redirectUri = requireEnv('GOOGLE_ANALYTICS_REDIRECT_URI'), clientId = requireEnv('GOOGLE_CLIENT_ID'), clientSecret = requireEnv('GOOGLE_CLIENT_SECRET')) {
   const response = await fetch(GOOGLE_TOKEN_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
       code,
-      client_id: requireEnv('GOOGLE_CLIENT_ID'),
-      client_secret: requireEnv('GOOGLE_CLIENT_SECRET'),
+      client_id: clientId,
+      client_secret: clientSecret,
       redirect_uri: redirectUri,
       grant_type: 'authorization_code',
     }),
