@@ -19,7 +19,7 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
   if(!row||row.consumed_at||new Date(row.expires_at).getTime()<=Date.now()) throw new ApiError(400,'invalid_oauth_state','انتهت صلاحية طلب الربط أو تم استخدامه');
   const {data:consumed}=await serviceRole.from('platform_google_analytics_oauth_states').update({consumed_at:new Date().toISOString()}).eq('id',row.id).is('consumed_at',null).select('id').maybeSingle();
   if(!consumed) throw new ApiError(400,'invalid_oauth_state','تم استخدام طلب الربط مسبقًا');
-  const tokens=await exchangeAuthorizationCode(code, process.env.GOOGLE_ANALYTICS_PLATFORM_REDIRECT_URI);
+  const tokens=await exchangeAuthorizationCode(code, process.env.GOOGLE_ANALYTICS_PLATFORM_REDIRECT_URI, process.env.GOOGLE_PLATFORM_CLIENT_ID, process.env.GOOGLE_PLATFORM_CLIENT_SECRET);
   const resolved=await resolveAnalyticsProperty(tokens.accessToken,MEASUREMENT_ID);
   const {data:existing}=await serviceRole.from('platform_google_analytics').select('oauth_refresh_token_ciphertext').eq('id',true).maybeSingle();
   const encrypted=tokens.refreshToken?encryptRefreshToken(tokens.refreshToken):existing?.oauth_refresh_token_ciphertext;
