@@ -68,8 +68,9 @@ export function Footer({ locale, dict, tenant, website, customPages }: FooterPro
   );
 
   return (
-    <footer className="flex flex-col gap-8 bg-tenant-secondary px-6 py-10 text-sm text-white/60">
-      <div className="flex flex-wrap items-start justify-between gap-10">
+    <footer className="bg-tenant-secondary text-sm text-white/60">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-5 py-10 sm:px-6 sm:py-12">
+      <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.25fr_1fr_0.8fr]">
         {/* الشعار — حسابات التواصل الاجتماعي */}
         <div className="flex min-w-[220px] max-w-[280px] flex-col items-start gap-4">
           {website.logo_url ? (
@@ -154,7 +155,7 @@ export function Footer({ locale, dict, tenant, website, customPages }: FooterPro
         )}
       </div>
 
-      <div className="flex flex-col items-center gap-3 border-t border-white/10 pt-6">
+      <div className="flex flex-col items-center gap-4 border-t border-white/10 pt-6 sm:flex-row sm:justify-between">
         {businessNumbers.length > 0 && (
           <div className="flex flex-wrap items-center justify-center gap-3">
             {businessNumbers.map(({ key, label, src, alt, objectPosition, scale }) => (
@@ -179,6 +180,7 @@ export function Footer({ locale, dict, tenant, website, customPages }: FooterPro
           </div>
         )}
         <SiteBadge accountType={tenant.account_type} locale={locale} />
+      </div>
       </div>
     </footer>
   );
