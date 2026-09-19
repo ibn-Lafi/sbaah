@@ -6,10 +6,11 @@ import { getPlatformAdminClient } from '@/lib/auth/get-platform-admin-client';
 /** console-only — lists every account on the platform (tenants_admin_write RLS grants this to a platform admin). */
 export const GET = withErrorHandling(async (request: NextRequest) => {
   const { supabase } = await getPlatformAdminClient(request);
-  const { status, page, page_size } = consoleAccountListQuerySchema.parse(Object.fromEntries(request.nextUrl.searchParams));
+  const { status, search, page, page_size } = consoleAccountListQuerySchema.parse(Object.fromEntries(request.nextUrl.searchParams));
 
   let query = supabase.from('tenants').select('*', { count: 'exact' });
   if (status) query = query.eq('status', status);
+  if (search) query = query.or(`name_ar.ilike.%${search}%,name_en.ilike.%${search}%,subdomain.ilike.%${search}%`);
 
   const from = (page - 1) * page_size;
   const { data, error, count } = await query
