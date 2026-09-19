@@ -122,6 +122,17 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
   // task 34/42) goes through the service role deliberately, scoped to
   // exactly the Owner's phone and nothing else on the row.
   const serviceRole = createServiceRoleClient();
+  const { data: analyticsIntegration, error: analyticsError } = await serviceRole
+    .from('tenant_integrations')
+    .select('measurement_id')
+    .eq('tenant_id', tenantId)
+    .eq('provider', 'google_analytics')
+    .in('status', ['installed', 'connected'])
+    .maybeSingle();
+  if (analyticsError) {
+    throw new Error(`Failed to load public analytics config: ${analyticsError.message}`);
+  }
+
   const { data: owner, error: ownerError } = await serviceRole
     .from('users')
     .select('phone')
@@ -144,5 +155,5 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     throw new Error(`Failed to load custom pages: ${customPagesError.message}`);
   }
 
-  return okResponse({ tenant, website: websiteConfig, sections, whatsapp_phone: owner.phone, custom_pages: customPages });
+  return okResponse({ tenant, website: websiteConfig, sections, whatsapp_phone: owner.phone, custom_pages: customPages, google_analytics_measurement_id: analyticsIntegration?.measurement_id ?? null });
 });
