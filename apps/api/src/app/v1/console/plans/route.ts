@@ -16,7 +16,17 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
   if (error) {
     throw new Error(`Failed to list plans: ${error.message}`);
   }
-  return okResponse({ plans: data });
+  const { data: tenants, error: tenantError } = await supabase.from('tenants').select('plan_id,status,trial_ends_at');
+  if (tenantError) throw new Error(`Failed to load plan usage: ${tenantError.message}`);
+
+  const usage = Object.fromEntries((data ?? []).map((plan) => {
+    const assigned = (tenants ?? []).filter((tenant) => tenant.plan_id === plan.id);
+    const active = assigned.filter((tenant) => tenant.status === 'active').length;
+    const trials = assigned.filter((tenant) => tenant.trial_ends_at && new Date(tenant.trial_ends_at) > new Date()).length;
+    return [plan.id, { accounts: assigned.length, active_accounts: active, active_trials: trials }];
+  }));
+
+  return okResponse({ plans: data, usage });
 });
 
 export const POST = withErrorHandling(async (request: NextRequest) => {
