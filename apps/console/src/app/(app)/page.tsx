@@ -25,6 +25,14 @@ export default function ConsoleHomePage(){
    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
     {metricMeta.map(([key,label,href])=><Link key={key} href={href}><Card className="h-full p-5 transition-shadow hover:shadow-[0_4px_20px_rgba(31,29,34,.12)]"><p className="text-sm text-text-secondary">{label}</p><p className="mt-3 text-3xl font-semibold text-text-primary">{data.metrics[key].toLocaleString('ar-SA')}</p></Card></Link>)}
    </div>
+   <Card className="mt-6 p-4 sm:p-5">
+    <div className="mb-4"><h2 className="font-semibold text-text-primary">أداء صفحة الهبوط</h2><p className="mt-1 text-xs text-text-secondary">بيانات Google Analytics لآخر 30 يومًا.</p></div>
+    {data.marketing_analytics.configured?<div className="grid gap-3 sm:grid-cols-3">
+     <div className="rounded-xl bg-surface-subtle p-4"><p className="text-xs text-text-secondary">المستخدمون النشطون</p><p className="mt-2 text-2xl font-semibold text-text-primary">{data.marketing_analytics.visitors.toLocaleString('ar-SA')}</p></div>
+     <div className="rounded-xl bg-surface-subtle p-4"><p className="text-xs text-text-secondary">الجلسات</p><p className="mt-2 text-2xl font-semibold text-text-primary">{data.marketing_analytics.sessions.toLocaleString('ar-SA')}</p></div>
+     <div className="rounded-xl bg-surface-subtle p-4"><p className="text-xs text-text-secondary">مشاهدات الصفحات</p><p className="mt-2 text-2xl font-semibold text-text-primary">{data.marketing_analytics.page_views.toLocaleString('ar-SA')}</p></div>
+    </div>:<div className="rounded-xl bg-surface-subtle p-4 text-sm text-text-secondary">إرسال البيانات إلى Google Analytics مفعّل. يلزم إكمال صلاحية القراءة لعرض الإحصائيات هنا.</div>}
+   </Card>
    <div className="mt-6 grid gap-4 lg:grid-cols-[1.5fr_1fr]">
     <Card className="p-4 sm:p-5"><div className="mb-4 flex items-center justify-between"><h2 className="font-semibold text-text-primary">أحدث الحسابات</h2><Link href="/accounts" className="text-sm font-medium text-brand">عرض الكل</Link></div>
      <div className="divide-y divide-border-subtle">{data.recent_accounts.map(a=><Link href={`/accounts/${a.id}`} key={a.id} className="flex items-center justify-between gap-3 py-3"><div className="min-w-0"><p className="truncate text-sm font-medium text-text-primary">{a.name_ar||a.name_en}</p><p className="mt-1 text-xs text-text-secondary">{new Date(a.created_at).toLocaleDateString('ar-SA')}</p></div><span className="rounded-full bg-surface-subtle px-2.5 py-1 text-xs text-text-secondary">{a.status}</span></Link>)}</div>
