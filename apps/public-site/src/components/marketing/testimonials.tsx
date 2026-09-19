@@ -23,7 +23,7 @@ const testimonials = {
 };
 
 function Arrow({direction}:{direction:'left'|'right'}) {
-  return <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="2.6" className="h-8 w-8" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d={direction==='left'?'M27 16H6m8-8-8 8 8 8':'M5 16h21m-8-8 8 8-8 8'}/></svg>;
+  return <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="2.6" className="h-7 w-7" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d={direction==='left'?'M27 16H6m8-8-8 8 8 8':'M5 16h21m-8-8 8 8-8 8'}/></svg>;
 }
 
 export function Testimonials({locale}:{locale:Locale}) {
@@ -44,30 +44,30 @@ export function Testimonials({locale}:{locale:Locale}) {
       </div>
 
       <div ref={scroller} className="-mx-[22px] mt-8 flex snap-x snap-mandatory gap-5 overflow-x-auto px-[22px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mt-9">
-        {testimonials[locale].map((x)=><article data-testimonial-card key={x.company} className="flex h-[610px] w-[calc(100vw-44px)] min-w-[calc(100vw-44px)] snap-center flex-col rounded-[20px] border border-[#9f9f9f] bg-surface-card px-[24px] pb-[30px] pt-[28px] sm:h-auto sm:w-full sm:min-w-full sm:rounded-[28px] sm:border-border-subtle sm:p-7 lg:min-w-[calc(50%-10px)]">
-          <div className="h-[238px] w-full shrink-0 overflow-hidden rounded-[13px] bg-surface-muted sm:h-auto sm:aspect-[16/9] sm:rounded-[22px]">
+        {testimonials[locale].map((x)=><article data-testimonial-card key={x.company} className="flex h-[540px] w-[calc(100vw-72px)] min-w-[calc(100vw-72px)] snap-center flex-col rounded-[20px] border border-border-subtle bg-surface-card px-[20px] pb-[24px] pt-[24px] sm:h-auto sm:w-full sm:min-w-full sm:rounded-[28px] sm:border-border-subtle sm:p-7 lg:min-w-[calc(50%-10px)]">
+          <div className="h-[205px] w-full shrink-0 overflow-hidden rounded-[13px] bg-surface-muted sm:h-auto sm:aspect-[16/9] sm:rounded-[22px]">
             <img src={x.image} alt={ar?`عرض موقع ${x.company}`:`${x.company} website preview`} className="h-full w-full object-cover" />
           </div>
 
-          <blockquote className="font-display mx-auto mt-7 max-w-3xl px-1 text-center text-[18px] font-medium leading-[1.65] text-text-primary sm:mt-8 sm:px-0 sm:text-2xl">
+          <blockquote className="font-display mx-auto mt-6 max-w-3xl px-1 text-center text-[16px] font-medium leading-[1.65] text-text-primary sm:mt-8 sm:px-0 sm:text-2xl">
             “{x.quote}”
           </blockquote>
 
           <div className="mt-auto flex items-end justify-start gap-3 pb-0 pt-8 sm:items-end sm:justify-between sm:gap-4 sm:pt-9" dir={ar?'rtl':'ltr'}>
             <div className="min-w-0 flex-1 text-end sm:text-start">
-              <p className="font-display text-[19px] font-semibold text-text-primary sm:text-xl">{x.person}</p>
-              <p className="mt-2 text-[15px] text-text-secondary sm:mt-1.5 sm:text-sm">{x.company}</p>
+              <p className="font-display text-[17px] font-semibold text-text-primary sm:text-xl">{x.person}</p>
+              <p className="mt-1.5 text-[14px] text-text-secondary sm:mt-1.5 sm:text-sm">{x.company}</p>
             </div>
-            <div className="flex h-[44px] w-[44px] shrink-0 items-center justify-center overflow-hidden rounded-full border border-border-subtle bg-surface-card sm:h-14 sm:w-14">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border-subtle bg-surface-card sm:h-14 sm:w-14">
               {x.logo?<img src={x.logo} alt={x.company} className="h-full w-full object-contain"/>:<span className="text-brand text-lg font-bold">{x.company.slice(0,1)}</span>}
             </div>
           </div>
         </article>)}
       </div>
 
-      <div className="mx-auto mt-[54px] flex w-fit items-center gap-[2px] rounded-[999px] bg-[#f5f5f5] p-[7px] sm:mt-8">
-        <button type="button" onClick={()=>move(-1)} aria-label={ar?'السابق':'Previous testimonial'} className="flex h-[58px] w-[58px] items-center justify-center rounded-full bg-white text-[#005564] transition hover:text-brand sm:h-14 sm:w-14"><Arrow direction="left"/></button>
-        <button type="button" onClick={()=>move(1)} aria-label={ar?'التالي':'Next testimonial'} className="flex h-[58px] w-[58px] items-center justify-center rounded-full bg-white text-[#005564] transition hover:text-brand sm:h-14 sm:w-14"><Arrow direction="right"/></button>
+      <div className="mx-auto mt-10 flex w-fit items-center gap-[2px] rounded-[999px] bg-brand/10 p-[6px] sm:mt-8">
+        <button type="button" onClick={()=>move(-1)} aria-label={ar?'السابق':'Previous testimonial'} className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-card text-brand transition hover:bg-brand/5 sm:h-14 sm:w-14"><Arrow direction="left"/></button>
+        <button type="button" onClick={()=>move(1)} aria-label={ar?'التالي':'Next testimonial'} className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-card text-brand transition hover:bg-brand/5 sm:h-14 sm:w-14"><Arrow direction="right"/></button>
       </div>
     </div>
   </section>;
