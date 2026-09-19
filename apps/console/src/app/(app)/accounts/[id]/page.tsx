@@ -11,7 +11,7 @@ import { FormError } from '@/components/ui/form-error';
 import { LoadingState } from '@/components/ui/loading-state';
 import { TenantStatusBadge } from '@/components/ui/status-badge';
 import { useCurrentAdmin } from '@/lib/auth/current-admin-context';
-import { getAccount, updateAccount } from '@/lib/api/accounts';
+import { getAccount, updateAccount, type AccountMetrics } from '@/lib/api/accounts';
 import { listPlans } from '@/lib/api/plans';
 import { ApiRequestError } from '@/lib/api/client';
 import { ACCOUNT_TYPE_LABELS, TENANT_STATUS_LABELS } from '@/lib/tenant/labels';
@@ -27,6 +27,7 @@ export default function AccountDetailPage() {
   const { accessToken } = useCurrentAdmin();
   const [account, setAccount] = useState<Tenant | null>(null);
   const [plans, setPlans] = useState<Plan[]>([]);
+  const [metrics, setMetrics] = useState<AccountMetrics | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -35,6 +36,7 @@ export default function AccountDetailPage() {
     void Promise.all([getAccount(accessToken, params.id), listPlans(accessToken)]).then(([accountRes, plansRes]) => {
       if (cancelled) return;
       setAccount(accountRes.account);
+      setMetrics(accountRes.metrics);
       setPlans(plansRes.plans);
     });
     return () => {
@@ -86,6 +88,17 @@ export default function AccountDetailPage() {
             </div>
             <TenantStatusBadge status={account.status} />
           </Card>
+
+          {metrics && <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+            {[
+              ['العقارات', metrics.properties],
+              ['المشاريع', metrics.projects],
+              ['عملاء CRM', metrics.leads],
+              ['المواقع', metrics.websites],
+              ['المستخدمون', metrics.users],
+              ['تذاكر الدعم', metrics.tickets],
+            ].map(([label, value]) => <Card key={String(label)} className="p-4"><p className="text-xs text-text-secondary">{label}</p><p className="mt-2 text-2xl font-semibold text-text-primary">{value}</p></Card>)}
+          </div>}
 
           <Card className="p-6">
             <h3 className="mb-4 font-semibold">بيانات الحساب</h3>
