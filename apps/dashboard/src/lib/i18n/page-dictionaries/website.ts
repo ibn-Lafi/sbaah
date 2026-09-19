@@ -10,6 +10,7 @@ export const websiteAr = {
     previewTheme: 'معاينة',
     publishedBadge: 'منشور',
     errors: {
+      loadStore: 'تعذّر تحميل متجر الثيمات',
       saveTheme: 'تعذّر حفظ الثيم',
     },
   },
@@ -157,6 +158,7 @@ export const websiteEn: typeof websiteAr = {
     previewTheme: 'Preview',
     publishedBadge: 'Published',
     errors: {
+      loadStore: 'Failed to load the theme store',
       saveTheme: 'Failed to save the theme',
     },
   },
