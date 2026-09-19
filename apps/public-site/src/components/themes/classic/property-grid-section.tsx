@@ -5,6 +5,7 @@ import { listCities } from '@/lib/api/reference-data';
 import { PropertyCard } from '@/components/properties/property-card';
 import { DEFAULT_SECTION_TITLE } from '@/lib/website/section-labels';
 import type { PropertyGridSectionProps } from '../types';
+import { ClassicEmptyState, ClassicSection, ClassicSectionHeading } from './primitives';
 
 const SEE_ALL_LABEL: Record<Locale, string> = { ar: 'عرض كل العقارات', en: 'See all properties' };
 const EMPTY_LABEL: Record<Locale, string> = { ar: 'لا توجد عقارات منشورة بعد', en: 'No published properties yet' };
@@ -21,16 +22,18 @@ export async function PropertyGridSection({ locale, config }: PropertyGridSectio
   const featured = properties.slice(0, FEATURED_COUNT);
 
   return (
-    <section className="mx-auto max-w-6xl px-6 py-12">
-      <div className="mb-6 flex items-center justify-between">
-        <h2 className="border-s-4 border-tenant-secondary ps-3 text-2xl font-bold">{title}</h2>
-        <Link href={propertiesHref} className="text-sm font-semibold text-tenant-primary hover:underline">
-          {SEE_ALL_LABEL[locale]}
-        </Link>
-      </div>
+    <ClassicSection>
+      <ClassicSectionHeading
+        title={title}
+        action={
+          <Link href={propertiesHref} className="shrink-0 text-sm font-semibold text-tenant-primary hover:underline">
+            {SEE_ALL_LABEL[locale]}
+          </Link>
+        }
+      />
 
       {featured.length === 0 ? (
-        <p className="text-black/60">{EMPTY_LABEL[locale]}</p>
+        <ClassicEmptyState>{EMPTY_LABEL[locale]}</ClassicEmptyState>
       ) : (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {featured.map((property) => (
@@ -38,6 +41,6 @@ export async function PropertyGridSection({ locale, config }: PropertyGridSectio
           ))}
         </div>
       )}
-    </section>
+    </ClassicSection>
   );
 }

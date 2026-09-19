@@ -2,7 +2,7 @@ import { isLocale, DEFAULT_LOCALE } from '@/lib/i18n/locales';
 import { getTenantSite } from '@/lib/tenant/get-tenant-site';
 import { isMarketingHost } from '@/lib/tenant/get-host';
 import { MarketingHome } from '@/components/marketing-home';
-import { getThemeComponents } from '@/components/themes/registry';
+import { resolveTheme } from '@/components/themes/registry';
 import { MapSection } from '@/components/map/map-section';
 import { FeaturedPropertiesSection, LatestPropertiesSection, ProjectsShowcaseSection, PropertiesByCitySection } from '@/components/themes/classic/data-sections';
 import { StatsSection, ServicesSection, FaqSection, CtaSection, PromoBannerSection, FreeContentSection, GallerySection, VideoSection } from '@/components/themes/classic/content-sections';
@@ -44,13 +44,11 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   if (!site) return null; // layout.tsx already calls notFound() in this case
 
   const tenantName = locale === 'ar' ? site.tenant.name_ar : site.tenant.name_en;
-  const theme = getThemeComponents(site.website.theme_key);
-  const { HeroSection, PropertyGridSection, TextSection } = theme;
-  // The original/default theme has historically been stored under more than one key in existing data.
-  // New homepage sections belong to that base theme, so treat the default registry fallback as Classic too.
-  // getThemeComponents() falls back to Classic for any unknown legacy key.
-  // Render the matching Classic-only section library under that same fallback rule.
-  const isClassic = true;
+  const resolvedTheme = resolveTheme(site.website.theme_key);
+  const { HeroSection, PropertyGridSection, TextSection } = resolvedTheme.components;
+  // Classic owns its extended homepage section library. Unknown/deactivated
+  // legacy keys intentionally resolve to Classic through the registry.
+  const isClassic = resolvedTheme.key === 'classic';
 
   return (
     <div>

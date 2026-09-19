@@ -2,17 +2,12 @@ import type { ThemeSectionComponents } from './types';
 import { classicTheme } from './classic';
 
 /**
- * The theme registry — maps a `themes.key` (from the DB, resolved by
- * `api`'s `/v1/public/website`) to the component set that renders it.
- * Adding a theme means adding a new folder here + one line in this map;
- * see docs/THEMES.md for the full workflow. `classic` is "الثيم الأول"
- * (task-list theme system), unchanged visually from before this system
- * existed — just now addressable by key instead of hardcoded.
+ * Theme registry.
  *
- * `modern` was removed (migration 0036) per the founder's decision to
- * keep a single theme for now — `getThemeComponents()` below already
- * falls back to `classic` for any unknown key, so this stays safe even
- * against a stray old `theme_id` row from before that migration runs.
+ * Keep theme resolution and theme identity separate: callers sometimes need
+ * to know which theme actually won the fallback, not only its components.
+ * This is important for theme-specific section libraries (Classic today,
+ * additional marketplace themes later).
  */
 const THEME_REGISTRY: Record<string, ThemeSectionComponents> = {
   classic: classicTheme,
@@ -20,8 +15,24 @@ const THEME_REGISTRY: Record<string, ThemeSectionComponents> = {
 
 export const DEFAULT_THEME_KEY = 'classic';
 
-/** Falls back to the default theme for an unknown/missing key (e.g. a theme later deactivated) rather than failing the whole page render. */
+export interface ResolvedTheme {
+  key: string;
+  components: ThemeSectionComponents;
+}
+
+/** Unknown/deactivated legacy keys resolve safely to the marketplace default. */
+export function resolveTheme(themeKey: string | null | undefined): ResolvedTheme {
+  if (themeKey && THEME_REGISTRY[themeKey]) {
+    return { key: themeKey, components: THEME_REGISTRY[themeKey] };
+  }
+  return { key: DEFAULT_THEME_KEY, components: THEME_REGISTRY[DEFAULT_THEME_KEY] };
+}
+
+/** Backwards-compatible component-only helper for layouts and existing pages. */
 export function getThemeComponents(themeKey: string | null | undefined): ThemeSectionComponents {
-  const resolved = themeKey ? THEME_REGISTRY[themeKey] : undefined;
-  return resolved ?? classicTheme;
+  return resolveTheme(themeKey).components;
+}
+
+export function isThemeKey(themeKey: string | null | undefined, expected: string): boolean {
+  return resolveTheme(themeKey).key === expected;
 }
