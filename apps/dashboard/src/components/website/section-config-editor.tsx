@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select } from '@/components/ui/select';
 import { useLocale } from '@/lib/i18n/locale-context';
-import { updateSection, uploadBanner, uploadBannerVideo, updateWebsite } from '@/lib/api/website';
+import { updateSection, uploadBanner, uploadBannerVideo, uploadSectionAsset, updateWebsite } from '@/lib/api/website';
 import { AssetUploader } from './asset-uploader';
 import { listProperties } from '@/lib/api/properties';
 import { listCities } from '@/lib/api/reference-data';
@@ -153,8 +153,9 @@ export function SectionConfigEditor({ section, accessToken, onSaved, website, on
       {isFeaturedProperties && <div className="flex flex-col gap-2"><label className="text-text-secondary text-xs">اختر العقارات المميزة</label><div className="max-h-56 overflow-auto rounded-input border border-border-default bg-surface-card p-2">{properties.map((property)=><label key={property.id} className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-sm hover:bg-surface-subtle"><input type="checkbox" checked={selectedPropertyIds.includes(property.id)} onChange={(e)=>setSelectedPropertyIds(v=>e.target.checked?[...v,property.id]:v.filter(id=>id!==property.id))}/><span>{property.title_ar}</span></label>)}</div></div>}
       {isPropertiesByCity && <div className="flex flex-col gap-2"><label className="text-text-secondary text-xs">اختر المدن</label><div className="max-h-56 overflow-auto rounded-input border border-border-default bg-surface-card p-2">{cities.map((city)=><label key={city.id} className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-sm hover:bg-surface-subtle"><input type="checkbox" checked={selectedCityIds.includes(city.id)} onChange={(e)=>setSelectedCityIds(v=>e.target.checked?[...v,city.id]:v.filter(id=>id!==city.id))}/><span>{city.name_ar}</span></label>)}</div></div>}
 
-      {isGallery && <div className="flex flex-col gap-2">{galleryUrls.map((url,index)=><div key={index} className="flex gap-2"><Input placeholder="رابط الصورة" value={url} onChange={(e)=>setGalleryUrls(v=>v.map((x,i)=>i===index?e.target.value:x))}/><Button type="button" variant="secondary" onClick={()=>setGalleryUrls(v=>v.filter((_,i)=>i!==index))}>حذف</Button></div>)}<Button type="button" variant="secondary" className="w-fit" onClick={()=>setGalleryUrls(v=>[...v,''])}>+ إضافة صورة</Button></div>}
-      {(hasImageUrl || hasVideoUrl) && <Input placeholder={hasVideoUrl ? 'رابط الفيديو' : 'رابط الصورة'} value={mediaUrl} onChange={(e) => setMediaUrl(e.target.value)} />}
+      {isGallery && <div className="flex flex-col gap-3">{galleryUrls.map((url,index)=><div key={url+index} className="flex items-center gap-3"><img src={url} alt="" className="h-16 w-24 rounded-input object-cover"/><Button type="button" variant="danger" onClick={()=>setGalleryUrls(v=>v.filter((_,i)=>i!==index))}>حذف</Button></div>)}<label className="w-fit cursor-pointer"><span className="inline-flex rounded-input border border-border-default bg-surface-card px-4 py-2 text-sm font-medium">+ رفع صورة</span><input type="file" accept="image/*" className="hidden" onChange={(e)=>{const file=e.target.files?.[0];e.target.value='';if(file) void uploadSectionAsset(accessToken,section.id,file).then(r=>setGalleryUrls(v=>[...v,r.url]))}}/></label></div>}
+      {hasImageUrl && <AssetUploader label="صورة القسم" currentUrl={mediaUrl || null} onUpload={async(file)=>{const r=await uploadSectionAsset(accessToken,section.id,file);setMediaUrl(r.url)}} onRemove={async()=>setMediaUrl('')} />}
+      {hasVideoUrl && <Input placeholder="رابط الفيديو" value={mediaUrl} onChange={(e) => setMediaUrl(e.target.value)} />}
 
       {isHero && (
         <Input placeholder={t.sectionConfigEditor.subtitle} value={subtitleAr} onChange={(e) => setSubtitleAr(e.target.value)} />
