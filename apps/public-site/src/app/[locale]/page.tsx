@@ -7,7 +7,7 @@ import { listCities } from '@/lib/api/reference-data';
 import { BrokerMarketerForm } from '@/components/broker-marketer/broker-marketer-form';
 import { MapSection } from '@/components/map/map-section';
 import { FeaturedPropertiesSection, LatestPropertiesSection, ProjectsShowcaseSection, PropertiesByCitySection } from '@/components/themes/classic/data-sections';
-import { StatsSection, ServicesSection, FaqSection, CtaSection, PropertyRequestSection, PromoBannerSection, FreeContentSection, GallerySection, VideoSection } from '@/components/themes/classic/content-sections';
+import { StatsSection, ServicesSection, FaqSection, CtaSection, PromoBannerSection, FreeContentSection, GallerySection, VideoSection } from '@/components/themes/classic/content-sections';
 
 /**
  * Renders `website_sections` in order (task 35/42) — replaces the
@@ -77,7 +77,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           case 'services': return isClassic ? <ServicesSection key={section.id} locale={locale} config={section.config} /> : null;
           case 'faq': return isClassic ? <FaqSection key={section.id} locale={locale} config={section.config} /> : null;
           case 'cta': return isClassic ? <CtaSection key={section.id} locale={locale} config={section.config} /> : null;
-          case 'property_request': return isClassic ? <PropertyRequestSection key={section.id} locale={locale} config={section.config} /> : null;
           case 'promo_banner': return isClassic ? <PromoBannerSection key={section.id} locale={locale} config={section.config} /> : null;
           case 'free_content': return isClassic ? <FreeContentSection key={section.id} locale={locale} config={section.config} /> : null;
           case 'gallery': return isClassic ? <GallerySection key={section.id} locale={locale} config={section.config} /> : null;
