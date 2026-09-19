@@ -31,10 +31,10 @@ export function createOAuthState(): string {
   return randomBytes(32).toString('base64url');
 }
 
-export function buildGoogleAuthorizationUrl(state: string): string {
+export function buildGoogleAuthorizationUrl(state: string, redirectUri = requireEnv('GOOGLE_ANALYTICS_REDIRECT_URI')): string {
   const params = new URLSearchParams({
     client_id: requireEnv('GOOGLE_CLIENT_ID'),
-    redirect_uri: requireEnv('GOOGLE_ANALYTICS_REDIRECT_URI'),
+    redirect_uri: redirectUri,
     response_type: 'code',
     scope: ANALYTICS_SCOPE,
     access_type: 'offline',
@@ -45,7 +45,7 @@ export function buildGoogleAuthorizationUrl(state: string): string {
   return `${GOOGLE_AUTH_URL}?${params.toString()}`;
 }
 
-export async function exchangeAuthorizationCode(code: string) {
+export async function exchangeAuthorizationCode(code: string, redirectUri = requireEnv('GOOGLE_ANALYTICS_REDIRECT_URI')) {
   const response = await fetch(GOOGLE_TOKEN_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -53,7 +53,7 @@ export async function exchangeAuthorizationCode(code: string) {
       code,
       client_id: requireEnv('GOOGLE_CLIENT_ID'),
       client_secret: requireEnv('GOOGLE_CLIENT_SECRET'),
-      redirect_uri: requireEnv('GOOGLE_ANALYTICS_REDIRECT_URI'),
+      redirect_uri: redirectUri,
       grant_type: 'authorization_code',
     }),
     cache: 'no-store',
