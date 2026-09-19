@@ -94,13 +94,13 @@ export default function ThemesPage() {
 
   return (
     <ConsoleShell title="الثيمات">
-      <Card className="overflow-hidden">
+      <Card className="overflow-x-auto">
         {themes === null ? (
           <TableSkeleton columns={6} />
         ) : themes.length === 0 ? (
           <p className="p-6 text-center text-text-secondary">لا توجد ثيمات بعد</p>
         ) : (
-          <table className="w-full text-sm">
+          <table className="min-w-[760px] w-full text-sm">
             <thead className="bg-surface-header text-right text-text-secondary">
               <tr>
                 <th className="px-5 py-3 font-medium">صورة المعاينة</th>
