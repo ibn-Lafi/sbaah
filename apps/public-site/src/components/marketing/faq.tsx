@@ -8,11 +8,15 @@ import { Reveal } from './reveal';
 import { ChevronDownIcon } from './icons';
 import { apiGet } from '@/lib/api/client';
 
+interface ManagedFaq { id:string; question_ar:string; answer_ar:string; question_en:string; answer_en:string; order_index:number }
+
 export function Faq({ locale }: { locale: Locale }) {
   const t = MARKETING_CONTENT[locale].faq;
   const [settings,setSettings]=useState<PlatformSettings|null>(null);
-  useEffect(()=>{void apiGet<PlatformSettings>('/public/platform-settings').then(setSettings).catch(()=>undefined);},[]);
+  const [managedItems,setManagedItems]=useState<ManagedFaq[]>([]);
+  useEffect(()=>{void apiGet<PlatformSettings>('/public/platform-settings').then(setSettings).catch(()=>undefined); void apiGet<ManagedFaq[]>('/public/faqs').then(setManagedItems).catch(()=>undefined);},[]);
   const title=(locale==='ar'?settings?.faq_title_ar:settings?.faq_title_en)?.trim() || t.title;
+  const items=managedItems.length ? managedItems.map(item=>({question:locale==='ar'?item.question_ar:item.question_en,answer:locale==='ar'?item.answer_ar:item.answer_en})) : t.items;
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
@@ -22,7 +26,7 @@ export function Faq({ locale }: { locale: Locale }) {
       </Reveal>
 
       <Reveal delayMs={150} className="mx-auto mt-10 flex max-w-2xl flex-col gap-3">
-        {t.items.map((item, index) => {
+        {items.map((item, index) => {
           const open = openIndex === index;
           return (
             <div key={item.question} className="rounded-card overflow-hidden border border-border-subtle bg-surface-card">
