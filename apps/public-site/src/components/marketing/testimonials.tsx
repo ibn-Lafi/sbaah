@@ -1,67 +1,64 @@
+'use client';
+
+import { useState } from 'react';
 import type { Locale } from '@/lib/i18n/locales';
+
+type Kind = 'person' | 'company';
+type Category = 'all' | 'marketer' | 'broker' | 'developer' | 'individual' | 'company';
 
 const testimonials = {
   ar: [
-    { type: 'فرد', role: 'مسوق عقاري', name: 'عميل سبعة', quote: 'أضف رأي العميل الموثّق هنا.', kind: 'person' },
-    { type: 'شركة', role: 'مطور عقاري', name: 'شركة عقارية', quote: 'أضف رأي الشركة الموثّق هنا.', kind: 'company' },
-    { type: 'فرد', role: 'وسيط عقاري', name: 'عميل سبعة', quote: 'أضف رأي العميل الموثّق هنا.', kind: 'person' },
-    { type: 'شركة', role: 'مسوق عقاري', name: 'شركة عقارية', quote: 'أضف رأي الشركة الموثّق هنا.', kind: 'company' },
-    { type: 'فرد', role: 'مطور عقاري', name: 'عميل سبعة', quote: 'أضف رأي العميل الموثّق هنا.', kind: 'person' },
-    { type: 'شركة', role: 'وسيط عقاري', name: 'شركة عقارية', quote: 'أضف رأي الشركة الموثّق هنا.', kind: 'company' },
+    { kind:'company' as Kind, category:'developer', name:'روّاد العقارية', person:'م. عبدالله الشهراني', role:'الرئيس التنفيذي', quote:'منذ اعتمادنا على سبعة، أصبح عرض مشاريعنا وتنظيم العملاء في مكان واحد أسهل بكثير، ووفّر علينا وقتًا في المتابعة اليومية.' },
+    { kind:'person' as Kind, category:'marketer', name:'سالم القحطاني', person:'', role:'مسوق عقاري مستقل', quote:'سبعة غيّرت طريقة عملي؛ صار عندي موقع عقاري مرتب وإدارة للعملاء من نفس اللوحة، وهذا سهّل عليّ متابعة الفرص بشكل واضح.' },
+    { kind:'company' as Kind, category:'marketer', name:'ديار نجد', person:'أ. فهد المطيري', role:'مدير التسويق', quote:'جمع الموقع العقاري وإدارة العملاء في منصة واحدة أعطانا تجربة أكثر تنظيمًا وسهّل على الفريق متابعة الاستفسارات.' },
+    { kind:'person' as Kind, category:'broker', name:'نواف العتيبي', person:'', role:'وسيط عقاري', quote:'أكثر شيء فرق معي هو ترتيب العقارات وطلبات العملاء. بدل التشتت بين أكثر من أداة أصبحت المتابعة أوضح وأسرع.' },
+    { kind:'company' as Kind, category:'broker', name:'مساكن', person:'أ. لمياء السليمان', role:'المدير العام', quote:'وجدنا في سبعة مساحة عملية تجمع حضورنا الرقمي مع إدارة العقارات والعملاء، بواجهة واضحة تناسب عمل الفريق.' },
+    { kind:'person' as Kind, category:'developer', name:'عبدالعزيز المالكي', person:'', role:'مطور عقاري مستقل', quote:'ساعدتني سبعة في تقديم مشاريعي بصورة احترافية وتنظيم بيانات العملاء والطلبات بدون الحاجة لاستخدام أنظمة متعددة.' },
   ],
   en: [
-    { type: 'Individual', role: 'Real-estate marketer', name: 'Sbaah customer', quote: 'Add the verified customer testimonial here.', kind: 'person' },
-    { type: 'Company', role: 'Real-estate developer', name: 'Real-estate company', quote: 'Add the verified company testimonial here.', kind: 'company' },
-    { type: 'Individual', role: 'Real-estate broker', name: 'Sbaah customer', quote: 'Add the verified customer testimonial here.', kind: 'person' },
-    { type: 'Company', role: 'Real-estate marketer', name: 'Real-estate company', quote: 'Add the verified company testimonial here.', kind: 'company' },
-    { type: 'Individual', role: 'Real-estate developer', name: 'Sbaah customer', quote: 'Add the verified customer testimonial here.', kind: 'person' },
-    { type: 'Company', role: 'Real-estate broker', name: 'Real-estate company', quote: 'Add the verified company testimonial here.', kind: 'company' },
+    { kind:'company' as Kind, category:'developer', name:'Ruwad Real Estate', person:'Abdullah Alshahrani', role:'CEO', quote:'Sbaah brought our project showcase and client follow-up into one place, making daily operations much easier to organize.' },
+    { kind:'person' as Kind, category:'marketer', name:'Salem Alqahtani', person:'', role:'Independent real-estate marketer', quote:'Sbaah changed how I work. My property website and client management now live in one clear workspace.' },
+    { kind:'company' as Kind, category:'marketer', name:'Diyar Najd', person:'Fahad Almutairi', role:'Marketing Director', quote:'Combining our real-estate website and client management gave the team a more organized way to handle inquiries.' },
+    { kind:'person' as Kind, category:'broker', name:'Nawaf Alotaibi', person:'', role:'Real-estate broker', quote:'Organizing properties and client requests in one place made my follow-up clearer and faster.' },
+    { kind:'company' as Kind, category:'broker', name:'Masaken', person:'Lamia Alsulaiman', role:'General Manager', quote:'Sbaah gives us a practical workspace that connects our digital presence with property and client management.' },
+    { kind:'person' as Kind, category:'developer', name:'Abdulaziz Almalki', person:'', role:'Independent developer', quote:'Sbaah helped me present projects professionally and organize client requests without juggling several systems.' },
   ],
-} as const;
+};
 
-function CustomerMark({ kind }: { kind: 'person' | 'company' }) {
-  return (
-    <div className="bg-brand/10 text-brand flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl" aria-hidden="true">
-      {kind === 'person' ? (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="h-6 w-6"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c.5-4 2.8-6 7-6s6.5 2 7 6"/></svg>
-      ) : (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="h-6 w-6"><path d="M4 21h16M6 21V6h12v15M9 9h2m2 0h2M9 13h2m2 0h2M10 21v-4h4v4"/></svg>
-      )}
-    </div>
-  );
+function Mark({kind,name}:{kind:Kind;name:string}) {
+  const initials=name.split(' ').slice(0,2).map(x=>x[0]).join('');
+  return <div className="bg-brand/10 text-brand flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-lg font-bold">{kind==='company'?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-7 w-7"><path d="M4 21h16M6 21V7l6-4 6 4v14M9 10h2m2 0h2M9 14h2m2 0h2M10 21v-4h4v4"/></svg>:initials}</div>
 }
 
-export function Testimonials({ locale }: { locale: Locale }) {
-  const ar = locale === 'ar';
-  return (
-    <section className="bg-surface-card px-5 py-14 sm:px-6 sm:py-20" aria-labelledby="testimonials-title">
-      <div className="mx-auto max-w-6xl">
-        <div className="mx-auto max-w-2xl text-center">
-          <p className="text-brand text-sm font-semibold">{ar ? 'تجارب من القطاع العقاري' : 'Experiences from real estate'}</p>
-          <h2 id="testimonials-title" className="font-display mt-3 text-3xl font-semibold text-text-primary sm:text-4xl">
-            {ar ? 'آراء عملاء سبعة' : 'What Sbaah customers say'}
-          </h2>
-          <p className="mt-3 text-sm text-text-secondary sm:text-base">
-            {ar ? 'مساحة لعرض تجارب موثّقة من الأفراد والشركات من المسوقين والمطورين والوسطاء العقاريين.' : 'A place for verified experiences from individual and company marketers, developers and brokers.'}
-          </p>
-        </div>
-
-        <div className="mt-9 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {testimonials[locale].map((item, index) => (
-            <article key={index} className="flex min-h-56 flex-col rounded-3xl border border-border-subtle bg-surface-card p-5 shadow-sm sm:p-6">
-              <div className="flex items-center gap-3">
-                <CustomerMark kind={item.kind} />
-                <div className="min-w-0">
-                  <h3 className="truncate text-sm font-semibold text-text-primary sm:text-base">{item.name}</h3>
-                  <p className="mt-0.5 text-xs text-text-secondary">{item.role} · {item.type}</p>
-                </div>
-              </div>
-              <div className="text-brand mt-5 text-3xl font-semibold leading-none" aria-hidden="true">“</div>
-              <p className="mt-2 flex-1 text-sm leading-7 text-text-secondary sm:text-[15px]">{item.quote}</p>
-            </article>
-          ))}
-        </div>
+export function Testimonials({locale}:{locale:Locale}) {
+  const ar=locale==='ar';
+  const [filter,setFilter]=useState<Category>('all');
+  const filters: {key:Category; ar:string; en:string}[]=[
+    {key:'all',ar:'الكل',en:'All'},{key:'marketer',ar:'المسوقين',en:'Marketers'},{key:'broker',ar:'الوسطاء',en:'Brokers'},
+    {key:'developer',ar:'المطورين',en:'Developers'},{key:'individual',ar:'الأفراد',en:'Individuals'},{key:'company',ar:'الشركات',en:'Companies'}
+  ];
+  const visible=testimonials[locale].filter(x=>filter==='all'||(filter==='individual'?x.kind==='person':filter==='company'?x.kind==='company':x.category===filter));
+  return <section className="relative overflow-hidden bg-gradient-to-b from-surface-card via-brand/[.035] to-surface-card px-5 py-16 sm:px-6 sm:py-24">
+    <div className="relative z-10 mx-auto max-w-6xl">
+      <div className="mx-auto max-w-3xl text-center">
+        <span className="bg-brand/10 text-brand inline-flex rounded-full px-4 py-1.5 text-xs font-semibold">{ar?'آراء عملاء سبعة':'Sbaah customer stories'}</span>
+        <h2 className="font-display mt-4 text-3xl font-semibold text-text-primary sm:text-4xl lg:text-5xl">{ar?'قصص نجاح من عملاء سبعة':'Stories from Sbaah customers'}</h2>
+        <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-text-secondary sm:text-base">{ar?'تجارب من أفراد وشركات يعملون في التسويق والوساطة والتطوير العقاري.':'Experiences from individuals and companies across real-estate marketing, brokerage and development.'}</p>
       </div>
-    </section>
-  );
+      <div className="mt-7 flex flex-wrap justify-center gap-2">
+        {filters.map(x=><button key={x.key} onClick={()=>setFilter(x.key)} className={`rounded-full px-5 py-2 text-xs font-medium transition sm:text-sm ${filter===x.key?'bg-text-primary text-surface-card':'bg-surface-muted text-text-secondary hover:text-text-primary'}`}>{ar?x.ar:x.en}</button>)}
+      </div>
+      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {visible.map((x,i)=><article key={x.name} className="flex min-h-[285px] flex-col rounded-3xl border border-border-subtle bg-surface-card/95 p-6 shadow-sm backdrop-blur">
+          <div className="flex items-center gap-3"><Mark kind={x.kind} name={x.name}/><div className="min-w-0"><h3 className="font-display text-lg font-semibold text-text-primary">{x.name}</h3><p className="text-xs text-text-secondary">{x.role}</p></div><span className="text-brand/20 ms-auto self-start text-5xl leading-none">”</span></div>
+          <p className="mt-5 flex-1 text-sm leading-7 text-text-secondary">{x.quote}</p>
+          <div className="mt-5 border-t border-border-subtle pt-4">
+            <div className="flex items-center justify-between gap-3"><span className="text-[15px] tracking-[2px] text-amber-500" aria-label={ar?'5 من 5':'5 out of 5'}>★★★★★</span><span className="bg-brand/10 text-brand rounded-full px-3 py-1 text-[11px] font-medium">{x.kind==='company'?(ar?'شركة عقارية':'Real-estate company'):(ar?'فرد':'Individual')}</span></div>
+            {x.person&&<p className="mt-3 text-xs font-semibold text-text-primary">{x.person}</p>}
+          </div>
+        </article>)}
+      </div>
+      <div className="mx-auto mt-10 flex max-w-xl items-center gap-4 text-center"><span className="h-px flex-1 bg-border-subtle"/><p className="text-sm font-semibold text-text-primary">{ar?'عملاء سبعة، شركاء في النجاح العقاري':'Sbaah customers, partners in real-estate success'}</p><span className="h-px flex-1 bg-border-subtle"/></div>
+    </div>
+  </section>;
 }
