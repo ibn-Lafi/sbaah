@@ -18,7 +18,7 @@ const metricMeta=[
 
 export default function ConsoleHomePage(){
  const {accessToken}=useCurrentAdmin(); const [data,setData]=useState<ConsoleOverview|null>(null); const [error,setError]=useState(false); const [connecting,setConnecting]=useState(false);
- const connectAnalytics=async()=>{setConnecting(true);try{const result=await connectPlatformGoogleAnalytics(accessToken);window.location.assign(result.authorization_url);}catch{setConnecting(false);setError(true);}};
+ const connectAnalytics=async()=>{setConnecting(true);try{const result=await connectPlatformGoogleAnalytics(accessToken);window.location.assign(result.authorization_url);}catch(err){console.error('Failed to start Google Analytics connection',err);setConnecting(false);}};
  useEffect(()=>{void getConsoleOverview(accessToken).then(setData).catch(()=>setError(true));},[accessToken]);
  return <ConsoleShell title="نظرة عامة">
   <div className="mb-6"><h1 className="text-xl font-semibold text-text-primary sm:text-2xl">إدارة منصة سبعة</h1><p className="mt-1 text-sm text-text-secondary">متابعة تشغيل المنصة والعملاء والمحتوى من مكان واحد.</p></div>
