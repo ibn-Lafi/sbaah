@@ -16,6 +16,7 @@ const PAGE_SIZE = 20;
 
 export default function AccountsPage() {
   const { accessToken } = useCurrentAdmin();
+  const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<TenantStatus | ''>('');
   const [page, setPage] = useState(1);
   const [result, setResult] = useState<AccountListResponse | null>(null);
@@ -23,19 +24,21 @@ export default function AccountsPage() {
   useEffect(() => {
     let cancelled = false;
     setResult(null);
-    void listAccounts(accessToken, { status: statusFilter || undefined, page }).then((res) => {
+    void listAccounts(accessToken, { status: statusFilter || undefined, search: search.trim() || undefined, page }).then((res) => {
       if (!cancelled) setResult(res);
     });
     return () => {
       cancelled = true;
     };
-  }, [accessToken, statusFilter, page]);
+  }, [accessToken, statusFilter, search, page]);
 
   const totalPages = result ? Math.max(1, Math.ceil(result.total / PAGE_SIZE)) : 1;
 
   return (
     <ConsoleShell title="الحسابات">
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-1 flex-col gap-2 sm:flex-row">
+          <input value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} placeholder="ابحث بالاسم أو النطاق الفرعي..." className="h-10 w-full rounded-xl border border-border-default bg-surface-card px-3 text-sm outline-none focus:border-brand sm:max-w-[320px]" />
         <Select
           value={statusFilter}
           onChange={(e) => {
@@ -51,6 +54,7 @@ export default function AccountsPage() {
             </option>
           ))}
         </Select>
+        </div>
         {result && <span className="text-sm text-text-secondary">{result.total} حساب</span>}
       </div>
 
