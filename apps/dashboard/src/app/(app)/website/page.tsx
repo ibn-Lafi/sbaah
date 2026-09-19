@@ -25,9 +25,26 @@ export default function ThemeStorePage() {
   const siteUrl = `https://${me.tenant.subdomain}.${getPlatformRootDomain()}`;
 
   useEffect(() => {
-    void getWebsite(accessToken).then((result) => setWebsite(result.website));
-    void listThemes().then(setThemes);
-  }, [accessToken]);
+    let cancelled = false;
+
+    async function loadThemeStore() {
+      setError(null);
+      try {
+        const [websiteResult, themesResult] = await Promise.all([getWebsite(accessToken), listThemes()]);
+        if (cancelled) return;
+        setWebsite(websiteResult.website);
+        setThemes(themesResult);
+      } catch (err) {
+        if (cancelled) return;
+        setError(err instanceof ApiRequestError ? err.message : t.themeStore.errors.load);
+      }
+    }
+
+    void loadThemeStore();
+    return () => {
+      cancelled = true;
+    };
+  }, [accessToken, t.themeStore.errors.load]);
 
   async function saveTheme(themeId: string) {
     setError(null);
@@ -46,7 +63,20 @@ export default function ThemeStorePage() {
         orgName={me.tenant.name_ar}
         accountType={me.tenant.account_type}
       >
-        <ThemeGallerySkeleton />
+        {error ? (
+          <div className="flex w-full flex-col gap-4">
+            <FormError message={error} />
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              className="w-fit rounded-input border border-border-default bg-surface-card px-4 py-2 text-sm font-medium text-text-primary hover:bg-surface-subtle"
+            >
+              إعادة المحاولة
+            </button>
+          </div>
+        ) : (
+          <ThemeGallerySkeleton />
+        )}
       </AppShell>
     );
   }
