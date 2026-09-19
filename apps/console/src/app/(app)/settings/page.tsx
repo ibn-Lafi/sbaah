@@ -12,12 +12,20 @@ import { useCurrentAdmin } from '@/lib/auth/current-admin-context';
 import { getPlatformSettings, updatePlatformSettings } from '@/lib/api/platform-settings';
 import { ApiRequestError } from '@/lib/api/client';
 
-type Draft = { social_tiktok: string; social_instagram: string; social_x: string; contact_email: string };
+type Draft = { social_tiktok:string; social_instagram:string; social_x:string; contact_email:string; privacy_title_ar:string; privacy_title_en:string; privacy_content_ar:string; privacy_content_en:string; terms_title_ar:string; terms_title_en:string; terms_content_ar:string; terms_content_en:string };
 const toDraft = (s: PlatformSettings): Draft => ({
   social_tiktok: s.social_tiktok ?? '',
   social_instagram: s.social_instagram ?? '',
   social_x: s.social_x ?? '',
   contact_email: s.contact_email ?? '',
+  privacy_title_ar: s.privacy_title_ar ?? 'سياسة الخصوصية',
+  privacy_title_en: s.privacy_title_en ?? 'Privacy Policy',
+  privacy_content_ar: s.privacy_content_ar ?? '',
+  privacy_content_en: s.privacy_content_en ?? '',
+  terms_title_ar: s.terms_title_ar ?? 'الشروط والأحكام',
+  terms_title_en: s.terms_title_en ?? 'Terms & Conditions',
+  terms_content_ar: s.terms_content_ar ?? '',
+  terms_content_en: s.terms_content_en ?? '',
 });
 
 /** إعدادات المنصة — روابط حسابات سبعة نفسها (تيك توك/إنستغرام/إكس/البريد)، تظهر بدل شريط "عقار←موقع←زائر←Lead←متابعة" في لوحة تسجيل الدخول/إنشاء حساب. */
@@ -108,6 +116,26 @@ export default function PlatformSettingsPage() {
             </Button>
           </form>
         )}
+      </Card>
+
+      <Card className="mt-6 max-w-[900px] p-6">
+        <h2 className="mb-1 text-base font-semibold">الصفحات القانونية</h2>
+        <p className="mb-5 text-sm text-text-secondary">تحكم بمحتوى سياسة الخصوصية والشروط والأحكام الظاهر في صفحة سبعة.</p>
+        {draft && <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+          <section className="space-y-3">
+            <h3 className="font-semibold">سياسة الخصوصية</h3>
+            <div className="grid gap-3 sm:grid-cols-2"><Input value={draft.privacy_title_ar} onChange={e=>setDraft({...draft,privacy_title_ar:e.target.value})} placeholder="العنوان بالعربية"/><Input dir="ltr" value={draft.privacy_title_en} onChange={e=>setDraft({...draft,privacy_title_en:e.target.value})} placeholder="English title"/></div>
+            <textarea dir="rtl" value={draft.privacy_content_ar} onChange={e=>setDraft({...draft,privacy_content_ar:e.target.value})} placeholder="محتوى سياسة الخصوصية بالعربية" className="min-h-64 w-full rounded-xl border border-border-subtle bg-surface-card p-4 text-sm leading-7 outline-none focus:border-brand"/>
+            <textarea dir="ltr" value={draft.privacy_content_en} onChange={e=>setDraft({...draft,privacy_content_en:e.target.value})} placeholder="Privacy policy content in English" className="min-h-64 w-full rounded-xl border border-border-subtle bg-surface-card p-4 text-sm leading-7 outline-none focus:border-brand"/>
+          </section>
+          <section className="space-y-3 border-t border-border-subtle pt-5">
+            <h3 className="font-semibold">الشروط والأحكام</h3>
+            <div className="grid gap-3 sm:grid-cols-2"><Input value={draft.terms_title_ar} onChange={e=>setDraft({...draft,terms_title_ar:e.target.value})} placeholder="العنوان بالعربية"/><Input dir="ltr" value={draft.terms_title_en} onChange={e=>setDraft({...draft,terms_title_en:e.target.value})} placeholder="English title"/></div>
+            <textarea dir="rtl" value={draft.terms_content_ar} onChange={e=>setDraft({...draft,terms_content_ar:e.target.value})} placeholder="محتوى الشروط والأحكام بالعربية" className="min-h-64 w-full rounded-xl border border-border-subtle bg-surface-card p-4 text-sm leading-7 outline-none focus:border-brand"/>
+            <textarea dir="ltr" value={draft.terms_content_en} onChange={e=>setDraft({...draft,terms_content_en:e.target.value})} placeholder="Terms and conditions content in English" className="min-h-64 w-full rounded-xl border border-border-subtle bg-surface-card p-4 text-sm leading-7 outline-none focus:border-brand"/>
+          </section>
+          <FormError message={error}/><Button type="submit" disabled={loading} className="w-fit">{loading?'جارٍ الحفظ...':saved?'تم الحفظ ✓':'حفظ الصفحات القانونية'}</Button>
+        </form>}
       </Card>
     </ConsoleShell>
   );
