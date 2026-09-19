@@ -47,7 +47,7 @@ export default function FaqManagementPage(){
  async function remove(id:string){if(!confirm('حذف هذا السؤال؟'))return;try{await deleteFaq(accessToken,id);await load()}catch{setError('تعذّر حذف السؤال')}}
 
  return <ConsoleShell title="الأسئلة الشائعة">
-  <Card className="max-w-[900px] p-6">
+  <Card className="w-full max-w-[900px] p-4 sm:p-6">
    <h2 className="font-semibold">إضافة سؤال</h2>
    <p className="mt-1 text-sm text-text-secondary">أضف السؤال والإجابة باللغتين ليظهر في صفحة سبعة العامة.</p>
    <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -57,13 +57,13 @@ export default function FaqManagementPage(){
     <textarea dir="ltr" value={draft.answer_en} onChange={e=>setDraft({...draft,answer_en:e.target.value})} className="min-h-24 rounded-xl border border-border-subtle bg-surface-card p-3 text-sm outline-none focus:border-brand" placeholder="Answer in English"/>
    </div>
    {error&&<p className="mt-3 text-sm text-danger">{error}</p>}
-   <Button onClick={add} disabled={saving||!draft.question_ar.trim()||!draft.answer_ar.trim()||!draft.question_en.trim()||!draft.answer_en.trim()} className="mt-4">{saving?'جارٍ الحفظ...':'إضافة السؤال'}</Button>
+   <Button onClick={add} disabled={saving||!draft.question_ar.trim()||!draft.answer_ar.trim()||!draft.question_en.trim()||!draft.answer_en.trim()} className="mt-4 w-full sm:w-auto">{saving?'جارٍ الحفظ...':'إضافة السؤال'}</Button>
   </Card>
 
-  <div className="mt-6 max-w-[900px] space-y-3">
+  <div className="mt-4 w-full max-w-[900px] space-y-3 sm:mt-6">
    {items===null?<LoadingState/>:items.length===0?<Card className="p-6 text-sm text-text-secondary">لا توجد أسئلة مضافة بعد. سيستمر الموقع باستخدام المحتوى الافتراضي حتى تضيف أول سؤال.</Card>:items.map((item,index)=>{
     const editing=editingId===item.id;
-    return <Card key={item.id} className="p-5">
+    return <Card key={item.id} className="p-4 sm:p-5">
      {editing&&editDraft?
       <div className="grid gap-3 sm:grid-cols-2">
        <Input value={editDraft.question_ar} onChange={e=>setEditDraft({...editDraft,question_ar:e.target.value})} placeholder="السؤال بالعربية"/>
@@ -74,7 +74,7 @@ export default function FaqManagementPage(){
       </div>:
       <div className="flex flex-wrap items-start justify-between gap-3">
        <div className="min-w-0 flex-1"><div className="flex items-center gap-2"><p className="font-semibold">{item.question_ar}</p><span className={`rounded-full px-2 py-0.5 text-[11px] ${item.is_active?'bg-success-surface text-success':'bg-surface-subtle text-text-secondary'}`}>{item.is_active?'ظاهر':'مخفي'}</span></div><p dir="ltr" className="mt-1 text-sm text-text-secondary">{item.question_en}</p><p className="mt-3 text-sm leading-6 text-text-secondary">{item.answer_ar}</p></div>
-       <div className="flex flex-wrap gap-2"><Button onClick={()=>startEdit(item)}>تعديل</Button><Button onClick={()=>patch(item.id,{is_active:!item.is_active})}>{item.is_active?'إخفاء':'إظهار'}</Button><Button onClick={()=>move(index,-1)} disabled={index===0}>↑</Button><Button onClick={()=>move(index,1)} disabled={index===items.length-1}>↓</Button><Button onClick={()=>remove(item.id)}>حذف</Button></div>
+       <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap"><Button onClick={()=>startEdit(item)}>تعديل</Button><Button onClick={()=>patch(item.id,{is_active:!item.is_active})}>{item.is_active?'إخفاء':'إظهار'}</Button><Button onClick={()=>move(index,-1)} disabled={index===0}>↑</Button><Button onClick={()=>move(index,1)} disabled={index===items.length-1}>↓</Button><Button onClick={()=>remove(item.id)}>حذف</Button></div>
       </div>}
     </Card>
    })}
