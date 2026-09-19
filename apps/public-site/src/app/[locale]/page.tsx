@@ -6,6 +6,8 @@ import { getThemeComponents } from '@/components/themes/registry';
 import { listCities } from '@/lib/api/reference-data';
 import { BrokerMarketerForm } from '@/components/broker-marketer/broker-marketer-form';
 import { MapSection } from '@/components/map/map-section';
+import { FeaturedPropertiesSection, LatestPropertiesSection, ProjectsShowcaseSection, PropertiesByCitySection } from '@/components/themes/classic/data-sections';
+import { StatsSection, ServicesSection, FaqSection, CtaSection, PromoBannerSection, FreeContentSection, GallerySection, VideoSection } from '@/components/themes/classic/content-sections';
 
 /**
  * Renders `website_sections` in order (task 35/42) — replaces the
@@ -44,7 +46,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   if (!site) return null; // layout.tsx already calls notFound() in this case
 
   const tenantName = locale === 'ar' ? site.tenant.name_ar : site.tenant.name_en;
-  const { HeroSection, PropertyGridSection, TextSection } = getThemeComponents(site.website.theme_key);
+  const theme = getThemeComponents(site.website.theme_key);
+  const { HeroSection, PropertyGridSection, TextSection } = theme;
+  const isClassic = site.website.theme_key === 'classic';
   const hasBrokerMarketerForm = site.sections.some((s) => s.type === 'broker_marketer_form');
   const cities = hasBrokerMarketerForm ? await listCities() : [];
 
@@ -65,6 +69,18 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             );
           case 'property_grid':
             return <PropertyGridSection key={section.id} locale={locale} config={section.config} />;
+          case 'featured_properties': return isClassic ? <FeaturedPropertiesSection key={section.id} locale={locale} config={section.config} /> : null;
+          case 'latest_properties': return isClassic ? <LatestPropertiesSection key={section.id} locale={locale} config={section.config} /> : null;
+          case 'projects_showcase': return isClassic ? <ProjectsShowcaseSection key={section.id} locale={locale} config={section.config} /> : null;
+          case 'properties_by_city': return isClassic ? <PropertiesByCitySection key={section.id} locale={locale} config={section.config} /> : null;
+          case 'stats': return isClassic ? <StatsSection key={section.id} locale={locale} config={section.config} /> : null;
+          case 'services': return isClassic ? <ServicesSection key={section.id} locale={locale} config={section.config} /> : null;
+          case 'faq': return isClassic ? <FaqSection key={section.id} locale={locale} config={section.config} /> : null;
+          case 'cta': return isClassic ? <CtaSection key={section.id} locale={locale} config={section.config} /> : null;
+          case 'promo_banner': return isClassic ? <PromoBannerSection key={section.id} locale={locale} config={section.config} /> : null;
+          case 'free_content': return isClassic ? <FreeContentSection key={section.id} locale={locale} config={section.config} /> : null;
+          case 'gallery': return isClassic ? <GallerySection key={section.id} locale={locale} config={section.config} /> : null;
+          case 'video': return isClassic ? <VideoSection key={section.id} locale={locale} config={section.config} /> : null;
           case 'about':
           case 'why_us':
             return <TextSection key={section.id} type={section.type} locale={locale} config={section.config} />;

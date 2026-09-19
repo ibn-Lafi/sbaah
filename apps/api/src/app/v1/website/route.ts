@@ -1,5 +1,5 @@
 import type { NextRequest } from 'next/server';
-import { WEBSITE_PAGE_KEYS, websiteUpdateSchema } from '@sbaah/shared';
+import { WEBSITE_PAGE_KEYS, websiteUpdateSchema, type WebsiteSectionType } from '@sbaah/shared';
 import { okResponse, withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
@@ -35,6 +35,36 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     .order('order_index', { foreignTable: 'website_sections' });
   if (pagesError) {
     throw new Error(`Failed to load website pages: ${pagesError.message}`);
+  }
+
+  // Home section library is reconciled lazily so existing tenants receive new
+  // Classic sections without a destructive backfill. New library entries start
+  // hidden and become visible only when the owner adds them in the editor.
+  const homePage = pages.find((page) => page.key === 'home');
+  const homeLibrary: WebsiteSectionType[] = [
+    'featured_properties','latest_properties','projects_showcase','properties_by_city',
+    'stats','services','faq','cta','promo_banner','free_content','gallery','video',
+  ];
+  if (homePage) {
+    const existing = new Set(homePage.website_sections.map((section) => section.type));
+    const missing = homeLibrary.filter((type) => !existing.has(type));
+    if (missing.length) {
+      const maxOrder = homePage.website_sections.reduce((max, section) => Math.max(max, section.order_index), -1);
+      const { data: created, error: createError } = await supabase
+        .from('website_sections')
+        .insert(missing.map((type, index) => ({
+          website_id: website.id,
+          page_id: homePage.id,
+          type,
+          order_index: maxOrder + index + 1,
+          is_visible: false,
+          config: {},
+        })))
+        .select();
+      if (createError) throw new Error(`Failed to reconcile home section library: ${createError.message}`);
+      homePage.website_sections.push(...(created ?? []));
+      homePage.website_sections.sort((a, b) => a.order_index - b.order_index);
+    }
   }
 
   const orderedPages = WEBSITE_PAGE_KEYS.map((key) => pages.find((page) => page.key === key)).filter(

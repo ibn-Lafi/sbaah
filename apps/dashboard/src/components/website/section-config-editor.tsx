@@ -1,9 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   HERO_VARIANTS,
   type AboutSectionConfig,
+  type StatsSectionConfig,
+  type ServicesSectionConfig,
+  type FaqSectionConfig,
   type HeroSectionConfig,
   type HeroVariant,
   type Website,
@@ -14,8 +17,11 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select } from '@/components/ui/select';
 import { useLocale } from '@/lib/i18n/locale-context';
-import { updateSection, uploadBanner, uploadBannerVideo, updateWebsite } from '@/lib/api/website';
+import { updateSection, uploadBanner, uploadBannerVideo, uploadSectionAsset, updateWebsite } from '@/lib/api/website';
 import { AssetUploader } from './asset-uploader';
+import { listProperties } from '@/lib/api/properties';
+import { listCities } from '@/lib/api/reference-data';
+import type { City, Property } from '@sbaah/shared';
 
 interface SectionConfigEditorProps {
   section: WebsiteSection;
@@ -50,7 +56,8 @@ export function SectionConfigEditor({ section, accessToken, onSaved, website, on
   const { pages } = useLocale();
   const t = pages.website;
   const isHero = section.type === 'hero';
-  const hasBody = section.type === 'about' || section.type === 'why_us';
+  const hasBody = ['about','why_us','cta','property_request','promo_banner','free_content'].includes(section.type);
+  const hasSimpleTitle = !['property_detail','map','footer'].includes(section.type);
   const config = section.config as HeroSectionConfig & AboutSectionConfig;
 
   const [titleAr, setTitleAr] = useState(config.title_ar ?? '');
@@ -58,12 +65,45 @@ export function SectionConfigEditor({ section, accessToken, onSaved, website, on
   const [bodyAr, setBodyAr] = useState(config.body_ar ?? '');
   const [variant, setVariant] = useState<HeroVariant>(config.variant ?? 'image_search');
   const [loading, setLoading] = useState(false);
+  type EditorItem = { value?: string; label?: string; title?: string; description?: string; question?: string; answer?: string };
+  const [items, setItems] = useState<EditorItem[]>(() => ((section.config as StatsSectionConfig & ServicesSectionConfig & FaqSectionConfig).items ?? []) as EditorItem[]);
+  const [buttonLabel, setButtonLabel] = useState(String(section.config.button_label ?? ''));
+  const [buttonUrl, setButtonUrl] = useState(String(section.config.button_url ?? ''));
+  const [mediaUrl, setMediaUrl] = useState(String(section.config.image_url ?? section.config.video_url ?? ''));
+  const hasItems = ['stats','services','faq'].includes(section.type);
+  const hasButton = ['cta','promo_banner','free_content'].includes(section.type);
+  const hasImageUrl = ['promo_banner','free_content'].includes(section.type);
+  const hasVideoUrl = section.type === 'video';
+  const isGallery = section.type === 'gallery';
+  const [galleryUrls, setGalleryUrls] = useState<string[]>(() => Array.isArray(section.config.image_urls) ? section.config.image_urls as string[] : []);
+  const hasLimit = ['latest_properties','projects_showcase'].includes(section.type);
+  const isFeaturedProperties = section.type === 'featured_properties';
+  const isPropertiesByCity = section.type === 'properties_by_city';
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [cities, setCities] = useState<City[]>([]);
+  const [selectedPropertyIds, setSelectedPropertyIds] = useState<string[]>(() => Array.isArray(section.config.property_ids) ? section.config.property_ids as string[] : []);
+  const [selectedCityIds, setSelectedCityIds] = useState<string[]>(() => Array.isArray(section.config.city_ids) ? section.config.city_ids as string[] : []);
+  const [limit, setLimit] = useState(String(section.config.limit ?? 6));
+
+  useEffect(() => {
+    if (isFeaturedProperties) void listProperties(accessToken, { status: 'published' }).then((r) => setProperties(r.properties));
+    if (isPropertiesByCity) void listCities().then(setCities);
+  }, [accessToken, isFeaturedProperties, isPropertiesByCity]);
 
   async function handleSave() {
     setLoading(true);
     try {
-      const nextConfig: Record<string, string> = {};
+      const nextConfig: Record<string, unknown> = {};
       if (titleAr) nextConfig.title_ar = titleAr;
+      if (hasItems) nextConfig.items = items;
+      if (hasButton && buttonLabel) nextConfig.button_label = buttonLabel;
+      if (hasButton && buttonUrl) nextConfig.button_url = buttonUrl;
+      if (hasImageUrl && mediaUrl) nextConfig.image_url = mediaUrl;
+      if (hasVideoUrl && mediaUrl) nextConfig.video_url = mediaUrl;
+      if (isGallery) nextConfig.image_urls = galleryUrls.filter(Boolean);
+      if (hasLimit) nextConfig.limit = Math.max(1, Math.min(12, Number(limit) || 6));
+      if (isFeaturedProperties) nextConfig.property_ids = selectedPropertyIds;
+      if (isPropertiesByCity) nextConfig.city_ids = selectedCityIds;
       if (isHero && subtitleAr) nextConfig.subtitle_ar = subtitleAr;
       if (hasBody && bodyAr) nextConfig.body_ar = bodyAr;
       if (isHero) nextConfig.variant = variant;
@@ -80,7 +120,42 @@ export function SectionConfigEditor({ section, accessToken, onSaved, website, on
 
   return (
     <div className="flex flex-col gap-3 rounded-input border border-border-subtle bg-surface-subtle p-4">
-      <Input placeholder={t.sectionConfigEditor.title} value={titleAr} onChange={(e) => setTitleAr(e.target.value)} />
+      {hasSimpleTitle && <Input placeholder={t.sectionConfigEditor.title} value={titleAr} onChange={(e) => setTitleAr(e.target.value)} />}
+
+      {hasItems && (
+        <div className="flex flex-col gap-3">
+          {items.map((item, index) => (
+            <div key={index} className="rounded-input border border-border-default bg-surface-card p-3">
+              <div className="grid gap-2 sm:grid-cols-2">
+                {section.type === 'stats' && <>
+                  <Input placeholder="الرقم" value={item.value ?? ''} onChange={(e) => setItems((v) => v.map((x,i) => i===index ? {...x,value:e.target.value}:x))} />
+                  <Input placeholder="الوصف" value={item.label ?? ''} onChange={(e) => setItems((v) => v.map((x,i) => i===index ? {...x,label:e.target.value}:x))} />
+                </>}
+                {section.type === 'services' && <>
+                  <Input placeholder="اسم الخدمة" value={item.title ?? ''} onChange={(e) => setItems((v) => v.map((x,i) => i===index ? {...x,title:e.target.value}:x))} />
+                  <Input placeholder="وصف الخدمة" value={item.description ?? ''} onChange={(e) => setItems((v) => v.map((x,i) => i===index ? {...x,description:e.target.value}:x))} />
+                </>}
+                {section.type === 'faq' && <>
+                  <Input placeholder="السؤال" value={item.question ?? ''} onChange={(e) => setItems((v) => v.map((x,i) => i===index ? {...x,question:e.target.value}:x))} />
+                  <Input placeholder="الإجابة" value={item.answer ?? ''} onChange={(e) => setItems((v) => v.map((x,i) => i===index ? {...x,answer:e.target.value}:x))} />
+                </>}
+              </div>
+              <button type="button" onClick={() => setItems((v) => v.filter((_,i) => i!==index))} className="mt-2 text-xs text-red-600 hover:underline">حذف</button>
+            </div>
+          ))}
+          <Button type="button" variant="secondary" onClick={() => setItems((v) => [...v, section.type === 'stats' ? {value:'',label:''} : section.type === 'services' ? {title:'',description:''} : {question:'',answer:''}])} className="w-fit">
+            + إضافة {section.type === 'stats' ? 'رقم' : section.type === 'services' ? 'خدمة' : 'سؤال'}
+          </Button>
+        </div>
+      )}
+      {hasButton && <><Input placeholder="نص الزر" value={buttonLabel} onChange={(e) => setButtonLabel(e.target.value)} /><Input placeholder="رابط الزر" value={buttonUrl} onChange={(e) => setButtonUrl(e.target.value)} /></>}
+      {hasLimit && <Input type="number" min="1" max="12" placeholder="عدد العناصر" value={limit} onChange={(e) => setLimit(e.target.value)} />}
+      {isFeaturedProperties && <div className="flex flex-col gap-2"><label className="text-text-secondary text-xs">اختر العقارات المميزة</label><div className="max-h-56 overflow-auto rounded-input border border-border-default bg-surface-card p-2">{properties.map((property)=><label key={property.id} className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-sm hover:bg-surface-subtle"><input type="checkbox" checked={selectedPropertyIds.includes(property.id)} onChange={(e)=>setSelectedPropertyIds(v=>e.target.checked?[...v,property.id]:v.filter(id=>id!==property.id))}/><span>{property.title_ar}</span></label>)}</div></div>}
+      {isPropertiesByCity && <div className="flex flex-col gap-2"><label className="text-text-secondary text-xs">اختر المدن</label><div className="max-h-56 overflow-auto rounded-input border border-border-default bg-surface-card p-2">{cities.map((city)=><label key={city.id} className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-sm hover:bg-surface-subtle"><input type="checkbox" checked={selectedCityIds.includes(city.id)} onChange={(e)=>setSelectedCityIds(v=>e.target.checked?[...v,city.id]:v.filter(id=>id!==city.id))}/><span>{city.name_ar}</span></label>)}</div></div>}
+
+      {isGallery && <div className="flex flex-col gap-3">{galleryUrls.map((url,index)=><div key={url+index} className="flex items-center gap-3"><img src={url} alt="" className="h-16 w-24 rounded-input object-cover"/><Button type="button" variant="danger" onClick={()=>setGalleryUrls(v=>v.filter((_,i)=>i!==index))}>حذف</Button></div>)}<label className="w-fit cursor-pointer"><span className="inline-flex rounded-input border border-border-default bg-surface-card px-4 py-2 text-sm font-medium">+ رفع صورة</span><input type="file" accept="image/*" className="hidden" onChange={(e)=>{const file=e.target.files?.[0];e.target.value='';if(file) void uploadSectionAsset(accessToken,section.id,file).then(r=>setGalleryUrls(v=>[...v,r.url]))}}/></label></div>}
+      {hasImageUrl && <AssetUploader label="صورة القسم" currentUrl={mediaUrl || null} onUpload={async(file)=>{const r=await uploadSectionAsset(accessToken,section.id,file);setMediaUrl(r.url)}} onRemove={async()=>setMediaUrl('')} />}
+      {hasVideoUrl && <Input placeholder="رابط الفيديو" value={mediaUrl} onChange={(e) => setMediaUrl(e.target.value)} />}
 
       {isHero && (
         <Input placeholder={t.sectionConfigEditor.subtitle} value={subtitleAr} onChange={(e) => setSubtitleAr(e.target.value)} />
