@@ -20,8 +20,7 @@ export const POST=withErrorHandling(async(request:NextRequest)=>{
  await assertOptionalTenantOwnedRow({supabase,table:'parties',id:input.owner_party_id,tenantId:caller.tenantId,label:'المالك'});
  for(const assetId of input.asset_ids)await assertTenantOwnedRow({supabase,table:'assets',id:assetId,tenantId:caller.tenantId,label:'العقار'});
  const{asset_ids,...mandate}=input;
- const{data,error}=await supabase.from('marketing_mandates').insert({...mandate,tenant_id:caller.tenantId}).select().single();if(error)throw new Error(error.message);
- const{error:linkError}=await supabase.from('marketing_mandate_assets').insert(asset_ids.map(asset_id=>({tenant_id:caller.tenantId,marketing_mandate_id:data.id,asset_id})));
- if(linkError){await supabase.from('marketing_mandates').delete().eq('id',data.id).eq('tenant_id',caller.tenantId);throw new Error(linkError.message);}
+ const{data,error}=await supabase.rpc('create_marketing_mandate_with_assets',{p_mandate:mandate,p_asset_ids:asset_ids}).single();
+ if(error)throw new Error(error.message);
  return okResponse({mandate:{...data,marketing_mandate_assets:asset_ids.map(asset_id=>({asset_id}))}},201);
 });
