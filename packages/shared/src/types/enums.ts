@@ -56,9 +56,6 @@ export type FurnishingStatus = (typeof FURNISHING_STATUSES)[number];
 export const PROPERTY_FRONTAGES = ['north','south','east','west','northeast','northwest','southeast','southwest'] as const;
 export type PropertyFrontage = (typeof PROPERTY_FRONTAGES)[number];
 
-export const UNIT_AVAILABILITY = ['available','reserved','sold','rented','blocked'] as const;
-export type UnitAvailability = (typeof UNIT_AVAILABILITY)[number];
-
 export const VIEWING_STATUSES = ['scheduled','completed','rescheduled','cancelled','no_show'] as const;
 export type ViewingStatus = (typeof VIEWING_STATUSES)[number];
 export const VIEWING_OUTCOMES = ['interested','follow_up','not_interested'] as const;
@@ -87,24 +84,11 @@ export type UserRole = (typeof USER_ROLES)[number];
 export const USER_STATUSES = ['active', 'invited', 'disabled'] as const;
 export type UserStatus = (typeof USER_STATUSES)[number];
 
-export const PROPERTY_TYPES = [
-  'apartment',
-  'villa',
-  'land',
-  'office',
-  'shop',
-  'building',
-] as const;
-export type PropertyType = (typeof PROPERTY_TYPES)[number];
-
 export const LISTING_TYPES = ['sale', 'rent'] as const;
 export type ListingType = (typeof LISTING_TYPES)[number];
 
 export const PROPERTY_STATUSES = ['draft', 'published', 'archived'] as const;
 export type PropertyStatus = (typeof PROPERTY_STATUSES)[number];
-
-export const PROPERTY_AVAILABILITY = ['available', 'reserved', 'sold', 'rented'] as const;
-export type PropertyAvailability = (typeof PROPERTY_AVAILABILITY)[number];
 
 /** PRODUCT_SPEC section 4.3 — partially self-service custom domain (migration 0008). */
 export const CUSTOM_DOMAIN_STATUSES = ['pending', 'verified'] as const;
