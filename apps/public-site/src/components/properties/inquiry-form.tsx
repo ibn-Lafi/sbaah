@@ -39,10 +39,11 @@ function requireSiteKey(): string {
 interface InquiryFormProps {
   locale: Locale;
   tenantId: string;
-  propertyId: string;
+  listingId: string;
+  assetId: string;
 }
 
-export function InquiryForm({ locale, tenantId, propertyId }: InquiryFormProps) {
+export function InquiryForm({ locale, tenantId, listingId, assetId }: InquiryFormProps) {
   const t = LABELS[locale];
   const widgetRef = useRef<HTMLDivElement>(null);
   const widgetId = useRef<string | null>(null);
@@ -72,7 +73,8 @@ export function InquiryForm({ locale, tenantId, propertyId }: InquiryFormProps) 
 
     const result = publicLeadInputSchema.safeParse({
       tenant_id: tenantId,
-      property_id: propertyId,
+      listing_id: listingId,
+      asset_id: assetId,
       full_name: fullName,
       phone,
       email: email || null,
