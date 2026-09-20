@@ -1,7 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { ApiError } from '@/lib/http';
 
-type TenantOwnedTable = 'users' | 'properties' | 'projects' | 'buildings' | 'project_phases' | 'unit_types' | 'units' | 'leads';
+type TenantOwnedTable = 'users' | 'projects' | 'project_phases' | 'unit_types' | 'leads' | 'assets' | 'listings' | 'reservations' | 'deals' | 'parties' | 'lease_contracts' | 'maintenance_requests';
 
 interface AssertTenantOwnedRowOptions {
   supabase: SupabaseClient;
