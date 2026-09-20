@@ -1,12 +1,13 @@
 import type { NextRequest } from 'next/server';
 import { leaseInstallmentInputSchema } from '@sbaah/shared';
-import { okResponse,withErrorHandling } from '@/lib/http';
+import { ApiError,okResponse,withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
 
 export const GET=withErrorHandling(async(request:NextRequest)=>{
   const{supabase}=getAuthenticatedClient(request);
-  let q=supabase.from('lease_installments').select('*, lease_payment_allocations(amount,payment_id,lease_payments(status))').order('due_date');
+  const caller=await getCallerContext(supabase);
+  let q=supabase.from('lease_installments').select('*, lease_payment_allocations(amount,payment_id,lease_payments(status))').eq('tenant_id',caller.tenantId).order('due_date');
   const id=request.nextUrl.searchParams.get('contract_id');
   if(id){
     await supabase.rpc('refresh_contract_installment_statuses',{p_contract_id:id});
@@ -25,6 +26,7 @@ export const GET=withErrorHandling(async(request:NextRequest)=>{
 export const POST=withErrorHandling(async(request:NextRequest)=>{
   const{supabase}=getAuthenticatedClient(request);
   const caller=await getCallerContext(supabase);
+  if(caller.role==='agent')throw new ApiError(403,'forbidden','لا يملك الوسيط صلاحية إنشاء الأقساط');
   const input=leaseInstallmentInputSchema.parse(await request.json());
   const{data,error}=await supabase.from('lease_installments').insert({...input,tenant_id:caller.tenantId}).select().single();
   if(error)throw new Error(`Failed to create installment: ${error.message}`);
