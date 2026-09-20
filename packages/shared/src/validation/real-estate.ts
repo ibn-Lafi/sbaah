@@ -10,6 +10,9 @@ import {
   PARTY_TYPES,
   PROPERTY_FRONTAGES,
   RESERVATION_STATUSES,
+  MARKETING_MANDATE_STATUSES,
+  MARKETING_MANDATE_TYPES,
+  COMMISSION_TYPES,
 } from '../types/enums';
 
 const nullableUuid = z.string().uuid().optional().nullable();
@@ -129,3 +132,24 @@ export const reservationInputSchema = z.object({
   message: 'تاريخ انتهاء الحجز يجب أن يكون بعد تاريخ الحجز',
   path: ['expires_at'],
 });
+
+
+export const marketingMandateInputSchema = z.object({
+  reference_number: z.string().trim().min(1).max(100),
+  owner_party_id: nullableUuid,
+  mandate_type: z.enum(MARKETING_MANDATE_TYPES),
+  commission_type: z.enum(COMMISSION_TYPES).optional().nullable(),
+  commission_value: z.number().nonnegative().optional().nullable(),
+  status: z.enum(MARKETING_MANDATE_STATUSES).optional(),
+  starts_at: z.string().date().optional().nullable(),
+  expires_at: z.string().date().optional().nullable(),
+  notes: z.string().optional().nullable(),
+  asset_ids: z.array(z.string().uuid()).min(1, 'اختر عقارًا واحدًا على الأقل'),
+}).superRefine((value, ctx) => {
+  if ((value.commission_type == null) !== (value.commission_value == null)) ctx.addIssue({ code:'custom', path:['commission_value'], message:'نوع العمولة وقيمتها يجب إدخالهما معًا' });
+  if (value.commission_type === 'percentage' && value.commission_value != null && value.commission_value > 100) ctx.addIssue({ code:'custom', path:['commission_value'], message:'نسبة العمولة لا تتجاوز 100%' });
+  if (value.starts_at && value.expires_at && value.expires_at < value.starts_at) ctx.addIssue({ code:'custom', path:['expires_at'], message:'تاريخ الانتهاء يجب ألا يسبق تاريخ البداية' });
+});
+export type MarketingMandateInput = z.infer<typeof marketingMandateInputSchema>;
+export const marketingMandateUpdateSchema = marketingMandateInputSchema.omit({ asset_ids:true }).partial();
+export type MarketingMandateUpdateInput = z.infer<typeof marketingMandateUpdateSchema>;
