@@ -3,6 +3,7 @@ import { leaseInstallmentInputSchema } from '@sbaah/shared';
 import { ApiError,okResponse,withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
+import { assertTenantOwnedRow } from '@/lib/tenant/assert-tenant-owned-row';
 
 export const GET=withErrorHandling(async(request:NextRequest)=>{
   const{supabase}=getAuthenticatedClient(request);
@@ -28,6 +29,7 @@ export const POST=withErrorHandling(async(request:NextRequest)=>{
   const caller=await getCallerContext(supabase);
   if(caller.role==='agent')throw new ApiError(403,'forbidden','لا يملك الوسيط صلاحية إنشاء الأقساط');
   const input=leaseInstallmentInputSchema.parse(await request.json());
+  await assertTenantOwnedRow({supabase,table:'lease_contracts',id:input.contract_id,tenantId:caller.tenantId,label:'العقد'});
   const{data,error}=await supabase.from('lease_installments').insert({...input,tenant_id:caller.tenantId}).select().single();
   if(error)throw new Error(`Failed to create installment: ${error.message}`);
   return okResponse({installment:data},201);
