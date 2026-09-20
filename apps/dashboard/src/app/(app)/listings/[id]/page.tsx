@@ -3,6 +3,7 @@ import { use, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { ListingDetail } from '@/lib/api/real-estate';
+import type { ListingCommercialStatus, ListingPricingPeriod, ListingPublicationStatus } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
 import { BackButton } from '@/components/ui/back-button';
 import { Button } from '@/components/ui/button';
@@ -23,7 +24,7 @@ export default function ListingPage({params}:{params:Promise<{id:string}>}){
  async function save(e:React.FormEvent<HTMLFormElement>){
   e.preventDefault(); if(!data)return; const f=new FormData(e.currentTarget); setBusy(true); setError('');
   try{
-   const r=await updateListing(accessToken,id,{title_ar:String(f.get('title_ar')),asking_price:Number(f.get('asking_price')),pricing_period:data.listing_type==='rent'?(f.get('pricing_period') as any):null,publication_status:f.get('publication_status') as any,commercial_status:f.get('commercial_status') as any,advertisement_license_number:String(f.get('advertisement_license_number')||'')||null,advertisement_license_expires_at:String(f.get('advertisement_license_expires_at')||'')||null,advertiser_name:String(f.get('advertiser_name')||'')||null});
+   const r=await updateListing(accessToken,id,{title_ar:String(f.get('title_ar')),asking_price:Number(f.get('asking_price')),pricing_period:data.listing_type==='rent'?(f.get('pricing_period') as ListingPricingPeriod):null,publication_status:f.get('publication_status') as ListingPublicationStatus,commercial_status:f.get('commercial_status') as ListingCommercialStatus,advertisement_license_number:String(f.get('advertisement_license_number')||'')||null,advertisement_license_expires_at:String(f.get('advertisement_license_expires_at')||'')||null,advertiser_name:String(f.get('advertiser_name')||'')||null});
    setData({...data,...r.listing});
   }catch(x){setError(x instanceof Error?x.message:'تعذر حفظ العرض')}finally{setBusy(false)}
  }
