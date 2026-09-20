@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ASSET_TYPES, PROPERTY_STATUSES } from '../types/enums';
+import { ASSET_TYPES, PROJECT_STATUSES } from '../types/enums';
 
 export const projectInputSchema = z.object({
   name_ar: z.string().min(2, 'اسم المشروع مطلوب'), name_en: z.string().optional().nullable(),
@@ -11,7 +11,7 @@ export const projectInputSchema = z.object({
   reference_number: z.string().max(100).optional().nullable(),
 });
 export type ProjectInput = z.infer<typeof projectInputSchema>;
-export const projectUpdateSchema = projectInputSchema.partial().extend({ status: z.enum(PROPERTY_STATUSES).optional() });
+export const projectUpdateSchema = projectInputSchema.partial().extend({ status: z.enum(PROJECT_STATUSES).optional() });
 export type ProjectUpdateInput = z.infer<typeof projectUpdateSchema>;
 
 export const phaseInputSchema = z.object({ project_id:z.string().uuid(), name_ar:z.string().min(1), name_en:z.string().optional().nullable(), order_index:z.number().int().nonnegative().default(0) });
