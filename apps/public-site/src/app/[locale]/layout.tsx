@@ -18,6 +18,7 @@ import { getThemeComponents } from '@/components/themes/registry';
 import { ThemeProvider } from '@/lib/theme/theme-context';
 import { THEME_STORAGE_KEY } from '@/lib/theme/theme';
 import { buildLocalizedAlternates, canonicalTenantOrigin, getPublicOrigin } from '@/lib/routing/public-url';
+import { safeGoogleAnalyticsId } from '@/lib/security/public-values';
 
 interface LocaleLayoutProps {
   children: React.ReactNode;
@@ -73,7 +74,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   // platform root domain never goes through tenant resolution or
   // renders tenant chrome at all. See components/marketing-chrome.tsx.
   if (await isMarketingHost()) {
-    const marketingAnalyticsId = process.env.NEXT_PUBLIC_MARKETING_GA_MEASUREMENT_ID;
+    const marketingAnalyticsId = safeGoogleAnalyticsId(process.env.NEXT_PUBLIC_MARKETING_GA_MEASUREMENT_ID);
     return (
       <html lang={locale} dir={dir}>
         <head>
@@ -84,7 +85,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
             <>
               <Script src={`https://www.googletagmanager.com/gtag/js?id=${marketingAnalyticsId}`} strategy="afterInteractive" />
               <Script id="sbaah-marketing-google-analytics" strategy="afterInteractive">
-                {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${marketingAnalyticsId}');`}
+                {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config',${JSON.stringify(marketingAnalyticsId)});`}
               </Script>
             </>
           )}
@@ -131,6 +132,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   }
 
   const { site } = result;
+  const analyticsId = safeGoogleAnalyticsId(site.google_analytics_measurement_id);
   const font = resolveWebsiteFont(site.website.font_family);
   const tenantName = locale === 'ar' ? site.tenant.name_ar : site.tenant.name_en;
   const { Header, Footer } = getThemeComponents(site.website.theme_key);
@@ -172,14 +174,14 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
       }
     >
       <body className={font.className}>
-        {site.google_analytics_measurement_id && (
+        {analyticsId && (
           <>
             <Script
-              src={`https://www.googletagmanager.com/gtag/js?id=${site.google_analytics_measurement_id}`}
+              src={`https://www.googletagmanager.com/gtag/js?id=${analyticsId}`}
               strategy="afterInteractive"
             />
             <Script id="sbaah-google-analytics" strategy="afterInteractive">
-              {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${site.google_analytics_measurement_id}');`}
+              {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config',${JSON.stringify(analyticsId)});`}
             </Script>
           </>
         )}
