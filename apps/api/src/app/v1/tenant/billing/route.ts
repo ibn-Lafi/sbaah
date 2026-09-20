@@ -47,7 +47,7 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     { count: userCount, error: userError },
     { data: lastPayment, error: lastPaymentError },
   ] = await Promise.all([
-    supabase.from('properties').select('id', { count: 'exact', head: true }),
+    supabase.from('assets').select('id', { count: 'exact', head: true }).is('archived_at', null),
     supabase.from('users').select('id', { count: 'exact', head: true }).neq('status', 'disabled'),
     supabase
       .from('payments')
