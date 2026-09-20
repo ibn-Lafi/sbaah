@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 
 /**
@@ -16,14 +16,14 @@ export function NavigationProgress() {
   const finishTimer = useRef<number | null>(null);
   const trickleTimer = useRef<number | null>(null);
 
-  function clearTimers() {
+  const clearTimers = useCallback(() => {
     if (finishTimer.current !== null) window.clearTimeout(finishTimer.current);
     if (trickleTimer.current !== null) window.clearInterval(trickleTimer.current);
     finishTimer.current = null;
     trickleTimer.current = null;
-  }
+  }, []);
 
-  function start() {
+  const start = useCallback(() => {
     clearTimers();
     setActive(true);
     setProgress(12);
@@ -33,16 +33,16 @@ export function NavigationProgress() {
         return Math.min(88, current + Math.max(1, (88 - current) * 0.12));
       });
     }, 180);
-  }
+  }, [clearTimers]);
 
-  function finish() {
+  const finish = useCallback(() => {
     clearTimers();
     setProgress(100);
     finishTimer.current = window.setTimeout(() => {
       setActive(false);
       setProgress(0);
     }, 180);
-  }
+  }, [clearTimers]);
 
   useEffect(() => {
     const onClick = (event: MouseEvent) => {
@@ -69,13 +69,11 @@ export function NavigationProgress() {
       document.removeEventListener('click', onClick, true);
       clearTimers();
     };
-  }, []);
+  }, [start, clearTimers]);
 
   useEffect(() => {
     if (active) finish();
-    // searchParams is intentional: query-only App Router navigation must also finish the bar.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname, searchParams]);
+  }, [active, finish, pathname, searchParams]);
 
   if (!active) return null;
 
