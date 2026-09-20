@@ -1,4 +1,4 @@
-import type { Property, PropertyMedia, PropertySearchInput } from '@sbaah/shared';
+import type { Property, PropertyMedia } from '@sbaah/shared';
 import { apiGet, ApiRequestError } from './client';
 import { getHost } from '@/lib/tenant/get-host';
 
@@ -14,9 +14,20 @@ export interface PublicPropertyListResponse {
   total: number;
 }
 
-/** Every filter field is optional and maps 1:1 onto propertySearchSchema (packages/shared) — the URL's own search params are the source of truth, no renaming layer. */
+export interface PublicPropertySearchFilters {
+  city_id?: string;
+  district_id?: string;
+  property_type?: string;
+  listing_type?: string;
+  min_price?: number;
+  max_price?: number;
+  bedrooms?: number;
+  page?: number;
+}
+
+/** Public-site filters map directly to the public properties API query parameters. */
 export async function listPublicProperties(
-  filters: Partial<Omit<PropertySearchInput, 'page' | 'page_size'>> & { page?: number },
+  filters: PublicPropertySearchFilters,
 ): Promise<PublicPropertyListResponse> {
   const host = await getHost();
   const query = new URLSearchParams({ domain: host ?? '' });
