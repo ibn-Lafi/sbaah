@@ -87,8 +87,8 @@ export type UserStatus = (typeof USER_STATUSES)[number];
 export const LISTING_TYPES = ['sale', 'rent'] as const;
 export type ListingType = (typeof LISTING_TYPES)[number];
 
-export const PROPERTY_STATUSES = ['draft', 'published', 'archived'] as const;
-export type PropertyStatus = (typeof PROPERTY_STATUSES)[number];
+export const PROJECT_STATUSES = ['draft', 'published', 'archived'] as const;
+export type ProjectStatus = (typeof PROJECT_STATUSES)[number];
 
 /** PRODUCT_SPEC section 4.3 — partially self-service custom domain (migration 0008). */
 export const CUSTOM_DOMAIN_STATUSES = ['pending', 'verified'] as const;
