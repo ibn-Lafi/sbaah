@@ -10,12 +10,12 @@ export function createListing(accessToken:string,input:ListingInput):Promise<{li
 
 export type AssetWithMedia=Asset&{asset_media:Array<{id:string;media_type:string;url:string;order_index:number}>};
 export const getAsset=(token:string,id:string)=>apiGet<{asset:AssetWithMedia}>(`/v1/assets/${id}`,token);
-export const updateAsset=(token:string,id:string,input:Partial<AssetInput>)=>apiPatch<{asset:Asset}>(`/v1/assets/${id}`,token,input);
+export const updateAsset=(token:string,id:string,input:Partial<AssetInput>)=>apiPatch<{asset:Asset}>(`/v1/assets/${id}`,input,token);
 export const archiveAsset=(token:string,id:string)=>apiDelete<{status:string}>(`/v1/assets/${id}`,token);
 
 export type ListingDetail=Listing&{listing_assets:Array<{asset_id:string;assets:Asset}>};
 export const getListing=(token:string,id:string)=>apiGet<{listing:ListingDetail}>(`/v1/listings/${id}`,token);
-export const updateListing=(token:string,id:string,input:ListingUpdateInput)=>apiPatch<{listing:Listing}>(`/v1/listings/${id}`,token,input);
+export const updateListing=(token:string,id:string,input:ListingUpdateInput)=>apiPatch<{listing:Listing}>(`/v1/listings/${id}`,input,token);
 export const archiveListing=(token:string,id:string)=>apiDelete<{status:string}>(`/v1/listings/${id}`,token);
 
 
@@ -23,5 +23,5 @@ export interface AssetMedia { id:string; tenant_id:string; asset_id:string; medi
 export interface AssetMediaInput { media_type:'image'|'video'; url:string; alt_ar?:string|null; alt_en?:string|null; order_index?:number; is_primary?:boolean; }
 export const listAssetMedia=(token:string,assetId:string)=>apiGet<{media:AssetMedia[]}>(`/v1/assets/${assetId}/media`,token);
 export const createAssetMedia=(token:string,assetId:string,input:AssetMediaInput)=>apiPost<{media:AssetMedia}>(`/v1/assets/${assetId}/media`,input,token);
-export const updateAssetMedia=(token:string,assetId:string,mediaId:string,input:Partial<Omit<AssetMediaInput,'media_type'|'url'>>)=>apiPatch<{media:AssetMedia}>(`/v1/assets/${assetId}/media/${mediaId}`,token,input);
+export const updateAssetMedia=(token:string,assetId:string,mediaId:string,input:Partial<Omit<AssetMediaInput,'media_type'|'url'>>)=>apiPatch<{media:AssetMedia}>(`/v1/assets/${assetId}/media/${mediaId}`,input,token);
 export const deleteAssetMedia=(token:string,assetId:string,mediaId:string)=>apiDelete<{status:string}>(`/v1/assets/${assetId}/media/${mediaId}`,token);
