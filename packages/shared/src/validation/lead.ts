@@ -9,7 +9,8 @@ import { LEAD_STATUSES } from '../types/enums';
  */
 export const publicLeadInputSchema = z.object({
   tenant_id: z.string().uuid(),
-  property_id: z.string().uuid().optional().nullable(),
+  asset_id: z.string().uuid().optional().nullable(),
+  listing_id: z.string().uuid().optional().nullable(),
   full_name: z.string().min(2, 'الاسم مطلوب'),
   phone: saudiPhoneSchema,
   email: z.string().email().optional().nullable(),
@@ -27,13 +28,15 @@ export type PublicLeadInput = z.infer<typeof publicLeadInputSchema>;
  */
 export const publicWhatsappClickInputSchema = z.object({
   tenant_id: z.string().uuid(),
-  property_id: z.string().uuid().optional().nullable(),
+  asset_id: z.string().uuid().optional().nullable(),
+  listing_id: z.string().uuid().optional().nullable(),
 });
 export type PublicWhatsappClickInput = z.infer<typeof publicWhatsappClickInputSchema>;
 
 /** POST /v1/leads (authenticated, Owner/Admin only) — staff manually entering a lead, e.g. a walk-in. Always source='manual'. */
 export const manualLeadInputSchema = z.object({
-  property_id: z.string().uuid().optional().nullable(),
+  asset_id: z.string().uuid().optional().nullable(),
+  listing_id: z.string().uuid().optional().nullable(),
   full_name: z.string().min(2, 'الاسم مطلوب'),
   phone: saudiPhoneSchema,
   email: z.string().email().optional().nullable(),
