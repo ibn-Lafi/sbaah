@@ -2,6 +2,9 @@ import { addLeadNoteSchema } from '@sbaah/shared';
 import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
+import { assertPermission } from '@/lib/auth/permissions';
+import { assertAssignedLeadAccess, isAssignedScope } from '@/lib/auth/crm-scope';
+import { assertTenantOwnedRow } from '@/lib/tenant/assert-tenant-owned-row';
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -11,6 +14,9 @@ export const POST = withErrorHandling<RouteContext>(async (request, { params }) 
   const { id: leadId } = await params;
   const { supabase } = getAuthenticatedClient(request);
   const caller = await getCallerContext(supabase);
+  const grant = assertPermission(caller.role, 'crm.update');
+  await assertTenantOwnedRow({ supabase, table: 'leads', id: leadId, tenantId: caller.tenantId, label: 'العميل' });
+  if (isAssignedScope(grant)) await assertAssignedLeadAccess(supabase, caller.tenantId, caller.userId, leadId);
   const { note_text } = addLeadNoteSchema.parse(await request.json());
 
   // user_id always comes from the caller's own resolved identity, never
