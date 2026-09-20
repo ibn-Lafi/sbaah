@@ -134,7 +134,7 @@ export const reservationInputSchema = z.object({
 });
 
 
-export const marketingMandateInputSchema = z.object({
+const marketingMandateBaseSchema = z.object({
   reference_number: z.string().trim().min(1).max(100),
   owner_party_id: nullableUuid,
   mandate_type: z.enum(MARKETING_MANDATE_TYPES),
@@ -145,11 +145,19 @@ export const marketingMandateInputSchema = z.object({
   expires_at: z.string().date().optional().nullable(),
   notes: z.string().optional().nullable(),
   asset_ids: z.array(z.string().uuid()).min(1, 'اختر عقارًا واحدًا على الأقل'),
-}).superRefine((value, ctx) => {
+});
+
+const validateMarketingMandate = (value: z.infer<typeof marketingMandateBaseSchema>, ctx: z.RefinementCtx) => {
+((value, ctx) => {
   if ((value.commission_type == null) !== (value.commission_value == null)) ctx.addIssue({ code:'custom', path:['commission_value'], message:'نوع العمولة وقيمتها يجب إدخالهما معًا' });
   if (value.commission_type === 'percentage' && value.commission_value != null && value.commission_value > 100) ctx.addIssue({ code:'custom', path:['commission_value'], message:'نسبة العمولة لا تتجاوز 100%' });
   if (value.starts_at && value.expires_at && value.expires_at < value.starts_at) ctx.addIssue({ code:'custom', path:['expires_at'], message:'تاريخ الانتهاء يجب ألا يسبق تاريخ البداية' });
-});
+};
+
+export const marketingMandateInputSchema = marketingMandateBaseSchema.superRefine(validateMarketingMandate);
 export type MarketingMandateInput = z.infer<typeof marketingMandateInputSchema>;
-export const marketingMandateUpdateSchema = marketingMandateInputSchema.omit({ asset_ids:true }).partial();
+export const marketingMandateUpdateSchema = marketingMandateBaseSchema.omit({ asset_ids:true }).partial().superRefine((value, ctx) => {
+  if (value.commission_type === 'percentage' && value.commission_value != null && value.commission_value > 100) ctx.addIssue({ code:'custom', path:['commission_value'], message:'نسبة العمولة لا تتجاوز 100%' });
+  if (value.starts_at && value.expires_at && value.expires_at < value.starts_at) ctx.addIssue({ code:'custom', path:['expires_at'], message:'تاريخ الانتهاء يجب ألا يسبق تاريخ البداية' });
+});
 export type MarketingMandateUpdateInput = z.infer<typeof marketingMandateUpdateSchema>;
