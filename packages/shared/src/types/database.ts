@@ -39,7 +39,7 @@ import type {
   MediaType,
   OtpPurpose,
   PaymentStatus,
-  PropertyStatus,
+  ProjectStatus,
   TenantStatus,
   UserRole,
   UserStatus,
@@ -275,7 +275,7 @@ export interface Project {
   district_id: string | null;
   lat: number | null;
   lng: number | null;
-  status: PropertyStatus;
+  status: ProjectStatus;
   created_at: string;
 }
 
