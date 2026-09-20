@@ -6,6 +6,29 @@
 
 import type {
   AccountType,
+  AssetPhysicalStatus,
+  AssetType,
+  CommissionType,
+  DealType,
+  DocumentEntityType,
+  LeaseContractSource,
+  LeaseContractStatus,
+  LeaseInstallmentStatus,
+  LeasePartyRole,
+  LeasePaymentFrequency,
+  LeasePaymentMethod,
+  LeasePaymentStatus,
+  ListingCommercialStatus,
+  ListingPricingPeriod,
+  ListingPublicationStatus,
+  MaintenancePriority,
+  MaintenanceStatus,
+  ManagementFeeType,
+  MarketingMandateStatus,
+  MarketingMandateType,
+  PartyType,
+  PropertyManagementStatus,
+  ReservationStatus,
   BillingCycle,
   BusinessActivity,
   BrokerMarketerApplicantType,
@@ -386,4 +409,91 @@ export interface AuditLog {
   entity_id: string;
   metadata: Record<string, unknown> | null;
   created_at: string;
+}
+
+
+/** Unified physical real-estate source of truth (migration 0068). */
+export interface Asset {
+  id: string; tenant_id: string; slug: string | null; reference_number: string | null;
+  asset_type: AssetType; parent_asset_id: string | null; project_id: string | null;
+  phase_id: string | null; unit_type_id: string | null; name_ar: string; name_en: string | null;
+  description_ar: string | null; description_en: string | null; unit_number: string | null;
+  floor_number: number | null; city_id: string | null; district_id: string | null;
+  lat: number | null; lng: number | null; area_sqm: number | null; land_area: number | null;
+  built_area: number | null; street_width: number | null; frontage: string | null;
+  bedrooms: number | null; bathrooms: number | null; floors_count: number | null;
+  parking_count: number | null; elevators_count: number | null; furnishing: string | null;
+  property_age: number | null; physical_status: AssetPhysicalStatus;
+  specifications: Record<string, unknown>; archived_at: string | null; created_at: string; updated_at: string;
+}
+export interface Party {
+  id: string; tenant_id: string; party_type: PartyType; name: string; phone: string | null;
+  email: string | null; national_id: string | null; commercial_registration: string | null;
+  tax_number: string | null; notes: string | null; created_at: string; updated_at: string;
+}
+export interface Listing {
+  id: string; tenant_id: string; listing_number: string; listing_type: ListingType;
+  title_ar: string; title_en: string | null; description_ar: string | null; description_en: string | null;
+  asking_price: number; pricing_period: ListingPricingPeriod | null;
+  publication_status: ListingPublicationStatus; commercial_status: ListingCommercialStatus;
+  advertisement_license_number: string | null; advertisement_license_expires_at: string | null;
+  advertiser_name: string | null; marketing_mandate_id: string | null;
+  assigned_user_id: string | null; created_by: string | null; published_at: string | null;
+  closed_at: string | null; archived_at: string | null; created_at: string; updated_at: string;
+}
+export interface Reservation {
+  id: string; tenant_id: string; reservation_number: string; lead_id: string | null;
+  listing_id: string | null; status: ReservationStatus; reserved_at: string; expires_at: string | null;
+  deposit_amount: number | null; notes: string | null; created_by: string | null;
+  converted_at: string | null; cancelled_at: string | null; created_at: string; updated_at: string;
+}
+export interface PropertyManagementAssignment {
+  id: string; tenant_id: string; asset_id: string; starts_at: string; ends_at: string | null;
+  status: PropertyManagementStatus; management_fee_type: ManagementFeeType | null;
+  management_fee_value: number | null; notes: string | null; created_at: string; updated_at: string;
+}
+export interface LeaseContract {
+  id: string; tenant_id: string; contract_number: string; source: LeaseContractSource;
+  external_contract_number: string | null; start_date: string; end_date: string; total_value: number;
+  security_deposit: number; payment_frequency: LeasePaymentFrequency; status: LeaseContractStatus;
+  signed_at: string | null; terminated_at: string | null; termination_reason: string | null;
+  renewed_from_contract_id: string | null; notes: string | null; created_by: string | null;
+  created_at: string; updated_at: string;
+}
+export interface LeaseContractParty {
+  tenant_id: string; contract_id: string; party_id: string; role: LeasePartyRole; created_at: string;
+}
+export interface LeaseInstallment {
+  id: string; tenant_id: string; contract_id: string; installment_number: number; due_date: string;
+  amount: number; status: LeaseInstallmentStatus; created_at: string; updated_at: string;
+}
+export interface LeasePayment {
+  id: string; tenant_id: string; payment_number: string; contract_id: string; payer_party_id: string | null;
+  amount: number; paid_at: string; payment_method: LeasePaymentMethod; status: LeasePaymentStatus;
+  reference_number: string | null; notes: string | null; reversal_reason: string | null;
+  reversed_at: string | null; created_by: string | null; created_at: string;
+}
+export interface MaintenanceRequest {
+  id: string; tenant_id: string; request_number: string; asset_id: string; contract_id: string | null;
+  reported_by_party_id: string | null; category: string | null; title: string; description: string | null;
+  priority: MaintenancePriority; status: MaintenanceStatus; assigned_user_id: string | null;
+  vendor_party_id: string | null; estimated_cost: number | null; actual_cost: number | null;
+  opened_at: string; scheduled_at: string | null; completed_at: string | null; notes: string | null;
+  created_at: string; updated_at: string;
+}
+export interface MarketingMandateV2 {
+  id: string; tenant_id: string; reference_number: string; owner_party_id: string | null;
+  mandate_type: MarketingMandateType | null; commission_type: CommissionType | null;
+  commission_value: number | null; status: MarketingMandateStatus; starts_at: string | null;
+  expires_at: string | null; notes: string | null; created_at: string; updated_at: string;
+}
+export interface DocumentLink {
+  tenant_id: string; document_id: string; entity_type: DocumentEntityType; entity_id: string; created_at: string;
+}
+export interface DealV2 {
+  id: string; tenant_id: string; lead_id: string; deal_type: DealType | null;
+  listing_id: string | null; reservation_id: string | null; responsible_user_id: string | null;
+  status: string; value: number | null; expected_close_date: string | null; closed_at: string | null;
+  lost_reason: string | null; commission_type: string | null; commission_value: number | null;
+  created_at: string; updated_at: string;
 }
