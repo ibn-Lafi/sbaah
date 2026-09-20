@@ -5,10 +5,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   LEAD_STATUSES,
+  type Asset,
   type District,
   type Lead,
   type LeadStatus,
-  type Property,
 } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
 import { CreateLeadForm } from '@/components/leads/create-lead-form';
@@ -21,9 +21,8 @@ import { Select } from '@/components/ui/select';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { listLeads, updateLead } from '@/lib/api/leads';
-import { listProperties } from '@/lib/api/properties';
+import { listAssets } from '@/lib/api/real-estate';
 import { listDistricts } from '@/lib/api/reference-data';
-import { PROPERTY_TYPE_LABELS } from '@/lib/property/labels';
 import { useLocale } from '@/lib/i18n/locale-context';
 import type { PageDictionaries } from '@/lib/i18n/page-dictionaries';
 import { formatDate } from '@/lib/format/date';
@@ -31,12 +30,12 @@ import { formatDate } from '@/lib/format/date';
 type StatusFilter = LeadStatus | 'all';
 
 function propertySubtitle(
-  property: Property | undefined,
+  property: Asset | undefined,
   districts: Record<string, District>,
   t: PageDictionaries['leads'],
 ): string | null {
   if (!property) return null;
-  const typeLabel = PROPERTY_TYPE_LABELS[property.property_type];
+  const typeLabel = property.asset_type;
   const district = property.district_id ? districts[property.district_id] : undefined;
   return district ? t.list.propertySubtitle(typeLabel, district.name_ar) : typeLabel;
 }
@@ -53,16 +52,16 @@ export default function LeadsPage() {
   const t = pages.leads;
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [leads, setLeads] = useState<Lead[] | null>(null);
-  const [properties, setProperties] = useState<Record<string, Property>>({});
+  const [properties, setProperties] = useState<Record<string, Asset>>({});
   const [districts, setDistricts] = useState<Record<string, District>>({});
   const [showCreate, setShowCreate] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
-    void listProperties(accessToken).then((result) => {
+    void listAssets(accessToken).then((result) => {
       if (cancelled) return;
       setProperties(
-        Object.fromEntries(result.properties.map((property) => [property.id, property])),
+        Object.fromEntries(result.assets.map((property) => [property.id, property])),
       );
     });
     void listDistricts().then((result) => {
@@ -148,7 +147,7 @@ export default function LeadsPage() {
               </thead>
               <tbody>
                 {leads.map((lead) => {
-                  const property = lead.property_id ? properties[lead.property_id] : undefined;
+                  const property = lead.asset_id ? properties[lead.asset_id] : undefined;
                   const subtitle = propertySubtitle(property, districts, t);
                   return (
                     <tr
