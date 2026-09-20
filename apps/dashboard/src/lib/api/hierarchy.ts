@@ -2,7 +2,7 @@ import type {
   Project,
   ProjectInput,
   ProjectUpdateInput,
-  PropertyStatus,
+  ProjectStatus,
 } from '@sbaah/shared';
 import { apiDelete, apiGet, apiPatch, apiPost } from './client';
 
@@ -15,7 +15,7 @@ export interface ProjectListResponse {
 
 export function listProjects(
   accessToken: string,
-  params: { status?: PropertyStatus } = {},
+  params: { status?: ProjectStatus } = {},
 ): Promise<ProjectListResponse> {
   const query = new URLSearchParams();
   if (params.status) query.set('status', params.status);
