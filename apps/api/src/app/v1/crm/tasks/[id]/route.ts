@@ -1,0 +1,10 @@
+import { z } from 'zod';
+import { ApiError,okResponse,withErrorHandling } from '@/lib/http';
+import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
+import { getCallerContext } from '@/lib/auth/get-caller-context';
+import { assertPermission } from '@/lib/auth/permissions';
+import { isAssignedScope } from '@/lib/auth/crm-scope';
+const updateSchema=z.object({title:z.string().min(1).optional(),due_at:z.string().datetime().optional().nullable()}).refine(v=>Object.keys(v).length>0);
+interface RouteContext{params:Promise<{id:string}>}
+export const GET=withErrorHandling<RouteContext>(async(request,{params})=>{const{id}=await params;const{supabase}=getAuthenticatedClient(request);const c=await getCallerContext(supabase);const grant=assertPermission(c.role,'crm.read');let q=supabase.from('crm_tasks').select('*').eq('id',id).eq('tenant_id',c.tenantId);if(isAssignedScope(grant))q=q.eq('assigned_user_id',c.userId);const{data,error}=await q.maybeSingle();if(error)throw new Error(error.message);if(!data)throw new ApiError(404,'task_not_found','المهمة غير موجودة');return okResponse({task:data});});
+export const PATCH=withErrorHandling<RouteContext>(async(request,{params})=>{const{id}=await params;const{supabase}=getAuthenticatedClient(request);const c=await getCallerContext(supabase);const grant=assertPermission(c.role,'crm.update');const input=updateSchema.parse(await request.json());let q=supabase.from('crm_tasks').update(input).eq('id',id).eq('tenant_id',c.tenantId);if(isAssignedScope(grant))q=q.eq('assigned_user_id',c.userId);const{data,error}=await q.select().maybeSingle();if(error)throw new Error(error.message);if(!data)throw new ApiError(404,'task_not_found','المهمة غير موجودة');return okResponse({task:data});});
