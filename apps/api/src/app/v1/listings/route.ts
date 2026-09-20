@@ -15,8 +15,9 @@ const querySchema=z.object({
 
 export const GET=withErrorHandling(async(request:NextRequest)=>{
   const {supabase}=getAuthenticatedClient(request);
+  const caller=await getCallerContext(supabase);
   const {page,page_size,...filters}=querySchema.parse(Object.fromEntries(request.nextUrl.searchParams));
-  let query=supabase.from('listings').select('*, listing_assets(asset_id)',{count:'exact'});
+  let query=supabase.from('listings').select('*, listing_assets(asset_id)',{count:'exact'}).eq('tenant_id',caller.tenantId);
   for(const [key,value] of Object.entries(filters)) if(value!=null) query=query.eq(key,value);
   const from=(page-1)*page_size;
   const {data,error,count}=await query.order('created_at',{ascending:false}).range(from,from+page_size-1);
