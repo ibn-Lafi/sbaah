@@ -16,9 +16,11 @@ export const listLeasePayments=(token:string)=>apiGet<{payments:LeasePaymentRow[
 export const recordLeasePayment=(token:string,input:unknown)=>apiPost<{payment:LeasePaymentRow}>('/v1/rent-plus/payments',token,input);
 
 export interface AssetOption { id:string; name_ar:string; reference_number:string|null; asset_type:string; }
-export interface InstallmentRow { id:string; contract_id:string; installment_number:number; due_date:string; amount:number; status:string; }
+export interface InstallmentRow { id:string; contract_id:string; installment_number:number; due_date:string; amount:number; paid_amount:number; remaining_amount:number; status:string; }
 export const listAssetOptions=(token:string)=>apiGet<{assets:AssetOption[]}>('/v1/assets?page_size=50',token);
 export const listInstallments=(token:string,contractId?:string)=>apiGet<{installments:InstallmentRow[]}>(`/v1/rent-plus/installments${contractId?`?contract_id=${encodeURIComponent(contractId)}`:''}`,token);
 export const createInstallment=(token:string,input:unknown)=>apiPost<{installment:InstallmentRow}>('/v1/rent-plus/installments',token,input);
 export const getLeaseContract=(token:string,id:string)=>apiGet<{contract:LeaseContractRow & Record<string,unknown>}>(`/v1/rent-plus/contracts/${id}`,token);
 export const updateLeaseContract=(token:string,id:string,input:unknown)=>apiPatch<{contract:LeaseContractRow}>(`/v1/rent-plus/contracts/${id}`,token,input);
+
+export const generateInstallments=(token:string,contractId:string)=>apiPost<{installments:InstallmentRow[]}>('/v1/rent-plus/installments/generate',token,{contract_id:contractId});
