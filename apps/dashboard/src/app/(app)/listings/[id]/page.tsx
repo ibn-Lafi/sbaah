@@ -44,7 +44,7 @@ export default function ListingPage({params}:{params:Promise<{id:string}>}){
    <Select name="commercial_status" defaultValue={data.commercial_status}><option value="available">متاح</option><option value="reserved">محجوز</option><option value="under_negotiation">تحت التفاوض</option><option value="closed">مغلق</option></Select>
    <Input name="advertisement_license_number" placeholder="رقم ترخيص الإعلان" defaultValue={data.advertisement_license_number??''}/><Input name="advertisement_license_expires_at" type="date" defaultValue={data.advertisement_license_expires_at??''}/><Input name="advertiser_name" placeholder="اسم المعلن" defaultValue={data.advertiser_name??''}/>
   </div>{error&&<p className="text-sm text-red-600">{error}</p>}{me.user.role!=='agent'&&<Button type="submit" disabled={busy}>{busy?'جارٍ الحفظ...':'حفظ التغييرات'}</Button>}</form></Card>
-  {me.user.role!=='agent'&&data.publication_status!=='archived'&&<div className="flex justify-end"><Button variant="outline" onClick={async()=>{if(!confirm('هل تريد أرشفة العرض؟'))return;await archiveListing(accessToken,id);router.push('/properties')}}>أرشفة العرض</Button></div>}
+  {me.user.role!=='agent'&&data.publication_status!=='archived'&&<div className="flex justify-end"><Button variant="secondary" onClick={async()=>{if(!confirm('هل تريد أرشفة العرض؟'))return;await archiveListing(accessToken,id);router.push('/properties')}}>أرشفة العرض</Button></div>}
  </div>}
  </AppShell>
 }
