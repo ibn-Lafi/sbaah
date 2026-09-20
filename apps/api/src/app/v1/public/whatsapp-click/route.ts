@@ -20,12 +20,13 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   const input = publicWhatsappClickInputSchema.parse(await request.json());
 
   const anon = createAnonClient();
-  await validatePublicTenantTarget(anon, input.tenant_id, input.property_id);
+  await validatePublicTenantTarget(anon, input.tenant_id, input.listing_id, input.asset_id);
 
   const serviceRole = createServiceRoleClient();
   const { error } = await serviceRole.from('leads').insert({
     tenant_id: input.tenant_id,
-    property_id: input.property_id ?? null,
+    asset_id: input.asset_id ?? null,
+    listing_id: input.listing_id ?? null,
     full_name: 'زائر عبر واتساب',
     phone: null,
     source: 'whatsapp_click',
