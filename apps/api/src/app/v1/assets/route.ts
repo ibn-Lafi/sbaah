@@ -6,9 +6,10 @@ import { getCallerContext } from '@/lib/auth/get-caller-context';
 
 export const GET = withErrorHandling(async (request: NextRequest) => {
   const { supabase } = getAuthenticatedClient(request);
+  const caller = await getCallerContext(supabase);
   const input = assetSearchSchema.parse(Object.fromEntries(request.nextUrl.searchParams));
   const { page, page_size, ...filters } = input;
-  let query = supabase.from('assets').select('*', { count: 'exact' }).is('archived_at', null);
+  let query = supabase.from('assets').select('*', { count: 'exact' }).eq('tenant_id', caller.tenantId).is('archived_at', null);
   for (const [key, value] of Object.entries(filters)) if (value != null) query = query.eq(key, value);
   const from = (page - 1) * page_size;
   const { data, error, count } = await query.order('created_at', { ascending: false }).range(from, from + page_size - 1);
