@@ -157,7 +157,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
             </div>
 
             <div className="flex flex-col gap-4">
-              <InquiryForm locale={locale} tenantId={property.tenant_id} propertyId={property.id} />
+              <InquiryForm locale={locale} tenantId={property.tenant_id} listingId={property.id} assetId={property.asset_id} />
             </div>
           </div>
         </div>
