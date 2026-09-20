@@ -51,11 +51,12 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 
   await assertOptionalTenantOwnedRow({
     supabase,
-    table: 'properties',
-    id: input.property_id,
+    table: 'assets',
+    id: input.asset_id,
     tenantId: caller.tenantId,
     label: 'العقار',
   });
+  await assertOptionalTenantOwnedRow({ supabase, table: 'listings', id: input.listing_id, tenantId: caller.tenantId, label: 'العرض العقاري' });
   await assertOptionalTenantOwnedRow({
     supabase,
     table: 'users',
