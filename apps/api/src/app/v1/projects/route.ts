@@ -13,11 +13,12 @@ const listQuerySchema = z.object({
 
 export const GET = withErrorHandling(async (request: NextRequest) => {
   const { supabase } = getAuthenticatedClient(request);
+  const caller = await getCallerContext(supabase);
   const { status, page, page_size } = listQuerySchema.parse(
     Object.fromEntries(request.nextUrl.searchParams),
   );
 
-  let query = supabase.from('projects').select('*', { count: 'exact' });
+  let query = supabase.from('projects').select('*', { count: 'exact' }).eq('tenant_id', caller.tenantId);
   if (status) query = query.eq('status', status);
 
   const from = (page - 1) * page_size;
