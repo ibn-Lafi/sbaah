@@ -11,6 +11,7 @@ export const GET=withErrorHandling(async(request:NextRequest)=>{
   let q=supabase.from('lease_installments').select('*, lease_payment_allocations(amount,payment_id,lease_payments(status))').eq('tenant_id',caller.tenantId).order('due_date');
   const id=request.nextUrl.searchParams.get('contract_id');
   if(id){
+    await assertTenantOwnedRow({supabase,table:'lease_contracts',id,tenantId:caller.tenantId,label:'العقد'});
     await supabase.rpc('refresh_contract_installment_statuses',{p_contract_id:id});
     q=q.eq('contract_id',id);
   }
