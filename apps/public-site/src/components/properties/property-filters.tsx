@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, usePathname } from 'next/navigation';
-import { PROPERTY_TYPES, LISTING_TYPES, type City, type District } from '@sbaah/shared';
+import { ASSET_TYPES, LISTING_TYPES, type City, type District } from '@sbaah/shared';
 import type { Locale } from '@/lib/i18n/locales';
 import { pickLocalized } from '@/lib/i18n/localized-field';
 import { getListingTypeLabel, getPropertyTypeLabel } from '@/lib/property/labels';
@@ -60,7 +60,7 @@ export function PropertyFilters({ locale, cities, districts, value }: PropertyFi
 
       <select value={value.property_type ?? ''} onChange={(e) => update({ property_type: e.target.value || undefined })} className="rounded-lg border border-black/15 p-2 text-sm">
         <option value="">{t.type}</option>
-        {PROPERTY_TYPES.map((type) => (
+        {ASSET_TYPES.map((type) => (
           <option key={type} value={type}>
             {getPropertyTypeLabel(locale, type)}
           </option>
