@@ -1,10 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import type { PropertyMedia } from '@sbaah/shared';
+import type { PublicPropertyMedia } from '@/lib/api/public-properties';
 
 /** Plain `<img>`/`<video>`, not next/image — same call as task 32/42's header logo (avoids assuming Supabase Storage's exact hostname pattern for a remote-image allowlist). */
-export function PropertyGallery({ media, title }: { media: PropertyMedia[]; title: string }) {
+export function PropertyGallery({ media, title }: { media: PublicPropertyMedia[]; title: string }) {
   const sorted = [...media].sort((a, b) => a.order_index - b.order_index);
   const [activeIndex, setActiveIndex] = useState(0);
   const active = sorted[activeIndex] ?? sorted[0];
