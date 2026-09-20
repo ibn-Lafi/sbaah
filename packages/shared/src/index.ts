@@ -22,3 +22,5 @@ export * from './validation/billing';
 export * from './validation/district';
 export * from './supabase/client';
 export * from './supabase/bearer-token';
+
+export * from './validation/ejar-plus';
