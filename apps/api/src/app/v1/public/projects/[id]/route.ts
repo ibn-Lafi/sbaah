@@ -22,16 +22,16 @@ export const GET = withErrorHandling(async (request: NextRequest, context: { par
   if (projectError) throw new Error(`Failed to load public project: ${projectError.message}`);
   if (!project) throw new ApiError(404, 'project_not_found', 'المشروع غير موجود');
 
-  const [{ data: media, error: mediaError }, { data: unitTypes, error: unitTypesError }, { data: units, error: unitsError }] =
+  const [{ data: media, error: mediaError }, { data: unitTypes, error: unitTypesError }, { data: assets, error: assetsError }] =
     await Promise.all([
       supabase.from('project_media').select('id,url,media_type,alt_ar,alt_en,order_index').eq('tenant_id', tenantId).eq('project_id', project.id).order('order_index'),
       supabase.from('unit_types').select('*').eq('tenant_id', tenantId).eq('project_id', project.id),
-      supabase.from('units').select('id,unit_type_id,unit_number,floor_number,area_sqm,price,orientation,availability').eq('tenant_id', tenantId).eq('project_id', project.id).eq('availability', 'available'),
+      supabase.from('assets').select('id,unit_type_id,unit_number,floor_number,area_sqm,asset_type,physical_status,slug').eq('tenant_id', tenantId).eq('project_id', project.id).is('archived_at', null),
     ]);
 
   if (mediaError) throw new Error(mediaError.message);
   if (unitTypesError) throw new Error(unitTypesError.message);
-  if (unitsError) throw new Error(unitsError.message);
+  if (assetsError) throw new Error(assetsError.message);
 
-  return okResponse({ project, media: media ?? [], unit_types: unitTypes ?? [], units: units ?? [] });
+  return okResponse({ project, media: media ?? [], unit_types: unitTypes ?? [], assets: assets ?? [], units: assets ?? [] });
 });
