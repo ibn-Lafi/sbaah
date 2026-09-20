@@ -39,9 +39,7 @@ import type {
   MediaType,
   OtpPurpose,
   PaymentStatus,
-  PropertyAvailability,
   PropertyStatus,
-  PropertyType,
   TenantStatus,
   UserRole,
   UserStatus,
@@ -281,70 +279,6 @@ export interface Project {
   created_at: string;
 }
 
-export interface Building {
-  id: string;
-  tenant_id: string;
-  project_id: string | null;
-  name_ar: string;
-  name_en: string | null;
-  city_id: string;
-  district_id: string | null;
-  lat: number | null;
-  lng: number | null;
-  floors_count: number | null;
-  created_at: string;
-}
-
-export interface Property {
-  id: string;
-  slug: string;
-  tenant_id: string;
-  project_id: string | null;
-  building_id: string | null;
-  land_area: number | null;
-  built_area: number | null;
-  street_width: number | null;
-  frontage: string | null;
-  property_age: number | null;
-  floor_number: number | null;
-  floors_count: number | null;
-  parking_count: number | null;
-  elevators_count: number | null;
-  furnishing: string | null;
-  reference_number: string | null;
-  advertisement_license_number: string | null;
-  advertisement_license_expires_at: string | null;
-  advertiser_name: string | null;
-  marketing_mandate_id: string | null;
-  title_ar: string;
-  title_en: string | null;
-  description_ar: string;
-  description_en: string | null;
-  property_type: PropertyType;
-  listing_type: ListingType;
-  price: number;
-  area_sqm: number;
-  bedrooms: number | null;
-  bathrooms: number | null;
-  city_id: string;
-  district_id: string | null;
-  lat: number | null;
-  lng: number | null;
-  status: PropertyStatus;
-  availability: PropertyAvailability;
-  agent_id: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface PropertyMedia {
-  id: string;
-  property_id: string;
-  media_type: MediaType;
-  url: string;
-  order_index: number;
-}
-
 export interface Lead {
   id: string;
   tenant_id: string;
@@ -361,31 +295,11 @@ export interface Lead {
   created_at: string;
 }
 
-/** Submitted from the public site's "broker_marketer_form" section (migration 0032) — null `property_id` means it was submitted from the home page (site-wide), not a specific property. */
-export interface BrokerMarketerApplication {
-  id: string;
-  tenant_id: string;
-  property_id: string | null;
-  full_name: string;
-  city_id: string;
-  fal_license_number: string;
-  applicant_type: BrokerMarketerApplicantType;
-  created_at: string;
-}
-
 export interface LeadNote {
   id: string;
   lead_id: string;
   user_id: string;
   note_text: string;
-  created_at: string;
-}
-
-export interface PropertyView {
-  id: string;
-  tenant_id: string;
-  property_id: string;
-  source: string | null;
   created_at: string;
 }
 
