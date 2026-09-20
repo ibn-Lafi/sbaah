@@ -139,6 +139,12 @@ alter table deals
 create index deals_tenant_listing_idx on deals(tenant_id,listing_id) where listing_id is not null;
 create index deals_tenant_reservation_idx on deals(tenant_id,reservation_id) where reservation_id is not null;
 
+-- deals predates the composite-key hardening migration and does not yet have
+-- a UNIQUE(id, tenant_id) key. The junction table below intentionally uses a
+-- same-tenant composite FK, so make that parent key referenceable first.
+alter table deals
+  add constraint deals_id_tenant_unique unique(id,tenant_id);
+
 create table deal_assets (
   tenant_id uuid not null references tenants(id) on delete cascade,
   deal_id uuid not null,
