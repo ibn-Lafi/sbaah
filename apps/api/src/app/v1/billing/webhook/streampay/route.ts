@@ -73,7 +73,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
         `Failed to record successful payment: ${paymentUpdateError?.message ?? tenantUpdateError?.message}`,
       );
     }
-  } else if (failed) {
+  } else if (failed && payment.status !== 'paid') {
     const [{ error: paymentUpdateError }, { error: tenantUpdateError }] = await Promise.all([
       supabase.from('payments').update({ status: 'failed' }).eq('id', payment.id),
       supabase.from('tenants').update({ payment_status: 'failed' }).eq('id', payment.tenant_id),
