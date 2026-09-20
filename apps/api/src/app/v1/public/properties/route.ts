@@ -1,53 +1,33 @@
 import type { NextRequest } from 'next/server';
 import { z } from 'zod';
-import { createAnonClient, propertySearchSchema } from '@sbaah/shared';
+import { createAnonClient } from '@sbaah/shared';
 import { okResponse, withErrorHandling } from '@/lib/http';
 import { resolvePublicTenantId } from '@/lib/tenant/resolve-public-tenant';
 
-const publicPropertiesQuerySchema = propertySearchSchema.extend({
-  domain: z.string().min(1, 'الدومين مطلوب'),
+const querySchema=z.object({
+ domain:z.string().min(1),city_id:z.string().uuid().optional(),district_id:z.string().uuid().optional(),
+ property_type:z.string().optional(),listing_type:z.enum(['sale','rent']).optional(),
+ min_price:z.coerce.number().nonnegative().optional(),max_price:z.coerce.number().nonnegative().optional(),
+ bedrooms:z.coerce.number().int().nonnegative().optional(),page:z.coerce.number().int().positive().default(1),
+ page_size:z.coerce.number().int().positive().max(50).default(20),
 });
 
-/**
- * Unauthenticated — public-site's search/filter page. `domain` is the
- * incoming Host header, forwarded by public-site since visitors carry no
- * JWT to identify a tenant (PRODUCT_SPEC section 10).
- */
-export const GET = withErrorHandling(async (request: NextRequest) => {
-  const { domain, city_id, district_id, property_type, listing_type, min_price, max_price, bedrooms, page, page_size } =
-    publicPropertiesQuerySchema.parse(Object.fromEntries(request.nextUrl.searchParams));
-
-  const supabase = createAnonClient();
-  const tenantId = await resolvePublicTenantId(domain, supabase);
-
-  // properties_public_select (RLS) already restricts anon to
-  // status='published' rows of active tenants — tenant_id/status here are
-  // explicit anyway, per PRODUCT_SPEC section 10 ("فلترة tenant_id صريحة
-  // داخل api قبل أي استعلام"), not relied on as the only guard.
-  // Thumbnail for the listing page (task 33/42) — the full ordered
-  // gallery is only needed on the single-property page (task 34/42),
-  // so only the lightweight columns a card needs are embedded here.
-  let query = supabase
-    .from('properties')
-    .select('*, property_media(url, media_type, order_index)', { count: 'exact' })
-    .eq('tenant_id', tenantId)
-    .eq('status', 'published');
-
-  if (city_id) query = query.eq('city_id', city_id);
-  if (district_id) query = query.eq('district_id', district_id);
-  if (property_type) query = query.eq('property_type', property_type);
-  if (listing_type) query = query.eq('listing_type', listing_type);
-  if (min_price !== undefined) query = query.gte('price', min_price);
-  if (max_price !== undefined) query = query.lte('price', max_price);
-  if (bedrooms !== undefined) query = query.eq('bedrooms', bedrooms);
-
-  const from = (page - 1) * page_size;
-  const { data, error, count } = await query
-    .order('created_at', { ascending: false })
-    .range(from, from + page_size - 1);
-  if (error) {
-    throw new Error(`Failed to list public properties: ${error.message}`);
-  }
-
-  return okResponse({ properties: data, page, page_size, total: count ?? 0 });
+export const GET=withErrorHandling(async(request:NextRequest)=>{
+ const q=querySchema.parse(Object.fromEntries(request.nextUrl.searchParams));const supabase=createAnonClient();
+ const tenantId=await resolvePublicTenantId(q.domain,supabase);const offset=(q.page-1)*q.page_size;
+ const{data,error}=await supabase.rpc('public_listing_feed',{p_tenant_id:tenantId,p_listing_type:q.listing_type??null,p_asset_type:q.property_type??null,p_city_id:q.city_id??null,p_district_id:q.district_id??null,p_min_price:q.min_price??null,p_max_price:q.max_price??null,p_bedrooms:q.bedrooms??null,p_limit:q.page_size,p_offset:offset});
+ if(error)throw new Error(`Failed to list public listings: ${error.message}`);
+ const rows=(data??[]) as any[];
+ // Temporary compatibility shape for the current public-site. Source of truth is now Listing + Asset.
+ const properties=rows.map(r=>({
+  id:r.listing_id,slug:r.asset_slug??r.listing_number,tenant_id:tenantId,
+  title_ar:r.title_ar,title_en:r.title_en,description_ar:r.description_ar,description_en:r.description_en,
+  property_type:r.asset_type,listing_type:r.listing_type,price:r.asking_price,
+  city_id:r.city_id,district_id:r.district_id,bedrooms:r.bedrooms,bathrooms:r.bathrooms,area:r.area_sqm,
+  status:'published',advertisement_license_number:r.advertisement_license_number,
+  advertiser_name:r.advertiser_name,created_at:r.created_at,
+  property_media:r.asset_media??[],listing_number:r.listing_number,pricing_period:r.pricing_period,
+  commercial_status:r.commercial_status,asset_id:r.asset_id
+ }));
+ return okResponse({properties,page:q.page,page_size:q.page_size,total:Number(rows[0]?.total_count??0)});
 });
