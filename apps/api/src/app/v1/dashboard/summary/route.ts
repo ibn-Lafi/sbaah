@@ -4,9 +4,6 @@ import { refreshGoogleAccessToken, runAnalyticsReport } from '@/lib/google-analy
 import { okResponse, withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
-import { bucketViewsByDay } from '@/lib/dashboard/bucket-views-by-day';
-
-const VIEWS_CHART_DAYS = 30;
 
 /**
  * Every query here runs on the caller's own RLS-scoped client (never
@@ -27,7 +24,6 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
   const now = new Date();
   const nowIso = now.toISOString();
   const startOfMonthIso = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
-  const chartStartIso = new Date(now.getTime() - VIEWS_CHART_DAYS * 24 * 60 * 60 * 1000).toISOString();
 
   const [
     { count: propertiesTotal, error: propertiesTotalError },
@@ -42,13 +38,13 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     viewsChartResult,
     latestLeadsResult,
   ] = await Promise.all([
-    supabase.from('properties').select('id', { count: 'exact', head: true }),
-    supabase.from('properties').select('id', { count: 'exact', head: true }).eq('status', 'published'),
+    supabase.from('assets').select('id', { count: 'exact', head: true }).is('archived_at', null),
+    supabase.from('listings').select('id', { count: 'exact', head: true }).eq('publication_status', 'published'),
     supabase
-      .from('properties')
+      .from('listings')
       .select('id', { count: 'exact', head: true })
-      .eq('status', 'published')
-      .gte('created_at', startOfMonthIso),
+      .eq('publication_status', 'published')
+      .gte('published_at', startOfMonthIso),
     supabase.from('leads').select('id', { count: 'exact', head: true }),
     supabase.from('leads').select('id', { count: 'exact', head: true }).gte('created_at', startOfMonthIso),
     supabase.from('leads').select('id', { count: 'exact', head: true }).eq('status', 'won'),
@@ -58,10 +54,8 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     // property_views has no select policy at all for Agent (migration
     // 0005) — represent that as "not applicable" rather than a
     // misleading 0 from an RLS-filtered-to-empty query.
-    caller.role === 'agent' ? Promise.resolve(null) : supabase.from('property_views').select('id', { count: 'exact', head: true }),
-    caller.role === 'agent'
-      ? Promise.resolve(null)
-      : supabase.from('property_views').select('created_at').gte('created_at', chartStartIso),
+    Promise.resolve(null),
+    Promise.resolve(null),
     supabase.from('leads').select('id, full_name, source, status, created_at').order('created_at', { ascending: false }).limit(5),
   ]);
 
@@ -89,7 +83,7 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     LEAD_SOURCES.map((source, index) => [source, leadsBySourceResults[index]?.count ?? 0]),
   ) as Record<LeadSource, number>;
 
-  const daily = viewsChartResult ? bucketViewsByDay(viewsChartResult.data ?? [], VIEWS_CHART_DAYS, now) : null;
+  const daily = null;
   const last7Total = daily ? daily.slice(-7).reduce((sum, d) => sum + d.count, 0) : null;
   const prev7Total = daily ? daily.slice(-14, -7).reduce((sum, d) => sum + d.count, 0) : null;
   const viewsDeltaPct = last7Total !== null && prev7Total !== null && prev7Total > 0 ? Math.round(((last7Total - prev7Total) / prev7Total) * 100) : null;
