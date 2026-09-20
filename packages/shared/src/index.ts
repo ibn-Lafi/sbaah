@@ -10,7 +10,6 @@ export * from './types/website-section-config';
 export * from './validation/auth';
 export * from './validation/console-auth';
 export * from './validation/tenant';
-export * from './validation/property';
 export * from './validation/real-estate';
 export * from './validation/project';
 export * from './validation/website';
