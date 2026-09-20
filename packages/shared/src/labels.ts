@@ -5,7 +5,7 @@
  * labels file still owns labels that only it needs (e.g. dashboard's
  * PROPERTY_STATUS_LABELS has no public-site equivalent).
  */
-import type { AccountType, ListingType, PropertyType } from './types/enums';
+import type { AccountType, AssetType, ListingType } from './types/enums';
 
 /** Was duplicated in dashboard's settings page (inline) and console's tenant/labels.ts. */
 export const ACCOUNT_TYPE_LABELS: Record<AccountType, string> = {
@@ -22,13 +22,21 @@ export const ACCOUNT_TYPE_LABELS_BILINGUAL: Record<AccountType, { ar: string; en
 };
 
 /** Bilingual source — dashboard (Arabic-only) reads `.ar`, public-site reads either by locale. */
-export const PROPERTY_TYPE_LABELS_BILINGUAL: Record<PropertyType, { ar: string; en: string }> = {
+export const PROPERTY_TYPE_LABELS_BILINGUAL: Record<AssetType, { ar: string; en: string }> = {
   apartment: { ar: 'شقة', en: 'Apartment' },
   villa: { ar: 'فيلا', en: 'Villa' },
+  building: { ar: 'عمارة', en: 'Building' },
   land: { ar: 'أرض', en: 'Land' },
+  plot: { ar: 'قطعة أرض', en: 'Plot' },
   office: { ar: 'مكتب', en: 'Office' },
   shop: { ar: 'محل', en: 'Shop' },
-  building: { ar: 'عمارة', en: 'Building' },
+  warehouse: { ar: 'مستودع', en: 'Warehouse' },
+  floor: { ar: 'دور', en: 'Floor' },
+  compound: { ar: 'مجمع', en: 'Compound' },
+  chalet: { ar: 'شاليه', en: 'Chalet' },
+  farm: { ar: 'مزرعة', en: 'Farm' },
+  parking: { ar: 'موقف', en: 'Parking' },
+  other: { ar: 'أخرى', en: 'Other' },
 };
 
 export const LISTING_TYPE_LABELS_BILINGUAL: Record<ListingType, { ar: string; en: string }> = {
