@@ -4,11 +4,12 @@ import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
 import { assertPermission } from '@/lib/auth/permissions';
 import { assertTenantOwnedRow } from '@/lib/tenant/assert-tenant-owned-row';
+import { assertAssignedLeadAccess, isAssignedScope } from '@/lib/auth/crm-scope';
 
 export const GET=withErrorHandling(async(r:NextRequest)=>{
- const{supabase}=getAuthenticatedClient(r);const c=await getCallerContext(supabase);assertPermission(c.role,'crm.read');
+ const{supabase}=getAuthenticatedClient(r);const c=await getCallerContext(supabase);const grant=assertPermission(c.role,'crm.read');
  const leadId=r.nextUrl.searchParams.get('lead_id');if(!leadId)throw new Error('lead_id is required');
- await assertTenantOwnedRow({supabase,table:'leads',id:leadId,tenantId:c.tenantId,label:'العميل'});
+ await assertTenantOwnedRow({supabase,table:'leads',id:leadId,tenantId:c.tenantId,label:'العميل'});if(isAssignedScope(grant))await assertAssignedLeadAccess(supabase,c.tenantId,c.userId,leadId);
  const{data:req,error:reqError}=await supabase.from('lead_requirements').select('*').eq('tenant_id',c.tenantId).eq('lead_id',leadId).order('created_at',{ascending:false}).limit(1).maybeSingle();
  if(reqError)throw new Error(reqError.message);if(!req)return okResponse({matches:[]});
  let q=supabase.from('listings').select('id,title_ar,asking_price,listing_type,listing_assets!inner(asset:assets!inner(id,asset_type,area_sqm,bedrooms,city_id,district_id,archived_at))').eq('tenant_id',c.tenantId).eq('publication_status','published').neq('commercial_status','closed').is('listing_assets.asset.archived_at',null);
