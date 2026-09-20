@@ -1,7 +1,6 @@
 import type {
-  Building,
-  BuildingInput,
-  BuildingUpdateInput,
+  Asset,
+  AssetInput,
   Project,
   ProjectInput,
   ProjectUpdateInput,
@@ -46,39 +45,13 @@ export function deleteProject(accessToken: string, id: string): Promise<{ status
   return apiDelete<{ status: string }>(`/projects/${id}`, accessToken);
 }
 
-export interface BuildingListResponse {
-  buildings: Building[];
-  page: number;
-  page_size: number;
-  total: number;
+export interface ProjectAssetListResponse { assets: Asset[]; page:number; page_size:number; total:number; }
+
+export function listProjectBuildings(accessToken:string, projectId:string): Promise<ProjectAssetListResponse> {
+  const query = new URLSearchParams({ asset_type:'building', project_id:projectId });
+  return apiGet<ProjectAssetListResponse>(`/v1/assets?${query.toString()}`, accessToken);
 }
 
-export function listBuildings(
-  accessToken: string,
-  params: { project_id?: string } = {},
-): Promise<BuildingListResponse> {
-  const query = new URLSearchParams();
-  if (params.project_id) query.set('project_id', params.project_id);
-  const qs = query.toString();
-  return apiGet<BuildingListResponse>(`/buildings${qs ? `?${qs}` : ''}`, accessToken);
-}
-
-export function getBuilding(accessToken: string, id: string): Promise<{ building: Building }> {
-  return apiGet<{ building: Building }>(`/buildings/${id}`, accessToken);
-}
-
-export function createBuilding(accessToken: string, input: BuildingInput): Promise<{ building: Building }> {
-  return apiPost<{ building: Building }>('/buildings', input, accessToken);
-}
-
-export function updateBuilding(
-  accessToken: string,
-  id: string,
-  input: BuildingUpdateInput,
-): Promise<{ building: Building }> {
-  return apiPatch<{ building: Building }>(`/buildings/${id}`, input, accessToken);
-}
-
-export function deleteBuilding(accessToken: string, id: string): Promise<{ status: string }> {
-  return apiDelete<{ status: string }>(`/buildings/${id}`, accessToken);
+export function createProjectBuilding(accessToken:string, projectId:string, input:AssetInput): Promise<{asset:Asset}> {
+  return apiPost<{asset:Asset}>('/v1/assets', { ...input, project_id: projectId, asset_type:'building' }, accessToken);
 }
