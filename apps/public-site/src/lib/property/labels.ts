@@ -1,7 +1,7 @@
-import { LISTING_TYPE_LABELS_BILINGUAL, PROPERTY_TYPE_LABELS_BILINGUAL, type ListingType, type PropertyType } from '@sbaah/shared';
+import { LISTING_TYPE_LABELS_BILINGUAL, PROPERTY_TYPE_LABELS_BILINGUAL, type AssetType, type ListingType } from '@sbaah/shared';
 import type { Locale } from '@/lib/i18n/locales';
 
-export function getPropertyTypeLabel(locale: Locale, type: PropertyType): string {
+export function getPropertyTypeLabel(locale: Locale, type: AssetType): string {
   return PROPERTY_TYPE_LABELS_BILINGUAL[type][locale];
 }
 
