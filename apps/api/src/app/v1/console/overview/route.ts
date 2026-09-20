@@ -9,7 +9,7 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
   const results = await Promise.all([
     supabase.from('tenants').select('id', { count: 'exact', head: true }),
     supabase.from('tenants').select('id', { count: 'exact', head: true }).eq('status', 'active'),
-    supabase.from('properties').select('id', { count: 'exact', head: true }),
+    supabase.from('assets').select('id', { count: 'exact', head: true }).is('archived_at', null),
     supabase.from('projects').select('id', { count: 'exact', head: true }),
     supabase.from('leads').select('id', { count: 'exact', head: true }),
     supabase.from('websites').select('id', { count: 'exact', head: true }),
