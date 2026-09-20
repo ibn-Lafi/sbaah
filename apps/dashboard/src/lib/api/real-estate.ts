@@ -1,4 +1,4 @@
-import type { Asset, AssetInput, AssetPhysicalStatus, AssetType, Listing, ListingInput } from '@sbaah/shared';
+import type { Asset, AssetInput, AssetPhysicalStatus, AssetType, Listing, ListingInput, ListingUpdateInput } from '@sbaah/shared';
 import { apiDelete, apiGet, apiPatch, apiPost } from './client';
 
 export interface AssetListResponse { assets:Asset[]; page:number; page_size:number; total:number; }
@@ -12,3 +12,8 @@ export type AssetWithMedia=Asset&{asset_media:Array<{id:string;media_type:string
 export const getAsset=(token:string,id:string)=>apiGet<{asset:AssetWithMedia}>(`/v1/assets/${id}`,token);
 export const updateAsset=(token:string,id:string,input:Partial<AssetInput>)=>apiPatch<{asset:Asset}>(`/v1/assets/${id}`,token,input);
 export const archiveAsset=(token:string,id:string)=>apiDelete<{status:string}>(`/v1/assets/${id}`,token);
+
+export type ListingDetail=Listing&{listing_assets:Array<{asset_id:string;assets:Asset}>};
+export const getListing=(token:string,id:string)=>apiGet<{listing:ListingDetail}>(`/v1/listings/${id}`,token);
+export const updateListing=(token:string,id:string,input:ListingUpdateInput)=>apiPatch<{listing:Listing}>(`/v1/listings/${id}`,token,input);
+export const archiveListing=(token:string,id:string)=>apiDelete<{status:string}>(`/v1/listings/${id}`,token);
