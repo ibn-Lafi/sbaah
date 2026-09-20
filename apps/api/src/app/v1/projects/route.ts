@@ -1,12 +1,12 @@
 import type { NextRequest } from 'next/server';
 import { z } from 'zod';
-import { projectInputSchema, PROPERTY_STATUSES } from '@sbaah/shared';
+import { projectInputSchema, PROJECT_STATUSES } from '@sbaah/shared';
 import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
 
 const listQuerySchema = z.object({
-  status: z.enum(PROPERTY_STATUSES).optional(),
+  status: z.enum(PROJECT_STATUSES).optional(),
   page: z.coerce.number().int().positive().default(1),
   page_size: z.coerce.number().int().positive().max(50).default(20),
 });
