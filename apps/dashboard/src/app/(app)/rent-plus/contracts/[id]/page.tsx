@@ -6,7 +6,7 @@ const statusLabel:Record<string,string>={draft:'مسودة',upcoming:'قادم',
 const money=(v:unknown)=>Number(v??0).toLocaleString('ar-SA',{minimumFractionDigits:2,maximumFractionDigits:2});
 
 export default function ContractDetailPage(){
- const{me,accessToken}=useCurrentUser();const{id}=useParams<{id:string}>();type ContractDetail = LeaseContractRow & { payment_frequency?: string | null; financial_summary?:{contract_value?:number;paid_amount?:number;remaining_amount?:number}; lease_contract_assets?:Array<{asset_id:string;assets?:{name_ar?:string}|null}>; lease_contract_parties?:Array<{party_id:string;role:string;parties?:{name?:string}|null}>; lease_installments?:InstallmentRow[]; payments?:LeasePaymentRow[] };
+ const{me,accessToken}=useCurrentUser();const{id}=useParams<{id:string}>();type ContractDetail = Omit<LeaseContractRow,'lease_contract_assets'|'lease_contract_parties'> & { payment_frequency?: string | null; financial_summary?:{contract_value?:number;paid_amount?:number;remaining_amount?:number}; lease_contract_assets?:Array<{asset_id:string;assets?:{name_ar?:string}|null}>; lease_contract_parties?:Array<{party_id:string;role:string;parties?:{name?:string}|null}>; lease_installments?:InstallmentRow[]; payments?:LeasePaymentRow[] };
  const[data,setData]=useState<ContractDetail|null>(null);const[loading,setLoading]=useState(true);const[busy,setBusy]=useState(false);
  const load=useCallback(async()=>{setLoading(true);try{const r=await getLeaseContract(accessToken,id);setData(r.contract as ContractDetail)}finally{setLoading(false)}},[accessToken,id]);
  useEffect(()=>{void load()},[load]);
