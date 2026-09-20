@@ -37,7 +37,7 @@ export async function PropertyGridSection({ locale, config }: PropertyGridSectio
       ) : (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {featured.map((property) => (
-            <PropertyCard key={property.id} property={property} city={citiesById.get(property.city_id)} locale={locale} />
+            <PropertyCard key={property.id} property={property} city={property.city_id ? citiesById.get(property.city_id) : undefined} locale={locale} />
           ))}
         </div>
       )}
