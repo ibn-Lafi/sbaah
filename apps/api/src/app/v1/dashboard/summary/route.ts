@@ -34,8 +34,6 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     { count: leadsWon, error: leadsWonError },
     { count: overdueFollowUps, error: overdueFollowUpsError },
     leadsBySourceResults,
-    propertyViewsResult,
-    viewsChartResult,
     latestLeadsResult,
   ] = await Promise.all([
     supabase.from('assets').select('id', { count: 'exact', head: true }).is('archived_at', null),
@@ -54,8 +52,6 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     // property_views has no select policy at all for Agent (migration
     // 0005) — represent that as "not applicable" rather than a
     // misleading 0 from an RLS-filtered-to-empty query.
-    Promise.resolve(null),
-    Promise.resolve(null),
     supabase.from('leads').select('id, full_name, source, status, created_at').order('created_at', { ascending: false }).limit(5),
   ]);
 
@@ -80,9 +76,6 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
   const leadsBySource = Object.fromEntries(
     LEAD_SOURCES.map((source, index) => [source, leadsBySourceResults[index]?.count ?? 0]),
   ) as Record<LeadSource, number>;
-
-  const daily = null;
-  const viewsDeltaPct = null;
 
   const conversionRate = leadsTotal && leadsTotal > 0 ? Math.round(((leadsWon ?? 0) / leadsTotal) * 1000) / 10 : 0;
 
