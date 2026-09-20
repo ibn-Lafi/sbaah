@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import {
   projectInputSchema,
   projectUpdateSchema,
-  PROPERTY_STATUSES,
+  PROJECT_STATUSES,
   type City,
   type District,
   type Project,
@@ -149,7 +149,7 @@ export function ProjectForm({ mode, initialValues, accessToken, onSubmit, submit
           <Textarea placeholder={t.form.fields.descriptionEn} value={form.description_en} onChange={(e) => set('description_en', e.target.value)} />
           {mode === 'edit' && (
             <Select value={form.status} onChange={(e) => set('status', e.target.value)}>
-              {PROPERTY_STATUSES.map((status) => <option key={status} value={status}>{pages.properties.statusLabels[status]}</option>)}
+              {PROJECT_STATUSES.map((status) => <option key={status} value={status}>{pages.properties.statusLabels[status]}</option>)}
             </Select>
           )}
         </div>
