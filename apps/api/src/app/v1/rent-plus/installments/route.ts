@@ -14,8 +14,9 @@ export const GET=withErrorHandling(async(request:NextRequest)=>{
   }
   const{data,error}=await q;
   if(error)throw new Error(`Failed to list installments: ${error.message}`);
-  const installments=(data??[]).map((row:any)=>{
-    const paid=(row.lease_payment_allocations??[]).filter((a:any)=>a.lease_payments?.status==='recorded').reduce((sum:number,a:{amount:number})=>sum+Number(a.amount),0);
+  type AllocationRow={amount:number;lease_payments?:{status:string}|null};type InstallmentRow={amount:number;lease_payment_allocations?:AllocationRow[];[key:string]:unknown};
+  const installments=((data??[]) as InstallmentRow[]).map((row)=>{
+    const paid=(row.lease_payment_allocations??[]).filter((a)=>a.lease_payments?.status==='recorded').reduce((sum,a)=>sum+Number(a.amount),0);
     return {...row,paid_amount:paid,remaining_amount:Math.max(0,Number(row.amount)-paid)};
   });
   return okResponse({installments});
