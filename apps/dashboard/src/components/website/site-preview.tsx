@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import type { WebsitePageKey } from '@sbaah/shared';
 import { useLocale } from '@/lib/i18n/locale-context';
 import { WEBSITE_PAGE_PATHS } from '@/lib/website/labels';
-import { listProperties } from '@/lib/api/properties';
+import { listAssets } from '@/lib/api/real-estate';
 
 const DEVICE_WIDTHS = { desktop: '100%', mobile: '390px' } as const;
 export type Device = keyof typeof DEVICE_WIDTHS;
@@ -36,8 +36,8 @@ export function SitePreview({ siteUrl, pageKey, device, accessToken, revision = 
   useEffect(() => {
     if (pageKey !== 'property_detail') return;
     let cancelled = false;
-    void listProperties(accessToken, { status: 'published', page: 1 }).then((result) => {
-      if (!cancelled) setPreviewPropertyId(result.properties[0]?.id ?? null);
+    void listAssets(accessToken, { page: 1 }).then((result) => {
+      if (!cancelled) setPreviewPropertyId(result.assets[0]?.id ?? null);
     });
     return () => {
       cancelled = true;
