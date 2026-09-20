@@ -10,8 +10,9 @@ interface RouteContext {
 export const GET = withErrorHandling<RouteContext>(async (request, { params }) => {
   const { id } = await params;
   const { supabase } = getAuthenticatedClient(request);
+  const caller = await getCallerContext(supabase);
 
-  const { data, error } = await supabase.from('projects').select('*').eq('id', id).maybeSingle();
+  const { data, error } = await supabase.from('projects').select('*').eq('id', id).eq('tenant_id', caller.tenantId).maybeSingle();
   if (error) {
     throw new Error(`Failed to load project: ${error.message}`);
   }
@@ -33,7 +34,7 @@ export const PATCH = withErrorHandling<RouteContext>(async (request, { params })
 
   const input = projectUpdateSchema.parse(await request.json());
 
-  const { data, error } = await supabase.from('projects').update(input).eq('id', id).select().maybeSingle();
+  const { data, error } = await supabase.from('projects').update(input).eq('id', id).eq('tenant_id', caller.tenantId).select().maybeSingle();
   if (error) {
     throw new Error(`Failed to update project: ${error.message}`);
   }
@@ -53,7 +54,7 @@ export const DELETE = withErrorHandling<RouteContext>(async (request, { params }
     throw new ApiError(403, 'forbidden', 'لا يملك الوسيط صلاحية حذف المشاريع');
   }
 
-  const { data, error } = await supabase.from('projects').delete().eq('id', id).select().maybeSingle();
+  const { data, error } = await supabase.from('projects').delete().eq('id', id).eq('tenant_id', caller.tenantId).select().maybeSingle();
   if (error) {
     throw new Error(`Failed to delete project: ${error.message}`);
   }
