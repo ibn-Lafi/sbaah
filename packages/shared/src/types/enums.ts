@@ -170,3 +170,58 @@ export const ACCOUNT_TYPE_BADGE_COLOR: Record<AccountType, string> = {
   institution: '#68458A',
   company: '#D4AF37',
 };
+
+
+/** Unified real-estate core (migrations 0068-0072). */
+export const ASSET_TYPES = ['apartment','villa','building','land','plot','office','shop','warehouse','floor','compound','chalet','farm','parking','other'] as const;
+export type AssetType = (typeof ASSET_TYPES)[number];
+
+export const ASSET_PHYSICAL_STATUSES = ['planned','under_construction','ready','maintenance','inactive'] as const;
+export type AssetPhysicalStatus = (typeof ASSET_PHYSICAL_STATUSES)[number];
+
+export const PARTY_TYPES = ['individual','organization'] as const;
+export type PartyType = (typeof PARTY_TYPES)[number];
+
+export const LISTING_PUBLICATION_STATUSES = ['draft','published','paused','archived'] as const;
+export type ListingPublicationStatus = (typeof LISTING_PUBLICATION_STATUSES)[number];
+export const LISTING_COMMERCIAL_STATUSES = ['available','reserved','under_negotiation','closed'] as const;
+export type ListingCommercialStatus = (typeof LISTING_COMMERCIAL_STATUSES)[number];
+export const LISTING_PRICING_PERIODS = ['monthly','quarterly','semi_annual','annual'] as const;
+export type ListingPricingPeriod = (typeof LISTING_PRICING_PERIODS)[number];
+
+export const RESERVATION_STATUSES = ['pending','active','expired','cancelled','converted'] as const;
+export type ReservationStatus = (typeof RESERVATION_STATUSES)[number];
+export const DEAL_TYPES = ['sale','rent'] as const;
+export type DealType = (typeof DEAL_TYPES)[number];
+
+export const PROPERTY_MANAGEMENT_STATUSES = ['active','paused','ended'] as const;
+export type PropertyManagementStatus = (typeof PROPERTY_MANAGEMENT_STATUSES)[number];
+export const MANAGEMENT_FEE_TYPES = ['fixed','percentage'] as const;
+export type ManagementFeeType = (typeof MANAGEMENT_FEE_TYPES)[number];
+export const LEASE_CONTRACT_SOURCES = ['internal','ejar','external'] as const;
+export type LeaseContractSource = (typeof LEASE_CONTRACT_SOURCES)[number];
+export const LEASE_CONTRACT_STATUSES = ['draft','upcoming','active','expired','terminated','cancelled'] as const;
+export type LeaseContractStatus = (typeof LEASE_CONTRACT_STATUSES)[number];
+export const LEASE_PAYMENT_FREQUENCIES = ['one_time','monthly','quarterly','semi_annual','annual','custom'] as const;
+export type LeasePaymentFrequency = (typeof LEASE_PAYMENT_FREQUENCIES)[number];
+export const LEASE_PARTY_ROLES = ['lessor','lessee','guarantor','representative'] as const;
+export type LeasePartyRole = (typeof LEASE_PARTY_ROLES)[number];
+export const LEASE_INSTALLMENT_STATUSES = ['scheduled','partially_paid','paid','overdue','cancelled'] as const;
+export type LeaseInstallmentStatus = (typeof LEASE_INSTALLMENT_STATUSES)[number];
+export const LEASE_PAYMENT_METHODS = ['cash','bank_transfer','card','sadad','other'] as const;
+export type LeasePaymentMethod = (typeof LEASE_PAYMENT_METHODS)[number];
+export const LEASE_PAYMENT_STATUSES = ['recorded','reversed'] as const;
+export type LeasePaymentStatus = (typeof LEASE_PAYMENT_STATUSES)[number];
+export const MAINTENANCE_PRIORITIES = ['low','normal','high','urgent'] as const;
+export type MaintenancePriority = (typeof MAINTENANCE_PRIORITIES)[number];
+export const MAINTENANCE_STATUSES = ['open','in_review','scheduled','in_progress','completed','cancelled'] as const;
+export type MaintenanceStatus = (typeof MAINTENANCE_STATUSES)[number];
+
+export const MARKETING_MANDATE_STATUSES = ['draft','active','expired','cancelled'] as const;
+export type MarketingMandateStatus = (typeof MARKETING_MANDATE_STATUSES)[number];
+export const MARKETING_MANDATE_TYPES = ['sale','rent','sale_and_rent'] as const;
+export type MarketingMandateType = (typeof MARKETING_MANDATE_TYPES)[number];
+export const COMMISSION_TYPES = ['fixed','percentage'] as const;
+export type CommissionType = (typeof COMMISSION_TYPES)[number];
+export const DOCUMENT_ENTITY_TYPES = ['asset','project','listing','marketing_mandate','reservation','deal','lease_contract','maintenance_request','party'] as const;
+export type DocumentEntityType = (typeof DOCUMENT_ENTITY_TYPES)[number];
