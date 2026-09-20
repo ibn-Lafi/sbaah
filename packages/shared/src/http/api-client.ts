@@ -54,7 +54,15 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   }
 
   try {
-    const response = await fetch(`${requireApiUrl()}${path}`, {
+    const baseUrl = requireApiUrl().replace(/\/+$/, '');
+    const requestedPath = path.startsWith('/') ? path : `/${path}`;
+    // Production URLs conventionally end in `/v1`. Keep the client tolerant
+    // of callers that also include `/v1` so a migration cannot silently
+    // produce `/v1/v1/...` requests.
+    const normalizedPath = baseUrl.endsWith('/v1') && requestedPath.startsWith('/v1/')
+      ? requestedPath.slice(3)
+      : requestedPath;
+    const response = await fetch(`${baseUrl}${normalizedPath}`, {
       method: options.method ?? 'GET',
       headers,
       body,

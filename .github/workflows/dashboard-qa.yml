@@ -3,6 +3,9 @@ on:
   push:
     branches:
       - claude/real-estate-saas-platform-sp7ua9
+  pull_request:
+    branches:
+      - claude/real-estate-saas-platform-sp7ua9
   workflow_dispatch:
 concurrency:
   group: monorepo-qa-${{ github.ref }}

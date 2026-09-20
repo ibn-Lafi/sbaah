@@ -1,4 +1,4 @@
-import type { ListingType, PropertyType } from '@sbaah/shared';
+import type { AssetType, ListingType } from '@sbaah/shared';
 import { apiGet } from './client';
 import { getHost } from '@/lib/tenant/get-host';
 
@@ -6,7 +6,7 @@ export interface MapPropertyPin {
   id: string;
   title_ar: string;
   title_en: string | null;
-  property_type: PropertyType;
+  property_type: AssetType;
   listing_type: ListingType;
   price: number;
   area_sqm: number;

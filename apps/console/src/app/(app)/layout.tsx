@@ -7,6 +7,8 @@ import { getAccessToken, signOut } from '@/lib/auth/session';
 import { CurrentAdminProvider } from '@/lib/auth/current-admin-context';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import { ConsoleShellSkeleton } from '@/components/layout/console-shell-skeleton';
+import { ApiRequestError } from '@/lib/api/client';
+import { Button } from '@/components/ui/button';
 
 /**
  * Guard for every authenticated `console` screen — same pattern as
@@ -20,11 +22,14 @@ import { ConsoleShellSkeleton } from '@/components/layout/console-shell-skeleton
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [state, setState] = useState<{ me: MeResponse; accessToken: string } | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [retryKey, setRetryKey] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
 
     async function load() {
+      setLoadError(null);
       const accessToken = await getAccessToken();
       if (!accessToken) {
         router.replace('/login');
@@ -33,9 +38,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       try {
         const me = await getMe(accessToken);
         if (!cancelled) setState({ me, accessToken });
-      } catch {
-        await signOut().catch(() => undefined);
-        router.replace('/login');
+      } catch (error) {
+        if (error instanceof ApiRequestError && (error.status === 401 || error.status === 403)) {
+          await signOut().catch(() => undefined);
+          router.replace('/login');
+          return;
+        }
+        if (!cancelled) setLoadError(error instanceof Error ? error.message : 'تعذّر تحميل لوحة الإدارة. حاول مرة أخرى.');
       }
     }
 
@@ -58,7 +67,16 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       cancelled = true;
       subscription.unsubscribe();
     };
-  }, [router]);
+  }, [router, retryKey]);
+
+  if (loadError) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-6 text-center">
+        <p className="text-sm text-red-600">{loadError}</p>
+        <Button onClick={() => setRetryKey((value) => value + 1)}>إعادة المحاولة</Button>
+      </div>
+    );
+  }
 
   if (!state) {
     return <ConsoleShellSkeleton />;

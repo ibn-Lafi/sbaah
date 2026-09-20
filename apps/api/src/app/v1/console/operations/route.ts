@@ -6,8 +6,8 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
   const { supabase } = await getPlatformAdminClient(request);
   const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
   const results = await Promise.all([
-    supabase.from('properties').select('id', { count:'exact', head:true }),
-    supabase.from('properties').select('id', { count:'exact', head:true }).gte('created_at', since),
+    supabase.from('assets').select('id', { count:'exact', head:true }).is('archived_at', null),
+    supabase.from('assets').select('id', { count:'exact', head:true }).is('archived_at', null).gte('created_at', since),
     supabase.from('projects').select('id', { count:'exact', head:true }),
     supabase.from('projects').select('id', { count:'exact', head:true }).gte('created_at', since),
     supabase.from('leads').select('id', { count:'exact', head:true }),

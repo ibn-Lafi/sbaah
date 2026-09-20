@@ -47,7 +47,7 @@ export async function FeaturedPropertiesSection({ locale, config }: { locale: Lo
   return (
     <ClassicSection className={classicToneClass(config.tone)}>
       <ClassicSectionHeading title={config.title_ar || copy[locale].featured} align={config.heading_align} action={<SectionLink href={localizedPath(locale, '/properties')}>{copy[locale].allProperties}</SectionLink>} />
-      {items.length ? <div className={`grid gap-5 ${classicColumnsClass(config.columns)}`}>{items.map((property) => <PropertyCard key={property.id} property={property} city={citiesById.get(property.city_id)} locale={locale} />)}</div> : <ClassicEmptyState>{copy[locale].propertiesEmpty}</ClassicEmptyState>}
+      {items.length ? <div className={`grid gap-5 ${classicColumnsClass(config.columns)}`}>{items.map((property) => <PropertyCard key={property.id} property={property} city={property.city_id ? citiesById.get(property.city_id) : undefined} locale={locale} />)}</div> : <ClassicEmptyState>{copy[locale].propertiesEmpty}</ClassicEmptyState>}
     </ClassicSection>
   );
 }
@@ -59,7 +59,7 @@ export async function LatestPropertiesSection({ locale, config }: { locale: Loca
   return (
     <ClassicSection className={classicToneClass(config.tone ?? 'soft')}>
       <ClassicSectionHeading title={config.title_ar || copy[locale].latest} align={config.heading_align} action={<SectionLink href={localizedPath(locale, '/properties')}>{copy[locale].allProperties}</SectionLink>} />
-      {items.length ? <div className={`grid gap-5 ${classicColumnsClass(config.columns)}`}>{items.map((property) => <PropertyCard key={property.id} property={property} city={citiesById.get(property.city_id)} locale={locale} />)}</div> : <ClassicEmptyState>{copy[locale].propertiesEmpty}</ClassicEmptyState>}
+      {items.length ? <div className={`grid gap-5 ${classicColumnsClass(config.columns)}`}>{items.map((property) => <PropertyCard key={property.id} property={property} city={property.city_id ? citiesById.get(property.city_id) : undefined} locale={locale} />)}</div> : <ClassicEmptyState>{copy[locale].propertiesEmpty}</ClassicEmptyState>}
     </ClassicSection>
   );
 }

@@ -7,6 +7,7 @@ import { MARKETING_CONTENT } from '@/lib/marketing/content';
 import { CloseIcon } from './marketing/icons';
 import { ThemeToggle } from './theme-toggle';
 import { apiGet } from '@/lib/api/client';
+import { safeExternalUrl } from '@/lib/security/public-values';
 
 function BrandMark({ label, invert = false, className = 'h-6' }: { label: string; invert?: boolean; className?: string }) {
   return <img src={invert ? '/brand-mark-white.svg' : '/brand-mark.svg'} alt={label} width={54} height={24} className={`${className} w-auto`} />;
@@ -42,10 +43,14 @@ export function MarketingChrome({ locale, children }: { locale: Locale; children
   const platformRootDomain = process.env.NEXT_PUBLIC_PLATFORM_ROOT_DOMAIN;
   const dashboardUrl = process.env.NEXT_PUBLIC_DASHBOARD_URL ?? (platformRootDomain ? `https://dashboard.${platformRootDomain}` : 'http://localhost:3002');
   const homeHref = locale === 'ar' ? '/' : '/en';
+  const localizedHref = (path: string) => locale === 'en' ? `/en${path}` : path;
   const otherLocaleHref = locale === 'ar' ? '/en' : '/';
   const [quickControlsOpen, setQuickControlsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [platformSettings, setPlatformSettings] = useState<PublicPlatformSettings | null>(null);
+  const socialTikTok = safeExternalUrl(platformSettings?.social_tiktok);
+  const socialInstagram = safeExternalUrl(platformSettings?.social_instagram);
+  const socialX = safeExternalUrl(platformSettings?.social_x);
 
   useEffect(() => {
     void apiGet<PublicPlatformSettings>('/public/platform-settings').then(setPlatformSettings).catch(() => setPlatformSettings(null));
@@ -89,11 +94,11 @@ export function MarketingChrome({ locale, children }: { locale: Locale; children
 
             <div className="mt-10">
               <h2 className="text-2xl font-bold sm:text-3xl">{locale === 'ar' ? 'تواصل معنا' : 'Contact us'}</h2>
-              <a href="mailto:${platformSettings?.contact_email || 'info@sbaah.com'}" dir="ltr" className="mt-4 inline-block border-b border-white/70 pb-1 text-base text-white/90 transition-opacity hover:opacity-75 sm:text-lg">{platformSettings?.contact_email || 'info@sbaah.com'}</a>
+              <a href={`mailto:${platformSettings?.contact_email || 'info@sbaah.com'}`} dir="ltr" className="mt-4 inline-block border-b border-white/70 pb-1 text-base text-white/90 transition-opacity hover:opacity-75 sm:text-lg">{platformSettings?.contact_email || 'info@sbaah.com'}</a>
               <div className="mt-6 flex items-center justify-center gap-6">
-                {platformSettings?.social_tiktok && <a href={platformSettings.social_tiktok} target="_blank" rel="noopener noreferrer" aria-label="TikTok" className="text-white/85 transition-transform hover:scale-110 hover:text-white"><SocialIcon type="tiktok"/></a>}
-                {platformSettings?.social_instagram && <a href={platformSettings.social_instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="text-white/85 transition-transform hover:scale-110 hover:text-white"><SocialIcon type="instagram"/></a>}
-                {platformSettings?.social_x && <a href={platformSettings.social_x} target="_blank" rel="noopener noreferrer" aria-label="X" className="text-white/85 transition-transform hover:scale-110 hover:text-white"><SocialIcon type="x"/></a>}
+                {socialTikTok && <a href={socialTikTok} target="_blank" rel="noopener noreferrer" aria-label="TikTok" className="text-white/85 transition-transform hover:scale-110 hover:text-white"><SocialIcon type="tiktok"/></a>}
+                {socialInstagram && <a href={socialInstagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="text-white/85 transition-transform hover:scale-110 hover:text-white"><SocialIcon type="instagram"/></a>}
+                {socialX && <a href={socialX} target="_blank" rel="noopener noreferrer" aria-label="X" className="text-white/85 transition-transform hover:scale-110 hover:text-white"><SocialIcon type="x"/></a>}
               </div>
             </div>
 
@@ -103,13 +108,13 @@ export function MarketingChrome({ locale, children }: { locale: Locale; children
                 <a href={homeHref} className="hover:text-white">{locale === 'ar' ? 'الرئيسية' : 'Home'}</a>
                 <a href="#pricing" className="hover:text-white">{t.nav.pricing}</a>
                 <a href="#faq" className="hover:text-white">{t.nav.faq}</a>
-                <a href={`/${locale}/support`} className="hover:text-white">{locale === 'ar' ? 'مركز الدعم' : 'Support Center'}</a>
+                <Link href={localizedHref('/support')} className="hover:text-white">{locale === 'ar' ? 'مركز الدعم' : 'Support Center'}</Link>
               </nav>
             </div>
 
             <div className="mt-14 flex flex-wrap items-center justify-center gap-3 text-xs sm:text-sm">
-              <Link href={`/${locale}/privacy`} className="rounded-full border border-white/55 px-5 py-2.5 text-white/85 hover:bg-white/10">{locale === 'ar' ? 'سياسة الخصوصية' : 'Privacy Policy'}</Link>
-              <Link href={`/${locale}/terms`} className="rounded-full border border-white/55 px-5 py-2.5 text-white/85 hover:bg-white/10">{locale === 'ar' ? 'الشروط والأحكام' : 'Terms & Conditions'}</Link>
+              <Link href={localizedHref('/privacy')} className="rounded-full border border-white/55 px-5 py-2.5 text-white/85 hover:bg-white/10">{locale === 'ar' ? 'سياسة الخصوصية' : 'Privacy Policy'}</Link>
+              <Link href={localizedHref('/terms')} className="rounded-full border border-white/55 px-5 py-2.5 text-white/85 hover:bg-white/10">{locale === 'ar' ? 'الشروط والأحكام' : 'Terms & Conditions'}</Link>
             </div>
             <p className="mt-6 text-xs text-white/65 sm:text-sm">{locale === 'ar' ? 'جميع الحقوق محفوظة © سبعة 2026' : '© Sbaah 2026. All rights reserved.'}</p>
           </div>

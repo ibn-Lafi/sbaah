@@ -1,6 +1,11 @@
-import type { LeadStatus, PropertyStatus, RentalStatus, UserStatus } from '@sbaah/shared';
+import type {
+  LeadStatus,
+  ProjectStatus,
+  PropertyManagementStatus,
+  UserStatus,
+} from '@sbaah/shared';
 
-type BadgeStatus = PropertyStatus | LeadStatus | RentalStatus | UserStatus;
+type BadgeStatus = ProjectStatus | LeadStatus | PropertyManagementStatus | UserStatus;
 
 /**
  * Exact bg/text pairs from the mockup's badgeBg()/badgeColor() functions
@@ -27,6 +32,7 @@ export const STATUS_CLASSES: Record<BadgeStatus, string> = {
   lost: 'bg-danger-surface text-danger',
   expired: 'bg-surface-subtle-3 text-text-secondary',
   active: 'bg-success-surface text-success',
+  paused: 'bg-warning-surface text-warning',
   ended: 'bg-surface-subtle-3 text-text-secondary',
   invited: 'bg-warning-surface text-warning',
   disabled: 'bg-surface-subtle-3 text-text-secondary',

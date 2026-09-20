@@ -1,2 +1,20 @@
-import type { NextRequest } from 'next/server'; import { okResponse,withErrorHandling } from '@/lib/http'; import { createClient } from '@supabase/supabase-js';
-export const GET=withErrorHandling(async(r:NextRequest)=>{const tenantId=r.nextUrl.searchParams.get('tenant_id');if(!tenantId)throw new Error('tenant_id is required');const s=createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!,process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);const[{data:p,error:pe},{data:u,error:ue}]=await Promise.all([s.from('properties').select('id,title_ar,title_en,property_type,listing_type,price,area_sqm,bedrooms,bathrooms,city_id,district_id').eq('tenant_id',tenantId).eq('status','published').eq('publication_state','published'),s.from('units').select('id,project_id,unit_number,price,area_sqm,floor_number,orientation,availability,unit_types(name_ar,name_en,property_type,bedrooms,bathrooms),projects(name_ar,name_en)').eq('tenant_id',tenantId).eq('availability','available')]);if(pe)throw new Error(pe.message);if(ue)throw new Error(ue.message);return okResponse({listings:[...(p??[]).map(x=>({kind:'property',...x})),...(u??[]).map(x=>({kind:'unit',...x}))]});});
+import type { NextRequest } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
+
+export const GET = withErrorHandling(async (request: NextRequest) => {
+  const tenantId = request.nextUrl.searchParams.get('tenant_id');
+  if (!tenantId) throw new ApiError(400, 'tenant_id_required', 'tenant_id is required');
+
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  );
+  const { data, error } = await supabase.rpc('public_listing_feed', {
+    p_tenant_id: tenantId,
+    p_limit: 50,
+    p_offset: 0,
+  });
+  if (error) throw new Error(`Failed to load public listings: ${error.message}`);
+  return okResponse({ listings: data ?? [] });
+});

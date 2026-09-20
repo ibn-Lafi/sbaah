@@ -1,5 +1,5 @@
 import type { City } from '@sbaah/shared';
-import { PROPERTY_TYPES, LISTING_TYPES } from '@sbaah/shared';
+import { ASSET_TYPES, LISTING_TYPES } from '@sbaah/shared';
 import type { Locale } from '@/lib/i18n/locales';
 import { pickLocalized } from '@/lib/i18n/localized-field';
 import { getListingTypeLabel, getPropertyTypeLabel } from '@/lib/property/labels';
@@ -33,7 +33,7 @@ export function PropertySearchBar({ locale, cities }: { locale: Locale; cities: 
         <span className="text-xs font-medium text-black/60">{t.type}</span>
         <select name="property_type" defaultValue="" className={SELECT_CLASSES}>
           <option value="">{t.anyType}</option>
-          {PROPERTY_TYPES.map((type) => (
+          {ASSET_TYPES.map((type) => (
             <option key={type} value={type}>
               {getPropertyTypeLabel(locale, type)}
             </option>

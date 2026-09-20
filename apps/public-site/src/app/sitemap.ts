@@ -15,7 +15,7 @@ async function allPropertySlugs(): Promise<string[]> {
   while (slugs.length < total) {
     const result = await listPublicProperties({ page });
     total = result.total;
-    slugs.push(...result.properties.map((property) => property.slug));
+    slugs.push(...result.properties.map((property) => property.slug).filter((slug): slug is string => Boolean(slug)));
     if (result.properties.length === 0 || result.page_size <= 0) break;
     page += 1;
     if (page > Math.ceil(total / (result.page_size || PAGE_SIZE_FALLBACK)) + 1) break;
