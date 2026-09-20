@@ -67,8 +67,6 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     leadsThisMonthError,
     leadsWonError,
     overdueFollowUpsError,
-    propertyViewsResult?.error,
-    viewsChartResult?.error,
     latestLeadsResult.error,
   ].find((error) => error);
   if (firstError) {
@@ -84,9 +82,7 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
   ) as Record<LeadSource, number>;
 
   const daily = null;
-  const last7Total = daily ? daily.slice(-7).reduce((sum, d) => sum + d.count, 0) : null;
-  const prev7Total = daily ? daily.slice(-14, -7).reduce((sum, d) => sum + d.count, 0) : null;
-  const viewsDeltaPct = last7Total !== null && prev7Total !== null && prev7Total > 0 ? Math.round(((last7Total - prev7Total) / prev7Total) * 100) : null;
+  const viewsDeltaPct = null;
 
   const conversionRate = leadsTotal && leadsTotal > 0 ? Math.round(((leadsWon ?? 0) / leadsTotal) * 1000) / 10 : 0;
 
@@ -130,9 +126,7 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
       by_source: leadsBySource,
       conversion_rate: conversionRate,
     },
-    property_views: propertyViewsResult
-      ? { total: propertyViewsResult.count ?? 0, daily, delta_pct: viewsDeltaPct }
-      : null,
+    property_views: null,
     site_analytics: siteAnalytics,
     latest_leads: latestLeadsResult.data,
   });
