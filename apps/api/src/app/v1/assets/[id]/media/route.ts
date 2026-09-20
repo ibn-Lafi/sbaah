@@ -1,4 +1,3 @@
-import type { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
