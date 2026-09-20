@@ -1,4 +1,4 @@
-import { apiGet, apiPost } from './client';
+import { apiGet, apiPost, apiPatch } from './client';
 export interface ManagedPropertyRow { id:string; asset_id:string; status:string; starts_at:string; ends_at:string|null; management_fee_type:string|null; management_fee_value:number|null; assets?:{id:string;name_ar:string;reference_number:string|null;asset_type:string}|null; }
 export interface LeaseContractRow { id:string; contract_number:string; source:string; start_date:string; end_date:string; total_value:number; status:string; lease_contract_assets?:Array<{asset_id:string}>; lease_contract_parties?:Array<{party_id:string;role:string}>; }
 export interface EjarPartyRow { id:string; name:string; party_type:string; phone:string|null; email:string|null; }
@@ -14,3 +14,11 @@ export const listMaintenance=(token:string)=>apiGet<{maintenance:MaintenanceRow[
 export const createMaintenance=(token:string,input:unknown)=>apiPost<{maintenance:MaintenanceRow}>('/v1/rent-plus/maintenance',token,input);
 export const listLeasePayments=(token:string)=>apiGet<{payments:LeasePaymentRow[]}>('/v1/rent-plus/payments',token);
 export const recordLeasePayment=(token:string,input:unknown)=>apiPost<{payment:LeasePaymentRow}>('/v1/rent-plus/payments',token,input);
+
+export interface AssetOption { id:string; name_ar:string; reference_number:string|null; asset_type:string; }
+export interface InstallmentRow { id:string; contract_id:string; installment_number:number; due_date:string; amount:number; status:string; }
+export const listAssetOptions=(token:string)=>apiGet<{assets:AssetOption[]}>('/v1/assets?page_size=50',token);
+export const listInstallments=(token:string,contractId?:string)=>apiGet<{installments:InstallmentRow[]}>(`/v1/rent-plus/installments${contractId?`?contract_id=${encodeURIComponent(contractId)}`:''}`,token);
+export const createInstallment=(token:string,input:unknown)=>apiPost<{installment:InstallmentRow}>('/v1/rent-plus/installments',token,input);
+export const getLeaseContract=(token:string,id:string)=>apiGet<{contract:LeaseContractRow & Record<string,unknown>}>(`/v1/rent-plus/contracts/${id}`,token);
+export const updateLeaseContract=(token:string,id:string,input:unknown)=>apiPatch<{contract:LeaseContractRow}>(`/v1/rent-plus/contracts/${id}`,token,input);
