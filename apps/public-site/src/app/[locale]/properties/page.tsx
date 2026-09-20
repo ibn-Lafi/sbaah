@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import type { ListingType, PropertyType } from '@sbaah/shared';
+import type { AssetType, ListingType } from '@sbaah/shared';
 import { isLocale, DEFAULT_LOCALE } from '@/lib/i18n/locales';
 import { listPublicProperties } from '@/lib/api/public-properties';
 import { listCities, listDistricts } from '@/lib/api/reference-data';
@@ -57,7 +57,7 @@ export default async function PropertiesPage({ params, searchParams }: PageProps
     listPublicProperties({
       city_id: filters.city_id,
       district_id: filters.district_id,
-      property_type: filters.property_type as PropertyType | undefined,
+      property_type: filters.property_type as AssetType | undefined,
       listing_type: filters.listing_type as ListingType | undefined,
       min_price: filters.min_price ? Number(filters.min_price) : undefined,
       max_price: filters.max_price ? Number(filters.max_price) : undefined,
