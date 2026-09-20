@@ -1,0 +1,16 @@
+import { apiGet, apiPost } from './client';
+export interface ManagedPropertyRow { id:string; asset_id:string; status:string; starts_at:string; ends_at:string|null; management_fee_type:string|null; management_fee_value:number|null; assets?:{id:string;name_ar:string;reference_number:string|null;asset_type:string}|null; }
+export interface LeaseContractRow { id:string; contract_number:string; source:string; start_date:string; end_date:string; total_value:number; status:string; lease_contract_assets?:Array<{asset_id:string}>; lease_contract_parties?:Array<{party_id:string;role:string}>; }
+export interface EjarPartyRow { id:string; name:string; party_type:string; phone:string|null; email:string|null; }
+export interface MaintenanceRow { id:string; request_number:string; title:string; priority:string; status:string; opened_at:string; assets?:{name_ar:string;reference_number:string|null}|null; }
+export interface LeasePaymentRow { id:string; payment_number:string; contract_id:string; amount:number; paid_at:string; payment_method:string; status:string; }
+export const listManagedProperties=(token:string)=>apiGet<{properties:ManagedPropertyRow[]}>('/v1/rent-plus/properties',token);
+export const createManagementAssignment=(token:string,input:unknown)=>apiPost<{property:ManagedPropertyRow}>('/v1/rent-plus/properties',token,input);
+export const listLeaseContracts=(token:string)=>apiGet<{contracts:LeaseContractRow[]}>('/v1/rent-plus/contracts',token);
+export const createLeaseContract=(token:string,input:unknown)=>apiPost<{contract:LeaseContractRow}>('/v1/rent-plus/contracts',token,input);
+export const listEjarTenants=(token:string)=>apiGet<{tenants:EjarPartyRow[]}>('/v1/rent-plus/tenants',token);
+export const createEjarParty=(token:string,input:unknown)=>apiPost<{party:EjarPartyRow}>('/v1/rent-plus/tenants',token,input);
+export const listMaintenance=(token:string)=>apiGet<{maintenance:MaintenanceRow[]}>('/v1/rent-plus/maintenance',token);
+export const createMaintenance=(token:string,input:unknown)=>apiPost<{maintenance:MaintenanceRow}>('/v1/rent-plus/maintenance',token,input);
+export const listLeasePayments=(token:string)=>apiGet<{payments:LeasePaymentRow[]}>('/v1/rent-plus/payments',token);
+export const recordLeasePayment=(token:string,input:unknown)=>apiPost<{payment:LeasePaymentRow}>('/v1/rent-plus/payments',token,input);
