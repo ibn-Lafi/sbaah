@@ -1,6 +1,4 @@
 import type {
-  Asset,
-  AssetInput,
   Project,
   ProjectInput,
   ProjectUpdateInput,
@@ -45,13 +43,3 @@ export function deleteProject(accessToken: string, id: string): Promise<{ status
   return apiDelete<{ status: string }>(`/projects/${id}`, accessToken);
 }
 
-export interface ProjectAssetListResponse { assets: Asset[]; page:number; page_size:number; total:number; }
-
-export function listProjectBuildings(accessToken:string, projectId:string): Promise<ProjectAssetListResponse> {
-  const query = new URLSearchParams({ asset_type:'building', project_id:projectId });
-  return apiGet<ProjectAssetListResponse>(`/v1/assets?${query.toString()}`, accessToken);
-}
-
-export function createProjectBuilding(accessToken:string, projectId:string, input:AssetInput): Promise<{asset:Asset}> {
-  return apiPost<{asset:Asset}>('/v1/assets', { ...input, project_id: projectId, asset_type:'building' }, accessToken);
-}
