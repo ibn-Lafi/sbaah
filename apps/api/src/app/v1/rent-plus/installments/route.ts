@@ -6,7 +6,7 @@ import { getCallerContext } from '@/lib/auth/get-caller-context';
 
 export const GET=withErrorHandling(async(request:NextRequest)=>{
   const{supabase}=getAuthenticatedClient(request);
-  let q=supabase.from('lease_installments').select('*, lease_payment_allocations(amount,payment_id)').order('due_date');
+  let q=supabase.from('lease_installments').select('*, lease_payment_allocations(amount,payment_id,lease_payments(status))').order('due_date');
   const id=request.nextUrl.searchParams.get('contract_id');
   if(id){
     await supabase.rpc('refresh_contract_installment_statuses',{p_contract_id:id});
@@ -15,7 +15,7 @@ export const GET=withErrorHandling(async(request:NextRequest)=>{
   const{data,error}=await q;
   if(error)throw new Error(`Failed to list installments: ${error.message}`);
   const installments=(data??[]).map((row:any)=>{
-    const paid=(row.lease_payment_allocations??[]).reduce((sum:number,a:{amount:number})=>sum+Number(a.amount),0);
+    const paid=(row.lease_payment_allocations??[]).filter((a:any)=>a.lease_payments?.status==='recorded').reduce((sum:number,a:{amount:number})=>sum+Number(a.amount),0);
     return {...row,paid_amount:paid,remaining_amount:Math.max(0,Number(row.amount)-paid)};
   });
   return okResponse({installments});
