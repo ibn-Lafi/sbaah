@@ -21,6 +21,7 @@ export const GET = withErrorHandling<RouteContext>(async (request, { params }) =
     .from('leads')
     .select('*, lead_notes(*)')
     .eq('id', id)
+    .eq('tenant_id', caller.tenantId)
     .order('created_at', { foreignTable: 'lead_notes', ascending: false })
     .maybeSingle();
   if (error) {
@@ -48,9 +49,9 @@ export const PATCH = withErrorHandling<RouteContext>(async (request, { params })
   // Read before the update so a re-save of the same agent (or any other
   // field-only change) doesn't re-notify — only an actual assignment
   // change should email the agent.
-  const { data: previous } = await supabase.from('leads').select('assigned_agent_id').eq('id', id).maybeSingle();
+  const { data: previous } = await supabase.from('leads').select('assigned_agent_id').eq('id', id).eq('tenant_id', caller.tenantId).maybeSingle();
 
-  const { data, error } = await supabase.from('leads').update(input).eq('id', id).select().maybeSingle();
+  const { data, error } = await supabase.from('leads').update(input).eq('id', id).eq('tenant_id', caller.tenantId).select().maybeSingle();
   if (error) {
     throw new Error(`Failed to update lead: ${error.message}`);
   }
@@ -67,6 +68,7 @@ export const PATCH = withErrorHandling<RouteContext>(async (request, { params })
       .from('users')
       .select('full_name, email')
       .eq('id', input.assigned_agent_id as string)
+      .eq('tenant_id', caller.tenantId)
       .maybeSingle();
     if (agent?.email) {
       try {
@@ -93,7 +95,7 @@ export const DELETE = withErrorHandling<RouteContext>(async (request, { params }
     throw new ApiError(403, 'forbidden', 'لا يملك الوسيط صلاحية حذف عملاء محتملين');
   }
 
-  const { data, error } = await supabase.from('leads').delete().eq('id', id).select().maybeSingle();
+  const { data, error } = await supabase.from('leads').delete().eq('id', id).eq('tenant_id', caller.tenantId).select().maybeSingle();
   if (error) {
     throw new Error(`Failed to delete lead: ${error.message}`);
   }
