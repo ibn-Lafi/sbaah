@@ -2,6 +2,8 @@ import { leadUpdateSchema } from '@sbaah/shared';
 import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
+import { assertPermission } from '@/lib/auth/permissions';
+import { assertAssignedLeadAccess, isAssignedScope } from '@/lib/auth/crm-scope';
 import { sendEmail } from '@/lib/email/send';
 import { newLeadAssignedEmail } from '@/lib/email/templates';
 
@@ -12,6 +14,8 @@ interface RouteContext {
 export const GET = withErrorHandling<RouteContext>(async (request, { params }) => {
   const { id } = await params;
   const { supabase } = getAuthenticatedClient(request);
+  const caller = await getCallerContext(supabase);
+  const grant = assertPermission(caller.role, 'crm.read');
 
   const { data, error } = await supabase
     .from('leads')
@@ -25,6 +29,7 @@ export const GET = withErrorHandling<RouteContext>(async (request, { params }) =
   if (!data) {
     throw new ApiError(404, 'lead_not_found', 'العميل المحتمل غير موجود');
   }
+  if (isAssignedScope(grant)) await assertAssignedLeadAccess(supabase, caller.tenantId, caller.userId, id);
 
   return okResponse({ lead: data });
 });
@@ -32,7 +37,13 @@ export const GET = withErrorHandling<RouteContext>(async (request, { params }) =
 export const PATCH = withErrorHandling<RouteContext>(async (request, { params }) => {
   const { id } = await params;
   const { supabase } = getAuthenticatedClient(request);
+  const caller = await getCallerContext(supabase);
+  const grant = assertPermission(caller.role, 'crm.update');
+  if (isAssignedScope(grant)) await assertAssignedLeadAccess(supabase, caller.tenantId, caller.userId, id);
   const input = leadUpdateSchema.parse(await request.json());
+  if (isAssignedScope(grant) && input.assigned_agent_id !== undefined && input.assigned_agent_id !== caller.userId) {
+    throw new ApiError(403, 'forbidden_scope', 'لا يمكنك إعادة إسناد العميل إلى مستخدم آخر');
+  }
 
   // Read before the update so a re-save of the same agent (or any other
   // field-only change) doesn't re-notify — only an actual assignment
