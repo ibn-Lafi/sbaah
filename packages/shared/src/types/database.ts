@@ -276,7 +276,13 @@ export interface Project {
   lat: number | null;
   lng: number | null;
   status: ProjectStatus;
+  developer_party_id: string | null;
+  planned_units_count: number | null;
+  completion_percentage: number | null;
+  expected_completion_date: string | null;
+  reference_number: string | null;
   created_at: string;
+  updated_at: string;
 }
 
 export interface Lead {
