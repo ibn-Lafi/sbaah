@@ -348,7 +348,8 @@ export interface PropertyMedia {
 export interface Lead {
   id: string;
   tenant_id: string;
-  property_id: string | null;
+  asset_id: string | null;
+  listing_id: string | null;
   full_name: string;
   /** Nullable only for source='whatsapp_click' — migration 0015. */
   phone: string | null;
