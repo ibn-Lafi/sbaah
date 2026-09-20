@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import type { Project } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
 import { BackButton } from '@/components/ui/back-button';
-import { Card } from '@/components/ui/card';
 import { DeleteButton } from '@/components/ui/delete-button';
 import { ProjectInventory } from '@/components/hierarchy/project-inventory';
 import { FormPageSkeleton } from '@/components/ui/form-page-skeleton';
