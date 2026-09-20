@@ -51,16 +51,16 @@ export const DELETE = withErrorHandling<RouteContext>(async (request, { params }
   const caller = await getCallerContext(supabase);
 
   if (caller.role === 'agent') {
-    throw new ApiError(403, 'forbidden', 'لا يملك الوسيط صلاحية حذف المشاريع');
+    throw new ApiError(403, 'forbidden', 'لا يملك الوسيط صلاحية أرشفة المشاريع');
   }
 
-  const { data, error } = await supabase.from('projects').delete().eq('id', id).eq('tenant_id', caller.tenantId).select().maybeSingle();
+  const { data, error } = await supabase.from('projects').update({ status: 'archived' }).eq('id', id).eq('tenant_id', caller.tenantId).select().maybeSingle();
   if (error) {
-    throw new Error(`Failed to delete project: ${error.message}`);
+    throw new Error(`Failed to archive project: ${error.message}`);
   }
   if (!data) {
     throw new ApiError(404, 'project_not_found', 'المشروع غير موجود');
   }
 
-  return okResponse({ status: 'deleted' });
+  return okResponse({ status: 'archived' });
 });
