@@ -19,7 +19,7 @@ export const GET = withErrorHandling<RouteContext>(async (request, { params }) =
   }
 
   const [properties, projects, leads, websites, users, tickets] = await Promise.all([
-    supabase.from('properties').select('id', { count: 'exact', head: true }).eq('tenant_id', id),
+    supabase.from('assets').select('id', { count: 'exact', head: true }).eq('tenant_id', id).is('archived_at', null),
     supabase.from('projects').select('id', { count: 'exact', head: true }).eq('tenant_id', id),
     supabase.from('leads').select('id', { count: 'exact', head: true }).eq('tenant_id', id),
     supabase.from('websites').select('id', { count: 'exact', head: true }).eq('tenant_id', id),
