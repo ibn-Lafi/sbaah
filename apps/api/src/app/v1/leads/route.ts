@@ -4,6 +4,8 @@ import { LEAD_SOURCES, LEAD_STATUSES, manualLeadInputSchema } from '@sbaah/share
 import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
+import { assertPermission } from '@/lib/auth/permissions';
+import { isAssignedScope } from '@/lib/auth/crm-scope';
 import { assertOptionalTenantOwnedRow } from '@/lib/tenant/assert-tenant-owned-row';
 
 const listQuerySchema = z.object({
@@ -16,11 +18,14 @@ const listQuerySchema = z.object({
 
 export const GET = withErrorHandling(async (request: NextRequest) => {
   const { supabase } = getAuthenticatedClient(request);
+  const caller = await getCallerContext(supabase);
+  const grant = assertPermission(caller.role, 'crm.read');
   const { status, source, assigned_agent_id, page, page_size } = listQuerySchema.parse(
     Object.fromEntries(request.nextUrl.searchParams),
   );
 
-  let query = supabase.from('leads').select('*', { count: 'exact' });
+  let query = supabase.from('leads').select('*', { count: 'exact' }).eq('tenant_id', caller.tenantId);
+  if (isAssignedScope(grant)) query = query.eq('assigned_agent_id', caller.userId);
   if (status) query = query.eq('status', status);
   if (source) query = query.eq('source', source);
   if (assigned_agent_id) query = query.eq('assigned_agent_id', assigned_agent_id);
