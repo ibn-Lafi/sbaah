@@ -497,17 +497,8 @@ function FalLicenseFields({ accessToken, initial, canEdit }: { accessToken: stri
   );
 }
 
-/** رخصة فال بطاقتها الخاصة — لحساب فرد فقط (مؤسسة/شركة تعرضها مدمجة داخل OrganizationInfoCard). */
-function FalLicenseCard({ accessToken, initial, canEdit }: { accessToken: string; initial: string | null; canEdit: boolean }) {
-  return (
-    <Card className="p-6">
-      <FalLicenseFields accessToken={accessToken} initial={initial} canEdit={canEdit} />
-    </Card>
-  );
-}
-
 function AccountTab({ accessToken }: { accessToken: string }) {
-  const { me } = useCurrentUser(); const { t, pages } = useLocale(); const settings=pages.settings; const router=useRouter();
+  const { me } = useCurrentUser(); const { pages } = useLocale(); const settings=pages.settings; const router=useRouter();
   const [name,setName]=useState(me.user.full_name); const [role,setRole]=useState(me.user.role); const [phone,setPhone]=useState(me.user.phone); const [email,setEmail]=useState(me.user.email??'');
   const [verify,setVerify]=useState<null|{kind:'phone'|'email';target:string;code:string}>(null); const [error,setError]=useState<string|null>(null); const [saved,setSaved]=useState(false);
   async function saveBasic(){setError(null);try{await updateMyProfile(accessToken,{full_name:name,role});setSaved(true);window.location.reload()}catch(e){setError(e instanceof ApiRequestError?e.message:'تعذر حفظ البيانات')}}
