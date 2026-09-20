@@ -17,3 +17,11 @@ export type ListingDetail=Listing&{listing_assets:Array<{asset_id:string;assets:
 export const getListing=(token:string,id:string)=>apiGet<{listing:ListingDetail}>(`/v1/listings/${id}`,token);
 export const updateListing=(token:string,id:string,input:ListingUpdateInput)=>apiPatch<{listing:Listing}>(`/v1/listings/${id}`,token,input);
 export const archiveListing=(token:string,id:string)=>apiDelete<{status:string}>(`/v1/listings/${id}`,token);
+
+
+export interface AssetMedia { id:string; tenant_id:string; asset_id:string; media_type:'image'|'video'; url:string; alt_ar:string|null; alt_en:string|null; order_index:number; is_primary:boolean; created_at:string; }
+export interface AssetMediaInput { media_type:'image'|'video'; url:string; alt_ar?:string|null; alt_en?:string|null; order_index?:number; is_primary?:boolean; }
+export const listAssetMedia=(token:string,assetId:string)=>apiGet<{media:AssetMedia[]}>(`/v1/assets/${assetId}/media`,token);
+export const createAssetMedia=(token:string,assetId:string,input:AssetMediaInput)=>apiPost<{media:AssetMedia}>(`/v1/assets/${assetId}/media`,input,token);
+export const updateAssetMedia=(token:string,assetId:string,mediaId:string,input:Partial<Omit<AssetMediaInput,'media_type'|'url'>>)=>apiPatch<{media:AssetMedia}>(`/v1/assets/${assetId}/media/${mediaId}`,token,input);
+export const deleteAssetMedia=(token:string,assetId:string,mediaId:string)=>apiDelete<{status:string}>(`/v1/assets/${assetId}/media/${mediaId}`,token);
