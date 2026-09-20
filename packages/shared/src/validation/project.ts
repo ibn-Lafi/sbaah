@@ -6,8 +6,8 @@ export const projectInputSchema = z.object({
   description_ar: z.string().optional().nullable(), description_en: z.string().optional().nullable(),
   city_id: z.string().uuid('المدينة مطلوبة'), district_id: z.string().uuid().optional().nullable(),
   lat: z.number().optional().nullable(), lng: z.number().optional().nullable(),
-  developer_name: z.string().optional().nullable(), completion_percentage: z.number().min(0).max(100).optional().nullable(),
-  expected_completion_date: z.string().date().optional().nullable(), total_units: z.number().int().nonnegative().optional().nullable(),
+  developer_party_id: z.string().uuid().optional().nullable(), completion_percentage: z.number().min(0).max(100).optional().nullable(),
+  expected_completion_date: z.string().date().optional().nullable(), planned_units_count: z.number().int().nonnegative().optional().nullable(),
   reference_number: z.string().max(100).optional().nullable(),
 });
 export type ProjectInput = z.infer<typeof projectInputSchema>;
