@@ -45,11 +45,12 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   await verifyCaptcha(input.captcha_token, ip === 'unknown' ? null : ip);
 
   const anon = createAnonClient();
-  await validatePublicTenantTarget(anon, input.tenant_id, input.property_id);
+  await validatePublicTenantTarget(anon, input.tenant_id, input.listing_id, input.asset_id);
 
   const { error: insertError } = await serviceRole.from('leads').insert({
     tenant_id: input.tenant_id,
-    property_id: input.property_id ?? null,
+    asset_id: input.asset_id ?? null,
+    listing_id: input.listing_id ?? null,
     full_name: input.full_name,
     phone: input.phone,
     email: input.email ?? null,
