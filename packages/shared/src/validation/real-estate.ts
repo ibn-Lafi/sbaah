@@ -148,7 +148,6 @@ const marketingMandateBaseSchema = z.object({
 });
 
 const validateMarketingMandate = (value: z.infer<typeof marketingMandateBaseSchema>, ctx: z.RefinementCtx) => {
-((value, ctx) => {
   if ((value.commission_type == null) !== (value.commission_value == null)) ctx.addIssue({ code:'custom', path:['commission_value'], message:'نوع العمولة وقيمتها يجب إدخالهما معًا' });
   if (value.commission_type === 'percentage' && value.commission_value != null && value.commission_value > 100) ctx.addIssue({ code:'custom', path:['commission_value'], message:'نسبة العمولة لا تتجاوز 100%' });
   if (value.starts_at && value.expires_at && value.expires_at < value.starts_at) ctx.addIssue({ code:'custom', path:['expires_at'], message:'تاريخ الانتهاء يجب ألا يسبق تاريخ البداية' });
