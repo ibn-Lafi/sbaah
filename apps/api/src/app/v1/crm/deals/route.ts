@@ -16,5 +16,8 @@ export const POST=withErrorHandling(async(r:NextRequest)=>{
  const{supabase}=getAuthenticatedClient(r);const c=await getCallerContext(supabase);const grant=assertPermission(c.role,'crm.create');
  const i=dealInputSchema.parse(await r.json());if(isAssignedScope(grant)){await assertAssignedLeadAccess(supabase,c.tenantId,c.userId,i.lead_id);if(i.responsible_user_id&&i.responsible_user_id!==c.userId)throw new ApiError(403,'forbidden_scope','لا يمكنك إنشاء صفقة لمستخدم آخر');}const{asset_ids,...rawDeal}=i;const deal=isAssignedScope(grant)?{...rawDeal,responsible_user_id:c.userId}:rawDeal;
  const{data,error}=await supabase.rpc('create_deal_with_assets',{p_deal:deal,p_asset_ids:asset_ids}).single();
- if(error)throw new Error(error.message);return okResponse({deal:{...data,asset_ids}},201);
+ if(error)throw new Error(error.message);
+ const createdDeal = data as Record<string, unknown> | null;
+ if(!createdDeal)throw new Error('Deal RPC returned no row');
+ return okResponse({deal:{...createdDeal,asset_ids}},201);
 });
