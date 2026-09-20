@@ -1,14 +1,14 @@
 'use client';
 
 import { useEffect, useState, type FormEvent } from 'react';
-import { manualLeadInputSchema, type Lead, type Property } from '@sbaah/shared';
+import { manualLeadInputSchema, type Asset, type Lead } from '@sbaah/shared';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { Select } from '@/components/ui/select';
 import { FormError } from '@/components/ui/form-error';
 import { createLead } from '@/lib/api/leads';
-import { listProperties } from '@/lib/api/properties';
+import { listAssets } from '@/lib/api/real-estate';
 import { listTeam, type TeamMember } from '@/lib/api/team';
 import { ApiRequestError } from '@/lib/api/client';
 import { useLocale } from '@/lib/i18n/locale-context';
@@ -22,18 +22,18 @@ interface CreateLeadFormProps {
 export function CreateLeadForm({ accessToken, onCreated }: CreateLeadFormProps) {
   const { pages } = useLocale();
   const t = pages.leads;
-  const [properties, setProperties] = useState<Property[]>([]);
+  const [assets, setAssets] = useState<Asset[]>([]);
   const [team, setTeam] = useState<TeamMember[]>([]);
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
-  const [propertyId, setPropertyId] = useState('');
+  const [assetId, setAssetId] = useState('');
   const [assignedAgentId, setAssignedAgentId] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    void listProperties(accessToken).then((result) => setProperties(result.properties));
+    void listAssets(accessToken).then((result) => setAssets(result.assets));
     void listTeam(accessToken).then((result) => setTeam(result.members));
   }, [accessToken]);
 
@@ -45,7 +45,8 @@ export function CreateLeadForm({ accessToken, onCreated }: CreateLeadFormProps) 
       full_name: fullName,
       phone,
       email: email || null,
-      property_id: propertyId || null,
+      asset_id: assetId || null,
+      listing_id: null,
       assigned_agent_id: assignedAgentId || null,
     };
 
@@ -79,11 +80,11 @@ export function CreateLeadForm({ accessToken, onCreated }: CreateLeadFormProps) 
           dir="ltr"
         />
       </div>
-      <Select value={propertyId} onChange={(e) => setPropertyId(e.target.value)}>
+      <Select value={assetId} onChange={(e) => setAssetId(e.target.value)}>
         <option value="">{t.createForm.noPropertySelected}</option>
-        {properties.map((property) => (
-          <option key={property.id} value={property.id}>
-            {property.title_ar}
+        {assets.map((asset) => (
+          <option key={asset.id} value={asset.id}>
+            {asset.name_ar}
           </option>
         ))}
       </Select>
