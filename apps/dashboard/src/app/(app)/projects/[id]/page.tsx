@@ -2,16 +2,15 @@
 
 import { use, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import type { Project, ProjectUpdateInput } from '@sbaah/shared';
+import type { Project } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
 import { BackButton } from '@/components/ui/back-button';
 import { Card } from '@/components/ui/card';
 import { DeleteButton } from '@/components/ui/delete-button';
-import { ProjectForm } from '@/components/hierarchy/project-form';
 import { ProjectInventory } from '@/components/hierarchy/project-inventory';
 import { FormPageSkeleton } from '@/components/ui/form-page-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
-import { deleteProject, getProject, updateProject } from '@/lib/api/hierarchy';
+import { deleteProject, getProject } from '@/lib/api/hierarchy';
 import { ApiRequestError } from '@/lib/api/client';
 import { useLocale } from '@/lib/i18n/locale-context';
 
