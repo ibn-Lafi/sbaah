@@ -28,7 +28,7 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
   if (isAssignedScope(grant)) query = query.eq('assigned_agent_id', caller.userId);
   if (status) query = query.eq('status', status);
   if (source) query = query.eq('source', source);
-  if (assigned_agent_id) query = query.eq('assigned_agent_id', assigned_agent_id);
+  if (assigned_agent_id && !isAssignedScope(grant)) query = query.eq('assigned_agent_id', assigned_agent_id);
 
   const from = (page - 1) * page_size;
   const { data, error, count } = await query
