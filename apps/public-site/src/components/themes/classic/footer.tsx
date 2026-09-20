@@ -9,6 +9,7 @@ import {
   WhatsappIcon,
 } from '@/components/footer-icons';
 import type { FooterProps } from '../types';
+import { safeExternalUrl } from '@/lib/security/public-values';
 
 const digitsOnly = (value: string) => value.replace(/[^0-9]/g, '');
 
@@ -26,9 +27,9 @@ export function Footer({ locale, dict, tenant, website, customPages }: FooterPro
   // "تواصل معنا" (الاتصال/واتساب) لهما سطر خاص بهما بالعمود الأوسط —
   // هذه القائمة فقط حسابات التواصل الاجتماعي البحتة (عمود يمين، صف أيقونات).
   const socialLinks = [
-    tenant.social_instagram && { key: 'instagram', href: tenant.social_instagram, Icon: InstagramIcon },
-    tenant.social_tiktok && { key: 'tiktok', href: tenant.social_tiktok, Icon: TiktokIcon },
-    tenant.social_snapchat && { key: 'snapchat', href: tenant.social_snapchat, Icon: SnapchatIcon },
+    safeExternalUrl(tenant.social_instagram) && { key: 'instagram', href: safeExternalUrl(tenant.social_instagram)!, Icon: InstagramIcon },
+    safeExternalUrl(tenant.social_tiktok) && { key: 'tiktok', href: safeExternalUrl(tenant.social_tiktok)!, Icon: TiktokIcon },
+    safeExternalUrl(tenant.social_snapchat) && { key: 'snapchat', href: safeExternalUrl(tenant.social_snapchat)!, Icon: SnapchatIcon },
   ].filter((entry): entry is { key: string; href: string; Icon: typeof InstagramIcon } => Boolean(entry));
 
   const businessNumbers = [
