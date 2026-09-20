@@ -13,6 +13,7 @@ export function NavigationProgress() {
   const searchParams = useSearchParams();
   const [active, setActive] = useState(false);
   const [progress, setProgress] = useState(0);
+  const activeRef = useRef(false);
   const finishTimer = useRef<number | null>(null);
   const trickleTimer = useRef<number | null>(null);
 
@@ -25,6 +26,7 @@ export function NavigationProgress() {
 
   const start = useCallback(() => {
     clearTimers();
+    activeRef.current = true;
     setActive(true);
     setProgress(12);
     trickleTimer.current = window.setInterval(() => {
@@ -39,6 +41,7 @@ export function NavigationProgress() {
     clearTimers();
     setProgress(100);
     finishTimer.current = window.setTimeout(() => {
+      activeRef.current = false;
       setActive(false);
       setProgress(0);
     }, 180);
@@ -72,8 +75,8 @@ export function NavigationProgress() {
   }, [start, clearTimers]);
 
   useEffect(() => {
-    if (active) finish();
-  }, [active, finish, pathname, searchParams]);
+    if (activeRef.current) finish();
+  }, [finish, pathname, searchParams]);
 
   if (!active) return null;
 
