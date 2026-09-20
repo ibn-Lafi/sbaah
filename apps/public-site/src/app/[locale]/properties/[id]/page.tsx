@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const title = pickLocalized(locale, property.title_ar, property.title_en);
   const description = pickLocalized(locale, property.description_ar, property.description_en) || undefined;
-  const pathname = `/properties/${property.slug}`;
+  const pathname = `/properties/${property.slug ?? property.id}`;
   const [alternates, origin] = await Promise.all([
     buildLocalizedAlternates(locale, pathname),
     getPublicOrigin(),
@@ -75,11 +75,11 @@ export default async function PropertyDetailPage({ params }: PageProps) {
   if (!property || !site) {
     notFound();
   }
-  if (id !== property.slug) {
+  if (property.slug && id !== property.slug) {
     permanentRedirect(localizedPath(locale, `/properties/${property.slug}`));
   }
 
-  const [cities, districts] = await Promise.all([listCities(), listDistricts(property.city_id)]);
+  const [cities, districts] = await Promise.all([listCities(), listDistricts(property.city_id ?? undefined)]);
   const city = cities.find((c) => c.id === property.city_id);
   const district = districts.find((d) => d.id === property.district_id);
 
