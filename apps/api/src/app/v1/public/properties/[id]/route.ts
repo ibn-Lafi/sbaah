@@ -9,7 +9,7 @@ export const GET=withErrorHandling<RouteContext>(async(request,{params})=>{
  const tenantId=await resolvePublicTenantId(domain,supabase);
  const{data,error}=await supabase.rpc('public_listing_detail',{p_tenant_id:tenantId,p_identifier:id});
  if(error)throw new Error(`Failed to load public listing: ${error.message}`);if(!data)throw new ApiError(404,'property_not_found','العقار غير موجود');
- const l=data as any;const primary=l.assets?.[0]??{};
+ const l=data as { id:string; listing_number:string; title_ar:string; title_en?:string|null; description_ar?:string|null; description_en?:string|null; listing_type:string; asking_price:number|null; pricing_period?:string|null; commercial_status:string; advertisement_license_number?:string|null; advertisement_license_expires_at?:string|null; advertiser_name?:string|null; assets?:Array<Record<string, unknown> & {slug?:string|null;asset_type?:string;media?:unknown[]}> };const primary=l.assets?.[0]??{};
  // Compatibility adapter: keeps the existing website contract while all data comes from the new core.
  const property={...primary,id:l.id,slug:primary.slug??l.listing_number,tenant_id:tenantId,title_ar:l.title_ar,title_en:l.title_en,
   description_ar:l.description_ar,description_en:l.description_en,property_type:primary.asset_type,listing_type:l.listing_type,
