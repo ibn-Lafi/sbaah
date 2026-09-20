@@ -22,5 +22,7 @@ export const POST=withErrorHandling(async(request:NextRequest)=>{
  const{asset_ids,...mandate}=input;
  const{data,error}=await supabase.rpc('create_marketing_mandate_with_assets',{p_mandate:mandate,p_asset_ids:asset_ids}).single();
  if(error)throw new Error(error.message);
- return okResponse({mandate:{...data,marketing_mandate_assets:asset_ids.map(asset_id=>({asset_id}))}},201);
+ const createdMandate = data as Record<string, unknown> | null;
+ if(!createdMandate)throw new Error('Marketing mandate RPC returned no row');
+ return okResponse({mandate:{...createdMandate,marketing_mandate_assets:asset_ids.map(asset_id=>({asset_id}))}},201);
 });
