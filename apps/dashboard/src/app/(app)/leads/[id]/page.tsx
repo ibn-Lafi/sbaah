@@ -3,7 +3,7 @@
 import { use, useEffect, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { LEAD_STATUSES, type Property } from '@sbaah/shared';
+import { LEAD_STATUSES, type Asset } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
 import { BackButton } from '@/components/ui/back-button';
 import { Button } from '@/components/ui/button';
@@ -17,10 +17,9 @@ import { FormError } from '@/components/ui/form-error';
 import { FormPageSkeleton } from '@/components/ui/form-page-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { addLeadNote, deleteLead, getLead, updateLead, type LeadWithNotes } from '@/lib/api/leads';
-import { getProperty } from '@/lib/api/properties';
+import { getAsset } from '@/lib/api/real-estate';
 import { listTeam, type TeamMember } from '@/lib/api/team';
 import { ApiRequestError } from '@/lib/api/client';
-import { PROPERTY_TYPE_LABELS } from '@/lib/property/labels';
 import { datetimeLocalToIso, isoToDatetimeLocal } from '@/lib/lead/datetime';
 import { formatRelativeTime } from '@/lib/format/date';
 import { useLocale } from '@/lib/i18n/locale-context';
@@ -37,7 +36,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
   const { pages } = useLocale();
   const t = pages.leads;
   const [lead, setLead] = useState<LeadWithNotes | null>(null);
-  const [property, setProperty] = useState<Property | null>(null);
+  const [property, setProperty] = useState<Asset | null>(null);
   const [team, setTeam] = useState<TeamMember[]>([]);
   const [notFound, setNotFound] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -50,8 +49,8 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
       .then(({ lead: loaded }) => {
         if (cancelled) return;
         setLead(loaded);
-        if (loaded.property_id) {
-          void getProperty(accessToken, loaded.property_id).then(({ property: loadedProperty }) => {
+        if (loaded.asset_id) {
+          void getAsset(accessToken, loaded.asset_id).then(({ asset: loadedProperty }) => {
             if (!cancelled) setProperty(loadedProperty);
           });
         }
@@ -264,8 +263,8 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
                       href={`/properties/${property.id}`}
                       className="rounded-input border border-border-default px-4 py-3 text-sm text-text-primary hover:border-brand"
                     >
-                      <p className="font-medium">{property.title_ar}</p>
-                      <p className="text-xs text-text-secondary">{PROPERTY_TYPE_LABELS[property.property_type]}</p>
+                      <p className="font-medium">{property.name_ar}</p>
+                      <p className="text-xs text-text-secondary">{property.asset_type}</p>
                     </Link>
                   ) : (
                     <p className="rounded-input border border-border-default px-4 py-3 text-sm text-text-secondary">{t.detail.noProperty}</p>
