@@ -16,14 +16,18 @@ export async function uploadWebsiteAsset(
   supabase: SupabaseClient,
   tenantId: string,
   file: File,
-  assetName: 'logo' | 'banner' | 'banner-video',
-  column: 'logo_url' | 'banner_image_url' | 'banner_video_url',
+  assetName: 'logo' | 'favicon' | 'banner' | 'banner-video',
+  column: 'logo_url' | 'favicon_url' | 'banner_image_url' | 'banner_video_url',
 ) {
   const isVideoAsset = assetName === 'banner-video';
+  const isFavicon = assetName === 'favicon';
   if (!file.type.startsWith(isVideoAsset ? 'video/' : 'image/')) {
     throw new ApiError(400, 'unsupported_file_type', isVideoAsset ? 'فيديو فقط مسموح' : 'صورة فقط مسموحة');
   }
-  const maxSizeMb = isVideoAsset ? MAX_WEBSITE_VIDEO_SIZE_MB : MAX_WEBSITE_ASSET_SIZE_MB;
+  if (isFavicon && !['image/png', 'image/jpeg', 'image/webp', 'image/x-icon', 'image/vnd.microsoft.icon'].includes(file.type)) {
+    throw new ApiError(400, 'unsupported_favicon_type', 'صيغة أيقونة الموقع يجب أن تكون PNG أو JPG أو WebP أو ICO');
+  }
+  const maxSizeMb = isVideoAsset ? MAX_WEBSITE_VIDEO_SIZE_MB : isFavicon ? 1 : MAX_WEBSITE_ASSET_SIZE_MB;
   if (file.size > maxSizeMb * BYTES_PER_MB) {
     throw new ApiError(
       422,
