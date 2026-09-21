@@ -60,7 +60,6 @@ export default function CalendarPage() {
   const [saving, setSaving] = useState(false);
   const [activeItem, setActiveItem] = useState<CalendarItem|null>(null);
   const [actionAt, setActionAt] = useState('');
-  const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<'all'|CalendarItem['type']>('all');
   const [followUpAfterViewing, setFollowUpAfterViewing] = useState(false);
   const [completingTask, setCompletingTask] = useState(false);
@@ -139,8 +138,7 @@ export default function CalendarPage() {
 
   const filteredItems = items.filter(item => {
     if(typeFilter !== 'all' && item.type !== typeFilter) return false;
-    const q=search.trim().toLowerCase();
-    return !q || item.title.toLowerCase().includes(q) || typeLabel[item.type].includes(q);
+    return true;
   });
   const selectedKey = dayKey(selectedDate);
   const selectedItems = filteredItems.filter(item => dayKey(item.at) === selectedKey);
