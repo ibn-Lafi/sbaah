@@ -42,7 +42,7 @@ export function FormWizard({ steps, current, onStepChange }: FormWizardProps) {
 
 export function WizardActions({ step, total, loading, submitLabel, onBack, onNext }: { step: number; total: number; loading: boolean; submitLabel: string; onBack: () => void; onNext: () => void }) {
   return (
-    <div className="mt-2 flex items-center justify-between gap-3 border-t border-border-subtle pt-4">
+    <div className="sticky bottom-0 z-10 -mx-4 mt-2 flex items-center justify-between gap-3 border-t border-border-subtle bg-surface-card/95 px-4 pb-[max(.25rem,env(safe-area-inset-bottom))] pt-4 backdrop-blur sm:static sm:mx-0 sm:bg-transparent sm:px-0 sm:pb-0 sm:backdrop-blur-none">
       <Button type="button" variant="secondary" disabled={step === 0 || loading} onClick={onBack}>السابق</Button>
       {step < total - 1 ? (
         <Button type="button" disabled={loading} onClick={onNext}>التالي</Button>

@@ -134,6 +134,19 @@ export function ProjectForm({ mode, initialValues, accessToken, onSubmit, submit
     }
   }
 
+  function nextStep() {
+    setError(null);
+    if (step === 0 && !form.name_ar.trim()) {
+      setError('اسم المشروع مطلوب للمتابعة');
+      return;
+    }
+    if (step === 1 && !form.city_id) {
+      setError('اختر المدينة للمتابعة');
+      return;
+    }
+    setStep((current) => Math.min(steps.length - 1, current + 1));
+  }
+
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
       <FormWizard steps={steps} current={step} onStepChange={setStep} />
@@ -177,7 +190,7 @@ export function ProjectForm({ mode, initialValues, accessToken, onSubmit, submit
       )}
 
       <FormError message={error} />
-      <WizardActions step={step} total={steps.length} loading={loading} submitLabel={submitLabel} onBack={() => setStep((s) => Math.max(0, s - 1))} onNext={() => setStep((s) => Math.min(steps.length - 1, s + 1))} />
+      <WizardActions step={step} total={steps.length} loading={loading} submitLabel={submitLabel} onBack={() => setStep((s) => Math.max(0, s - 1))} onNext={nextStep} />
     </form>
   );
 }
