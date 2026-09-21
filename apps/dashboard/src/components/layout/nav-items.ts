@@ -22,7 +22,6 @@ import type { BusinessCapability, UserRole } from '@sbaah/shared';
 import type { ChromeDictionary } from '@/lib/i18n/dictionaries';
 import {
   AppsIcon,
-  BuildingsIcon,
   ClientsIcon,
   DashboardIcon,
   DomainIcon,
@@ -73,9 +72,9 @@ export function getNavItems(t: ChromeDictionary): NavEntry[] {
       label: t.nav.propertiesGroup.label,
       icon: PropertiesIcon,
       children: [
-        { href: '/properties', label: t.nav.propertiesGroup.units, icon: PropertiesIcon },
-        { href: '/buildings', label: t.nav.propertiesGroup.buildings, icon: BuildingsIcon },
+        { href: '/properties', label: t.nav.propertiesGroup.all, icon: PropertiesIcon },
         { href: '/projects', label: t.nav.propertiesGroup.projects, icon: ProjectsIcon, capability: 'projects' },
+        { href: '/website/editor', label: t.nav.propertiesGroup.previews, icon: WebsiteIcon, roles: ['owner', 'admin'] },
       ],
     },
     {
