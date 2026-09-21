@@ -54,7 +54,7 @@ export const GET = withErrorHandling<RouteContext>(async (request, { params }) =
         supabase.from('lease_contracts').select('*, lease_contract_assets(asset_id), lease_contract_parties(party_id,role)').eq('tenant_id', caller.tenantId).in('id', contractIds).order('created_at', { ascending: false }),
         supabase.from('lease_installments').select('*').eq('tenant_id', caller.tenantId).in('contract_id', contractIds).order('due_date'),
         supabase.from('lease_payments').select('*').eq('tenant_id', caller.tenantId).in('contract_id', contractIds).order('paid_at', { ascending: false }),
-        supabase.from('maintenance_requests').select('*, assets(name_ar,reference_number)').eq('tenant_id', caller.tenantId).in('contract_id', contractIds).order('opened_at', { ascending: false }),
+        supabase.from('maintenance_requests').select('*, assets(name_ar,reference_number)').eq('tenant_id', caller.tenantId).or(`contract_id.in.(${contractIds.join(',')}),reported_by_party_id.eq.${party.id}`).order('opened_at', { ascending: false }),
       ]);
       contracts = (contractsResult.data ?? []).map((contract) => ({ ...contract, customer_roles: (contractLinks.data ?? []).filter((link) => link.contract_id === contract.id).map((link) => link.role) }));
       installments = installmentsResult.data ?? [];
