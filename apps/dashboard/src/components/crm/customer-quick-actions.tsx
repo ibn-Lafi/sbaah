@@ -13,7 +13,7 @@ import { listAssets } from '@/lib/api/real-estate';
 
 type Action='followup'|'task'|'viewing'|'note';
 
-export function CustomerQuickActions({leadId,accessToken,onChanged}:{leadId:string;accessToken:string;onChanged:()=>Promise<void>|void}){
+export function CustomerQuickActions({leadId,accessToken,currentUserId,onChanged}:{leadId:string;accessToken:string;currentUserId:string;onChanged:()=>Promise<void>|void}){
   const [action,setAction]=useState<Action|null>(null);
   const [at,setAt]=useState('');
   const [title,setTitle]=useState('');
@@ -30,7 +30,7 @@ export function CustomerQuickActions({leadId,accessToken,onChanged}:{leadId:stri
     try{
       if(action==='followup'){const iso=datetimeLocalToIso(at);if(!iso)return;await updateLead(accessToken,leadId,{follow_up_at:iso});}
       if(action==='task'){const iso=datetimeLocalToIso(at);if(!title.trim()||!iso)return;await createTask(accessToken,{lead_id:leadId,title:title.trim(),due_at:iso});}
-      if(action==='viewing'){const iso=datetimeLocalToIso(at);if(!assetId.trim()||!iso)return;await createViewing(accessToken,{lead_id:leadId,asset_id:assetId.trim(),scheduled_at:iso});}
+      if(action==='viewing'){const iso=datetimeLocalToIso(at);if(!assetId.trim()||!iso)return;await createViewing(accessToken,{lead_id:leadId,asset_id:assetId.trim(),assigned_user_id:currentUserId,scheduled_at:iso});}
       if(action==='note'){if(!note.trim())return;await addLeadNote(accessToken,leadId,note.trim());}
       await onChanged();reset();
     }finally{setSaving(false)}
