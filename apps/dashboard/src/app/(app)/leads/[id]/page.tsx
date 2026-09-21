@@ -112,6 +112,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
       const { note } = await addLeadNote(accessToken, id, noteText);
       setLead({ ...lead, lead_notes: [note, ...lead.lead_notes] });
       setNoteText('');
+      await refreshCustomer360();
     } catch (err) {
       setError(err instanceof ApiRequestError ? err.message : t.detail.errors.addNote);
     } finally {
@@ -184,7 +185,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
               {lead.phone && (
                 <div className="grid w-full grid-cols-2 gap-2 lg:w-auto lg:min-w-[260px]">
                   <a href={`tel:${lead.phone}`} className={`${ACTION_LINK_CLASSES} bg-brand text-white hover:bg-brand-hover`}>{t.detail.callAction}</a>
-                  <a href={`https://wa.me/${lead.phone.replace(/^\\+/, '')}`} target="_blank" rel="noreferrer" className={`${ACTION_LINK_CLASSES} border border-border-default bg-surface-card text-text-primary hover:bg-surface-subtle`}>{t.detail.whatsappAction}</a>
+                  <a href={`https://wa.me/${lead.phone.replace(/^\+/, '')}`} target="_blank" rel="noreferrer" className={`${ACTION_LINK_CLASSES} border border-border-default bg-surface-card text-text-primary hover:bg-surface-subtle`}>{t.detail.whatsappAction}</a>
                 </div>
               )}
             </div>
@@ -197,7 +198,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
             </div>
           </Card>
 
-          <Card className="p-4 md:p-5"><div className="mb-3"><h2 className="font-semibold text-text-primary">إجراءات سريعة</h2><p className="mt-1 text-xs text-text-secondary">نفّذ الإجراء مباشرة على هذا العميل دون مغادرة ملفه.</p></div><CustomerQuickActions leadId={id} accessToken={accessToken} onChanged={refreshCustomer360} /></Card>
+          <Card className="p-4 md:p-5"><div className="mb-3"><h2 className="font-semibold text-text-primary">إجراءات سريعة</h2><p className="mt-1 text-xs text-text-secondary">نفّذ الإجراء مباشرة على هذا العميل دون مغادرة ملفه.</p></div><CustomerQuickActions leadId={id} accessToken={accessToken} currentUserId={me.user.id} onChanged={refreshCustomer360} /></Card>
 
           {customer360 && <Customer360Overview lead={lead} data={customer360} />}
 
