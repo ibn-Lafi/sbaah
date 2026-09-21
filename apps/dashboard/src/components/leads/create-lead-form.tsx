@@ -2,7 +2,6 @@
 
 import { useEffect, useState, type FormEvent } from 'react';
 import { manualLeadInputSchema, type Asset, type Lead } from '@sbaah/shared';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { Select } from '@/components/ui/select';
@@ -12,6 +11,7 @@ import { listAssets } from '@/lib/api/real-estate';
 import { listTeam, type TeamMember } from '@/lib/api/team';
 import { ApiRequestError } from '@/lib/api/client';
 import { useLocale } from '@/lib/i18n/locale-context';
+import { FormWizard, WizardActions } from '@/components/forms/form-wizard';
 
 interface CreateLeadFormProps {
   accessToken: string;
@@ -31,6 +31,7 @@ export function CreateLeadForm({ accessToken, onCreated }: CreateLeadFormProps) 
   const [assignedAgentId, setAssignedAgentId] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [step, setStep] = useState(0);
 
   useEffect(() => {
     void listAssets(accessToken).then((result) => setAssets(result.assets));
@@ -67,40 +68,38 @@ export function CreateLeadForm({ accessToken, onCreated }: CreateLeadFormProps) 
     }
   }
 
+  function nextStep() {
+    setError(null);
+    if (step === 0 && (!fullName.trim() || !phone.trim())) {
+      setError('أدخل اسم العميل ورقم الجوال للمتابعة');
+      return;
+    }
+    setStep((current) => Math.min(2, current + 1));
+  }
+
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <Input placeholder={t.createForm.namePlaceholder} value={fullName} onChange={(e) => setFullName(e.target.value)} />
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <PhoneInput placeholder={t.createForm.phonePlaceholder} value={phone} onChange={setPhone} />
-        <Input
-          type="email"
-          placeholder={t.createForm.emailPlaceholder}
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          dir="ltr"
-        />
-      </div>
-      <Select value={assetId} onChange={(e) => setAssetId(e.target.value)}>
+      <FormWizard steps={['بيانات العميل', 'الربط والتعيين', 'المراجعة']} current={step} onStepChange={(target) => target < step && setStep(target)} />
+      {step === 0 && <div className="grid grid-cols-1 gap-4 sm:grid-cols-2"><Input placeholder={t.createForm.namePlaceholder} value={fullName} onChange={(e) => setFullName(e.target.value)} /><PhoneInput placeholder={t.createForm.phonePlaceholder} value={phone} onChange={setPhone} /><Input type="email" placeholder={t.createForm.emailPlaceholder} value={email} onChange={(e) => setEmail(e.target.value)} dir="ltr" /></div>}
+      {step === 1 && <div className="grid grid-cols-1 gap-4 sm:grid-cols-2"><Select value={assetId} onChange={(e) => setAssetId(e.target.value)}>
         <option value="">{t.createForm.noPropertySelected}</option>
         {assets.map((asset) => (
           <option key={asset.id} value={asset.id}>
             {asset.name_ar}
           </option>
         ))}
-      </Select>
-      <Select value={assignedAgentId} onChange={(e) => setAssignedAgentId(e.target.value)}>
+      </Select><Select value={assignedAgentId} onChange={(e) => setAssignedAgentId(e.target.value)}>
         <option value="">{t.createForm.noAgentSelected}</option>
         {team.map((member) => (
           <option key={member.id} value={member.id}>
             {member.full_name}
           </option>
         ))}
-      </Select>
+      </Select></div>}
+      {step === 2 && <dl className="grid gap-4 rounded-xl border border-border-default p-4 text-sm sm:grid-cols-2"><div><dt className="text-text-secondary">الاسم</dt><dd className="font-medium">{fullName}</dd></div><div><dt className="text-text-secondary">الجوال</dt><dd dir="ltr">{phone}</dd></div><div><dt className="text-text-secondary">العقار</dt><dd>{assets.find((item) => item.id === assetId)?.name_ar ?? 'غير محدد'}</dd></div><div><dt className="text-text-secondary">المسؤول</dt><dd>{team.find((item) => item.id === assignedAgentId)?.full_name ?? 'غير محدد'}</dd></div></dl>}
 
       <FormError message={error} />
-      <Button type="submit" disabled={loading}>
-        {loading ? t.createForm.submitting : t.createForm.submit}
-      </Button>
+      <WizardActions step={step} total={3} loading={loading} submitLabel={t.createForm.submit} onBack={() => setStep((current) => Math.max(0, current - 1))} onNext={nextStep} />
     </form>
   );
 }
