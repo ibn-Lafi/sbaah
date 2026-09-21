@@ -76,6 +76,7 @@ export function CreatePartyForm({ accessToken, onCreated }: { accessToken: strin
   function next() {
     if (source === 'crm' && !leadId) { setError('اختر عميلاً من قائمة العملاء'); return; }
     if (source === 'new' && !form.name.trim()) { setError('اسم المستأجر مطلوب'); return; }
+    if (source === 'new' && !form.phone.trim()) { setError('رقم الجوال مطلوب لإنشاء ملف العميل وربطه بالمستأجر'); return; }
     setError('');
     setStep(1);
   }
@@ -103,7 +104,7 @@ export function CreatePartyForm({ accessToken, onCreated }: { accessToken: strin
     {step === 0 && source === 'new' && <div className="grid gap-4 sm:grid-cols-2">
       <Select value={form.type} onChange={e => set('type', e.target.value)}><option value="individual">فرد</option><option value="organization">منشأة</option></Select>
       <Input value={form.name} onChange={e => set('name', e.target.value)} placeholder="الاسم" required />
-      <Input value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="رقم الجوال" />
+      <Input value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="رقم الجوال" required />
       <Input value={form.email} onChange={e => set('email', e.target.value)} type="email" placeholder="البريد الإلكتروني" />
     </div>}
 
