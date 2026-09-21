@@ -2,8 +2,7 @@
 
 import { use, useEffect, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { LEAD_STATUSES, type Asset } from '@sbaah/shared';
+import { LEAD_STATUSES } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
 import { BackButton } from '@/components/ui/back-button';
 import { Button } from '@/components/ui/button';
@@ -17,7 +16,6 @@ import { FormError } from '@/components/ui/form-error';
 import { FormPageSkeleton } from '@/components/ui/form-page-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { addLeadNote, deleteLead, getLead, updateLead, type Customer360Snapshot, type LeadWithNotes } from '@/lib/api/leads';
-import { getAsset } from '@/lib/api/real-estate';
 import { listTeam, type TeamMember } from '@/lib/api/team';
 import { ApiRequestError } from '@/lib/api/client';
 import { datetimeLocalToIso, isoToDatetimeLocal } from '@/lib/lead/datetime';
@@ -37,7 +35,6 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
   const { pages } = useLocale();
   const t = pages.leads;
   const [lead, setLead] = useState<LeadWithNotes | null>(null);
-  const [property, setProperty] = useState<Asset | null>(null);
   const [customer360, setCustomer360] = useState<Customer360Snapshot | null>(null);
   const [team, setTeam] = useState<TeamMember[]>([]);
   const [notFound, setNotFound] = useState(false);
@@ -52,11 +49,6 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
         if (cancelled) return;
         setLead(loaded);
         setCustomer360(snapshot);
-        if (loaded.asset_id) {
-          void getAsset(accessToken, loaded.asset_id).then(({ asset: loadedProperty }) => {
-            if (!cancelled) setProperty(loadedProperty);
-          });
-        }
       })
       .catch(() => {
         if (!cancelled) setNotFound(true);
@@ -194,7 +186,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
               <div className="flex flex-col gap-1"><label className="text-xs text-text-secondary">{t.detail.statusLabel}</label><Select value={lead.status} onChange={(e) => void saveStatus(e.target.value)}>{LEAD_STATUSES.map((status) => <option key={status} value={status}>{t.statusLabels[status]}</option>)}</Select></div>
               <div className="flex flex-col gap-1"><label className="text-xs text-text-secondary">{t.detail.followUpLabel}</label><DateTimePicker value={isoToDatetimeLocal(lead.follow_up_at)} onChange={(value) => void saveFollowUp(value)} /></div>
               {canManage && <div className="flex flex-col gap-1"><label className="text-xs text-text-secondary">{t.detail.assignedAgentLabel}</label><Select value={lead.assigned_agent_id ?? ''} onChange={(e) => void saveAssignedAgent(e.target.value)}><option value="">{t.detail.noAgent}</option>{team.map((member) => <option key={member.id} value={member.id}>{member.full_name}</option>)}</Select></div>}
-              <div className="flex flex-col gap-1"><label className="text-xs text-text-secondary">{t.detail.propertyLabel}</label>{property ? <Link href={`/properties/${property.id}`} className="rounded-input border border-border-default px-3 py-3 text-sm text-text-primary hover:border-brand"><p className="truncate font-medium">{property.name_ar}</p></Link> : <p className="rounded-input border border-border-default px-3 py-3 text-sm text-text-secondary">{t.detail.noProperty}</p>}</div>
+              <div className="flex flex-col gap-1"><label className="text-xs text-text-secondary">مصدر العميل</label><p className="rounded-input border border-border-default px-3 py-3 text-sm text-text-primary">{t.sourceLabels[lead.source]}</p></div>
             </div>
           </Card>
 
