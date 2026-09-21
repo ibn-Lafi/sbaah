@@ -32,10 +32,11 @@ export const GET = withErrorHandling<RouteContext>(async (request, { params }) =
   }
   if (isAssignedScope(grant)) await assertAssignedLeadAccess(supabase, caller.tenantId, caller.userId, id);
 
-  const [tasksResult, viewingsResult, dealsResult, activitiesResult, partyResult] = await Promise.all([
+  const [tasksResult, viewingsResult, dealsResult, reservationsResult, activitiesResult, partyResult] = await Promise.all([
     supabase.from('crm_tasks').select('*').eq('tenant_id', caller.tenantId).eq('lead_id', id).order('due_at'),
     supabase.from('viewings').select('*').eq('tenant_id', caller.tenantId).eq('lead_id', id).order('scheduled_at', { ascending: false }),
     supabase.from('deals').select('*, deal_assets(asset_id)').eq('tenant_id', caller.tenantId).eq('lead_id', id).order('created_at', { ascending: false }),
+    supabase.from('reservations').select('*, reservation_assets(asset_id)').eq('tenant_id', caller.tenantId).eq('lead_id', id).order('reserved_at', { ascending: false }),
     supabase.from('crm_activities').select('*').eq('tenant_id', caller.tenantId).eq('lead_id', id).order('occurred_at', { ascending: false }),
     supabase.from('parties').select('*').eq('tenant_id', caller.tenantId).eq('lead_id', id).maybeSingle(),
   ]);
@@ -65,7 +66,7 @@ export const GET = withErrorHandling<RouteContext>(async (request, { params }) =
 
   return okResponse({ lead: data, customer360: {
     tasks: tasksResult.data ?? [], viewings: viewingsResult.data ?? [], deals: dealsResult.data ?? [],
-    activities: activitiesResult.data ?? [], party, contracts, installments, payments, maintenance,
+    reservations: reservationsResult.data ?? [], activities: activitiesResult.data ?? [], party, contracts, installments, payments, maintenance,
   }});
 });
 
