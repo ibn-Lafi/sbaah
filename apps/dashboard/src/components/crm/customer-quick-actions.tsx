@@ -1,13 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
 import { Modal } from '@/components/ui/modal';
 import { DateTimePicker } from '@/components/ui/datetime-picker';
 import { createTask, createViewing } from '@/lib/api/crm';
 import { addLeadNote, updateLead } from '@/lib/api/leads';
 import { datetimeLocalToIso } from '@/lib/lead/datetime';
+import { listAssets } from '@/lib/api/real-estate';
 
 type Action='followup'|'task'|'viewing'|'note';
 
@@ -18,6 +20,8 @@ export function CustomerQuickActions({leadId,accessToken,onChanged}:{leadId:stri
   const [assetId,setAssetId]=useState('');
   const [note,setNote]=useState('');
   const [saving,setSaving]=useState(false);
+  const [assets,setAssets]=useState<Array<{id:string;name_ar:string}>>([]);
+  useEffect(()=>{if(action==='viewing'&&assets.length===0)void listAssets(accessToken,{page_size:50}).then(r=>setAssets(r.assets));},[action,accessToken,assets.length]);
   const reset=()=>{setAction(null);setAt('');setTitle('');setAssetId('');setNote('')};
 
   async function save(){
@@ -41,7 +45,7 @@ export function CustomerQuickActions({leadId,accessToken,onChanged}:{leadId:stri
     </div>
     {action&&<Modal title={action==='followup'?'إضافة متابعة':action==='task'?'إضافة مهمة':action==='viewing'?'إضافة معاينة':'إضافة ملاحظة'} onClose={reset} maxWidth="520px"><div className="space-y-4">
       {action==='task'&&<Input placeholder="عنوان المهمة" value={title} onChange={e=>setTitle(e.target.value)}/>}
-      {action==='viewing'&&<><Input placeholder="معرّف العقار" value={assetId} onChange={e=>setAssetId(e.target.value)}/><p className="text-xs text-text-secondary">سيتم لاحقًا استبدال المعرّف باختيار العقار من القائمة داخل نفس النافذة.</p></>}
+      {action==='viewing'&&<Select value={assetId} onChange={e=>setAssetId(e.target.value)}><option value="">اختر العقار</option>{assets.map(asset=><option key={asset.id} value={asset.id}>{asset.name_ar}</option>)}</Select>}
       {action==='note'&&<textarea value={note} onChange={e=>setNote(e.target.value)} rows={5} maxLength={4000} placeholder="اكتب الملاحظة…" className="w-full resize-none rounded-xl border border-border-default bg-surface-card px-3 py-2 text-sm outline-none focus:border-brand"/>}
       {action!=='note'&&<DateTimePicker value={at} onChange={setAt} placeholder="التاريخ والوقت"/>}
       <Button className="w-full" disabled={saving} onClick={()=>void save()}>{saving?'جاري الحفظ…':'حفظ'}</Button>
