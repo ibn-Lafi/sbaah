@@ -21,11 +21,10 @@ import { useLocale } from '@/lib/i18n/locale-context';
 import { LeadRequirements } from '@/components/crm/lead-requirements';
 import { Customer360Overview } from '@/components/crm/customer-360-overview';
 import { CustomerQuickActions } from '@/components/crm/customer-quick-actions';
-import { CustomerJourney3D } from '@/components/crm/customer-journey-3d';
 
 // Matches Button's h-[46px] — these are <a> tags (tel:/WhatsApp deep links), not <button>s, so they can't use the Button component itself, but should still line up with it.
 const ACTION_LINK_CLASSES =
-  'rounded-control inline-flex h-[46px] flex-1 items-center justify-center gap-2 text-sm font-semibold transition-colors';
+  'rounded-control inline-flex h-10 flex-1 items-center justify-center gap-1.5 text-xs font-semibold transition-colors md:h-[46px] md:text-sm';
 
 export default function LeadDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -144,16 +143,16 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
 
           <FormError message={error} />
 
-          <Card className="p-4 md:p-6">
+          <Card className="p-3 md:p-6">
             <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
               <div className="flex min-w-0 items-center gap-3">
-                <PersonAvatar name={lead.full_name} size={56} />
+                <div className="scale-[.86] md:scale-100"><PersonAvatar name={lead.full_name} size={56} /></div>
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <h2 className="truncate text-lg font-semibold text-text-primary">{lead.full_name}</h2>
+                    <h2 className="truncate text-base font-semibold text-text-primary md:text-lg">{lead.full_name}</h2>
                     {customer360?.party && <span className="rounded-full bg-surface-subtle px-2.5 py-1 text-xs text-text-secondary">عميل Rent Plus</span>}
                   </div>
-                  <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-sm text-text-secondary">
+                  <div className="mt-1 flex flex-wrap gap-x-2 gap-y-0.5 text-xs text-text-secondary md:gap-x-3 md:text-sm">
                     <span dir="ltr">{lead.phone ?? 'بدون رقم جوال'}</span>
                     {lead.email && <span>{lead.email}</span>}
                     <span>{t.sourceLabels[lead.source]}</span>
@@ -180,9 +179,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
             </details>
           </Card>
 
-          <div className="flex items-center justify-between gap-3 rounded-card border border-border-subtle bg-surface-card p-3 md:p-4"><div className="min-w-0"><p className="text-sm font-semibold text-text-primary">ماذا تريد أن تفعل؟</p><p className="mt-0.5 hidden text-xs text-text-secondary sm:block">المتابعة والمهمة والمعاينة والملاحظة من مكان واحد.</p></div><CustomerQuickActions leadId={id} accessToken={accessToken} currentUserId={me.user.id} onChanged={refreshCustomer360} /></div>
-
-          {customer360 && <CustomerJourney3D lead={lead} data={customer360} />}
+          <div className="flex items-center justify-between gap-2 rounded-card border border-border-subtle bg-surface-card p-2.5 md:gap-3 md:p-4"><div className="min-w-0"><p className="text-xs font-semibold text-text-primary md:text-sm">إجراء على العميل</p><p className="mt-0.5 hidden text-xs text-text-secondary sm:block">المتابعة والمهمة والمعاينة والملاحظة من مكان واحد.</p></div><CustomerQuickActions leadId={id} accessToken={accessToken} currentUserId={me.user.id} onChanged={refreshCustomer360} /></div>
 
           {customer360 && <Customer360Overview lead={lead} data={customer360} />}
 
