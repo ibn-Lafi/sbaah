@@ -1,25 +1,22 @@
 'use client';
 
-import { use, useEffect, useState, type FormEvent } from 'react';
+import { use, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { LEAD_STATUSES } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
 import { BackButton } from '@/components/ui/back-button';
-import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { DateTimePicker } from '@/components/ui/datetime-picker';
 import { DeleteButton } from '@/components/ui/delete-button';
-import { Input } from '@/components/ui/input';
 import { PersonAvatar } from '@/components/ui/person-avatar';
 import { Select } from '@/components/ui/select';
 import { FormError } from '@/components/ui/form-error';
 import { FormPageSkeleton } from '@/components/ui/form-page-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
-import { addLeadNote, deleteLead, getLead, updateLead, type Customer360Snapshot, type LeadWithNotes } from '@/lib/api/leads';
+import { deleteLead, getLead, updateLead, type Customer360Snapshot, type LeadWithNotes } from '@/lib/api/leads';
 import { listTeam, type TeamMember } from '@/lib/api/team';
 import { ApiRequestError } from '@/lib/api/client';
 import { datetimeLocalToIso, isoToDatetimeLocal } from '@/lib/lead/datetime';
-import { formatRelativeTime } from '@/lib/format/date';
 import { useLocale } from '@/lib/i18n/locale-context';
 import { LeadRequirements } from '@/components/crm/lead-requirements';
 import { Customer360Overview } from '@/components/crm/customer-360-overview';
@@ -41,8 +38,6 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
   const [team, setTeam] = useState<TeamMember[]>([]);
   const [notFound, setNotFound] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [noteText, setNoteText] = useState('');
-  const [noteLoading, setNoteLoading] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -102,23 +97,6 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
     const result = await getLead(accessToken, id);
     setLead(result.lead);
     setCustomer360(result.customer360);
-  }
-
-  async function handleAddNote(event: FormEvent) {
-    event.preventDefault();
-    if (!noteText.trim() || !lead) return;
-    setNoteLoading(true);
-    setError(null);
-    try {
-      const { note } = await addLeadNote(accessToken, id, noteText);
-      setLead({ ...lead, lead_notes: [note, ...lead.lead_notes] });
-      setNoteText('');
-      await refreshCustomer360();
-    } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : t.detail.errors.addNote);
-    } finally {
-      setNoteLoading(false);
-    }
   }
 
   async function handleDelete() {
@@ -205,17 +183,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
 
           {customer360 && <Customer360Overview lead={lead} data={customer360} />}
 
-          <div className="grid items-start gap-4 xl:grid-cols-[1.25fr_0.75fr]">
-            <LeadRequirements leadId={id} accessToken={accessToken} />
-            <Card className="p-4 md:p-6">
-              <h2 className="mb-4 text-base font-semibold text-text-primary">{t.detail.notesTitle}</h2>
-              <form onSubmit={handleAddNote} className="mb-5 flex gap-2">
-                <Input placeholder={t.detail.notePlaceholder} value={noteText} onChange={(e) => setNoteText(e.target.value)} className="flex-1" />
-                <Button type="submit" disabled={noteLoading} className="flex-none">{noteLoading ? t.detail.addingNote : t.detail.addNote}</Button>
-              </form>
-              {lead.lead_notes.length === 0 ? <p className="text-sm text-text-secondary">{t.detail.noNotes}</p> : <ul className="flex max-h-[320px] flex-col gap-4 overflow-y-auto">{lead.lead_notes.map((note) => <li key={note.id} className="flex gap-2.5"><span className="mt-[7px] h-1.5 w-1.5 flex-none rounded-full bg-brand" /><div className="min-w-0"><p className="text-sm text-text-primary">{note.note_text}</p><p className="mt-0.5 text-xs text-text-secondary">{formatRelativeTime(note.created_at)}</p></div></li>)}</ul>}
-            </Card>
-          </div>
+          <LeadRequirements leadId={id} accessToken={accessToken} />
         </div>
       )}
     </AppShell>
