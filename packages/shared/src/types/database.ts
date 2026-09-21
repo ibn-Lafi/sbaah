@@ -194,6 +194,7 @@ export interface Website {
   secondary_color: string;
   font_family: string;
   logo_url: string | null;
+  favicon_url: string | null;
   banner_image_url: string | null;
   /** خلفية فيديو لقسم الهيرو (بدائل video/video_search) — بديل عن banner_image_url لا يظهران معًا (migration 0049). */
   banner_video_url: string | null;
