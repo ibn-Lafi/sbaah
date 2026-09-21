@@ -47,7 +47,9 @@ export const GET = withErrorHandling<RouteContext>(async (request, { params }) =
   let payments: Record<string, unknown>[] = [];
   let maintenance: Record<string, unknown>[] = [];
 
-  if (party) {
+  // Rent Plus contains financial/legal data. Keep the existing legacy role boundary:
+  // agents can work their assigned CRM lead, but rental contracts/payments remain owner/admin only.
+  if (party && caller.role !== 'agent') {
     const contractLinks = await supabase.from('lease_contract_parties').select('contract_id, role').eq('tenant_id', caller.tenantId).eq('party_id', party.id);
     const contractIds = [...new Set((contractLinks.data ?? []).map((row) => row.contract_id))];
     if (contractIds.length > 0) {
