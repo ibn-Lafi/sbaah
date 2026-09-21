@@ -83,7 +83,7 @@ export const PATCH = withErrorHandling<RouteContext>(async (request, { params })
   // Read before the update so a re-save of the same agent (or any other
   // field-only change) doesn't re-notify — only an actual assignment
   // change should email the agent.
-  const { data: previous } = await supabase.from('leads').select('assigned_agent_id').eq('id', id).eq('tenant_id', caller.tenantId).maybeSingle();
+  const { data: previous } = await supabase.from('leads').select('assigned_agent_id,status,follow_up_at').eq('id', id).eq('tenant_id', caller.tenantId).maybeSingle();
 
   const { data, error } = await supabase.from('leads').update(input).eq('id', id).eq('tenant_id', caller.tenantId).select().maybeSingle();
   if (error) {
@@ -91,6 +91,21 @@ export const PATCH = withErrorHandling<RouteContext>(async (request, { params })
   }
   if (!data) {
     throw new ApiError(404, 'lead_not_found', 'العميل المحتمل غير موجود');
+  }
+
+  const activityRows: Array<Record<string, unknown>> = [];
+  if (input.status !== undefined && input.status !== previous?.status) {
+    activityRows.push({ tenant_id: caller.tenantId, lead_id: id, user_id: caller.userId, activity_type: 'status_changed', summary: 'تم تغيير حالة العميل', metadata: { from: previous?.status ?? null, to: input.status } });
+  }
+  if (input.assigned_agent_id !== undefined && input.assigned_agent_id !== previous?.assigned_agent_id) {
+    activityRows.push({ tenant_id: caller.tenantId, lead_id: id, user_id: caller.userId, activity_type: 'assignment_changed', summary: 'تم تغيير المسؤول عن العميل', metadata: { from: previous?.assigned_agent_id ?? null, to: input.assigned_agent_id ?? null } });
+  }
+  if (input.follow_up_at !== undefined && input.follow_up_at !== previous?.follow_up_at) {
+    activityRows.push({ tenant_id: caller.tenantId, lead_id: id, user_id: caller.userId, activity_type: 'follow_up_changed', summary: input.follow_up_at ? 'تم تحديد موعد متابعة للعميل' : 'تم إلغاء موعد متابعة العميل', metadata: { from: previous?.follow_up_at ?? null, to: input.follow_up_at ?? null } });
+  }
+  if (activityRows.length > 0) {
+    const { error: activityError } = await supabase.from('crm_activities').insert(activityRows);
+    if (activityError) console.error('Failed to record CRM activity', activityError);
   }
 
   const agentAssignmentChanged =
