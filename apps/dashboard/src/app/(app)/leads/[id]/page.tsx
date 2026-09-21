@@ -199,7 +199,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
             </div>
           </Card>
 
-          <Card className="p-4 md:p-5"><div className="mb-3"><h2 className="font-semibold text-text-primary">إجراءات سريعة</h2><p className="mt-1 text-xs text-text-secondary">نفّذ الإجراء مباشرة على هذا العميل دون مغادرة ملفه.</p></div><CustomerQuickActions leadId={id} accessToken={accessToken} currentUserId={me.user.id} onChanged={refreshCustomer360} /></Card>
+          <div className="flex items-center justify-between gap-3 rounded-card border border-border-subtle bg-surface-card p-3 md:p-4"><div className="min-w-0"><p className="text-sm font-semibold text-text-primary">ماذا تريد أن تفعل؟</p><p className="mt-0.5 hidden text-xs text-text-secondary sm:block">المتابعة والمهمة والمعاينة والملاحظة من مكان واحد.</p></div><CustomerQuickActions leadId={id} accessToken={accessToken} currentUserId={me.user.id} onChanged={refreshCustomer360} /></div>
 
           {customer360 && <CustomerJourney3D lead={lead} data={customer360} />}
 
