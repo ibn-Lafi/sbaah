@@ -10,8 +10,9 @@ import { createTask, createViewing } from '@/lib/api/crm';
 import { addLeadNote, updateLead } from '@/lib/api/leads';
 import { datetimeLocalToIso } from '@/lib/lead/datetime';
 import { listAssets } from '@/lib/api/real-estate';
+import { LeadRequirements } from '@/components/crm/lead-requirements';
 
-type Action='followup'|'task'|'viewing'|'note';
+type Action='followup'|'task'|'viewing'|'note'|'requirements';
 
 export function CustomerQuickActions({leadId,accessToken,currentUserId,onChanged}:{leadId:string;accessToken:string;currentUserId:string;onChanged:()=>Promise<void>|void}){
   const [action,setAction]=useState<Action|null>(null);
@@ -27,7 +28,7 @@ export function CustomerQuickActions({leadId,accessToken,currentUserId,onChanged
   const choose=(value:Action)=>{setAction(value);setMenuOpen(false)};
 
   async function save(){
-    if(!action)return;
+    if(!action||action==='requirements')return;
     setSaving(true);
     try{
       if(action==='followup'){const iso=datetimeLocalToIso(at);if(!iso)return;await updateLead(accessToken,leadId,{follow_up_at:iso});}
@@ -46,14 +47,16 @@ export function CustomerQuickActions({leadId,accessToken,currentUserId,onChanged
         <button className="flex w-full items-center justify-between rounded-lg px-3 py-3 text-sm font-medium text-text-primary hover:bg-surface-subtle" onClick={()=>choose('task')}><span>مهمة</span><span className="text-text-secondary">✓</span></button>
         <button className="flex w-full items-center justify-between rounded-lg px-3 py-3 text-sm font-medium text-text-primary hover:bg-surface-subtle" onClick={()=>choose('viewing')}><span>معاينة</span><span className="text-text-secondary">◉</span></button>
         <button className="flex w-full items-center justify-between rounded-lg px-3 py-3 text-sm font-medium text-text-primary hover:bg-surface-subtle" onClick={()=>choose('note')}><span>ملاحظة</span><span className="text-text-secondary">＋</span></button>
+        <button className="flex w-full items-center justify-between rounded-lg px-3 py-3 text-sm font-medium text-text-primary hover:bg-surface-subtle" onClick={()=>choose('requirements')}><span>متطلبات العميل</span><span className="text-text-secondary">⌂</span></button>
       </div></>}
     </div>
-    {action&&<Modal title={action==='followup'?'إضافة متابعة':action==='task'?'إضافة مهمة':action==='viewing'?'إضافة معاينة':'إضافة ملاحظة'} onClose={reset} maxWidth="520px"><div className="space-y-4">
+    {action&&<Modal title={action==='followup'?'إضافة متابعة':action==='task'?'إضافة مهمة':action==='viewing'?'إضافة معاينة':action==='requirements'?'متطلبات العميل':'إضافة ملاحظة'} onClose={reset} maxWidth={action==='requirements'?'680px':'520px'}><div className="max-h-[78vh] space-y-4 overflow-y-auto px-0.5">
+      {action==='requirements'&&<LeadRequirements leadId={leadId} accessToken={accessToken} embedded onSaved={onChanged}/>} 
       {action==='task'&&<Input placeholder="عنوان المهمة" value={title} onChange={e=>setTitle(e.target.value)}/>}
       {action==='viewing'&&<Select value={assetId} onChange={e=>setAssetId(e.target.value)}><option value="">اختر العقار</option>{assets.map(asset=><option key={asset.id} value={asset.id}>{asset.name_ar}</option>)}</Select>}
       {action==='note'&&<textarea value={note} onChange={e=>setNote(e.target.value)} rows={5} maxLength={4000} placeholder="اكتب الملاحظة…" className="w-full resize-none rounded-xl border border-border-default bg-surface-card px-3 py-2 text-sm outline-none focus:border-brand"/>}
       {action!=='note'&&<DateTimePicker value={at} onChange={setAt} placeholder="التاريخ والوقت"/>}
-      <Button className="w-full" disabled={saving} onClick={()=>void save()}>{saving?'جاري الحفظ…':'حفظ'}</Button>
+      {action!=='requirements'&&<Button className="w-full" disabled={saving} onClick={()=>void save()}>{saving?'جاري الحفظ…':'حفظ'}</Button>}
     </div></Modal>}
   </>;
 }
