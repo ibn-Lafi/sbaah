@@ -43,15 +43,13 @@ export function Customer360Overview({lead,data}:{lead:LeadWithNotes;data:Custome
   if(openDeals.length)smartStatuses.push({label:`${openDeals.length} صفقة مفتوحة`,tone:'neutral'});
   const toneClass={danger:'border-red-200 bg-red-50 text-red-700',warning:'border-amber-200 bg-amber-50 text-amber-700',success:'border-emerald-200 bg-emerald-50 text-emerald-700',brand:'border-brand/20 bg-brand/[.06] text-brand',neutral:'border-border-default bg-surface-subtle text-text-secondary'} as const;
 
-  const stats=[
-    ['CRM', crmStatus[lead.status]??lead.status],
-    ['المعاينات', data.viewings.length?`${data.viewings.length} معاينة`:'لا يوجد'],
-    ['الحجوزات', activeReservations.length?`${activeReservations.length} نشط`:'لا يوجد'],
-    ['الصفقات', openDeals.length?`${openDeals.length} مفتوحة`:'لا يوجد'],
-    ['العقود', activeContracts.length?`${activeContracts.length} نشط`:'لا يوجد'],
-    ['المدفوعات', paid?money(paid):'لا يوجد'],
-    ['الصيانة', openMaintenance.length?`${openMaintenance.length} مفتوح`:'لا يوجد'],
-  ];
+  const stats:Array<[string,string]>=[['CRM',crmStatus[lead.status]??lead.status]];
+  if(data.viewings.length)stats.push(['المعاينات',`${data.viewings.length} معاينة`]);
+  if(activeReservations.length)stats.push(['الحجوزات',`${activeReservations.length} نشط`]);
+  if(openDeals.length)stats.push(['الصفقات',`${openDeals.length} مفتوحة`]);
+  if(activeContracts.length)stats.push(['العقود',`${activeContracts.length} نشط`]);
+  if(paid)stats.push(['المدفوعات',money(paid)]);
+  if(openMaintenance.length)stats.push(['الصيانة',`${openMaintenance.length} مفتوح`]);
 
   return <div className="flex flex-col gap-4">
     {smartStatuses.length>0&&<Card className="p-4 md:p-5">
@@ -61,7 +59,7 @@ export function Customer360Overview({lead,data}:{lead:LeadWithNotes;data:Custome
 
     <Card className="p-4 md:p-5">
       <div className="mb-3 flex items-center justify-between gap-3"><h2 className="font-semibold text-text-primary">حالة العميل في المنصة</h2><span className="text-xs text-text-secondary">ملف موحّد</span></div>
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-7">{stats.map(([label,value])=><div key={label} className="rounded-input border border-border-subtle bg-surface-subtle p-3"><p className="text-xs text-text-secondary">{label}</p><p className="mt-1 truncate text-sm font-semibold text-text-primary">{value}</p></div>)}</div>
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">{stats.map(([label,value])=><div key={label} className="rounded-input border border-border-subtle bg-surface-subtle p-3"><p className="text-xs text-text-secondary">{label}</p><p className="mt-1 truncate text-sm font-semibold text-text-primary">{value}</p></div>)}</div>
     </Card>
 
     <div className="grid items-start gap-4 xl:grid-cols-[0.8fr_1.2fr_1fr]">
