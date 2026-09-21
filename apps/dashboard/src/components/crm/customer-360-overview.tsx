@@ -31,18 +31,6 @@ export function Customer360Overview({lead,data}:{lead:LeadWithNotes;data:Custome
     ...(lead.follow_up_at?[{at:lead.follow_up_at,title:'متابعة العميل',type:'متابعة'}]:[]),
   ].filter(x=>new Date(x.at).getTime()>=now).sort((a,b)=>a.at.localeCompare(b.at))[0];
 
-  const smartStatuses:Array<{label:string;tone:'danger'|'warning'|'success'|'brand'|'neutral'}>=[];
-  if(overdueInstallments.length)smartStatuses.push({label:`قسط متأخر · ${money(overdueAmount)}`,tone:'danger'});
-  if(openMaintenance.some(m=>m.priority==='urgent'))smartStatuses.push({label:'صيانة عاجلة',tone:'danger'});
-  if(openMaintenance.length)smartStatuses.push({label:`${openMaintenance.length} طلب صيانة مفتوح`,tone:'warning'});
-  if(activeLessee)smartStatuses.push({label:'مستأجر حالي',tone:'success'});
-  if(activeLessor)smartStatuses.push({label:'مؤجر حالي',tone:'success'});
-  if(activeContracts.length)smartStatuses.push({label:`${activeContracts.length} عقد نشط/قادم`,tone:'brand'});
-  if(activeReservations.length)smartStatuses.push({label:`${activeReservations.length} حجز نشط`,tone:'brand'});
-  if(upcomingViewings.length)smartStatuses.push({label:`${upcomingViewings.length} معاينة قادمة`,tone:'neutral'});
-  if(openDeals.length)smartStatuses.push({label:`${openDeals.length} صفقة مفتوحة`,tone:'neutral'});
-  const toneClass={danger:'border-red-200 bg-red-50 text-red-700',warning:'border-amber-200 bg-amber-50 text-amber-700',success:'border-emerald-200 bg-emerald-50 text-emerald-700',brand:'border-brand/20 bg-brand/[.06] text-brand',neutral:'border-border-default bg-surface-subtle text-text-secondary'} as const;
-
   const stats:Array<[string,string]>=[['CRM',crmStatus[lead.status]??lead.status]];
   if(data.viewings.length)stats.push(['المعاينات',`${data.viewings.length} معاينة`]);
   if(activeReservations.length)stats.push(['الحجوزات',`${activeReservations.length} نشط`]);
@@ -52,11 +40,6 @@ export function Customer360Overview({lead,data}:{lead:LeadWithNotes;data:Custome
   if(openMaintenance.length)stats.push(['الصيانة',`${openMaintenance.length} مفتوح`]);
 
   return <div className="flex flex-col gap-3 md:gap-4">
-    {smartStatuses.length>0&&<Card className="p-3 md:p-5">
-      <div className="mb-3 flex items-center justify-between gap-3"><div><h2 className="font-semibold text-text-primary">الحالة الحالية</h2><p className="mt-1 text-xs text-text-secondary">مستنتجة تلقائيًا من علاقات العميل الحالية.</p></div>{overdueInstallments.length>0&&<span className="text-xs font-semibold text-red-600">يتطلب انتباه</span>}</div>
-      <div className="flex flex-wrap gap-2">{smartStatuses.map((status,index)=><span key={`${status.label}-${index}`} className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold md:px-3 md:py-1.5 md:text-xs ${toneClass[status.tone]}`}>{status.label}</span>)}</div>
-    </Card>}
-
     <Card className="p-3 md:p-5">
       <div className="mb-3 flex items-center justify-between gap-3"><h2 className="font-semibold text-text-primary">حالة العميل في المنصة</h2><span className="text-xs text-text-secondary">ملف موحّد</span></div>
       <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 md:gap-2 lg:grid-cols-4">{stats.map(([label,value])=><div key={label} className="rounded-lg border border-border-subtle bg-surface-subtle p-2.5 md:rounded-input md:p-3"><p className="text-xs text-text-secondary">{label}</p><p className="mt-1 truncate text-sm font-semibold text-text-primary">{value}</p></div>)}</div>
