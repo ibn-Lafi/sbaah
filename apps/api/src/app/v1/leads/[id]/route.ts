@@ -32,7 +32,41 @@ export const GET = withErrorHandling<RouteContext>(async (request, { params }) =
   }
   if (isAssignedScope(grant)) await assertAssignedLeadAccess(supabase, caller.tenantId, caller.userId, id);
 
-  return okResponse({ lead: data });
+  const [tasksResult, viewingsResult, dealsResult, activitiesResult, partyResult] = await Promise.all([
+    supabase.from('crm_tasks').select('*').eq('tenant_id', caller.tenantId).eq('lead_id', id).order('due_at'),
+    supabase.from('viewings').select('*').eq('tenant_id', caller.tenantId).eq('lead_id', id).order('scheduled_at', { ascending: false }),
+    supabase.from('deals').select('*, deal_assets(asset_id)').eq('tenant_id', caller.tenantId).eq('lead_id', id).order('created_at', { ascending: false }),
+    supabase.from('crm_activities').select('*').eq('tenant_id', caller.tenantId).eq('lead_id', id).order('occurred_at', { ascending: false }),
+    supabase.from('parties').select('*').eq('tenant_id', caller.tenantId).eq('lead_id', id).maybeSingle(),
+  ]);
+
+  const party = partyResult.data ?? null;
+  let contracts: Record<string, unknown>[] = [];
+  let installments: Record<string, unknown>[] = [];
+  let payments: Record<string, unknown>[] = [];
+  let maintenance: Record<string, unknown>[] = [];
+
+  if (party) {
+    const contractLinks = await supabase.from('lease_contract_parties').select('contract_id, role').eq('tenant_id', caller.tenantId).eq('party_id', party.id);
+    const contractIds = [...new Set((contractLinks.data ?? []).map((row) => row.contract_id))];
+    if (contractIds.length > 0) {
+      const [contractsResult, installmentsResult, paymentsResult, maintenanceResult] = await Promise.all([
+        supabase.from('lease_contracts').select('*, lease_contract_assets(asset_id), lease_contract_parties(party_id,role)').eq('tenant_id', caller.tenantId).in('id', contractIds).order('created_at', { ascending: false }),
+        supabase.from('lease_installments').select('*').eq('tenant_id', caller.tenantId).in('contract_id', contractIds).order('due_date'),
+        supabase.from('lease_payments').select('*').eq('tenant_id', caller.tenantId).in('contract_id', contractIds).order('paid_at', { ascending: false }),
+        supabase.from('maintenance_requests').select('*, assets(name_ar,reference_number)').eq('tenant_id', caller.tenantId).in('contract_id', contractIds).order('opened_at', { ascending: false }),
+      ]);
+      contracts = (contractsResult.data ?? []).map((contract) => ({ ...contract, customer_roles: (contractLinks.data ?? []).filter((link) => link.contract_id === contract.id).map((link) => link.role) }));
+      installments = installmentsResult.data ?? [];
+      payments = paymentsResult.data ?? [];
+      maintenance = maintenanceResult.data ?? [];
+    }
+  }
+
+  return okResponse({ lead: data, customer360: {
+    tasks: tasksResult.data ?? [], viewings: viewingsResult.data ?? [], deals: dealsResult.data ?? [],
+    activities: activitiesResult.data ?? [], party, contracts, installments, payments, maintenance,
+  }});
 });
 
 export const PATCH = withErrorHandling<RouteContext>(async (request, { params }) => {
