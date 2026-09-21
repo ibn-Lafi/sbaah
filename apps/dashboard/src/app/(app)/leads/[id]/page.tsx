@@ -18,7 +18,6 @@ import { listTeam, type TeamMember } from '@/lib/api/team';
 import { ApiRequestError } from '@/lib/api/client';
 import { datetimeLocalToIso, isoToDatetimeLocal } from '@/lib/lead/datetime';
 import { useLocale } from '@/lib/i18n/locale-context';
-import { LeadRequirements } from '@/components/crm/lead-requirements';
 import { Customer360Overview } from '@/components/crm/customer-360-overview';
 import { CustomerQuickActions } from '@/components/crm/customer-quick-actions';
 
@@ -178,11 +177,10 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
             </details>
           </Card>
 
-          <div className="flex items-center justify-between gap-2 rounded-card border border-border-subtle bg-surface-card p-2.5 md:gap-3 md:p-4"><div className="min-w-0"><p className="text-xs font-semibold text-text-primary md:text-sm">إجراء على العميل</p><p className="mt-0.5 hidden text-xs text-text-secondary sm:block">المتابعة والمهمة والمعاينة والملاحظة من مكان واحد.</p></div><CustomerQuickActions leadId={id} accessToken={accessToken} currentUserId={me.user.id} onChanged={refreshCustomer360} /></div>
+          <div className="flex items-center justify-between gap-2 rounded-card border border-border-subtle bg-surface-card p-2.5 md:gap-3 md:p-4"><div className="min-w-0"><p className="text-xs font-semibold text-text-primary md:text-sm">إجراء على العميل</p><p className="mt-0.5 hidden text-xs text-text-secondary sm:block">المتابعة والمهمة والمعاينة والملاحظة ومتطلبات العميل من مكان واحد.</p></div><CustomerQuickActions leadId={id} accessToken={accessToken} currentUserId={me.user.id} onChanged={refreshCustomer360} /></div>
 
           {customer360 && <Customer360Overview lead={lead} data={customer360} />}
 
-          <LeadRequirements leadId={id} accessToken={accessToken} />
         </div>
       )}
     </AppShell>
