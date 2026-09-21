@@ -57,6 +57,9 @@ export default function CalendarPage() {
   const [saving, setSaving] = useState(false);
   const [activeItem, setActiveItem] = useState<CalendarItem|null>(null);
   const [actionAt, setActionAt] = useState('');
+  const [search, setSearch] = useState('');
+  const [typeFilter, setTypeFilter] = useState<'all'|CalendarItem['type']>('all');
+  const [followUpAfterViewing, setFollowUpAfterViewing] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -128,10 +131,15 @@ export default function CalendarPage() {
     return result.sort((a, b) => new Date(a.at).getTime() - new Date(b.at).getTime());
   }, [viewings, tasks, leads, installments, contracts]);
 
+  const filteredItems = items.filter(item => {
+    if(typeFilter !== 'all' && item.type !== typeFilter) return false;
+    const q=search.trim().toLowerCase();
+    return !q || item.title.toLowerCase().includes(q) || typeLabel[item.type].includes(q);
+  });
   const selectedKey = dayKey(selectedDate);
-  const selectedItems = items.filter(item => dayKey(item.at) === selectedKey);
-  const overdue = items.filter(item => item.status === 'overdue');
-  const todayItems = items.filter(item => dayKey(item.at) === dayKey(new Date()));
+  const selectedItems = filteredItems.filter(item => dayKey(item.at) === selectedKey);
+  const overdue = filteredItems.filter(item => item.status === 'overdue');
+  const todayItems = filteredItems.filter(item => dayKey(item.at) === dayKey(new Date()));
   const monthLabel = new Intl.DateTimeFormat('ar-SA', { month: 'long', year: 'numeric' }).format(selectedDate);
 
   const days = useMemo(() => {
@@ -150,9 +158,18 @@ export default function CalendarPage() {
     try{
       if(action==='reschedule'){const iso=datetimeLocalToIso(actionAt);if(!iso)return;if(activeItem.type==='task')await updateTask(accessToken,activeItem.sourceId,{due_at:iso});else if(activeItem.type==='viewing')await updateViewing(accessToken,activeItem.sourceId,{scheduled_at:iso,status:'rescheduled'});}
       else if(activeItem.type==='task'&&action==='complete'){await updateTask(accessToken,activeItem.sourceId,{completed_at:new Date().toISOString()});}
-      else if(activeItem.type==='viewing'){await updateViewing(accessToken,activeItem.sourceId,{status:'completed',outcome:action==='complete'?null:action});}
+      else if(activeItem.type==='viewing'){
+        await updateViewing(accessToken,activeItem.sourceId,{status:'completed',outcome:action==='complete'?null:action});
+        if(action==='follow_up'){setFollowUpAfterViewing(true);setSaving(false);return;}
+      }
       await refreshCrmCalendar();setActiveItem(null);setActionAt('');
     }finally{setSaving(false)}
+  }
+  async function scheduleViewingFollowUp(){
+    if(!activeItem || !actionAt)return;
+    const viewing=viewings?.find(v=>v.id===activeItem.sourceId); const iso=datetimeLocalToIso(actionAt);
+    if(!viewing||!iso)return; setSaving(true);
+    try{await updateLead(accessToken,viewing.lead_id,{follow_up_at:iso});await refreshCrmCalendar();setFollowUpAfterViewing(false);setActiveItem(null);setActionAt('');}finally{setSaving(false)}
   }
   async function addCalendarItem() {
     if (!form.at) return;
@@ -186,14 +203,18 @@ export default function CalendarPage() {
         <Button onClick={() => setShowAdd(true)}>+ إضافة</Button>
       </div>
 
-      <div className="mb-4 grid grid-cols-3 gap-3">
+      <div className="mb-4 flex flex-col gap-3 md:flex-row">
+        <Input className="md:max-w-sm" placeholder="ابحث في التقويم…" value={search} onChange={e=>setSearch(e.target.value)} />
+        <div className="flex gap-2 overflow-x-auto pb-1">{([['all','الكل'],['viewing','المعاينات'],['followup','المتابعات'],['task','المهام'],['installment','الاستحقاقات'],['contract','العقود']] as const).map(([value,label])=><button key={value} type="button" onClick={()=>setTypeFilter(value)} className={`whitespace-nowrap rounded-full border px-3 py-2 text-xs font-semibold ${typeFilter===value?'border-brand bg-brand text-white':'border-border-default bg-surface-card text-text-secondary'}`}>{label}</button>)}</div>
+      </div>
+      <div className="mb-4 grid grid-cols-3 gap-2 md:gap-3">
         <Card className="p-4"><p className="text-xs text-text-secondary">اليوم</p><strong className="mt-1 block text-2xl">{todayItems.length}</strong></Card>
         <Card className="p-4"><p className="text-xs text-text-secondary">متأخرة</p><strong className="mt-1 block text-2xl text-red-600">{overdue.length}</strong></Card>
-        <Card className="p-4"><p className="text-xs text-text-secondary">القادمة</p><strong className="mt-1 block text-2xl">{items.filter(x => x.status === 'upcoming').length}</strong></Card>
+        <Card className="p-4"><p className="text-xs text-text-secondary">القادمة</p><strong className="mt-1 block text-2xl">{filteredItems.filter(x => x.status === 'upcoming').length}</strong></Card>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
-        <Card className="overflow-hidden p-4 md:p-6">
+        <Card className="hidden overflow-hidden p-4 md:block md:p-6">
           <div className="mb-5 flex items-center justify-between">
             <button className="rounded-xl border border-border-default px-3 py-2" onClick={() => moveMonth(1)}>›</button>
             <h2 className="font-bold">{monthLabel}</h2>
@@ -206,7 +227,7 @@ export default function CalendarPage() {
             {days.map((date, index) => {
               if (!date) return <div key={`blank-${index}`} className="min-h-20 border-b border-l border-border-subtle bg-surface-subtle-3/30 md:min-h-28" />;
               const key = dayKey(date);
-              const dayItems = items.filter(x => dayKey(x.at) === key);
+              const dayItems = filteredItems.filter(x => dayKey(x.at) === key);
               const active = key === selectedKey;
               return <button key={key} onClick={() => setSelectedDate(date)} className={`min-h-20 border-b border-l border-border-subtle p-1.5 text-right align-top transition-colors md:min-h-28 md:p-2 ${active ? 'bg-brand/[.06]' : 'hover:bg-surface-subtle-3/50'}`}>
                 <span className={`inline-flex h-7 w-7 items-center justify-center rounded-full text-xs ${active ? 'bg-brand text-white' : ''}`}>{date.getDate()}</span>
@@ -219,7 +240,7 @@ export default function CalendarPage() {
           </div>
         </Card>
 
-        <div className="space-y-4">
+        <div className="space-y-4 md:min-w-0">
           <Card className="p-5">
             <p className="text-xs font-medium text-brand">أجندة اليوم المحدد</p>
             <h2 className="mt-1 font-bold">{new Intl.DateTimeFormat('ar-SA', { weekday:'long', day:'numeric', month:'long' }).format(selectedDate)}</h2>
@@ -241,7 +262,7 @@ export default function CalendarPage() {
           </Card>}
         </div>
       </div>
-      {activeItem && <Modal title={activeItem.title} onClose={()=>setActiveItem(null)} maxWidth="520px"><div className="space-y-4"><div className="rounded-xl bg-surface-subtle-3 p-4"><p className="text-sm text-text-secondary">{typeLabel[activeItem.type]}</p><p className="mt-1 font-semibold">{new Intl.DateTimeFormat('ar-SA',{dateStyle:'full',timeStyle:'short'}).format(new Date(activeItem.at))}</p></div>{activeItem.href&&<Link href={activeItem.href} className="block rounded-xl border border-border-default px-4 py-3 text-center text-sm font-semibold">فتح المصدر</Link>}{activeItem.type==='viewing'&&activeItem.status!=='done'&&<div><p className="mb-2 text-sm font-semibold">نتيجة المعاينة</p><div className="grid grid-cols-3 gap-2"><Button variant="secondary" onClick={()=>void actOnItem('interested')}>مهتم</Button><Button variant="secondary" onClick={()=>void actOnItem('follow_up')}>متابعة</Button><Button variant="secondary" onClick={()=>void actOnItem('not_interested')}>غير مهتم</Button></div></div>}{activeItem.type==='task'&&activeItem.status!=='done'&&<Button className="w-full" disabled={saving} onClick={()=>void actOnItem('complete')}>تم إنجاز المهمة</Button>}{(activeItem.type==='viewing'||activeItem.type==='task')&&activeItem.status!=='done'&&<div className="space-y-2"><p className="text-sm font-semibold">إعادة الجدولة</p><DateTimePicker value={actionAt} onChange={setActionAt}/><Button className="w-full" disabled={!actionAt||saving} onClick={()=>void actOnItem('reschedule')}>حفظ الموعد الجديد</Button></div>}</div></Modal>}
+      {activeItem && <Modal title={activeItem.title} onClose={()=>{setActiveItem(null);setFollowUpAfterViewing(false);setActionAt('')}} maxWidth="520px"><div className="space-y-4"><div className="rounded-xl bg-surface-subtle-3 p-4"><p className="text-sm text-text-secondary">{typeLabel[activeItem.type]}</p><p className="mt-1 font-semibold">{new Intl.DateTimeFormat('ar-SA',{dateStyle:'full',timeStyle:'short'}).format(new Date(activeItem.at))}</p></div>{activeItem.href&&<Link href={activeItem.href} className="block rounded-xl border border-border-default px-4 py-3 text-center text-sm font-semibold">فتح المصدر</Link>}{followUpAfterViewing&&activeItem.type==='viewing'?<div className="space-y-3"><p className="text-sm font-semibold">حدد موعد المتابعة التالية</p><DateTimePicker value={actionAt} onChange={setActionAt}/><Button className="w-full" disabled={!actionAt||saving} onClick={()=>void scheduleViewingFollowUp()}>إنشاء المتابعة</Button></div>:activeItem.type==='viewing'&&activeItem.status!=='done'&&<div><p className="mb-2 text-sm font-semibold">نتيجة المعاينة</p><div className="grid grid-cols-3 gap-2"><Button variant="secondary" onClick={()=>void actOnItem('interested')}>مهتم</Button><Button variant="secondary" onClick={()=>void actOnItem('follow_up')}>متابعة</Button><Button variant="secondary" onClick={()=>void actOnItem('not_interested')}>غير مهتم</Button></div></div>}{activeItem.type==='task'&&activeItem.status!=='done'&&<Button className="w-full" disabled={saving} onClick={()=>void actOnItem('complete')}>تم إنجاز المهمة</Button>}{(activeItem.type==='viewing'||activeItem.type==='task')&&activeItem.status!=='done'&&<div className="space-y-2"><p className="text-sm font-semibold">إعادة الجدولة</p><DateTimePicker value={actionAt} onChange={setActionAt}/><Button className="w-full" disabled={!actionAt||saving} onClick={()=>void actOnItem('reschedule')}>حفظ الموعد الجديد</Button></div>}</div></Modal>}
       {showAdd && <Modal title="إضافة إلى التقويم" onClose={()=>setShowAdd(false)} maxWidth="560px"><div className="space-y-4"><div className="grid grid-cols-3 gap-2">{(['task','followup','viewing'] as const).map(type=><button key={type} type="button" onClick={()=>setAddType(type)} className={`rounded-xl border px-3 py-3 text-sm font-semibold ${addType===type?'border-brand bg-brand/[.06] text-brand':'border-border-default'}`}>{type==='task'?'مهمة':type==='followup'?'متابعة':'معاينة'}</button>)}</div>{addType==='task'&&<Input placeholder="عنوان المهمة" value={form.title} onChange={e=>setForm({...form,title:e.target.value})}/>}<Select value={form.leadId} onChange={e=>setForm({...form,leadId:e.target.value})}><option value="">{addType==='task'?'بدون عميل (اختياري)':'اختر العميل'}</option>{(leads??[]).map(l=><option key={l.id} value={l.id}>{l.full_name}</option>)}</Select>{addType==='viewing'&&<><Select value={form.assetId} onChange={e=>setForm({...form,assetId:e.target.value})}><option value="">اختر العقار</option>{assets.map(a=><option key={a.id} value={a.id}>{a.name_ar}</option>)}</Select><Select value={form.userId} onChange={e=>setForm({...form,userId:e.target.value})}><option value="">الموظف المسؤول (أنا)</option>{team.map(m=><option key={m.id} value={m.id}>{m.full_name}</option>)}</Select></>}<DateTimePicker value={form.at} onChange={at=>setForm({...form,at})} placeholder="التاريخ والوقت"/><Button className="w-full" disabled={saving} onClick={()=>void addCalendarItem()}>{saving?'جاري الحفظ…':'حفظ'}</Button></div></Modal>}
     </AppShell>
   );
