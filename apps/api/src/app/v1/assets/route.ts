@@ -22,6 +22,11 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   const caller = await getCallerContext(supabase);
   if (caller.role === 'agent') throw new ApiError(403, 'forbidden', 'لا يملك الوسيط صلاحية إضافة عقارات');
   const input = assetInputSchema.parse(await request.json());
+  if (input.parent_asset_id) {
+    const { data: parent, error: parentError } = await supabase.from('assets').select('id').eq('id', input.parent_asset_id).eq('tenant_id', caller.tenantId).is('archived_at', null).maybeSingle();
+    if (parentError) throw new Error(`Failed to validate parent asset: ${parentError.message}`);
+    if (!parent) throw new ApiError(400, 'invalid_parent_asset', 'العقار الرئيسي غير موجود أو مؤرشف');
+  }
   const { data, error } = await supabase.from('assets').insert({ ...input, tenant_id: caller.tenantId }).select().single();
   if (error) throw new Error(`Failed to create asset: ${error.message}`);
   return okResponse({ asset: data }, 201);
