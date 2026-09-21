@@ -56,8 +56,15 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     ? canonicalTenantOrigin(requestOrigin, result.site.tenant.custom_domain)
     : undefined;
 
+  const faviconUrl = result.site.website.favicon_url || result.site.website.logo_url || '/icon.png';
+
   return {
     title: locale === 'ar' ? result.site.tenant.name_ar : result.site.tenant.name_en,
+    icons: {
+      icon: faviconUrl,
+      shortcut: faviconUrl,
+      apple: faviconUrl,
+    },
     alternates: origin ? await buildLocalizedAlternates(locale, pathname, origin) : undefined,
   };
 }
