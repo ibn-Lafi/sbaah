@@ -15,6 +15,7 @@ type Action='followup'|'task'|'viewing'|'note';
 
 export function CustomerQuickActions({leadId,accessToken,currentUserId,onChanged}:{leadId:string;accessToken:string;currentUserId:string;onChanged:()=>Promise<void>|void}){
   const [action,setAction]=useState<Action|null>(null);
+  const [menuOpen,setMenuOpen]=useState(false);
   const [at,setAt]=useState('');
   const [title,setTitle]=useState('');
   const [assetId,setAssetId]=useState('');
@@ -22,7 +23,8 @@ export function CustomerQuickActions({leadId,accessToken,currentUserId,onChanged
   const [saving,setSaving]=useState(false);
   const [assets,setAssets]=useState<Array<{id:string;name_ar:string}>>([]);
   useEffect(()=>{if(action==='viewing'&&assets.length===0)void listAssets(accessToken,{page_size:50}).then(r=>setAssets(r.assets));},[action,accessToken,assets.length]);
-  const reset=()=>{setAction(null);setAt('');setTitle('');setAssetId('');setNote('')};
+  const reset=()=>{setAction(null);setMenuOpen(false);setAt('');setTitle('');setAssetId('');setNote('')};
+  const choose=(value:Action)=>{setAction(value);setMenuOpen(false)};
 
   async function save(){
     if(!action)return;
@@ -37,11 +39,14 @@ export function CustomerQuickActions({leadId,accessToken,currentUserId,onChanged
   }
 
   return <>
-    <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-      <Button variant="secondary" onClick={()=>setAction('followup')}>+ متابعة</Button>
-      <Button variant="secondary" onClick={()=>setAction('task')}>+ مهمة</Button>
-      <Button variant="secondary" onClick={()=>setAction('viewing')}>+ معاينة</Button>
-      <Button variant="secondary" onClick={()=>setAction('note')}>+ ملاحظة</Button>
+    <div className="relative">
+      <Button className="w-full sm:w-auto sm:min-w-[180px]" onClick={()=>setMenuOpen(value=>!value)}>+ إجراء سريع <span aria-hidden="true" className="ms-1 text-xs">⌄</span></Button>
+      {menuOpen&&<><button aria-label="إغلاق قائمة الإجراءات" className="fixed inset-0 z-30 cursor-default" onClick={()=>setMenuOpen(false)}/><div className="absolute end-0 top-[52px] z-40 w-full overflow-hidden rounded-xl border border-border-default bg-surface-card p-1.5 shadow-xl sm:w-64">
+        <button className="flex w-full items-center justify-between rounded-lg px-3 py-3 text-sm font-medium text-text-primary hover:bg-surface-subtle" onClick={()=>choose('followup')}><span>متابعة</span><span className="text-text-secondary">↗</span></button>
+        <button className="flex w-full items-center justify-between rounded-lg px-3 py-3 text-sm font-medium text-text-primary hover:bg-surface-subtle" onClick={()=>choose('task')}><span>مهمة</span><span className="text-text-secondary">✓</span></button>
+        <button className="flex w-full items-center justify-between rounded-lg px-3 py-3 text-sm font-medium text-text-primary hover:bg-surface-subtle" onClick={()=>choose('viewing')}><span>معاينة</span><span className="text-text-secondary">◉</span></button>
+        <button className="flex w-full items-center justify-between rounded-lg px-3 py-3 text-sm font-medium text-text-primary hover:bg-surface-subtle" onClick={()=>choose('note')}><span>ملاحظة</span><span className="text-text-secondary">＋</span></button>
+      </div></>}
     </div>
     {action&&<Modal title={action==='followup'?'إضافة متابعة':action==='task'?'إضافة مهمة':action==='viewing'?'إضافة معاينة':'إضافة ملاحظة'} onClose={reset} maxWidth="520px"><div className="space-y-4">
       {action==='task'&&<Input placeholder="عنوان المهمة" value={title} onChange={e=>setTitle(e.target.value)}/>}
