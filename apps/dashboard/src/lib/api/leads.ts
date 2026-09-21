@@ -23,8 +23,20 @@ export function listLeads(
 
 export type LeadWithNotes = Lead & { lead_notes: LeadNote[] };
 
-export function getLead(accessToken: string, id: string): Promise<{ lead: LeadWithNotes }> {
-  return apiGet<{ lead: LeadWithNotes }>(`/leads/${id}`, accessToken);
+export interface Customer360Snapshot {
+  tasks: Array<{id:string;title:string;due_at:string|null;completed_at:string|null;completion_notes:string|null}>;
+  viewings: Array<{id:string;asset_id:string;scheduled_at:string;status:string;outcome:string|null;notes:string|null}>;
+  deals: Array<{id:string;status:string;value:number|null;expected_close_date:string|null;deal_assets?:Array<{asset_id:string}>}>;
+  activities: Array<{id:string;activity_type:string;summary:string;metadata:Record<string,unknown>|null;occurred_at:string}>;
+  party: {id:string;name:string;phone:string|null;email:string|null}|null;
+  contracts: Array<{id:string;contract_number:string;start_date:string;end_date:string;total_value:number;status:string;customer_roles?:string[];lease_contract_assets?:Array<{asset_id:string}>}>;
+  installments: Array<{id:string;contract_id:string;installment_number:number;due_date:string;amount:number;status:string}>;
+  payments: Array<{id:string;contract_id:string;payment_number:string;amount:number;paid_at:string;status:string}>;
+  maintenance: Array<{id:string;contract_id:string|null;request_number:string;title:string;status:string;priority:string;opened_at:string;assets?:{name_ar:string;reference_number:string|null}|null}>;
+}
+
+export function getLead(accessToken: string, id: string): Promise<{ lead: LeadWithNotes; customer360: Customer360Snapshot }> {
+  return apiGet<{ lead: LeadWithNotes; customer360: Customer360Snapshot }>(`/leads/${id}`, accessToken);
 }
 
 export function createLead(accessToken: string, input: ManualLeadInput): Promise<{ lead: Lead }> {
