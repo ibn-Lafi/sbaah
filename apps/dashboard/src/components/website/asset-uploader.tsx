@@ -12,12 +12,14 @@ interface AssetUploaderProps {
   onUpload: (file: File) => Promise<void>;
   onRemove: () => Promise<void>;
   /** 'video' يبدّل معاينة `<img>` بمشغّل `<video>` وقيمة accept — يُستخدم لفيديو خلفية الهيرو. */
-  kind?: 'image' | 'video';
+  kind?: 'image' | 'video' | 'favicon';
 }
 
 export function AssetUploader({ label, currentUrl, onUpload, onRemove, kind = 'image' }: AssetUploaderProps) {
   const { pages } = useLocale();
   const t = pages.website;
+  const isVideo = kind === 'video';
+  const isFavicon = kind === 'favicon';
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -32,7 +34,7 @@ export function AssetUploader({ label, currentUrl, onUpload, onRemove, kind = 'i
     try {
       await onUpload(file);
     } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : t.assetUploader.errors[kind === 'video' ? 'uploadVideo' : 'uploadImage']);
+      setError(err instanceof ApiRequestError ? err.message : t.assetUploader.errors[isVideo ? 'uploadVideo' : 'uploadImage']);
     } finally {
       setLoading(false);
     }
@@ -43,8 +45,8 @@ export function AssetUploader({ label, currentUrl, onUpload, onRemove, kind = 'i
       <p className="text-sm font-medium text-text-primary">{label}</p>
       {currentUrl ? (
         <div className="flex items-center gap-3">
-          {kind === 'video' ? (
-            <video src={currentUrl} muted className="h-16 w-28 rounded-input border border-border-default object-cover" />
+          {isVideo ? (
+            <video src={currentUrl} muted className={isFavicon ? "h-16 w-16 rounded-input border border-border-default object-contain" : "h-16 w-28 rounded-input border border-border-default object-cover"} />
           ) : (
             // eslint-disable-next-line @next/next/no-img-element -- Supabase Storage public URL, not a local/optimizable asset
             <img src={currentUrl} alt={label} className="h-16 w-28 rounded-input border border-border-default object-cover" />
@@ -58,13 +60,13 @@ export function AssetUploader({ label, currentUrl, onUpload, onRemove, kind = 'i
         </div>
       ) : (
         <Button type="button" variant="secondary" disabled={loading} onClick={() => fileInputRef.current?.click()} className="w-fit">
-          {loading ? t.assetUploader.uploading : t.assetUploader[kind === 'video' ? 'uploadVideo' : 'uploadImage']}
+          {loading ? t.assetUploader.uploading : t.assetUploader[isVideo ? 'uploadVideo' : 'uploadImage']}
         </Button>
       )}
       <input
         ref={fileInputRef}
         type="file"
-        accept={kind === 'video' ? 'video/*' : 'image/*'}
+        accept={isVideo ? 'video/*' : isFavicon ? 'image/png,image/jpeg,image/webp,image/x-icon,image/vnd.microsoft.icon,.ico' : 'image/*'}
         className="hidden"
         onChange={(e) => void handleFileSelected(e)}
       />
