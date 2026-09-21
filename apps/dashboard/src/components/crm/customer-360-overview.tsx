@@ -7,7 +7,6 @@ import { CustomerActivityTimeline } from '@/components/crm/customer-activity-tim
 
 const money = (value:number) => new Intl.NumberFormat('ar-SA',{style:'currency',currency:'SAR',maximumFractionDigits:0}).format(value);
 const date = (value:string) => new Intl.DateTimeFormat('ar-SA-u-ca-gregory',{year:'numeric',month:'short',day:'numeric'}).format(new Date(value));
-const crmStatus:Record<string,string>={new:'جديد',contacted:'تم التواصل',qualified:'مؤهل',in_progress:'قيد المتابعة',won:'مكتسب',lost:'مفقود',expired:'منتهي'};
 const contractStatus:Record<string,string>={draft:'مسودة',upcoming:'قادم',active:'نشط',expired:'منتهي',terminated:'منهى',cancelled:'ملغي'};
 const partyRole:Record<string,string>={lessor:'مؤجر',lessee:'مستأجر',guarantor:'ضامن',representative:'ممثل'};
 
@@ -31,20 +30,9 @@ export function Customer360Overview({lead,data}:{lead:LeadWithNotes;data:Custome
     ...(lead.follow_up_at?[{at:lead.follow_up_at,title:'متابعة العميل',type:'متابعة'}]:[]),
   ].filter(x=>new Date(x.at).getTime()>=now).sort((a,b)=>a.at.localeCompare(b.at))[0];
 
-  const stats:Array<[string,string]>=[['CRM',crmStatus[lead.status]??lead.status]];
-  if(data.viewings.length)stats.push(['المعاينات',`${data.viewings.length} معاينة`]);
-  if(activeReservations.length)stats.push(['الحجوزات',`${activeReservations.length} نشط`]);
-  if(openDeals.length)stats.push(['الصفقات',`${openDeals.length} مفتوحة`]);
-  if(activeContracts.length)stats.push(['العقود',`${activeContracts.length} نشط`]);
-  if(paid)stats.push(['المدفوعات',money(paid)]);
-  if(openMaintenance.length)stats.push(['الصيانة',`${openMaintenance.length} مفتوح`]);
+
 
   return <div className="flex flex-col gap-3 md:gap-4">
-    <Card className="p-3 md:p-5">
-      <div className="mb-3 flex items-center justify-between gap-3"><h2 className="font-semibold text-text-primary">حالة العميل في المنصة</h2><span className="text-xs text-text-secondary">ملف موحّد</span></div>
-      <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 md:gap-2 lg:grid-cols-4">{stats.map(([label,value])=><div key={label} className="rounded-lg border border-border-subtle bg-surface-subtle p-2.5 md:rounded-input md:p-3"><p className="text-xs text-text-secondary">{label}</p><p className="mt-1 truncate text-sm font-semibold text-text-primary">{value}</p></div>)}</div>
-    </Card>
-
     <div className="grid items-start gap-3 md:gap-4 xl:grid-cols-[0.8fr_1.2fr_1fr]">
       <div className="flex flex-col gap-3 md:gap-4">
         <Card className="p-3 md:p-5">
