@@ -216,8 +216,7 @@ export default function CalendarPage() {
         <Button onClick={() => setShowAdd(true)}>+ إضافة</Button>
       </div>
 
-      <div className="mb-4 flex flex-col gap-3 md:flex-row">
-        <Input className="md:max-w-sm" placeholder="ابحث في التقويم…" value={search} onChange={e=>setSearch(e.target.value)} />
+      <div className="mb-4">
         <div className="flex gap-2 overflow-x-auto pb-1">{([['all','الكل'],['viewing','المعاينات'],['followup','المتابعات'],['task','المهام'],['installment','الاستحقاقات'],['contract','العقود']] as const).map(([value,label])=><button key={value} type="button" onClick={()=>setTypeFilter(value)} className={`whitespace-nowrap rounded-full border px-3 py-2 text-xs font-semibold ${typeFilter===value?'border-brand bg-brand text-white':'border-border-default bg-surface-card text-text-secondary'}`}>{label}</button>)}</div>
       </div>
       <div className="mb-4 grid grid-cols-3 gap-2 md:gap-3">
