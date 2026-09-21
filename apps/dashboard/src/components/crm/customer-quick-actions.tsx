@@ -50,7 +50,7 @@ export function CustomerQuickActions({leadId,accessToken,currentUserId,onChanged
         <button className="flex w-full items-center justify-between rounded-lg px-3 py-3 text-sm font-medium text-text-primary hover:bg-surface-subtle" onClick={()=>choose('requirements')}><span>متطلبات العميل</span><span className="text-text-secondary">⌂</span></button>
       </div></>}
     </div>
-    {action&&<Modal title={action==='followup'?'إضافة متابعة':action==='task'?'إضافة مهمة':action==='viewing'?'إضافة معاينة':action==='requirements'?'متطلبات العميل':'إضافة ملاحظة'} onClose={reset} maxWidth={action==='requirements'?'680px':'520px'}><div className="max-h-[78vh] space-y-4 overflow-y-auto px-0.5">
+    {action&&<Modal title={action==='followup'?'إضافة متابعة':action==='task'?'إضافة مهمة':action==='viewing'?'إضافة معاينة':action==='requirements'?'متطلبات العميل':'إضافة ملاحظة'} onClose={reset} maxWidth={action==='requirements'?'680px':'520px'} mobileCentered><div className="max-h-[78vh] space-y-4 overflow-y-auto px-0.5">
       {action==='requirements'&&<LeadRequirements leadId={leadId} accessToken={accessToken} embedded onSaved={onChanged}/>} 
       {action==='task'&&<Input placeholder="عنوان المهمة" value={title} onChange={e=>setTitle(e.target.value)}/>}
       {action==='viewing'&&<Select value={assetId} onChange={e=>setAssetId(e.target.value)}><option value="">اختر العقار</option>{assets.map(asset=><option key={asset.id} value={asset.id}>{asset.name_ar}</option>)}</Select>}
