@@ -27,6 +27,7 @@ export interface Customer360Snapshot {
   tasks: Array<{id:string;title:string;due_at:string|null;completed_at:string|null;completion_notes:string|null}>;
   viewings: Array<{id:string;asset_id:string;scheduled_at:string;status:string;outcome:string|null;notes:string|null}>;
   deals: Array<{id:string;status:string;value:number|null;expected_close_date:string|null;deal_assets?:Array<{asset_id:string}>}>;
+  reservations: Array<{id:string;reservation_number:string;status:string;reserved_at:string;expires_at:string|null;deposit_amount:number|null;reservation_assets?:Array<{asset_id:string}>}>;
   activities: Array<{id:string;activity_type:string;summary:string;metadata:Record<string,unknown>|null;occurred_at:string}>;
   party: {id:string;name:string;phone:string|null;email:string|null}|null;
   contracts: Array<{id:string;contract_number:string;start_date:string;end_date:string;total_value:number;status:string;customer_roles?:string[];lease_contract_assets?:Array<{asset_id:string}>}>;
