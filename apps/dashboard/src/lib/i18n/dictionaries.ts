@@ -7,8 +7,8 @@ export interface ChromeDictionary {
     leads: string;
     propertiesGroup: {
       label: string;
-      units: string;
-      buildings: string;
+      all: string;
+      previews: string;
       projects: string;
       rentals: string;
     };
@@ -72,8 +72,8 @@ export const dictionaries: Record<Locale, ChromeDictionary> = {
       leads: 'العملاء',
       propertiesGroup: {
         label: 'العقارات',
-        units: 'الوحدات',
-        buildings: 'العمارات',
+        all: 'جميع العقارات',
+        previews: 'المعاينات',
         projects: 'المشاريع',
         rentals: 'الإيجارات',
       },
@@ -134,8 +134,8 @@ export const dictionaries: Record<Locale, ChromeDictionary> = {
       leads: 'Leads',
       propertiesGroup: {
         label: 'Properties',
-        units: 'Units',
-        buildings: 'Buildings',
+        all: 'All Properties',
+        previews: 'Previews',
         projects: 'Projects',
         rentals: 'Rentals',
       },
