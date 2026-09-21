@@ -1,7 +1,7 @@
 import { apiGet, apiPost, apiPatch } from './client';
 export interface ManagedPropertyRow { id:string; asset_id:string; status:string; starts_at:string; ends_at:string|null; management_fee_type:string|null; management_fee_value:number|null; assets?:{id:string;name_ar:string;reference_number:string|null;asset_type:string}|null; }
 export interface LeaseContractRow { id:string; contract_number:string; source:string; start_date:string; end_date:string; total_value:number; status:string; lease_contract_assets?:Array<{asset_id:string}>; lease_contract_parties?:Array<{party_id:string;role:string}>; }
-export interface EjarPartyRow { id:string; name:string; party_type:string; phone:string|null; email:string|null; }
+export interface EjarPartyRow { id:string; name:string; party_type:string; phone:string|null; email:string|null; lead_id?:string|null; }
 export interface MaintenanceRow { id:string; request_number:string; title:string; priority:string; status:string; opened_at:string; assets?:{name_ar:string;reference_number:string|null}|null; }
 export interface LeasePaymentRow { id:string; payment_number:string; contract_id:string; amount:number; paid_at:string; payment_method:string; status:string; }
 export const listManagedProperties=(token:string)=>apiGet<{properties:ManagedPropertyRow[]}>('/v1/rent-plus/properties',token);
