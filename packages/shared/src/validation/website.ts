@@ -14,6 +14,7 @@ export const websiteUpdateSchema = z.object({
   secondary_color: hexColorSchema.optional(),
   font_family: z.string().min(1).optional(),
   logo_url: z.string().url().optional().nullable(),
+  favicon_url: z.string().url().optional().nullable(),
   banner_image_url: z.string().url().optional().nullable(),
   banner_video_url: z.string().url().optional().nullable(),
   announcement_bar_text: z.string().max(200).optional().nullable(),
