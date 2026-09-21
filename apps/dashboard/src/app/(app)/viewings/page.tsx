@@ -214,25 +214,29 @@ export default function CalendarPage() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
-        <Card className="hidden overflow-hidden p-4 md:block md:p-6">
+        <Card className="overflow-hidden p-3 md:p-6">
           <div className="mb-5 flex items-center justify-between">
             <button className="rounded-xl border border-border-default px-3 py-2" onClick={() => moveMonth(1)}>›</button>
             <h2 className="font-bold">{monthLabel}</h2>
             <button className="rounded-xl border border-border-default px-3 py-2" onClick={() => moveMonth(-1)}>‹</button>
           </div>
           <div className="grid grid-cols-7 text-center text-xs text-text-secondary">
-            {['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'].map(x => <div key={x} className="py-2">{x}</div>)}
+            {[['ح','الأحد'],['ن','الاثنين'],['ث','الثلاثاء'],['ر','الأربعاء'],['خ','الخميس'],['ج','الجمعة'],['س','السبت']].map(([short,full]) => <div key={full} className="py-2"><span className="md:hidden">{short}</span><span className="hidden md:inline">{full}</span></div>)}
           </div>
           <div className="grid grid-cols-7 border-r border-t border-border-subtle">
             {days.map((date, index) => {
-              if (!date) return <div key={`blank-${index}`} className="min-h-20 border-b border-l border-border-subtle bg-surface-subtle-3/30 md:min-h-28" />;
+              if (!date) return <div key={`blank-${index}`} className="min-h-14 border-b border-l border-border-subtle bg-surface-subtle-3/30 md:min-h-28" />;
               const key = dayKey(date);
               const dayItems = filteredItems.filter(x => dayKey(x.at) === key);
               const active = key === selectedKey;
-              return <button key={key} onClick={() => setSelectedDate(date)} className={`min-h-20 border-b border-l border-border-subtle p-1.5 text-right align-top transition-colors md:min-h-28 md:p-2 ${active ? 'bg-brand/[.06]' : 'hover:bg-surface-subtle-3/50'}`}>
-                <span className={`inline-flex h-7 w-7 items-center justify-center rounded-full text-xs ${active ? 'bg-brand text-white' : ''}`}>{date.getDate()}</span>
-                <div className="mt-1 space-y-1">
-                  {dayItems.slice(0, 2).map(item => <div key={item.id} className={`truncate rounded-md border px-1.5 py-1 text-[10px] md:text-xs ${typeClass[item.type]}`}>{item.title}</div>)}
+              return <button key={key} onClick={() => setSelectedDate(date)} className={`min-h-14 border-b border-l border-border-subtle p-1 text-center align-top transition-colors md:min-h-28 md:p-2 md:text-right ${active ? 'bg-brand/[.06]' : 'hover:bg-surface-subtle-3/50'}`}>
+                <span className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-[11px] md:h-7 md:w-7 md:text-xs ${active ? 'bg-brand text-white' : ''}`}>{date.getDate()}</span>
+                <div className="mt-1 flex min-h-2 items-center justify-center gap-0.5 md:hidden">
+                  {dayItems.slice(0,3).map(item => <span key={item.id} className={`h-1.5 w-1.5 rounded-full border ${typeClass[item.type]}`} />)}
+                  {dayItems.length > 3 && <span className="text-[8px] text-text-secondary">+</span>}
+                </div>
+                <div className="mt-1 hidden space-y-1 md:block">
+                  {dayItems.slice(0, 2).map(item => <div key={item.id} className={`truncate rounded-md border px-1.5 py-1 text-xs ${typeClass[item.type]}`}>{item.title}</div>)}
                   {dayItems.length > 2 && <div className="text-[10px] text-text-secondary">+{dayItems.length - 2}</div>}
                 </div>
               </button>;
