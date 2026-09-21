@@ -6,23 +6,33 @@ import { AppShell } from '@/components/layout/app-shell';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
-import { listTasks, listViewings, type CrmTask, type Viewing } from '@/lib/api/crm';
-import { listLeads } from '@/lib/api/leads';
+import { createTask, createViewing, listTasks, listViewings, type CrmTask, type Viewing } from '@/lib/api/crm';
+import { listLeads, updateLead } from '@/lib/api/leads';
+import { listAssets } from '@/lib/api/real-estate';
+import { listTeam } from '@/lib/api/team';
+import { listInstallments, listLeaseContracts, type InstallmentRow, type LeaseContractRow } from '@/lib/api/rent-plus';
+import { Modal } from '@/components/ui/modal';
+import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
+import { DateTimePicker } from '@/components/ui/datetime-picker';
+import { datetimeLocalToIso } from '@/lib/lead/datetime';
 
 type CalendarItem = {
   id: string;
-  type: 'viewing' | 'task' | 'followup';
+  type: 'viewing' | 'task' | 'followup' | 'installment' | 'contract';
   title: string;
   at: string;
   href?: string;
   status: 'upcoming' | 'overdue' | 'done';
 };
 
-const typeLabel = { viewing: 'معاينة', task: 'مهمة', followup: 'متابعة' } as const;
+const typeLabel = { viewing: 'معاينة', task: 'مهمة', followup: 'متابعة', installment: 'استحقاق', contract: 'عقد' } as const;
 const typeClass = {
   viewing: 'bg-orange-50 text-orange-700 border-orange-100',
   task: 'bg-violet-50 text-violet-700 border-violet-100',
   followup: 'bg-emerald-50 text-emerald-700 border-emerald-100',
+  installment: 'bg-blue-50 text-blue-700 border-blue-100',
+  contract: 'bg-slate-50 text-slate-700 border-slate-200',
 } as const;
 
 function dayKey(value: string | Date) {
@@ -36,6 +46,14 @@ export default function CalendarPage() {
   const [tasks, setTasks] = useState<CrmTask[] | null>(null);
   const [leads, setLeads] = useState<Awaited<ReturnType<typeof listLeads>>['leads'] | null>(null);
   const [selectedDate, setSelectedDate] = useState(() => new Date());
+  const [installments, setInstallments] = useState<InstallmentRow[]>([]);
+  const [contracts, setContracts] = useState<LeaseContractRow[]>([]);
+  const [assets, setAssets] = useState<Array<{id:string;name_ar:string}>>([]);
+  const [team, setTeam] = useState<Array<{id:string;full_name:string}>>([]);
+  const [showAdd, setShowAdd] = useState(false);
+  const [addType, setAddType] = useState<'task'|'followup'|'viewing'>('task');
+  const [form, setForm] = useState({ title:'', leadId:'', assetId:'', userId:'', at:'' });
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -44,6 +62,9 @@ export default function CalendarPage() {
       setViewings(v.viewings);
       setTasks(t.tasks);
       setLeads(l.leads);
+      void Promise.all([listInstallments(accessToken), listLeaseContracts(accessToken), listAssets(accessToken,{page_size:50}), listTeam(accessToken)])
+        .then(([i,c,a,m])=>{ if(active){setInstallments(i.installments);setContracts(c.contracts);setAssets(a.assets);setTeam(m.members);} })
+        .catch(()=>{});
     });
     return () => { active = false; };
   }, [accessToken]);
@@ -86,8 +107,23 @@ export default function CalendarPage() {
         status: at < now ? 'overdue' : 'upcoming',
       });
     }
+    for (const installment of installments) {
+      result.push({
+        id: `installment-${installment.id}`, type: 'installment',
+        title: `استحقاق قسط #${installment.installment_number} · ${installment.remaining_amount} ر.س`,
+        at: `${installment.due_date}T12:00:00`, href: `/rent-plus/contracts/${installment.contract_id}`,
+        status: installment.status === 'paid' ? 'done' : new Date(`${installment.due_date}T23:59:59`) < now ? 'overdue' : 'upcoming',
+      });
+    }
+    for (const contract of contracts) {
+      result.push({
+        id: `contract-${contract.id}`, type: 'contract', title: `انتهاء العقد ${contract.contract_number}`,
+        at: `${contract.end_date}T12:00:00`, href: `/rent-plus/contracts/${contract.id}`,
+        status: contract.status === 'terminated' ? 'done' : new Date(`${contract.end_date}T23:59:59`) < now ? 'overdue' : 'upcoming',
+      });
+    }
     return result.sort((a, b) => new Date(a.at).getTime() - new Date(b.at).getTime());
-  }, [viewings, tasks, leads]);
+  }, [viewings, tasks, leads, installments, contracts]);
 
   const selectedKey = dayKey(selectedDate);
   const selectedItems = items.filter(item => dayKey(item.at) === selectedKey);
@@ -105,6 +141,25 @@ export default function CalendarPage() {
 
   const loading = viewings === null || tasks === null || leads === null;
   const moveMonth = (delta: number) => setSelectedDate(d => new Date(d.getFullYear(), d.getMonth() + delta, 1));
+  async function addCalendarItem() {
+    if (!form.at) return;
+    setSaving(true);
+    try {
+      if (addType === 'task') {
+        if (!form.title.trim()) return;
+        await createTask(accessToken,{title:form.title.trim(),lead_id:form.leadId||null,assigned_user_id:form.userId||null,due_at:datetimeLocalToIso(form.at)});
+      } else if (addType === 'followup') {
+        if (!form.leadId) return;
+        await updateLead(accessToken,form.leadId,{follow_up_at:datetimeLocalToIso(form.at)});
+      } else {
+        if (!form.leadId || !form.assetId) return;
+        await createViewing(accessToken,{lead_id:form.leadId,asset_id:form.assetId,assigned_user_id:form.userId||me.user.id,scheduled_at:datetimeLocalToIso(form.at)});
+      }
+      setShowAdd(false); setForm({title:'',leadId:'',assetId:'',userId:'',at:''});
+      const [v,t,l]=await Promise.all([listViewings(accessToken),listTasks(accessToken),listLeads(accessToken,{})]);
+      setViewings(v.viewings);setTasks(t.tasks);setLeads(l.leads);
+    } finally { setSaving(false); }
+  }
 
   return (
     <AppShell title="التقويم" orgName={me.tenant.name_ar} accountType={me.tenant.account_type}>
@@ -113,7 +168,7 @@ export default function CalendarPage() {
           <h1 className="text-xl font-bold text-text-primary">التقويم</h1>
           <p className="mt-1 text-sm text-text-secondary">مواعيدك ومعايناتك ومتابعات العملاء في مكان واحد.</p>
         </div>
-        <Button onClick={() => location.assign('/leads')}>+ إضافة</Button>
+        <Button onClick={() => setShowAdd(true)}>+ إضافة</Button>
       </div>
 
       <div className="mb-4 grid grid-cols-3 gap-3">
@@ -171,6 +226,7 @@ export default function CalendarPage() {
           </Card>}
         </div>
       </div>
+      {showAdd && <Modal title="إضافة إلى التقويم" onClose={()=>setShowAdd(false)} maxWidth="560px"><div className="space-y-4"><div className="grid grid-cols-3 gap-2">{(['task','followup','viewing'] as const).map(type=><button key={type} type="button" onClick={()=>setAddType(type)} className={`rounded-xl border px-3 py-3 text-sm font-semibold ${addType===type?'border-brand bg-brand/[.06] text-brand':'border-border-default'}`}>{type==='task'?'مهمة':type==='followup'?'متابعة':'معاينة'}</button>)}</div>{addType==='task'&&<Input placeholder="عنوان المهمة" value={form.title} onChange={e=>setForm({...form,title:e.target.value})}/>}<Select value={form.leadId} onChange={e=>setForm({...form,leadId:e.target.value})}><option value="">{addType==='task'?'بدون عميل (اختياري)':'اختر العميل'}</option>{(leads??[]).map(l=><option key={l.id} value={l.id}>{l.full_name}</option>)}</Select>{addType==='viewing'&&<><Select value={form.assetId} onChange={e=>setForm({...form,assetId:e.target.value})}><option value="">اختر العقار</option>{assets.map(a=><option key={a.id} value={a.id}>{a.name_ar}</option>)}</Select><Select value={form.userId} onChange={e=>setForm({...form,userId:e.target.value})}><option value="">الموظف المسؤول (أنا)</option>{team.map(m=><option key={m.id} value={m.id}>{m.full_name}</option>)}</Select></>}<DateTimePicker value={form.at} onChange={at=>setForm({...form,at})} placeholder="التاريخ والوقت"/><Button className="w-full" disabled={saving} onClick={()=>void addCalendarItem()}>{saving?'جاري الحفظ…':'حفظ'}</Button></div></Modal>}
     </AppShell>
   );
 }
