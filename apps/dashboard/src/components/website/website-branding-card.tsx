@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { FormError } from '@/components/ui/form-error';
 import { AssetUploader } from './asset-uploader';
 import { useLocale } from '@/lib/i18n/locale-context';
-import { getWebsite, updateWebsite, uploadLogo } from '@/lib/api/website';
+import { getWebsite, updateWebsite, uploadFavicon, uploadLogo } from '@/lib/api/website';
 import { ApiRequestError } from '@/lib/api/client';
 
 const HEX_PATTERN = /^#[0-9A-Fa-f]{6}$/;
@@ -103,6 +103,22 @@ export function WebsiteBrandingCard({ accessToken }: { accessToken: string }) {
           }}
         />
         <p className="text-xs text-text-tertiary">{pages.settings.websiteData.logoFooterNote}</p>
+        <div className="border-border-subtle mt-2 border-t pt-4">
+          <AssetUploader
+            label="أيقونة الموقع"
+            kind="favicon"
+            currentUrl={website.favicon_url}
+            onUpload={async (file) => {
+              const { website: updated } = await uploadFavicon(accessToken, file);
+              setWebsite((current) => (current ? { ...current, ...updated } : current));
+            }}
+            onRemove={async () => {
+              const { website: updated } = await updateWebsite(accessToken, { favicon_url: null });
+              setWebsite((current) => (current ? { ...current, ...updated } : current));
+            }}
+          />
+          <p className="mt-2 text-xs text-text-tertiary">تظهر في تبويب المتصفح بجانب اسم موقعك. يفضّل صورة مربعة 512×512 بصيغة PNG أو ICO، بحد أقصى 1 ميجابايت.</p>
+        </div>
       </div>
     </Card>
   );
