@@ -24,6 +24,7 @@ import { useLocale } from '@/lib/i18n/locale-context';
 import { LeadRequirements } from '@/components/crm/lead-requirements';
 import { Customer360Overview } from '@/components/crm/customer-360-overview';
 import { CustomerQuickActions } from '@/components/crm/customer-quick-actions';
+import { CustomerJourney3D } from '@/components/crm/customer-journey-3d';
 
 // Matches Button's h-[46px] — these are <a> tags (tel:/WhatsApp deep links), not <button>s, so they can't use the Button component itself, but should still line up with it.
 const ACTION_LINK_CLASSES =
@@ -199,6 +200,8 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
           </Card>
 
           <Card className="p-4 md:p-5"><div className="mb-3"><h2 className="font-semibold text-text-primary">إجراءات سريعة</h2><p className="mt-1 text-xs text-text-secondary">نفّذ الإجراء مباشرة على هذا العميل دون مغادرة ملفه.</p></div><CustomerQuickActions leadId={id} accessToken={accessToken} currentUserId={me.user.id} onChanged={refreshCustomer360} /></Card>
+
+          {customer360 && <CustomerJourney3D lead={lead} data={customer360} />}
 
           {customer360 && <Customer360Overview lead={lead} data={customer360} />}
 
