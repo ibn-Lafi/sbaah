@@ -160,12 +160,11 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
                 </div>
               </div>
 
-              {lead.phone && (
-                <div className="grid w-full grid-cols-2 gap-2 lg:w-auto lg:min-w-[260px]">
-                  <a href={`tel:${lead.phone}`} className={`${ACTION_LINK_CLASSES} bg-brand text-white hover:bg-brand-hover`}>{t.detail.callAction}</a>
-                  <a href={`https://wa.me/${lead.phone.replace(/^\+/, '')}`} target="_blank" rel="noreferrer" className={`${ACTION_LINK_CLASSES} border border-border-default bg-surface-card text-text-primary hover:bg-surface-subtle`}>{t.detail.whatsappAction}</a>
-                </div>
-              )}
+              <div className="grid w-full grid-cols-3 gap-1.5 lg:w-auto lg:min-w-[360px] lg:gap-2">
+                {lead.phone?<a href={`tel:${lead.phone}`} className={`${ACTION_LINK_CLASSES} bg-brand text-white hover:bg-brand-hover`}>{t.detail.callAction}</a>:<span className={`${ACTION_LINK_CLASSES} cursor-not-allowed bg-surface-subtle text-text-tertiary`}>اتصال</span>}
+                {lead.phone?<a href={`https://wa.me/${lead.phone.replace(/^\+/, '')}`} target="_blank" rel="noreferrer" className={`${ACTION_LINK_CLASSES} border border-border-default bg-surface-card text-text-primary hover:bg-surface-subtle`}>{t.detail.whatsappAction}</a>:<span className={`${ACTION_LINK_CLASSES} cursor-not-allowed border border-border-default text-text-tertiary`}>واتساب</span>}
+                <span className={`${ACTION_LINK_CLASSES} border border-brand/20 bg-brand/[.06] text-brand`}>{t.statusLabels[lead.status]}</span>
+              </div>
             </div>
 
             <details className="mt-5 border-t border-border-subtle pt-4">
