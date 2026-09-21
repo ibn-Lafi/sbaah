@@ -287,8 +287,6 @@ export interface Project {
 export interface Lead {
   id: string;
   tenant_id: string;
-  asset_id: string | null;
-  listing_id: string | null;
   full_name: string;
   /** Nullable only for source='whatsapp_click' — migration 0015. */
   phone: string | null;
@@ -349,7 +347,7 @@ export interface Asset {
 export interface Party {
   id: string; tenant_id: string; party_type: PartyType; name: string; phone: string | null;
   email: string | null; national_id: string | null; commercial_registration: string | null;
-  tax_number: string | null; notes: string | null; created_at: string; updated_at: string;
+  tax_number: string | null; notes: string | null; lead_id: string | null; created_at: string; updated_at: string;
 }
 export interface Listing {
   id: string; tenant_id: string; listing_number: string; listing_type: ListingType;
