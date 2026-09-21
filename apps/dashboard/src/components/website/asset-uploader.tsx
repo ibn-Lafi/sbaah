@@ -49,7 +49,7 @@ export function AssetUploader({ label, currentUrl, onUpload, onRemove, kind = 'i
             <video src={currentUrl} muted className={isFavicon ? "h-16 w-16 rounded-input border border-border-default object-contain" : "h-16 w-28 rounded-input border border-border-default object-cover"} />
           ) : (
             // eslint-disable-next-line @next/next/no-img-element -- Supabase Storage public URL, not a local/optimizable asset
-            <img src={currentUrl} alt={label} className="h-16 w-28 rounded-input border border-border-default object-cover" />
+            <img src={currentUrl} alt={label} className={isFavicon ? "h-16 w-16 rounded-input border border-border-default object-contain" : "h-16 w-28 rounded-input border border-border-default object-cover"} />
           )}
           <Button type="button" variant="secondary" disabled={loading} onClick={() => fileInputRef.current?.click()}>
             {t.assetUploader.replace}
