@@ -169,12 +169,15 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
               )}
             </div>
 
-            <div className="mt-5 grid gap-3 border-t border-border-subtle pt-5 sm:grid-cols-2 xl:grid-cols-4">
-              <div className="flex flex-col gap-1"><label className="text-xs text-text-secondary">{t.detail.statusLabel}</label><Select value={lead.status} onChange={(e) => void saveStatus(e.target.value)}>{LEAD_STATUSES.map((status) => <option key={status} value={status}>{t.statusLabels[status]}</option>)}</Select></div>
-              <div className="flex flex-col gap-1"><label className="text-xs text-text-secondary">{t.detail.followUpLabel}</label><DateTimePicker value={isoToDatetimeLocal(lead.follow_up_at)} onChange={(value) => void saveFollowUp(value)} /></div>
-              {canManage && <div className="flex flex-col gap-1"><label className="text-xs text-text-secondary">{t.detail.assignedAgentLabel}</label><Select value={lead.assigned_agent_id ?? ''} onChange={(e) => void saveAssignedAgent(e.target.value)}><option value="">{t.detail.noAgent}</option>{team.map((member) => <option key={member.id} value={member.id}>{member.full_name}</option>)}</Select></div>}
-              <div className="flex flex-col gap-1"><label className="text-xs text-text-secondary">مصدر العميل</label><p className="rounded-input border border-border-default px-3 py-3 text-sm text-text-primary">{t.sourceLabels[lead.source]}</p></div>
-            </div>
+            <details className="mt-5 border-t border-border-subtle pt-4">
+              <summary className="cursor-pointer select-none text-sm font-semibold text-text-primary">إدارة بيانات العميل <span className="ms-1 text-xs font-normal text-text-secondary">الحالة، المتابعة، المسؤول والمصدر</span></summary>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                <div className="flex flex-col gap-1"><label className="text-xs text-text-secondary">{t.detail.statusLabel}</label><Select value={lead.status} onChange={(e) => void saveStatus(e.target.value)}>{LEAD_STATUSES.map((status) => <option key={status} value={status}>{t.statusLabels[status]}</option>)}</Select></div>
+                <div className="flex flex-col gap-1"><label className="text-xs text-text-secondary">{t.detail.followUpLabel}</label><DateTimePicker value={isoToDatetimeLocal(lead.follow_up_at)} onChange={(value) => void saveFollowUp(value)} /></div>
+                {canManage && <div className="flex flex-col gap-1"><label className="text-xs text-text-secondary">{t.detail.assignedAgentLabel}</label><Select value={lead.assigned_agent_id ?? ''} onChange={(e) => void saveAssignedAgent(e.target.value)}><option value="">{t.detail.noAgent}</option>{team.map((member) => <option key={member.id} value={member.id}>{member.full_name}</option>)}</Select></div>}
+                <div className="flex flex-col gap-1"><label className="text-xs text-text-secondary">مصدر العميل</label><p className="rounded-input border border-border-default px-3 py-3 text-sm text-text-primary">{t.sourceLabels[lead.source]}</p></div>
+              </div>
+            </details>
           </Card>
 
           <div className="flex items-center justify-between gap-3 rounded-card border border-border-subtle bg-surface-card p-3 md:p-4"><div className="min-w-0"><p className="text-sm font-semibold text-text-primary">ماذا تريد أن تفعل؟</p><p className="mt-0.5 hidden text-xs text-text-secondary sm:block">المتابعة والمهمة والمعاينة والملاحظة من مكان واحد.</p></div><CustomerQuickActions leadId={id} accessToken={accessToken} currentUserId={me.user.id} onChanged={refreshCustomer360} /></div>
