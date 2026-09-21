@@ -51,33 +51,33 @@ export function Customer360Overview({lead,data}:{lead:LeadWithNotes;data:Custome
   if(paid)stats.push(['المدفوعات',money(paid)]);
   if(openMaintenance.length)stats.push(['الصيانة',`${openMaintenance.length} مفتوح`]);
 
-  return <div className="flex flex-col gap-4">
-    {smartStatuses.length>0&&<Card className="p-4 md:p-5">
+  return <div className="flex flex-col gap-3 md:gap-4">
+    {smartStatuses.length>0&&<Card className="p-3 md:p-5">
       <div className="mb-3 flex items-center justify-between gap-3"><div><h2 className="font-semibold text-text-primary">الحالة الحالية</h2><p className="mt-1 text-xs text-text-secondary">مستنتجة تلقائيًا من علاقات العميل الحالية.</p></div>{overdueInstallments.length>0&&<span className="text-xs font-semibold text-red-600">يتطلب انتباه</span>}</div>
-      <div className="flex flex-wrap gap-2">{smartStatuses.map((status,index)=><span key={`${status.label}-${index}`} className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${toneClass[status.tone]}`}>{status.label}</span>)}</div>
+      <div className="flex flex-wrap gap-2">{smartStatuses.map((status,index)=><span key={`${status.label}-${index}`} className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold md:px-3 md:py-1.5 md:text-xs ${toneClass[status.tone]}`}>{status.label}</span>)}</div>
     </Card>}
 
-    <Card className="p-4 md:p-5">
+    <Card className="p-3 md:p-5">
       <div className="mb-3 flex items-center justify-between gap-3"><h2 className="font-semibold text-text-primary">حالة العميل في المنصة</h2><span className="text-xs text-text-secondary">ملف موحّد</span></div>
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">{stats.map(([label,value])=><div key={label} className="rounded-input border border-border-subtle bg-surface-subtle p-3"><p className="text-xs text-text-secondary">{label}</p><p className="mt-1 truncate text-sm font-semibold text-text-primary">{value}</p></div>)}</div>
+      <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 md:gap-2 lg:grid-cols-4">{stats.map(([label,value])=><div key={label} className="rounded-lg border border-border-subtle bg-surface-subtle p-2.5 md:rounded-input md:p-3"><p className="text-xs text-text-secondary">{label}</p><p className="mt-1 truncate text-sm font-semibold text-text-primary">{value}</p></div>)}</div>
     </Card>
 
-    <div className="grid items-start gap-4 xl:grid-cols-[0.8fr_1.2fr_1fr]">
-      <div className="flex flex-col gap-4">
-        <Card className="p-5">
+    <div className="grid items-start gap-3 md:gap-4 xl:grid-cols-[0.8fr_1.2fr_1fr]">
+      <div className="flex flex-col gap-3 md:gap-4">
+        <Card className="p-3 md:p-5">
           <h2 className="mb-3 font-semibold text-text-primary">الإجراء القادم</h2>
           {nextAction?<><span className="text-xs font-medium text-brand">{nextAction.type}</span><p className="mt-1 font-semibold text-text-primary">{nextAction.title}</p><p className="mt-1 text-sm text-text-secondary">{date(nextAction.at)}</p></>:<p className="text-sm text-text-secondary">لا يوجد إجراء مجدول حاليًا.</p>}
         </Card>
-        {overdueInstallments.length>0?<Card className="border-red-200 p-5"><p className="text-xs font-medium text-red-600">مبالغ متأخرة</p><p className="mt-1 text-lg font-semibold text-red-700">{money(overdueAmount)}</p><p className="text-sm text-text-secondary">{overdueInstallments.length} قسط متأخر</p></Card>:nextInstallment&&<Card className="p-5"><p className="text-xs text-text-secondary">القسط القادم</p><p className="mt-1 text-lg font-semibold text-text-primary">{money(Number(nextInstallment.amount))}</p><p className="text-sm text-text-secondary">استحقاق {date(nextInstallment.due_date)}</p></Card>}
+        {overdueInstallments.length>0?<Card className="border-red-200 p-5"><p className="text-xs font-medium text-red-600">مبالغ متأخرة</p><p className="mt-1 text-lg font-semibold text-red-700">{money(overdueAmount)}</p><p className="text-sm text-text-secondary">{overdueInstallments.length} قسط متأخر</p></Card>:nextInstallment&&<Card className="p-3 md:p-5"><p className="text-xs text-text-secondary">القسط القادم</p><p className="mt-1 text-lg font-semibold text-text-primary">{money(Number(nextInstallment.amount))}</p><p className="text-sm text-text-secondary">استحقاق {date(nextInstallment.due_date)}</p></Card>}
       </div>
 
-      <div className="flex flex-col gap-4">
-        <Card className="p-5">
+      <div className="flex flex-col gap-3 md:gap-4">
+        <Card className="p-3 md:p-5">
           <div className="mb-4 flex items-center justify-between"><h2 className="font-semibold text-text-primary">العقود والإيجار</h2>{data.party&&<span className="rounded-full bg-surface-subtle px-2.5 py-1 text-xs text-text-secondary">مرتبط بـ Rent Plus</span>}</div>
           {!data.party?<p className="text-sm text-text-secondary">العميل غير مرتبط حاليًا بملف في Rent Plus.</p>:data.contracts.length===0?<p className="text-sm text-text-secondary">لا توجد عقود مرتبطة بهذا العميل.</p>:<div className="flex flex-col gap-3">{data.contracts.slice(0,3).map(c=><Link key={c.id} href={`/rent-plus/contracts/${c.id}`} className="rounded-input border border-border-default p-4 transition-colors hover:border-brand"><div className="flex items-start justify-between gap-3"><div><p className="font-semibold text-text-primary">عقد #{c.contract_number}</p><p className="mt-1 text-xs text-text-secondary">{date(c.start_date)} — {date(c.end_date)}</p></div><span className="rounded-full bg-surface-subtle px-2 py-1 text-xs text-text-secondary">{contractStatus[c.status]??c.status}</span></div><div className="mt-3 flex items-center justify-between text-sm"><span className="text-text-secondary">{(c.customer_roles??[]).map(r=>partyRole[r]??r).join(' · ')}</span><span className="font-semibold text-text-primary">{money(Number(c.total_value))}</span></div></Link>)}</div>}
         </Card>
 
-        {(data.deals.length>0||data.viewings.length>0||data.reservations.length>0)&&<Card className="p-5"><h2 className="mb-3 font-semibold text-text-primary">العلاقة العقارية</h2><div className="grid grid-cols-3 gap-2"><div className="rounded-input bg-surface-subtle p-3"><p className="text-xs text-text-secondary">المعاينات</p><p className="mt-1 font-semibold">{data.viewings.length}</p></div><div className="rounded-input bg-surface-subtle p-3"><p className="text-xs text-text-secondary">الحجوزات</p><p className="mt-1 font-semibold">{data.reservations.length}</p></div><div className="rounded-input bg-surface-subtle p-3"><p className="text-xs text-text-secondary">الصفقات</p><p className="mt-1 font-semibold">{data.deals.length}</p></div></div></Card>}
+        {(data.deals.length>0||data.viewings.length>0||data.reservations.length>0)&&<Card className="p-3 md:p-5"><h2 className="mb-3 font-semibold text-text-primary">العلاقة العقارية</h2><div className="grid grid-cols-3 gap-2"><div className="rounded-lg bg-surface-subtle p-2 md:rounded-input md:p-3"><p className="text-xs text-text-secondary">المعاينات</p><p className="mt-1 font-semibold">{data.viewings.length}</p></div><div className="rounded-lg bg-surface-subtle p-2 md:rounded-input md:p-3"><p className="text-xs text-text-secondary">الحجوزات</p><p className="mt-1 font-semibold">{data.reservations.length}</p></div><div className="rounded-lg bg-surface-subtle p-2 md:rounded-input md:p-3"><p className="text-xs text-text-secondary">الصفقات</p><p className="mt-1 font-semibold">{data.deals.length}</p></div></div></Card>}
       </div>
 
       <CustomerActivityTimeline lead={lead} data={data} />
