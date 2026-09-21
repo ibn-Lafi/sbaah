@@ -74,7 +74,6 @@ export function getNavItems(t: ChromeDictionary): NavEntry[] {
       children: [
         { href: '/properties', label: t.nav.propertiesGroup.all, icon: PropertiesIcon },
         { href: '/projects', label: t.nav.propertiesGroup.projects, icon: ProjectsIcon, capability: 'projects' },
-        { href: '/website/editor', label: t.nav.propertiesGroup.previews, icon: WebsiteIcon, roles: ['owner', 'admin'] },
       ],
     },
     {
