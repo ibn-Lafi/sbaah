@@ -15,6 +15,7 @@ export function Customer360Overview({lead,data}:{lead:LeadWithNotes;data:Custome
   const now=Date.now();
   const activeContracts=data.contracts.filter((c)=>['active','upcoming'].includes(c.status));
   const openDeals=data.deals.filter((d)=>!['won','lost'].includes(d.status));
+  const activeReservations=data.reservations.filter((r)=>['pending','active'].includes(r.status));
   const openMaintenance=data.maintenance.filter((m)=>!['completed','cancelled'].includes(m.status));
   const upcomingViewings=data.viewings.filter((v)=>new Date(v.scheduled_at).getTime()>=now&&['scheduled','rescheduled'].includes(v.status));
   const openTasks=data.tasks.filter((t)=>!t.completed_at);
@@ -23,6 +24,7 @@ export function Customer360Overview({lead,data}:{lead:LeadWithNotes;data:Custome
   const timeline=[
     ...data.activities.map((a)=>({id:'a'+a.id,at:a.occurred_at,title:a.summary,kind:'نشاط CRM'})),
     ...data.viewings.map((v)=>({id:'v'+v.id,at:v.scheduled_at,title:`معاينة عقار — ${v.status==='completed'?'مكتملة':'موعد معاينة'}`,kind:'معاينة'})),
+    ...data.reservations.map((r)=>({id:'r'+r.id,at:r.reserved_at,title:`حجز #${r.reservation_number}`,kind:'حجز'})),
     ...data.payments.map((p)=>({id:'p'+p.id,at:p.paid_at,title:`تم تسجيل دفعة بقيمة ${money(Number(p.amount))}`,kind:'دفعة'})),
     ...data.maintenance.map((m)=>({id:'m'+m.id,at:m.opened_at,title:`طلب صيانة: ${m.title}`,kind:'صيانة'})),
     ...lead.lead_notes.map((n)=>({id:'n'+n.id,at:n.created_at,title:n.note_text,kind:'ملاحظة'})),
@@ -37,6 +39,7 @@ export function Customer360Overview({lead,data}:{lead:LeadWithNotes;data:Custome
   const stats=[
     ['CRM', crmStatus[lead.status]??lead.status],
     ['المعاينات', data.viewings.length?`${data.viewings.length} معاينة`:'لا يوجد'],
+    ['الحجوزات', activeReservations.length?`${activeReservations.length} نشط`:'لا يوجد'],
     ['الصفقات', openDeals.length?`${openDeals.length} مفتوحة`:'لا يوجد'],
     ['العقود', activeContracts.length?`${activeContracts.length} نشط`:'لا يوجد'],
     ['المدفوعات', paid?money(paid):'لا يوجد'],
@@ -46,7 +49,7 @@ export function Customer360Overview({lead,data}:{lead:LeadWithNotes;data:Custome
   return <div className="flex flex-col gap-4">
     <Card className="p-4 md:p-5">
       <div className="mb-3 flex items-center justify-between gap-3"><h2 className="font-semibold text-text-primary">حالة العميل في المنصة</h2><span className="text-xs text-text-secondary">ملف موحّد</span></div>
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6">{stats.map(([label,value])=><div key={label} className="rounded-input border border-border-subtle bg-surface-subtle p-3"><p className="text-xs text-text-secondary">{label}</p><p className="mt-1 truncate text-sm font-semibold text-text-primary">{value}</p></div>)}</div>
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-7">{stats.map(([label,value])=><div key={label} className="rounded-input border border-border-subtle bg-surface-subtle p-3"><p className="text-xs text-text-secondary">{label}</p><p className="mt-1 truncate text-sm font-semibold text-text-primary">{value}</p></div>)}</div>
     </Card>
 
     <div className="grid items-start gap-4 xl:grid-cols-[0.8fr_1.2fr_1fr]">
@@ -64,7 +67,7 @@ export function Customer360Overview({lead,data}:{lead:LeadWithNotes;data:Custome
           {!data.party?<p className="text-sm text-text-secondary">العميل غير مرتبط حاليًا بملف في Rent Plus.</p>:data.contracts.length===0?<p className="text-sm text-text-secondary">لا توجد عقود مرتبطة بهذا العميل.</p>:<div className="flex flex-col gap-3">{data.contracts.slice(0,3).map(c=><Link key={c.id} href={`/rent-plus/contracts/${c.id}`} className="rounded-input border border-border-default p-4 transition-colors hover:border-brand"><div className="flex items-start justify-between gap-3"><div><p className="font-semibold text-text-primary">عقد #{c.contract_number}</p><p className="mt-1 text-xs text-text-secondary">{date(c.start_date)} — {date(c.end_date)}</p></div><span className="rounded-full bg-surface-subtle px-2 py-1 text-xs text-text-secondary">{contractStatus[c.status]??c.status}</span></div><div className="mt-3 flex items-center justify-between text-sm"><span className="text-text-secondary">{(c.customer_roles??[]).map(r=>partyRole[r]??r).join(' · ')}</span><span className="font-semibold text-text-primary">{money(Number(c.total_value))}</span></div></Link>)}</div>}
         </Card>
 
-        {(data.deals.length>0||data.viewings.length>0)&&<Card className="p-5"><h2 className="mb-3 font-semibold text-text-primary">العلاقة العقارية</h2><div className="grid grid-cols-2 gap-2"><div className="rounded-input bg-surface-subtle p-3"><p className="text-xs text-text-secondary">المعاينات</p><p className="mt-1 font-semibold">{data.viewings.length}</p></div><div className="rounded-input bg-surface-subtle p-3"><p className="text-xs text-text-secondary">الصفقات</p><p className="mt-1 font-semibold">{data.deals.length}</p></div></div></Card>}
+        {(data.deals.length>0||data.viewings.length>0||data.reservations.length>0)&&<Card className="p-5"><h2 className="mb-3 font-semibold text-text-primary">العلاقة العقارية</h2><div className="grid grid-cols-3 gap-2"><div className="rounded-input bg-surface-subtle p-3"><p className="text-xs text-text-secondary">المعاينات</p><p className="mt-1 font-semibold">{data.viewings.length}</p></div><div className="rounded-input bg-surface-subtle p-3"><p className="text-xs text-text-secondary">الحجوزات</p><p className="mt-1 font-semibold">{data.reservations.length}</p></div><div className="rounded-input bg-surface-subtle p-3"><p className="text-xs text-text-secondary">الصفقات</p><p className="mt-1 font-semibold">{data.deals.length}</p></div></div></Card>}
       </div>
 
       <Card className="p-5">
