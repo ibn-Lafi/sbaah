@@ -23,7 +23,7 @@ export function CreatePartyForm({ accessToken, onCreated }: { accessToken: strin
 
   useEffect(() => {
     let active = true;
-    void Promise.all([listLeads(accessToken, {}), listEjarTenants(accessToken)])
+    void Promise.all([listLeads(accessToken, { page_size: 50 }), listEjarTenants(accessToken)])
       .then(([leadResult, tenantResult]) => {
         if (!active) return;
         setLeads(leadResult.leads);
