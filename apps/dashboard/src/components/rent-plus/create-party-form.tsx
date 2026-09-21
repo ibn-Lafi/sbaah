@@ -9,7 +9,7 @@ import { listLeads } from '@/lib/api/leads';
 
 type LeadOption = Awaited<ReturnType<typeof listLeads>>['leads'][number];
 
-export function CreatePartyForm({ accessToken, onCreated }: { accessToken: string; onCreated: () => void }) {
+export function CreatePartyForm({ accessToken, onCreated }: { accessToken: string; onCreated: (party: EjarPartyRow) => void }) {
   const [step, setStep] = useState(0);
   const [source, setSource] = useState<'crm' | 'new'>('crm');
   const [busy, setBusy] = useState(false);
@@ -45,25 +45,27 @@ export function CreatePartyForm({ accessToken, onCreated }: { accessToken: strin
     try {
       if (source === 'crm') {
         if (!selectedLead) { setError('اختر عميلاً من قائمة العملاء'); return; }
-        await createEjarParty(accessToken, {
+        const result = await createEjarParty(accessToken, {
           party_type: 'individual',
           name: selectedLead.full_name,
           phone: selectedLead.phone || null,
           email: selectedLead.email || null,
           lead_id: selectedLead.id,
         });
+        onCreated(result.party);
+        return;
       } else {
-        await createEjarParty(accessToken, {
+        const result = await createEjarParty(accessToken, {
           party_type: form.type,
           name: form.name,
           phone: form.phone || null,
           email: form.email || null,
           national_id: form.nationalId || null,
           commercial_registration: form.commercialRegistration || null,
-          lead_id: null,
         });
+        onCreated(result.party);
+        return;
       }
-      onCreated();
     } catch (x) {
       setError(x instanceof Error ? x.message : 'تعذر حفظ المستأجر');
     } finally {
