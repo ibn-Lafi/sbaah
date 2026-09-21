@@ -3,13 +3,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { createRequirement, getMatches, listRequirements, type LeadRequirement } from '@/lib/api/crm';
 
 const money=(value:number)=>new Intl.NumberFormat('ar-SA',{style:'currency',currency:'SAR',maximumFractionDigits:0}).format(value);
 
-export function LeadRequirements({leadId,accessToken}:{leadId:string;accessToken:string}) {
+export function LeadRequirements({leadId,accessToken,embedded=false,onSaved}:{leadId:string;accessToken:string;embedded?:boolean;onSaved?:()=>Promise<void>|void}) {
   const [requirements,setRequirements]=useState<LeadRequirement[]>([]);
   const [matches,setMatches]=useState<Array<{id:string;title_ar:string;price:number;area_sqm:number}>>([]);
   const [min,setMin]=useState('');
@@ -34,12 +33,13 @@ export function LeadRequirements({leadId,accessToken}:{leadId:string;accessToken
     try{
       await createRequirement(accessToken,{lead_id:leadId,budget_min:min?Number(min):null,budget_max:max?Number(max):null});
       await load();
+      await onSaved?.();
     } finally { setSaving(false); }
   }
 
   const latest=requirements[0];
 
-  return <Card className="p-4 md:p-6">
+  const content=<>
     <div className="mb-5 flex flex-wrap items-start justify-between gap-2">
       <div><h2 className="font-semibold text-text-primary">متطلبات العميل</h2><p className="mt-1 text-sm text-text-secondary">احتياج العميل العقاري والميزانية والعقارات المطابقة.</p></div>
       {latest&&<span className="rounded-full bg-surface-subtle px-2.5 py-1 text-xs text-text-secondary">{matches.length} عقار مطابق</span>}
@@ -61,5 +61,6 @@ export function LeadRequirements({leadId,accessToken}:{leadId:string;accessToken
     </div>}
 
     {matches.length>0&&<div className="mt-5"><h3 className="mb-3 text-sm font-semibold text-text-primary">عقارات مقترحة</h3><div className="grid gap-2 sm:grid-cols-2">{matches.slice(0,4).map(m=><Link key={m.id} href={`/properties/${m.id}`} className="rounded-input border border-border-default p-3 transition-colors hover:border-brand"><p className="truncate font-medium text-text-primary">{m.title_ar}</p><p className="mt-1 text-xs text-text-secondary">{m.area_sqm} م² · {money(m.price)}</p></Link>)}</div></div>}
-  </Card>;
+  </>;
+  return embedded?content:<div className="rounded-card border border-border-subtle bg-surface-card p-4 md:p-6">{content}</div>;
 }
