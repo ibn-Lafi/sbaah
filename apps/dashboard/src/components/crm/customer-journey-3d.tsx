@@ -103,11 +103,10 @@ export function CustomerJourney3D({ lead, data }: { lead: LeadWithNotes; data: C
             </svg>
 
             <div className="relative grid grid-cols-1 gap-3 md:grid-cols-none md:grid-flow-col md:auto-cols-fr md:gap-2">
-              {stages.map((stage, index) => {
+              {stages.map((stage) => {
                 const tone = tones[stage.tone];
-                const lift = [48, 0, 64, 20, 72, 30, 88, 48][index % 8];
-                return <div key={stage.id} className="relative md:flex md:flex-col md:items-center" style={{transform: expanded ? undefined : undefined}}>
-                  <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/70 p-3 backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:border-white/25 md:w-full md:flex-col md:text-center" style={{marginBottom: expanded ? undefined : undefined, marginTop: expanded ? 0 : undefined}}>
+                return <div key={stage.id} className="relative md:flex md:flex-col md:items-center">
+                  <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/70 p-3 backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:border-white/25 md:w-full md:flex-col md:text-center">
                     <span className={`grid h-11 w-11 flex-none place-items-center rounded-full border text-lg text-white ${tone.node} ${tone.glow} motion-safe:animate-[pulse_3s_ease-in-out_infinite]`}>{stage.icon}</span>
                     <div className="min-w-0 md:min-h-[70px]"><p className="font-semibold">{stage.label}</p><p className="mt-0.5 truncate text-xs text-slate-400 md:whitespace-normal">{stage.detail}</p>{stage.at&&<p className="mt-1 text-[11px] text-slate-500">{formatDate(stage.at)}</p>}</div>
                   </div>
