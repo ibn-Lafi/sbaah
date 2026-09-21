@@ -40,7 +40,7 @@ export function duplicateSection(accessToken: string, sectionId: string): Promis
   return apiPost<{ section: WebsiteSection }>(`/website/sections/${sectionId}/duplicate`, {}, accessToken);
 }
 
-function uploadAsset(accessToken: string, path: '/website/logo' | '/website/banner' | '/website/banner-video', file: File) {
+function uploadAsset(accessToken: string, path: '/website/logo' | '/website/favicon' | '/website/banner' | '/website/banner-video', file: File) {
   const formData = new FormData();
   formData.append('file', file);
   return apiUpload<{ website: Website }>(path, formData, accessToken);
@@ -48,6 +48,10 @@ function uploadAsset(accessToken: string, path: '/website/logo' | '/website/bann
 
 export function uploadLogo(accessToken: string, file: File): Promise<{ website: Website }> {
   return uploadAsset(accessToken, '/website/logo', file);
+}
+
+export function uploadFavicon(accessToken: string, file: File): Promise<{ website: Website }> {
+  return uploadAsset(accessToken, '/website/favicon', file);
 }
 
 export function uploadBanner(accessToken: string, file: File): Promise<{ website: Website }> {
