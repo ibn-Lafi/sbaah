@@ -6,7 +6,7 @@ import { AppShell } from '@/components/layout/app-shell';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
-import { createTask, createViewing, listTasks, listViewings, type CrmTask, type Viewing } from '@/lib/api/crm';
+import { createTask, createViewing, listTasks, listViewings, updateTask, updateViewing, type CrmTask, type Viewing } from '@/lib/api/crm';
 import { listLeads, updateLead } from '@/lib/api/leads';
 import { listAssets } from '@/lib/api/real-estate';
 import { listTeam } from '@/lib/api/team';
@@ -24,6 +24,7 @@ type CalendarItem = {
   at: string;
   href?: string;
   status: 'upcoming' | 'overdue' | 'done';
+  sourceId?: string;
 };
 
 const typeLabel = { viewing: 'معاينة', task: 'مهمة', followup: 'متابعة', installment: 'استحقاق', contract: 'عقد' } as const;
@@ -54,6 +55,8 @@ export default function CalendarPage() {
   const [addType, setAddType] = useState<'task'|'followup'|'viewing'>('task');
   const [form, setForm] = useState({ title:'', leadId:'', assetId:'', userId:'', at:'' });
   const [saving, setSaving] = useState(false);
+  const [activeItem, setActiveItem] = useState<CalendarItem|null>(null);
+  const [actionAt, setActionAt] = useState('');
 
   useEffect(() => {
     let active = true;
@@ -80,7 +83,7 @@ export default function CalendarPage() {
         title: 'معاينة عقار',
         at: viewing.scheduled_at,
         href: `/leads/${viewing.lead_id}`,
-        status: ['completed', 'cancelled'].includes(viewing.status) ? 'done' : at < now ? 'overdue' : 'upcoming',
+        status: ['completed', 'cancelled'].includes(viewing.status) ? 'done' : at < now ? 'overdue' : 'upcoming', sourceId: viewing.id,
       });
     }
     for (const task of tasks ?? []) {
@@ -92,7 +95,7 @@ export default function CalendarPage() {
         title: task.title,
         at: task.due_at,
         href: task.lead_id ? `/leads/${task.lead_id}` : undefined,
-        status: task.completed_at ? 'done' : at < now ? 'overdue' : 'upcoming',
+        status: task.completed_at ? 'done' : at < now ? 'overdue' : 'upcoming', sourceId: task.id,
       });
     }
     for (const lead of leads ?? []) {
@@ -141,23 +144,35 @@ export default function CalendarPage() {
 
   const loading = viewings === null || tasks === null || leads === null;
   const moveMonth = (delta: number) => setSelectedDate(d => new Date(d.getFullYear(), d.getMonth() + delta, 1));
+  async function refreshCrmCalendar(){const [v,t,l]=await Promise.all([listViewings(accessToken),listTasks(accessToken),listLeads(accessToken,{})]);setViewings(v.viewings);setTasks(t.tasks);setLeads(l.leads);}
+  async function actOnItem(action:'complete'|'interested'|'follow_up'|'not_interested'|'reschedule'){
+    if(!activeItem?.sourceId)return; setSaving(true);
+    try{
+      if(action==='reschedule'){const iso=datetimeLocalToIso(actionAt);if(!iso)return;if(activeItem.type==='task')await updateTask(accessToken,activeItem.sourceId,{due_at:iso});else if(activeItem.type==='viewing')await updateViewing(accessToken,activeItem.sourceId,{scheduled_at:iso,status:'rescheduled'});}
+      else if(activeItem.type==='task'&&action==='complete'){/* API does not yet support completed_at; keep task completion out until backend contract is extended safely. */ return;}
+      else if(activeItem.type==='viewing'){await updateViewing(accessToken,activeItem.sourceId,{status:'completed',outcome:action==='complete'?null:action});}
+      await refreshCrmCalendar();setActiveItem(null);setActionAt('');
+    }finally{setSaving(false)}
+  }
   async function addCalendarItem() {
     if (!form.at) return;
     setSaving(true);
     try {
       if (addType === 'task') {
         if (!form.title.trim()) return;
-        await createTask(accessToken,{title:form.title.trim(),lead_id:form.leadId||null,assigned_user_id:form.userId||null,due_at:datetimeLocalToIso(form.at)});
+        const dueAt=datetimeLocalToIso(form.at); if(!dueAt)return;
+        await createTask(accessToken,{title:form.title.trim(),lead_id:form.leadId||null,assigned_user_id:form.userId||null,due_at:dueAt});
       } else if (addType === 'followup') {
         if (!form.leadId) return;
-        await updateLead(accessToken,form.leadId,{follow_up_at:datetimeLocalToIso(form.at)});
+        const followAt=datetimeLocalToIso(form.at); if(!followAt)return;
+        await updateLead(accessToken,form.leadId,{follow_up_at:followAt});
       } else {
         if (!form.leadId || !form.assetId) return;
-        await createViewing(accessToken,{lead_id:form.leadId,asset_id:form.assetId,assigned_user_id:form.userId||me.user.id,scheduled_at:datetimeLocalToIso(form.at)});
+        const scheduledAt=datetimeLocalToIso(form.at); if(!scheduledAt)return;
+        await createViewing(accessToken,{lead_id:form.leadId,asset_id:form.assetId,assigned_user_id:form.userId||me.user.id,scheduled_at:scheduledAt});
       }
       setShowAdd(false); setForm({title:'',leadId:'',assetId:'',userId:'',at:''});
-      const [v,t,l]=await Promise.all([listViewings(accessToken),listTasks(accessToken),listLeads(accessToken,{})]);
-      setViewings(v.viewings);setTasks(t.tasks);setLeads(l.leads);
+      await refreshCrmCalendar();
     } finally { setSaving(false); }
   }
 
@@ -215,7 +230,7 @@ export default function CalendarPage() {
                   <div className="min-w-0 flex-1"><p className="truncate text-sm font-semibold">{item.title}</p><p className="mt-0.5 text-xs text-text-secondary">{new Intl.DateTimeFormat('ar-SA',{timeStyle:'short'}).format(new Date(item.at))}</p></div>
                   {item.status === 'overdue' && <span className="text-[11px] font-medium text-red-600">متأخر</span>}
                 </div>;
-                return item.href ? <Link key={item.id} href={item.href}>{body}</Link> : <div key={item.id}>{body}</div>;
+                return <button type="button" className="block w-full text-right" key={item.id} onClick={()=>{setActiveItem(item);setActionAt('')}}>{body}</button>;
               })}
             </div>
           </Card>
@@ -226,6 +241,7 @@ export default function CalendarPage() {
           </Card>}
         </div>
       </div>
+      {activeItem && <Modal title={activeItem.title} onClose={()=>setActiveItem(null)} maxWidth="520px"><div className="space-y-4"><div className="rounded-xl bg-surface-subtle-3 p-4"><p className="text-sm text-text-secondary">{typeLabel[activeItem.type]}</p><p className="mt-1 font-semibold">{new Intl.DateTimeFormat('ar-SA',{dateStyle:'full',timeStyle:'short'}).format(new Date(activeItem.at))}</p></div>{activeItem.href&&<Link href={activeItem.href} className="block rounded-xl border border-border-default px-4 py-3 text-center text-sm font-semibold">فتح المصدر</Link>}{activeItem.type==='viewing'&&activeItem.status!=='done'&&<div><p className="mb-2 text-sm font-semibold">نتيجة المعاينة</p><div className="grid grid-cols-3 gap-2"><Button variant="secondary" onClick={()=>void actOnItem('interested')}>مهتم</Button><Button variant="secondary" onClick={()=>void actOnItem('follow_up')}>متابعة</Button><Button variant="secondary" onClick={()=>void actOnItem('not_interested')}>غير مهتم</Button></div></div>}{(activeItem.type==='viewing'||activeItem.type==='task')&&activeItem.status!=='done'&&<div className="space-y-2"><p className="text-sm font-semibold">إعادة الجدولة</p><DateTimePicker value={actionAt} onChange={setActionAt}/><Button className="w-full" disabled={!actionAt||saving} onClick={()=>void actOnItem('reschedule')}>حفظ الموعد الجديد</Button></div>}</div></Modal>}
       {showAdd && <Modal title="إضافة إلى التقويم" onClose={()=>setShowAdd(false)} maxWidth="560px"><div className="space-y-4"><div className="grid grid-cols-3 gap-2">{(['task','followup','viewing'] as const).map(type=><button key={type} type="button" onClick={()=>setAddType(type)} className={`rounded-xl border px-3 py-3 text-sm font-semibold ${addType===type?'border-brand bg-brand/[.06] text-brand':'border-border-default'}`}>{type==='task'?'مهمة':type==='followup'?'متابعة':'معاينة'}</button>)}</div>{addType==='task'&&<Input placeholder="عنوان المهمة" value={form.title} onChange={e=>setForm({...form,title:e.target.value})}/>}<Select value={form.leadId} onChange={e=>setForm({...form,leadId:e.target.value})}><option value="">{addType==='task'?'بدون عميل (اختياري)':'اختر العميل'}</option>{(leads??[]).map(l=><option key={l.id} value={l.id}>{l.full_name}</option>)}</Select>{addType==='viewing'&&<><Select value={form.assetId} onChange={e=>setForm({...form,assetId:e.target.value})}><option value="">اختر العقار</option>{assets.map(a=><option key={a.id} value={a.id}>{a.name_ar}</option>)}</Select><Select value={form.userId} onChange={e=>setForm({...form,userId:e.target.value})}><option value="">الموظف المسؤول (أنا)</option>{team.map(m=><option key={m.id} value={m.id}>{m.full_name}</option>)}</Select></>}<DateTimePicker value={form.at} onChange={at=>setForm({...form,at})} placeholder="التاريخ والوقت"/><Button className="w-full" disabled={saving} onClick={()=>void addCalendarItem()}>{saving?'جاري الحفظ…':'حفظ'}</Button></div></Modal>}
     </AppShell>
   );
