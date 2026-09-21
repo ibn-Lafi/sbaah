@@ -23,6 +23,7 @@ import type { ChromeDictionary } from '@/lib/i18n/dictionaries';
 import {
   AppsIcon,
   ClientsIcon,
+  CalendarIcon,
   DashboardIcon,
   DomainIcon,
   PagesIcon,
@@ -65,7 +66,7 @@ export function getNavItems(t: ChromeDictionary): NavEntry[] {
   return [
     { href: '/', label: t.nav.dashboard, icon: DashboardIcon },
     { href: '/leads', label: t.nav.leads, icon: ClientsIcon, capability: 'crm' },
-    { href: '/viewings', label: 'التقويم', icon: ClientsIcon, capability: 'crm' },
+    { href: '/viewings', label: 'التقويم', icon: CalendarIcon, capability: 'crm' },
     {
       group: 'properties',
       capability: 'properties',
