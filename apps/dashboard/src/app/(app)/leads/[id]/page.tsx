@@ -16,7 +16,7 @@ import { Select } from '@/components/ui/select';
 import { FormError } from '@/components/ui/form-error';
 import { FormPageSkeleton } from '@/components/ui/form-page-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
-import { addLeadNote, deleteLead, getLead, updateLead, type LeadWithNotes } from '@/lib/api/leads';
+import { addLeadNote, deleteLead, getLead, updateLead, type Customer360Snapshot, type LeadWithNotes } from '@/lib/api/leads';
 import { getAsset } from '@/lib/api/real-estate';
 import { listTeam, type TeamMember } from '@/lib/api/team';
 import { ApiRequestError } from '@/lib/api/client';
@@ -24,6 +24,7 @@ import { datetimeLocalToIso, isoToDatetimeLocal } from '@/lib/lead/datetime';
 import { formatRelativeTime } from '@/lib/format/date';
 import { useLocale } from '@/lib/i18n/locale-context';
 import { LeadRequirements } from '@/components/crm/lead-requirements';
+import { Customer360Overview } from '@/components/crm/customer-360-overview';
 
 // Matches Button's h-[46px] — these are <a> tags (tel:/WhatsApp deep links), not <button>s, so they can't use the Button component itself, but should still line up with it.
 const ACTION_LINK_CLASSES =
@@ -37,6 +38,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
   const t = pages.leads;
   const [lead, setLead] = useState<LeadWithNotes | null>(null);
   const [property, setProperty] = useState<Asset | null>(null);
+  const [customer360, setCustomer360] = useState<Customer360Snapshot | null>(null);
   const [team, setTeam] = useState<TeamMember[]>([]);
   const [notFound, setNotFound] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -46,9 +48,10 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
   useEffect(() => {
     let cancelled = false;
     getLead(accessToken, id)
-      .then(({ lead: loaded }) => {
+      .then(({ lead: loaded, customer360: snapshot }) => {
         if (cancelled) return;
         setLead(loaded);
+        setCustomer360(snapshot);
         if (loaded.asset_id) {
           void getAsset(accessToken, loaded.asset_id).then(({ asset: loadedProperty }) => {
             if (!cancelled) setProperty(loadedProperty);
@@ -161,6 +164,8 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
           </div>
 
           <FormError message={error} />
+
+          {customer360 && <Customer360Overview lead={lead} data={customer360} />}
 
           <LeadRequirements leadId={id} accessToken={accessToken} />
 
