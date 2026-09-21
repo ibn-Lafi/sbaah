@@ -5,8 +5,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   LEAD_STATUSES,
-  type Asset,
-  type District,
   type Lead,
   type LeadStatus,
 } from '@sbaah/shared';
@@ -21,24 +19,11 @@ import { Select } from '@/components/ui/select';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { listLeads, updateLead } from '@/lib/api/leads';
-import { listAssets } from '@/lib/api/real-estate';
-import { listDistricts } from '@/lib/api/reference-data';
 import { useLocale } from '@/lib/i18n/locale-context';
 import type { PageDictionaries } from '@/lib/i18n/page-dictionaries';
 import { formatDate } from '@/lib/format/date';
 
 type StatusFilter = LeadStatus | 'all';
-
-function propertySubtitle(
-  property: Asset | undefined,
-  districts: Record<string, District>,
-  t: PageDictionaries['leads'],
-): string | null {
-  if (!property) return null;
-  const typeLabel = property.asset_type;
-  const district = property.district_id ? districts[property.district_id] : undefined;
-  return district ? t.list.propertySubtitle(typeLabel, district.name_ar) : typeLabel;
-}
 
 /**
  * جدول موحّد واحد (لا تبويب "لوحة المتابعة/جميع العملاء" — كانا نفس
@@ -52,26 +37,7 @@ export default function LeadsPage() {
   const t = pages.leads;
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [leads, setLeads] = useState<Lead[] | null>(null);
-  const [properties, setProperties] = useState<Record<string, Asset>>({});
-  const [districts, setDistricts] = useState<Record<string, District>>({});
   const [showCreate, setShowCreate] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-    void listAssets(accessToken).then((result) => {
-      if (cancelled) return;
-      setProperties(
-        Object.fromEntries(result.assets.map((property) => [property.id, property])),
-      );
-    });
-    void listDistricts().then((result) => {
-      if (cancelled) return;
-      setDistricts(Object.fromEntries(result.map((district) => [district.id, district])));
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [accessToken]);
 
   useEffect(() => {
     let cancelled = false;
@@ -147,8 +113,6 @@ export default function LeadsPage() {
               </thead>
               <tbody>
                 {leads.map((lead) => {
-                  const property = lead.asset_id ? properties[lead.asset_id] : undefined;
-                  const subtitle = propertySubtitle(property, districts, t);
                   return (
                     <tr
                       key={lead.id}
@@ -166,9 +130,6 @@ export default function LeadsPage() {
                             >
                               {lead.full_name}
                             </Link>
-                            {subtitle && (
-                              <p className="text-text-secondary truncate text-xs">{subtitle}</p>
-                            )}
                           </div>
                         </div>
                       </td>
