@@ -25,6 +25,9 @@ type CalendarItem = {
   href?: string;
   status: 'upcoming' | 'overdue' | 'done';
   sourceId?: string;
+  leadId?: string | null;
+  completionNotes?: string | null;
+  completedAt?: string | null;
 };
 
 const typeLabel = { viewing: 'معاينة', task: 'مهمة', followup: 'متابعة', installment: 'استحقاق', contract: 'عقد' } as const;
@@ -60,6 +63,9 @@ export default function CalendarPage() {
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<'all'|CalendarItem['type']>('all');
   const [followUpAfterViewing, setFollowUpAfterViewing] = useState(false);
+  const [completingTask, setCompletingTask] = useState(false);
+  const [completionNotes, setCompletionNotes] = useState('');
+  const [taskFollowUp, setTaskFollowUp] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -98,7 +104,7 @@ export default function CalendarPage() {
         title: task.title,
         at: task.due_at,
         href: task.lead_id ? `/leads/${task.lead_id}` : undefined,
-        status: task.completed_at ? 'done' : at < now ? 'overdue' : 'upcoming', sourceId: task.id,
+        status: task.completed_at ? 'done' : at < now ? 'overdue' : 'upcoming', sourceId: task.id, leadId: task.lead_id, completionNotes: task.completion_notes, completedAt: task.completed_at,
       });
     }
     for (const lead of leads ?? []) {
@@ -163,6 +169,15 @@ export default function CalendarPage() {
         if(action==='follow_up'){setFollowUpAfterViewing(true);setSaving(false);return;}
       }
       await refreshCrmCalendar();setActiveItem(null);setActionAt('');
+    }finally{setSaving(false)}
+  }
+  async function completeTaskWithNotes(){
+    if(!activeItem?.sourceId || activeItem.type!=='task')return;
+    setSaving(true);
+    try{
+      await updateTask(accessToken,activeItem.sourceId,{completed_at:new Date().toISOString(),completion_notes:completionNotes.trim()||null});
+      if(taskFollowUp && activeItem.leadId && actionAt){const iso=datetimeLocalToIso(actionAt);if(iso)await updateLead(accessToken,activeItem.leadId,{follow_up_at:iso});}
+      await refreshCrmCalendar();setCompletingTask(false);setCompletionNotes('');setTaskFollowUp(false);setActionAt('');setActiveItem(null);
     }finally{setSaving(false)}
   }
   async function scheduleViewingFollowUp(){
@@ -266,7 +281,7 @@ export default function CalendarPage() {
           </Card>}
         </div>
       </div>
-      {activeItem && <Modal title={activeItem.title} onClose={()=>{setActiveItem(null);setFollowUpAfterViewing(false);setActionAt('')}} maxWidth="520px"><div className="space-y-4"><div className="rounded-xl bg-surface-subtle-3 p-4"><p className="text-sm text-text-secondary">{typeLabel[activeItem.type]}</p><p className="mt-1 font-semibold">{new Intl.DateTimeFormat('ar-SA',{dateStyle:'full',timeStyle:'short'}).format(new Date(activeItem.at))}</p></div>{activeItem.href&&<Link href={activeItem.href} className="block rounded-xl border border-border-default px-4 py-3 text-center text-sm font-semibold">فتح المصدر</Link>}{followUpAfterViewing&&activeItem.type==='viewing'?<div className="space-y-3"><p className="text-sm font-semibold">حدد موعد المتابعة التالية</p><DateTimePicker value={actionAt} onChange={setActionAt}/><Button className="w-full" disabled={!actionAt||saving} onClick={()=>void scheduleViewingFollowUp()}>إنشاء المتابعة</Button></div>:activeItem.type==='viewing'&&activeItem.status!=='done'&&<div><p className="mb-2 text-sm font-semibold">نتيجة المعاينة</p><div className="grid grid-cols-3 gap-2"><Button variant="secondary" onClick={()=>void actOnItem('interested')}>مهتم</Button><Button variant="secondary" onClick={()=>void actOnItem('follow_up')}>متابعة</Button><Button variant="secondary" onClick={()=>void actOnItem('not_interested')}>غير مهتم</Button></div></div>}{activeItem.type==='task'&&activeItem.status!=='done'&&<Button className="w-full" disabled={saving} onClick={()=>void actOnItem('complete')}>تم إنجاز المهمة</Button>}{(activeItem.type==='viewing'||activeItem.type==='task')&&activeItem.status!=='done'&&<div className="space-y-2"><p className="text-sm font-semibold">إعادة الجدولة</p><DateTimePicker value={actionAt} onChange={setActionAt}/><Button className="w-full" disabled={!actionAt||saving} onClick={()=>void actOnItem('reschedule')}>حفظ الموعد الجديد</Button></div>}</div></Modal>}
+      {activeItem && <Modal title={activeItem.title} onClose={()=>{setActiveItem(null);setFollowUpAfterViewing(false);setCompletingTask(false);setCompletionNotes('');setTaskFollowUp(false);setActionAt('')}} maxWidth="520px"><div className="space-y-4"><div className="rounded-xl bg-surface-subtle-3 p-4"><p className="text-sm text-text-secondary">{typeLabel[activeItem.type]}</p><p className="mt-1 font-semibold">{new Intl.DateTimeFormat('ar-SA',{dateStyle:'full',timeStyle:'short'}).format(new Date(activeItem.at))}</p></div>{activeItem.href&&<Link href={activeItem.href} className="block rounded-xl border border-border-default px-4 py-3 text-center text-sm font-semibold">فتح المصدر</Link>}{followUpAfterViewing&&activeItem.type==='viewing'?<div className="space-y-3"><p className="text-sm font-semibold">حدد موعد المتابعة التالية</p><DateTimePicker value={actionAt} onChange={setActionAt}/><Button className="w-full" disabled={!actionAt||saving} onClick={()=>void scheduleViewingFollowUp()}>إنشاء المتابعة</Button></div>:activeItem.type==='viewing'&&activeItem.status!=='done'&&<div><p className="mb-2 text-sm font-semibold">نتيجة المعاينة</p><div className="grid grid-cols-3 gap-2"><Button variant="secondary" onClick={()=>void actOnItem('interested')}>مهتم</Button><Button variant="secondary" onClick={()=>void actOnItem('follow_up')}>متابعة</Button><Button variant="secondary" onClick={()=>void actOnItem('not_interested')}>غير مهتم</Button></div></div>}{activeItem.type==='task'&&activeItem.status==='done'&&<div className="space-y-3 rounded-xl border border-border-subtle p-4"><div><p className="text-xs text-text-secondary">حالة المهمة</p><p className="mt-1 text-sm font-semibold text-emerald-700">✓ مكتملة</p></div>{activeItem.completedAt&&<div><p className="text-xs text-text-secondary">وقت الإنجاز</p><p className="mt-1 text-sm">{new Intl.DateTimeFormat('ar-SA',{dateStyle:'medium',timeStyle:'short'}).format(new Date(activeItem.completedAt))}</p></div>}<div><p className="text-xs text-text-secondary">ملاحظات الإنجاز</p><p className="mt-1 whitespace-pre-wrap text-sm">{activeItem.completionNotes||'لا توجد ملاحظات.'}</p></div></div>}{activeItem.type==='task'&&activeItem.status!=='done'&&!completingTask&&<Button className="w-full" disabled={saving} onClick={()=>setCompletingTask(true)}>تم إنجاز المهمة</Button>}{activeItem.type==='task'&&activeItem.status!=='done'&&completingTask&&<div className="space-y-3 rounded-xl border border-border-subtle p-4"><div><label className="mb-2 block text-sm font-semibold">ملاحظات الإنجاز <span className="font-normal text-text-secondary">(اختياري)</span></label><textarea value={completionNotes} onChange={e=>setCompletionNotes(e.target.value)} rows={4} maxLength={4000} placeholder="مثال: تم التواصل مع العميل وإرسال العرض…" className="w-full resize-none rounded-xl border border-border-default bg-surface-card px-3 py-2 text-sm outline-none focus:border-brand" /></div>{activeItem.leadId&&<label className="flex cursor-pointer items-center gap-2 text-sm"><input type="checkbox" checked={taskFollowUp} onChange={e=>setTaskFollowUp(e.target.checked)}/><span>إضافة متابعة لاحقة للعميل</span></label>}{taskFollowUp&&activeItem.leadId&&<DateTimePicker value={actionAt} onChange={setActionAt} placeholder="موعد المتابعة"/>}<Button className="w-full" disabled={saving||(taskFollowUp&&!actionAt)} onClick={()=>void completeTaskWithNotes()}>{saving?'جاري الحفظ…':'حفظ وإنجاز المهمة'}</Button></div>}{(activeItem.type==='viewing'||activeItem.type==='task')&&activeItem.status!=='done'&&!completingTask&&<div className="space-y-2"><p className="text-sm font-semibold">إعادة الجدولة</p><DateTimePicker value={actionAt} onChange={setActionAt}/><Button className="w-full" disabled={!actionAt||saving} onClick={()=>void actOnItem('reschedule')}>حفظ الموعد الجديد</Button></div>}</div></Modal>}
       {showAdd && <Modal title="إضافة إلى التقويم" onClose={()=>setShowAdd(false)} maxWidth="560px"><div className="space-y-4"><div className="grid grid-cols-3 gap-2">{(['task','followup','viewing'] as const).map(type=><button key={type} type="button" onClick={()=>setAddType(type)} className={`rounded-xl border px-3 py-3 text-sm font-semibold ${addType===type?'border-brand bg-brand/[.06] text-brand':'border-border-default'}`}>{type==='task'?'مهمة':type==='followup'?'متابعة':'معاينة'}</button>)}</div>{addType==='task'&&<Input placeholder="عنوان المهمة" value={form.title} onChange={e=>setForm({...form,title:e.target.value})}/>}<Select value={form.leadId} onChange={e=>setForm({...form,leadId:e.target.value})}><option value="">{addType==='task'?'بدون عميل (اختياري)':'اختر العميل'}</option>{(leads??[]).map(l=><option key={l.id} value={l.id}>{l.full_name}</option>)}</Select>{addType==='viewing'&&<><Select value={form.assetId} onChange={e=>setForm({...form,assetId:e.target.value})}><option value="">اختر العقار</option>{assets.map(a=><option key={a.id} value={a.id}>{a.name_ar}</option>)}</Select><Select value={form.userId} onChange={e=>setForm({...form,userId:e.target.value})}><option value="">الموظف المسؤول (أنا)</option>{team.map(m=><option key={m.id} value={m.id}>{m.full_name}</option>)}</Select></>}<DateTimePicker value={form.at} onChange={at=>setForm({...form,at})} placeholder="التاريخ والوقت"/><Button className="w-full" disabled={saving} onClick={()=>void addCalendarItem()}>{saving?'جاري الحفظ…':'حفظ'}</Button></div></Modal>}
     </AppShell>
   );
