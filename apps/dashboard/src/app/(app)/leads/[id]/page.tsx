@@ -165,122 +165,50 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
 
           <FormError message={error} />
 
-          {customer360 && <Customer360Overview lead={lead} data={customer360} />}
-
-          <LeadRequirements leadId={id} accessToken={accessToken} />
-
-          <div className="grid items-start gap-6 md:grid-cols-2">
-            <Card className="order-2 p-8 md:order-1">
-              <h2 className="mb-4 text-base font-semibold text-text-primary">{t.detail.notesTitle}</h2>
-              <form onSubmit={handleAddNote} className="mb-5 flex gap-2">
-                <Input
-                  placeholder={t.detail.notePlaceholder}
-                  value={noteText}
-                  onChange={(e) => setNoteText(e.target.value)}
-                  className="flex-1"
-                />
-                <Button type="submit" disabled={noteLoading} className="flex-none">
-                  {noteLoading ? t.detail.addingNote : t.detail.addNote}
-                </Button>
-              </form>
-              {lead.lead_notes.length === 0 ? (
-                <p className="text-sm text-text-secondary">{t.detail.noNotes}</p>
-              ) : (
-                <ul className="flex flex-col gap-4">
-                  {lead.lead_notes.map((note) => (
-                    <li key={note.id} className="flex gap-2.5">
-                      <span className="mt-[7px] h-1.5 w-1.5 flex-none rounded-full bg-brand" />
-                      <div className="min-w-0">
-                        <p className="text-sm text-text-primary">{note.note_text}</p>
-                        <p className="mt-0.5 text-xs text-text-secondary">{formatRelativeTime(note.created_at)}</p>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </Card>
-
-            <Card className="order-1 p-8 md:order-2">
-              <div className="mb-5 flex items-center gap-3">
-                <PersonAvatar name={lead.full_name} size={48} />
+          <Card className="p-4 md:p-6">
+            <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+              <div className="flex min-w-0 items-center gap-3">
+                <PersonAvatar name={lead.full_name} size={56} />
                 <div className="min-w-0">
-                  <p className="truncate text-base font-semibold text-text-primary">{lead.full_name}</p>
-                  <p className="text-sm text-text-secondary" dir="ltr">
-                    {lead.phone ?? '—'}
-                  </p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h2 className="truncate text-lg font-semibold text-text-primary">{lead.full_name}</h2>
+                    {customer360?.party && <span className="rounded-full bg-surface-subtle px-2.5 py-1 text-xs text-text-secondary">عميل Rent Plus</span>}
+                  </div>
+                  <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-sm text-text-secondary">
+                    <span dir="ltr">{lead.phone ?? 'بدون رقم جوال'}</span>
+                    {lead.email && <span>{lead.email}</span>}
+                    <span>{t.sourceLabels[lead.source]}</span>
+                  </div>
                 </div>
               </div>
 
               {lead.phone && (
-                <div className="mb-5 flex gap-2">
-                  <a href={`tel:${lead.phone}`} className={`${ACTION_LINK_CLASSES} bg-brand text-white hover:bg-brand-hover`}>
-                    {t.detail.callAction}
-                  </a>
-                  <a
-                    href={`https://wa.me/${lead.phone.replace(/^\+/, '')}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className={`${ACTION_LINK_CLASSES} border border-border-default bg-surface-card text-text-primary hover:bg-surface-subtle`}
-                  >
-                    {t.detail.whatsappAction}
-                  </a>
+                <div className="grid w-full grid-cols-2 gap-2 lg:w-auto lg:min-w-[260px]">
+                  <a href={`tel:${lead.phone}`} className={`${ACTION_LINK_CLASSES} bg-brand text-white hover:bg-brand-hover`}>{t.detail.callAction}</a>
+                  <a href={`https://wa.me/${lead.phone.replace(/^\\+/, '')}`} target="_blank" rel="noreferrer" className={`${ACTION_LINK_CLASSES} border border-border-default bg-surface-card text-text-primary hover:bg-surface-subtle`}>{t.detail.whatsappAction}</a>
                 </div>
               )}
+            </div>
 
-              <div className="flex flex-col gap-4">
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs text-text-secondary">{t.detail.statusLabel}</label>
-                  <Select value={lead.status} onChange={(e) => void saveStatus(e.target.value)}>
-                    {LEAD_STATUSES.map((status) => (
-                      <option key={status} value={status}>
-                        {t.statusLabels[status]}
-                      </option>
-                    ))}
-                  </Select>
-                </div>
+            <div className="mt-5 grid gap-3 border-t border-border-subtle pt-5 sm:grid-cols-2 xl:grid-cols-4">
+              <div className="flex flex-col gap-1"><label className="text-xs text-text-secondary">{t.detail.statusLabel}</label><Select value={lead.status} onChange={(e) => void saveStatus(e.target.value)}>{LEAD_STATUSES.map((status) => <option key={status} value={status}>{t.statusLabels[status]}</option>)}</Select></div>
+              <div className="flex flex-col gap-1"><label className="text-xs text-text-secondary">{t.detail.followUpLabel}</label><DateTimePicker value={isoToDatetimeLocal(lead.follow_up_at)} onChange={(value) => void saveFollowUp(value)} /></div>
+              {canManage && <div className="flex flex-col gap-1"><label className="text-xs text-text-secondary">{t.detail.assignedAgentLabel}</label><Select value={lead.assigned_agent_id ?? ''} onChange={(e) => void saveAssignedAgent(e.target.value)}><option value="">{t.detail.noAgent}</option>{team.map((member) => <option key={member.id} value={member.id}>{member.full_name}</option>)}</Select></div>}
+              <div className="flex flex-col gap-1"><label className="text-xs text-text-secondary">{t.detail.propertyLabel}</label>{property ? <Link href={`/properties/${property.id}`} className="rounded-input border border-border-default px-3 py-3 text-sm text-text-primary hover:border-brand"><p className="truncate font-medium">{property.name_ar}</p></Link> : <p className="rounded-input border border-border-default px-3 py-3 text-sm text-text-secondary">{t.detail.noProperty}</p>}</div>
+            </div>
+          </Card>
 
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs text-text-secondary">{t.detail.followUpLabel}</label>
-                  <DateTimePicker
-                    value={isoToDatetimeLocal(lead.follow_up_at)}
-                    onChange={(value) => void saveFollowUp(value)}
-                  />
-                </div>
+          {customer360 && <Customer360Overview lead={lead} data={customer360} />}
 
-                {canManage && (
-                  <div className="flex flex-col gap-1">
-                    <label className="text-xs text-text-secondary">{t.detail.assignedAgentLabel}</label>
-                    <Select defaultValue={lead.assigned_agent_id ?? ''} onChange={(e) => void saveAssignedAgent(e.target.value)}>
-                      <option value="">{t.detail.noAgent}</option>
-                      {team.map((member) => (
-                        <option key={member.id} value={member.id}>
-                          {member.full_name}
-                        </option>
-                      ))}
-                    </Select>
-                  </div>
-                )}
-
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs text-text-secondary">{t.detail.propertyLabel}</label>
-                  {property ? (
-                    <Link
-                      href={`/properties/${property.id}`}
-                      className="rounded-input border border-border-default px-4 py-3 text-sm text-text-primary hover:border-brand"
-                    >
-                      <p className="font-medium">{property.name_ar}</p>
-                      <p className="text-xs text-text-secondary">{property.asset_type}</p>
-                    </Link>
-                  ) : (
-                    <p className="rounded-input border border-border-default px-4 py-3 text-sm text-text-secondary">{t.detail.noProperty}</p>
-                  )}
-                </div>
-
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs text-text-secondary">{t.detail.sourceLabel}</label>
-                  <p className="text-sm text-text-primary">{t.sourceLabels[lead.source]}</p>
-                </div>
-              </div>
+          <div className="grid items-start gap-4 xl:grid-cols-[1.25fr_0.75fr]">
+            <LeadRequirements leadId={id} accessToken={accessToken} />
+            <Card className="p-4 md:p-6">
+              <h2 className="mb-4 text-base font-semibold text-text-primary">{t.detail.notesTitle}</h2>
+              <form onSubmit={handleAddNote} className="mb-5 flex gap-2">
+                <Input placeholder={t.detail.notePlaceholder} value={noteText} onChange={(e) => setNoteText(e.target.value)} className="flex-1" />
+                <Button type="submit" disabled={noteLoading} className="flex-none">{noteLoading ? t.detail.addingNote : t.detail.addNote}</Button>
+              </form>
+              {lead.lead_notes.length === 0 ? <p className="text-sm text-text-secondary">{t.detail.noNotes}</p> : <ul className="flex max-h-[320px] flex-col gap-4 overflow-y-auto">{lead.lead_notes.map((note) => <li key={note.id} className="flex gap-2.5"><span className="mt-[7px] h-1.5 w-1.5 flex-none rounded-full bg-brand" /><div className="min-w-0"><p className="text-sm text-text-primary">{note.note_text}</p><p className="mt-0.5 text-xs text-text-secondary">{formatRelativeTime(note.created_at)}</p></div></li>)}</ul>}
             </Card>
           </div>
         </div>
