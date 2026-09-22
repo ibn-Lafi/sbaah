@@ -228,7 +228,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
               ) : detailTab === 'requirements' ? (
                 <Card className="p-4 md:p-6"><LeadRequirements leadId={id} accessToken={accessToken} embedded onSaved={refreshCustomer360} /></Card>
               ) : (
-                <Customer360Overview lead={lead} data={customer360} tab={detailTab} />
+                <Customer360Overview lead={lead} data={customer360} tab={detailTab} accessToken={accessToken} onChanged={refreshCustomer360} />
               )}
             </>
           )}
