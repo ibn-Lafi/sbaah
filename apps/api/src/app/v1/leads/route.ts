@@ -66,7 +66,7 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     ].filter(Boolean));
   }
 
-  const classified = leadRows.map((lead) => ({ ...lead, customer_kind: customerLeadIds.has(lead.id) ? 'customer' : 'prospect' }));
+  const classified = leadRows.map((lead) => ({ ...lead, customer_kind: lead.customer_relationship || customerLeadIds.has(lead.id) ? 'customer' : 'prospect' }));
   const filtered = customer_kind ? classified.filter((lead) => lead.customer_kind === customer_kind) : classified;
   const from = (page - 1) * page_size;
   const paged = filtered.slice(from, from + page_size);
