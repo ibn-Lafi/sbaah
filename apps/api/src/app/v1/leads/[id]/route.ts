@@ -69,13 +69,26 @@ export const GET = withErrorHandling<RouteContext>(async (request, { params }) =
   }
 
   const hasWonPurchase = (dealsResult.data ?? []).some((deal) => deal.status === 'won');
-  const hasRentalContract = contracts.some((contract) => Array.isArray(contract.customer_roles) && contract.customer_roles.includes('lessee'));
-  const customerKind = data.customer_relationship || hasWonPurchase || hasRentalContract ? 'customer' : 'prospect';
-  const customerRelationship = hasRentalContract ? 'tenant' : hasWonPurchase ? 'purchase' : data.customer_relationship ?? null;
+  let hasRentalContract = false;
+  if (party) {
+    const { count, error: rentalRelationshipError } = await supabase
+      .from('lease_contract_parties')
+      .select('contract_id', { count: 'exact', head: true })
+      .eq('tenant_id', caller.tenantId)
+      .eq('party_id', party.id)
+      .eq('role', 'lessee');
+    if (rentalRelationshipError) throw new Error(`Failed to classify rental customer: ${rentalRelationshipError.message}`);
+    hasRentalContract = (count ?? 0) > 0;
+  }
+  const customerRelationships = [
+    ...(hasWonPurchase || data.customer_relationship === 'purchase' ? ['purchase' as const] : []),
+    ...(hasRentalContract || data.customer_relationship === 'tenant' ? ['tenant' as const] : []),
+  ];
+  const customerKind = customerRelationships.length > 0 ? 'customer' : 'prospect';
 
   return okResponse({ lead: data, customer360: {
     customer_kind: customerKind,
-    customer_relationship: customerRelationship,
+    customer_relationships: customerRelationships,
     interests: interestsResult.data ?? [],
     tasks: tasksResult.data ?? [], viewings: viewingsResult.data ?? [], deals: dealsResult.data ?? [],
     reservations: reservationsResult.data ?? [], activities: activitiesResult.data ?? [], party: canViewRentPlus ? party : null, contracts, installments, payments, maintenance,
