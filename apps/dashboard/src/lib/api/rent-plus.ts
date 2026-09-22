@@ -3,7 +3,7 @@ export interface ManagedPropertyRow { id:string; asset_id:string; status:string;
 export interface LeaseContractRow { id:string; contract_number:string; source:string; start_date:string; end_date:string; total_value:number; status:string; lease_contract_assets?:Array<{asset_id:string}>; lease_contract_parties?:Array<{party_id:string;role:string}>; }
 export interface EjarPartyRow { id:string; name:string; party_type:string; phone:string|null; email:string|null; lead_id?:string|null; }
 export interface MaintenanceRow { id:string; request_number:string; title:string; priority:string; status:string; opened_at:string; assets?:{name_ar:string;reference_number:string|null}|null; }
-export interface LeasePaymentRow { id:string; payment_number:string; contract_id:string; amount:number; paid_at:string; payment_method:string; status:string; }
+export interface LeasePaymentRow { id:string; payment_number:string; contract_id:string; payer_party_id?:string|null; amount:number; paid_at:string; payment_method:string; status:string; lease_contracts?:{contract_number:string}|null; payer?:{id:string;name:string}|null; }
 export const listManagedProperties=(token:string)=>apiGet<{properties:ManagedPropertyRow[]}>('/v1/rent-plus/properties',token);
 export const createManagementAssignment=(token:string,input:unknown)=>apiPost<{property:ManagedPropertyRow}>('/v1/rent-plus/properties',input,token);
 export const listLeaseContracts=(token:string)=>apiGet<{contracts:LeaseContractRow[]}>('/v1/rent-plus/contracts',token);
