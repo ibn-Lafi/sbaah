@@ -67,7 +67,12 @@ export const GET = withErrorHandling<RouteContext>(async (request, { params }) =
     }
   }
 
+  const hasWonPurchase = (dealsResult.data ?? []).some((deal) => deal.status === 'won');
+  const hasRentalContract = contracts.some((contract) => Array.isArray(contract.customer_roles) && contract.customer_roles.includes('lessee'));
+  const customerKind = hasWonPurchase || hasRentalContract ? 'customer' : 'prospect';
+
   return okResponse({ lead: data, customer360: {
+    customer_kind: customerKind,
     tasks: tasksResult.data ?? [], viewings: viewingsResult.data ?? [], deals: dealsResult.data ?? [],
     reservations: reservationsResult.data ?? [], activities: activitiesResult.data ?? [], party: canViewRentPlus ? party : null, contracts, installments, payments, maintenance,
   }});
