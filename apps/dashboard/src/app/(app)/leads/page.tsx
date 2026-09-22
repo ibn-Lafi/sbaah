@@ -119,8 +119,8 @@ export default function LeadsPage() {
                       onClick={() => router.push(`/leads/${lead.id}`)}
                       className="border-border-subtle hover:bg-surface-subtle cursor-pointer border-t"
                     >
-                      <td className="px-3 py-3 md:px-4">
-                        <div className="flex items-center gap-3">
+                      <td className="px-2 py-3 text-right sm:px-3 md:px-4">
+                        <div className="flex items-center gap-2 sm:gap-3">
                           <PersonAvatar name={lead.full_name} size={32} />
                           <div className="min-w-0">
                             <Link
@@ -133,22 +133,22 @@ export default function LeadsPage() {
                           </div>
                         </div>
                       </td>
-                      <td className="text-text-secondary px-5 py-3" dir="ltr">
+                      <td className="text-text-secondary hidden px-3 py-3 sm:table-cell md:px-4" dir="ltr">
                         {lead.phone ?? '—'}
                       </td>
-                      <td className="text-text-secondary px-5 py-3">
+                      <td className="text-text-secondary hidden px-3 py-3 lg:table-cell md:px-4">
                         {t.sourceLabels[lead.source]}
                       </td>
-                      <td className="px-3 py-3 md:px-4">
+                      <td className="px-2 py-3 text-right sm:px-3 md:px-4">
                         <LeadStatusPillSelect
                           value={lead.status}
                           onChange={(status) => void handleStatusChange(lead.id, status)}
                         />
                       </td>
-                      <td className="text-text-secondary px-5 py-3" dir="ltr">
+                      <td className="text-text-secondary hidden px-3 py-3 md:table-cell md:px-4" dir="ltr">
                         {lead.follow_up_at ? formatDate(lead.follow_up_at) : '—'}
                       </td>
-                      <td className="text-text-placeholder px-3 py-3">
+                      <td className="text-text-placeholder px-1 py-3 text-center sm:px-3">
                         <svg
                           viewBox="0 0 24 24"
                           fill="none"
