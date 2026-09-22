@@ -35,7 +35,7 @@ export const GET=withErrorHandling<RouteContext>(async(request,{params})=>{
     if(status==='sold')acc.sold+=1;
     else if(status==='reserved')acc.reserved+=1;
     else if(status==='negotiation')acc.negotiation+=1;
-    else acc.available+=1;
+    else if(status==='available')acc.available+=1;
     const listing=item.sale_listings[0];
     if(listing?.asking_price!=null)acc.asking_value+=Number(listing.asking_price);
     if(item.won_sale?.value!=null)acc.sold_value+=Number(item.won_sale.value);
