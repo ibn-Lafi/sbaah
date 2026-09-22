@@ -20,7 +20,7 @@ interface CreateLeadFormProps {
 }
 
 /** RLS (leads_owner_admin_manage) has no insert policy for Agent — matches POST /v1/leads' explicit 403 for that role. Same reasoning is why the agent-assignment select below fetches GET /v1/team unconditionally: only Owner/Admin ever render this form. */
-export function CreateLeadForm({ accessToken, onCreated, initialKind = 'prospect' }: CreateLeadFormProps) {
+export function CreateLeadForm({ accessToken, onCreated }: CreateLeadFormProps) {
   const { pages } = useLocale();
   const t = pages.leads;
   const [assets, setAssets] = useState<Asset[]>([]);
@@ -33,8 +33,6 @@ export function CreateLeadForm({ accessToken, onCreated, initialKind = 'prospect
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(0);
-  const [kind, setKind] = useState<'customer' | 'prospect'>(initialKind);
-  const [relationship, setRelationship] = useState<'purchase' | 'tenant'>('purchase');
 
   useEffect(() => {
     void listAssets(accessToken).then((result) => setAssets(result.assets));
@@ -52,7 +50,6 @@ export function CreateLeadForm({ accessToken, onCreated, initialKind = 'prospect
       asset_id: assetId || null,
       listing_id: null,
       assigned_agent_id: assignedAgentId || null,
-      customer_relationship: kind === 'customer' ? relationship : null,
     };
 
     const result = manualLeadInputSchema.safeParse(candidate);
@@ -85,11 +82,6 @@ export function CreateLeadForm({ accessToken, onCreated, initialKind = 'prospect
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <FormWizard steps={['بيانات العميل', 'الربط والتعيين', 'المراجعة']} current={step} onStepChange={(target) => target < step && setStep(target)} />
       {step === 0 && <div className="flex flex-col gap-4">
-        <div className="grid grid-cols-2 gap-2 rounded-xl bg-surface-subtle p-1">
-          <button type="button" onClick={()=>setKind('customer')} className={`h-10 rounded-lg text-sm font-semibold ${kind==='customer'?'bg-surface-card text-text-primary shadow-sm':'text-text-secondary'}`}>عميل</button>
-          <button type="button" onClick={()=>setKind('prospect')} className={`h-10 rounded-lg text-sm font-semibold ${kind==='prospect'?'bg-surface-card text-text-primary shadow-sm':'text-text-secondary'}`}>عميل محتمل</button>
-        </div>
-        {kind==='customer'&&<div><label className="mb-1.5 block text-xs text-text-secondary">نوع العميل</label><Select value={relationship} onChange={(e)=>setRelationship(e.target.value as 'purchase'|'tenant')}><option value="purchase">شراء</option><option value="tenant">مستأجر</option></Select></div>}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2"><Input placeholder={t.createForm.namePlaceholder} value={fullName} onChange={(e) => setFullName(e.target.value)} /><PhoneInput placeholder={t.createForm.phonePlaceholder} value={phone} onChange={setPhone} /><Input type="email" placeholder={t.createForm.emailPlaceholder} value={email} onChange={(e) => setEmail(e.target.value)} dir="ltr" /></div></div>}
       {step === 1 && <div className="grid grid-cols-1 gap-4 sm:grid-cols-2"><Select value={assetId} onChange={(e) => setAssetId(e.target.value)}>
         <option value="">{t.createForm.noPropertySelected}</option>
@@ -106,7 +98,7 @@ export function CreateLeadForm({ accessToken, onCreated, initialKind = 'prospect
           </option>
         ))}
       </Select></div>}
-      {step === 2 && <dl className="grid gap-4 rounded-xl border border-border-default p-4 text-sm sm:grid-cols-2"><div><dt className="text-text-secondary">التصنيف</dt><dd className="font-medium">{kind==='customer'?(relationship==='tenant'?'عميل · مستأجر':'عميل · شراء'):'عميل محتمل'}</dd></div><div><dt className="text-text-secondary">الاسم</dt><dd className="font-medium">{fullName}</dd></div><div><dt className="text-text-secondary">الجوال</dt><dd dir="ltr">{phone}</dd></div><div><dt className="text-text-secondary">العقار</dt><dd>{assets.find((item) => item.id === assetId)?.name_ar ?? 'غير محدد'}</dd></div><div><dt className="text-text-secondary">المسؤول</dt><dd>{team.find((item) => item.id === assignedAgentId)?.full_name ?? 'غير محدد'}</dd></div></dl>}
+      {step === 2 && <dl className="grid gap-4 rounded-xl border border-border-default p-4 text-sm sm:grid-cols-2"><div><dt className="text-text-secondary">التصنيف</dt><dd className="font-medium">عميل محتمل</dd></div><div><dt className="text-text-secondary">الاسم</dt><dd className="font-medium">{fullName}</dd></div><div><dt className="text-text-secondary">الجوال</dt><dd dir="ltr">{phone}</dd></div><div><dt className="text-text-secondary">العقار</dt><dd>{assets.find((item) => item.id === assetId)?.name_ar ?? 'غير محدد'}</dd></div><div><dt className="text-text-secondary">المسؤول</dt><dd>{team.find((item) => item.id === assignedAgentId)?.full_name ?? 'غير محدد'}</dd></div></dl>}
 
       <FormError message={error} />
       <WizardActions step={step} total={3} loading={loading} submitLabel={t.createForm.submit} onBack={() => setStep((current) => Math.max(0, current - 1))} onNext={nextStep} />
