@@ -22,13 +22,13 @@ export const GET=withErrorHandling<RouteContext>(async(request,{params})=>{
     if(availabilityError)throw new Error(availabilityError.message);
     if(listingError)throw new Error(listingError.message);
     if(dealError)throw new Error(dealError.message);
-    const saleListings=(listingLinks??[]).map(x=>x.listings).filter(x=>x&&x.listing_type==='sale');
-    const wonSale=(dealLinks??[]).map(x=>x.deals).find(x=>x?.status==='won'&&x.deal_type==='sale')??null;
+    const saleListings=(listingLinks??[]).flatMap(x=>Array.isArray(x.listings)?x.listings:(x.listings?[x.listings]:[])).filter(x=>x.listing_type==='sale');
+    const wonSale=(dealLinks??[]).flatMap(x=>Array.isArray(x.deals)?x.deals:(x.deals?[x.deals]:[])).find(x=>x.status==='won'&&x.deal_type==='sale')??null;
     return {...asset,availability,sale_listings:saleListings,won_sale:wonSale};
   }));
   const summary=inventory.reduce((acc,item)=>{
     acc.total+=1;
-    const status=String(item.availability?.status??'available');
+    const status=String((item.availability as {status?:string}|null)?.status??'available');
     if(status==='sold'||item.won_sale)acc.sold+=1;
     else if(status==='reserved')acc.reserved+=1;
     else if(status==='under_negotiation'||status==='negotiation')acc.negotiation+=1;
