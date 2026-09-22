@@ -31,7 +31,7 @@ export const GET=withErrorHandling<RouteContext>(async(request,{params})=>{
   const interestLeads=unique([...(interests??[]).map(x=>x.lead_id),...viewingLeads]);
   const funnelCounts=[interestLeads.size,viewingLeads.size,reservationLeads.size,negotiationLeads.size,wonLeads.size];
   const funnelLabels=['interest','viewing','reservation','negotiation','won'] as const;
-  const funnel={stages:funnelLabels.map((stage,index)=>({stage,count:funnelCounts[index],conversion_from_previous:index===0?1:(funnelCounts[index-1]?Math.min(1,funnelCounts[index]/funnelCounts[index-1]):0),drop_off_from_previous:index===0?0:(funnelCounts[index-1]?Math.max(0,1-funnelCounts[index]/funnelCounts[index-1]):0)})),overall_conversion:interestLeads.size?wonLeads.size/interestLeads.size:0};
+  const funnel={stages:funnelLabels.map((stage,index)=>{const count=funnelCounts[index]??0;const previous=index>0?(funnelCounts[index-1]??0):0;return{stage,count,conversion_from_previous:index===0?1:(previous?Math.min(1,count/previous):0),drop_off_from_previous:index===0?0:(previous?Math.max(0,1-count/previous):0)};}),overall_conversion:interestLeads.size?wonLeads.size/interestLeads.size:0};
   const inventory=await Promise.all((assets??[]).map(async asset=>{
     const [{data:availability,error:availabilityError},{data:listingLinks,error:listingError},{data:dealLinks,error:dealError}]=await Promise.all([
       supabase.rpc('get_asset_commercial_availability',{p_tenant_id:caller.tenantId,p_asset_id:asset.id}).maybeSingle(),
