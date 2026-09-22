@@ -17,7 +17,7 @@ const initial:FormState={name:'',reference:'',type:'apartment',status:'ready',un
 export function CreateAssetForm({ accessToken, onCreated, projectId, parentAssetId, parentAssetName }: { accessToken:string; onCreated:(id:string)=>void; projectId?:string; parentAssetId?:string; parentAssetName?:string }) {
   const [form,setForm]=useState(initial); const [step,setStep]=useState(0); const [busy,setBusy]=useState(false); const [error,setError]=useState('');
   const [cities,setCities]=useState<City[]>([]); const [districts,setDistricts]=useState<District[]>([]);
-  const set=(key:keyof FormState,value:string)=>setForm(current=>({...current,[key]:value}));
+  const set=<K extends keyof FormState>(key:K,value:FormState[K])=>setForm(current=>({...current,[key]:value}));
   const numberOrNull=(value:string)=>value===''?null:Number(value);
   useEffect(()=>{void listCities().then(setCities)},[]);
   useEffect(()=>{if(!form.cityId){setDistricts([]);return}void listDistricts(form.cityId).then(setDistricts)},[form.cityId]);
