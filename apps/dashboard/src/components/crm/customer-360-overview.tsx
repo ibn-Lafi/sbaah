@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/card';
 import type { Customer360Snapshot, LeadWithNotes } from '@/lib/api/leads';
 import { CustomerActivityTimeline } from '@/components/crm/customer-activity-timeline';
 
-export type CustomerDetailTab = 'overview' | 'actions' | 'requirements' | 'viewings' | 'opportunities' | 'rent' | 'purchase' | 'maintenance';
+export type CustomerDetailTab = 'overview' | 'actions' | 'interests' | 'requirements' | 'viewings' | 'opportunities' | 'rent' | 'purchase' | 'maintenance';
 
 const money = (value:number) => new Intl.NumberFormat('ar-SA',{style:'currency',currency:'SAR',maximumFractionDigits:0}).format(value);
 const date = (value:string) => new Intl.DateTimeFormat('ar-SA-u-ca-gregory',{year:'numeric',month:'short',day:'numeric'}).format(new Date(value));
