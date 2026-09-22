@@ -19,7 +19,7 @@ export interface PublicProjectListResponse {
   total: number;
 }
 
-export interface PublicProjectDetailResponse { project: PublicProject & Record<string, unknown>; media: Array<{id:string;url:string;media_type:'image'|'video';alt_ar:string|null;alt_en:string|null;order_index:number}>; unit_types: Array<Record<string, unknown>>; units: Array<{id:string;unit_type_id:string;unit_number:string;floor_number:number|null;area_sqm:number|null;price:number|null;orientation:string|null;availability:string}>; }
+export interface PublicProjectDetailResponse { project: PublicProject & Record<string, unknown>; media: Array<{id:string;url:string;media_type:'image'|'video';alt_ar:string|null;alt_en:string|null;order_index:number}>; unit_types: Array<{id:string;name_ar:string;name_en:string|null;asset_type:string|null;specifications:Record<string,unknown>}>; units: Array<{id:string;slug:string|null;unit_type_id:string|null;unit_number:string|null;floor_number:number|null;area_sqm:number|null;asset_type:string;name_ar:string;name_en:string|null;listing_id:string;listing_number:string;listing_type:string;price:number|null;media:unknown[]}>; }
 export async function listPublicProjects(page = 1): Promise<PublicProjectListResponse> {
   const host = await getHost();
   const query = new URLSearchParams({ domain: host ?? '', page: String(page) });
