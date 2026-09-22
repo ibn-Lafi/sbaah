@@ -1,9 +1,14 @@
 'use client';
 
 import Link from 'next/link';
+import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import type { Customer360Snapshot, LeadWithNotes } from '@/lib/api/leads';
 import { CustomerActivityTimeline } from '@/components/crm/customer-activity-timeline';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Modal } from '@/components/ui/modal';
+import { updateDeal } from '@/lib/api/crm';
 
 export type CustomerDetailTab = 'overview' | 'actions' | 'interests' | 'requirements' | 'viewings' | 'opportunities' | 'rent' | 'purchase' | 'maintenance';
 
@@ -15,7 +20,18 @@ const maintenanceStatus:Record<string,string>={open:'مفتوح',in_review:'قي
 const AssetLink=({asset}:{asset?:{id:string;name_ar:string;unit_number:string|null}|null})=>asset?<Link href={`/properties/${asset.id}`} className="font-medium text-brand hover:underline">{asset.name_ar}{asset.unit_number?` · وحدة ${asset.unit_number}`:''}</Link>:<span className="text-text-secondary">العقار غير متاح</span>;
 const priorityLabel:Record<string,string>={low:'منخفضة',normal:'عادية',high:'عالية',urgent:'عاجلة'};
 
-export function Customer360Overview({lead,data,tab='overview'}:{lead:LeadWithNotes;data:Customer360Snapshot;tab?:CustomerDetailTab}) {
+export function Customer360Overview({lead,data,tab='overview',accessToken,onChanged}:{lead:LeadWithNotes;data:Customer360Snapshot;tab?:CustomerDetailTab;accessToken?:string;onChanged?:()=>Promise<void>|void}) {
+  const [closingDeal,setClosingDeal]=useState<Customer360Snapshot['deals'][number]|null>(null);
+  const [dealAction,setDealAction]=useState<'won'|'lost'|null>(null);
+  const [finalValue,setFinalValue]=useState('');
+  const [lostReason,setLostReason]=useState('');
+  const [savingDeal,setSavingDeal]=useState(false);
+  async function moveDeal(deal:Customer360Snapshot['deals'][number],status:'negotiation'|'won'|'lost'){
+    if(!accessToken)return;
+    if(status==='won'||status==='lost'){setClosingDeal(deal);setDealAction(status);setFinalValue(deal.value!=null?String(deal.value):'');setLostReason('');return;}
+    setSavingDeal(true);try{await updateDeal(accessToken,deal.id,{status});await onChanged?.();}finally{setSavingDeal(false)}
+  }
+  async function confirmDeal(){if(!accessToken||!closingDeal||!dealAction)return;const payload:Record<string,unknown>={status:dealAction};if(dealAction==='won'&&closingDeal.deal_type==='sale'){const value=Number(finalValue);if(!finalValue.trim()||!Number.isFinite(value)||value<0)return;payload.value=value;}if(dealAction==='lost'){if(!lostReason.trim())return;payload.lost_reason=lostReason.trim();}setSavingDeal(true);try{await updateDeal(accessToken,closingDeal.id,payload);setClosingDeal(null);setDealAction(null);await onChanged?.();}finally{setSavingDeal(false)}}
   const now=Date.now();
   const upcomingViewings=data.viewings.filter((v)=>new Date(v.scheduled_at).getTime()>=now&&['scheduled','rescheduled'].includes(v.status));
   const openTasks=data.tasks.filter((t)=>!t.completed_at);
@@ -39,10 +55,10 @@ export function Customer360Overview({lead,data,tab='overview'}:{lead:LeadWithNot
 
   if(tab==='viewings') return <Card className="p-4 md:p-5"><h2 className="mb-3 font-semibold">المعاينات</h2>{data.viewings.length===0?<p className="text-sm text-text-secondary">لا توجد معاينات مسجلة لهذا العميل المحتمل.</p>:<div className="grid gap-3 md:grid-cols-2">{data.viewings.map(viewing=><div key={viewing.id} className="rounded-input border border-border-subtle p-4"><div className="flex items-start justify-between gap-3"><AssetLink asset={viewing.assets}/><span className="text-xs text-text-secondary">{viewing.status}</span></div><p className="mt-2 text-sm text-text-secondary">{date(viewing.scheduled_at)}</p>{viewing.outcome&&<p className="mt-2 text-xs text-text-secondary">النتيجة: {viewing.outcome}</p>}</div>)}</div>}</Card>;
 
-  if(tab==='opportunities') return <div className="grid gap-3 md:grid-cols-2">
+  if(tab==='opportunities') return <><div className="grid gap-3 md:grid-cols-2">
     <Card className="p-4 md:p-5"><h2 className="mb-3 font-semibold">الحجوزات</h2>{data.reservations.length===0?<p className="text-sm text-text-secondary">لا توجد حجوزات حالية.</p>:<div className="space-y-2">{data.reservations.map(r=><div key={r.id} className="rounded-input border border-border-subtle p-3"><p className="font-medium">حجز #{r.reservation_number}</p><div className="mt-1 flex flex-wrap gap-2 text-xs">{(r.reservation_assets??[]).map(x=><AssetLink key={x.asset_id} asset={x.assets}/>)}</div><p className="mt-1 text-xs text-text-secondary">{date(r.reserved_at)} · {r.status}</p></div>)}</div>}</Card>
-    <Card className="p-4 md:p-5"><h2 className="mb-3 font-semibold">الصفقات المحتملة</h2>{data.deals.length===0?<p className="text-sm text-text-secondary">لا توجد صفقات مسجلة.</p>:<div className="space-y-2">{data.deals.map(d=><div key={d.id} className="rounded-input border border-border-subtle p-3"><div className="flex justify-between gap-2"><p className="font-medium">صفقة عقارية</p><span className="text-xs text-text-secondary">{d.status}</span></div><div className="mt-1 flex flex-wrap gap-2 text-xs">{(d.deal_assets??[]).map(x=><AssetLink key={x.asset_id} asset={x.assets}/>)}</div><p className="mt-1 text-xs text-text-secondary">{d.value?money(Number(d.value)):'القيمة غير محددة'}</p></div>)}</div>}</Card>
-  </div>;
+    <Card className="p-4 md:p-5"><h2 className="mb-3 font-semibold">الصفقات المحتملة</h2>{data.deals.length===0?<p className="text-sm text-text-secondary">لا توجد صفقات مسجلة.</p>:<div className="space-y-2">{data.deals.map(d=><div key={d.id} className="rounded-input border border-border-subtle p-3"><div className="flex justify-between gap-2"><p className="font-medium">صفقة عقارية</p><span className="text-xs text-text-secondary">{d.status}</span></div><div className="mt-1 flex flex-wrap gap-2 text-xs">{(d.deal_assets??[]).map(x=><AssetLink key={x.asset_id} asset={x.assets}/>)}</div><p className="mt-1 text-xs text-text-secondary">{d.value?money(Number(d.value)):'القيمة غير محددة'}</p>{accessToken&&!['won','lost'].includes(d.status)&&<div className="mt-3 flex flex-wrap gap-2">{d.status==='open'&&<Button variant="secondary" disabled={savingDeal} onClick={()=>void moveDeal(d,'negotiation')}>بدء التفاوض</Button>}<Button disabled={savingDeal} onClick={()=>void moveDeal(d,'won')}>{d.deal_type==='sale'?'إتمام البيع':'إتمام الصفقة'}</Button><Button variant="secondary" disabled={savingDeal} onClick={()=>void moveDeal(d,'lost')}>تسجيل خسارة</Button></div>}{d.status==='lost'&&d.lost_reason&&<p className="mt-2 text-xs text-text-secondary">سبب الخسارة: {d.lost_reason}</p>}</div>)}</div>}</Card>
+  </div>{closingDeal&&dealAction&&<Modal title={dealAction==='won'?(closingDeal.deal_type==='sale'?'إتمام البيع':'إتمام الصفقة'):'تسجيل خسارة الصفقة'} onClose={()=>{setClosingDeal(null);setDealAction(null)}} maxWidth="480px" mobileCentered><div className="space-y-4">{dealAction==='won'&&closingDeal.deal_type==='sale'&&<Input type="number" min="0" inputMode="decimal" placeholder="سعر البيع النهائي" value={finalValue} onChange={e=>setFinalValue(e.target.value)}/>} {dealAction==='lost'&&<textarea rows={4} maxLength={1000} className="w-full resize-none rounded-xl border border-border-default bg-surface-card px-3 py-2 text-sm outline-none focus:border-brand" placeholder="سبب خسارة الصفقة" value={lostReason} onChange={e=>setLostReason(e.target.value)}/>}<Button className="w-full" disabled={savingDeal} onClick={()=>void confirmDeal()}>{savingDeal?'جاري الحفظ…':'تأكيد'}</Button></div></Modal>}</>;
 
   if(tab==='rent') { const rentedAssets=data.rented_assets; return <div className="grid gap-3 lg:grid-cols-2">
     <Card className="p-4 md:p-5 lg:col-span-2"><h2 className="mb-3 font-semibold">العقارات المستأجرة</h2>{rentedAssets.length===0?<p className="text-sm text-text-secondary">لا توجد عقارات مستأجرة فعالة مرتبطة بهذا العميل.</p>:<div className="flex flex-wrap gap-2">{rentedAssets.map((asset)=><div key={asset.id} className="rounded-input border border-border-subtle px-3 py-2"><AssetLink asset={asset}/></div>)}</div>}</Card>
