@@ -13,6 +13,25 @@ export const GET=withErrorHandling<RouteContext>(async(request,{params})=>{
   if(!project)throw new ApiError(404,'project_not_found','المشروع غير موجود');
   const {data:assets,error:assetsError}=await supabase.from('assets').select('id,name_ar,asset_type,physical_status,unit_number,unit_type_id,phase_id').eq('tenant_id',caller.tenantId).eq('project_id',id).is('archived_at',null).order('created_at');
   if(assetsError)throw new Error(assetsError.message);
+  const assetIds=(assets??[]).map(asset=>asset.id);
+  const [{data:interests,error:interestError},{data:viewings,error:viewingError},{data:reservationLinks,error:reservationError},{data:projectDeals,error:projectDealError}]=assetIds.length?await Promise.all([
+    supabase.from('lead_interests').select('lead_id').eq('tenant_id',caller.tenantId).in('asset_id',assetIds),
+    supabase.from('viewings').select('lead_id').eq('tenant_id',caller.tenantId).in('asset_id',assetIds),
+    supabase.from('reservation_assets').select('reservations(lead_id,status)').eq('tenant_id',caller.tenantId).in('asset_id',assetIds),
+    supabase.from('deal_assets').select('deals(lead_id,status,deal_type)').eq('tenant_id',caller.tenantId).in('asset_id',assetIds),
+  ]):[{data:[],error:null},{data:[],error:null},{data:[],error:null},{data:[],error:null}];
+  if(interestError)throw new Error(interestError.message);if(viewingError)throw new Error(viewingError.message);if(reservationError)throw new Error(reservationError.message);if(projectDealError)throw new Error(projectDealError.message);
+  const unique=(values:Array<string|null|undefined>)=>new Set(values.filter((value):value is string=>Boolean(value)));
+  const interestLeads=unique((interests??[]).map(x=>x.lead_id));
+  const viewingLeads=unique((viewings??[]).map(x=>x.lead_id));
+  const reservationRows=(reservationLinks??[]).flatMap(x=>Array.isArray(x.reservations)?x.reservations:(x.reservations?[x.reservations]:[])).filter(x=>x.status==='active'||x.status==='converted');
+  const reservationLeads=unique(reservationRows.map(x=>x.lead_id));
+  const projectDealRows=(projectDeals??[]).flatMap(x=>Array.isArray(x.deals)?x.deals:(x.deals?[x.deals]:[])).filter(x=>x.deal_type==='sale');
+  const negotiationLeads=unique(projectDealRows.filter(x=>x.status==='open'||x.status==='negotiation'||x.status==='won').map(x=>x.lead_id));
+  const wonLeads=unique(projectDealRows.filter(x=>x.status==='won').map(x=>x.lead_id));
+  const funnelCounts=[interestLeads.size,viewingLeads.size,reservationLeads.size,negotiationLeads.size,wonLeads.size];
+  const funnelLabels=['interest','viewing','reservation','negotiation','won'] as const;
+  const funnel={stages:funnelLabels.map((stage,index)=>({stage,count:funnelCounts[index],conversion_from_previous:index===0?1:(funnelCounts[index-1]?Math.min(1,funnelCounts[index]/funnelCounts[index-1]):0),drop_off_from_previous:index===0?0:(funnelCounts[index-1]?Math.max(0,1-funnelCounts[index]/funnelCounts[index-1]):0)})),overall_conversion:interestLeads.size?wonLeads.size/interestLeads.size:0};
   const inventory=await Promise.all((assets??[]).map(async asset=>{
     const [{data:availability,error:availabilityError},{data:listingLinks,error:listingError},{data:dealLinks,error:dealError}]=await Promise.all([
       supabase.rpc('get_asset_commercial_availability',{p_tenant_id:caller.tenantId,p_asset_id:asset.id}).maybeSingle(),
@@ -52,5 +71,5 @@ export const GET=withErrorHandling<RouteContext>(async(request,{params})=>{
     negotiation_rate:summary.total?summary.negotiation/summary.total:0,
     asking_to_sale_ratio:soldAskingValue?summary.sold_value/soldAskingValue:0,
   };
-  return okResponse({project,summary,analytics,inventory});
+  return okResponse({project,summary,analytics,funnel,inventory});
 });
