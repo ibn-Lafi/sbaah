@@ -10,7 +10,9 @@ export function listListings(accessToken:string):Promise<{listings:ListingWithAs
 export function createListing(accessToken:string,input:ListingInput):Promise<{listing:Listing}>{return apiPost<{listing:Listing}>('/v1/listings',input,accessToken);}
 
 export type AssetWithMedia=Asset&{asset_media:Array<{id:string;media_type:string;url:string;order_index:number}>};
-export interface AssetDetailResponse { asset:AssetWithMedia; parent:Asset|null; children:Asset[]; }
+export interface AssetAvailability {status:string;reason?:string|null;blocking_entity_type?:string|null;blocking_entity_id?:string|null}
+export interface AssetContextRef {id:string;name_ar:string}
+export interface AssetDetailResponse { asset:AssetWithMedia; parent:Asset|null; children:Asset[]; availability:AssetAvailability|null; project:AssetContextRef|null; phase:AssetContextRef|null; unit_type:AssetContextRef|null; }
 export const getAsset=(token:string,id:string)=>apiGet<AssetDetailResponse>(`/v1/assets/${id}`,token);
 export const updateAsset=(token:string,id:string,input:Partial<AssetInput>)=>apiPatch<{asset:Asset}>(`/v1/assets/${id}`,input,token);
 export const archiveAsset=(token:string,id:string)=>apiDelete<{status:string}>(`/v1/assets/${id}`,token);
@@ -33,6 +35,9 @@ export interface AssetRelationships {
  viewings:Array<{id:string;lead_id:string;scheduled_at:string;status:string;leads?:{id:string;full_name:string;phone:string|null}|null}>;
  reservations:Array<{reservation_id:string;reservations?:{id:string;reservation_number:string;status:string;reserved_at:string;lead_id:string|null;leads?:{id:string;full_name:string;phone:string|null}|null}|null}>;
  deals:Array<{deal_id:string;deals?:{id:string;status:string;value:number|null;deal_type:'sale'|'rent'|null;closed_at:string|null;created_at:string;responsible_user_id:string|null;listing_id:string|null;lead_id:string;leads?:{id:string;full_name:string;phone:string|null;source:string}|null;users?:{id:string;full_name:string}|null;listings?:{id:string;listing_number:string;asking_price:number|null;created_at:string}|null}|null}>;
- leases:Array<{contract_id:string;lease_contracts?:{id:string;contract_number:string;status:string;lease_contract_parties?:Array<{party_id:string;role:string;parties?:{id:string;name:string;lead_id:string|null}|null}>}|null}>;
+ leases:Array<{contract_id:string;lease_contracts?:{id:string;contract_number:string;status:string;start_date:string;end_date:string;total_value:number;payment_frequency:string;lease_contract_parties?:Array<{party_id:string;role:string;parties?:{id:string;name:string;lead_id:string|null}|null}>;lease_installments?:Array<{id:string;installment_number:number;due_date:string;amount:number;status:string}>}|null}>;
+ ownerships:Array<{id:string;party_id:string;ownership_percentage:number;started_at:string|null;ended_at:string|null;parties?:{id:string;name:string}|null}>;
+ management:Array<{id:string;status:string;starts_at:string;ends_at:string|null;management_fee_type:string|null;management_fee_value:number|null}>;
+ maintenance:Array<{id:string;request_number:string;title:string;priority:string;status:string;opened_at:string;completed_at:string|null;contract_id:string|null;estimated_cost:number|null;actual_cost:number|null}>;
 }
 export function getAssetRelationships(token:string,id:string){return apiGet<{relationships:AssetRelationships}>(`/v1/assets/${id}/relationships`,token);}
