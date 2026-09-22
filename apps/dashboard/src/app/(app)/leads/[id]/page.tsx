@@ -22,6 +22,7 @@ import { Customer360Overview, type CustomerDetailTab } from '@/components/crm/cu
 import { SegmentedToggle } from '@/components/ui/segmented-toggle';
 import { CustomerQuickActions } from '@/components/crm/customer-quick-actions';
 import { LeadRequirements } from '@/components/crm/lead-requirements';
+import { LeadRealEstateInterests } from '@/components/crm/lead-real-estate-interests';
 
 // Matches Button's h-[46px] — these are <a> tags (tel:/WhatsApp deep links), not <button>s, so they can't use the Button component itself, but should still line up with it.
 const ACTION_LINK_CLASSES =
@@ -190,6 +191,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
                 options={isProspect ? [
                   { value: 'overview', label: 'المعلومات والسجل' },
                   { value: 'actions', label: 'المتابعة والإجراءات' },
+                  { value: 'interests', label: 'الاهتمامات العقارية' },
                   { value: 'requirements', label: 'المتطلبات' },
                   { value: 'viewings', label: 'المعاينات' },
                   { value: 'opportunities', label: 'الحجوزات والصفقات' },
@@ -221,7 +223,9 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
                 </div>
               )}
 
-              {detailTab === 'requirements' ? (
+              {detailTab === 'interests' ? (
+                <LeadRealEstateInterests leadId={id} accessToken={accessToken} interests={customer360.interests} onSaved={refreshCustomer360} />
+              ) : detailTab === 'requirements' ? (
                 <Card className="p-4 md:p-6"><LeadRequirements leadId={id} accessToken={accessToken} embedded onSaved={refreshCustomer360} /></Card>
               ) : (
                 <Customer360Overview lead={lead} data={customer360} tab={detailTab} />
