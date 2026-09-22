@@ -15,3 +15,5 @@ export interface LeadRequirement { id:string; lead_id:string; purpose_v2:string|
 export function listRequirements(token:string,leadId:string){return apiGet<{requirements:LeadRequirement[]}>(`/v1/crm/requirements?lead_id=${encodeURIComponent(leadId)}`,token);}
 export function createRequirement(token:string,input:Record<string,unknown>){return apiPost<{requirement:LeadRequirement}>('/v1/crm/requirements',input,token);}
 export function getMatches(token:string,leadId:string){return apiGet<{matches:Array<{id:string;title_ar:string;price:number;area_sqm:number}>}>(`/v1/crm/matching?lead_id=${encodeURIComponent(leadId)}`,token);}
+
+export function createReservation(token:string,input:Record<string,unknown>){return apiPost<{reservation:Record<string,unknown>}>('/v1/crm/reservations',input,token);}
