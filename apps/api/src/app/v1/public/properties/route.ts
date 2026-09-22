@@ -24,7 +24,7 @@ export const GET=withErrorHandling(async(request:NextRequest)=>{
   id:r.listing_id,slug:r.asset_slug??r.listing_number,tenant_id:tenantId,
   title_ar:r.title_ar,title_en:r.title_en,description_ar:r.description_ar,description_en:r.description_en,
   property_type:r.asset_type,listing_type:r.listing_type,price:r.asking_price,
-  city_id:r.city_id,district_id:r.district_id,bedrooms:r.bedrooms,bathrooms:r.bathrooms,area:r.area_sqm,
+  city_id:r.city_id,district_id:r.district_id,bedrooms:r.bedrooms,bathrooms:r.bathrooms,area_sqm:r.area_sqm,
   status:'published',advertisement_license_number:r.advertisement_license_number,
   advertiser_name:r.advertiser_name,created_at:r.created_at,
   property_media:r.asset_media??[],listing_number:r.listing_number,pricing_period:r.pricing_period,
