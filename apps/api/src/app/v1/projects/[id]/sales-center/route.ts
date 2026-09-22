@@ -43,13 +43,14 @@ export const GET=withErrorHandling<RouteContext>(async(request,{params})=>{
   },{total:0,available:0,reserved:0,negotiation:0,sold:0,asking_value:0,sold_value:0});
   const wonSales=inventory.filter(item=>item.won_sale);
   const closeDurations=wonSales.map(item=>{const deal=item.won_sale;if(!deal?.closed_at||!deal.created_at)return null;return Math.max(0,(new Date(deal.closed_at).getTime()-new Date(deal.created_at).getTime())/86400000);}).filter((value):value is number=>value!=null);
+  const soldAskingValue=wonSales.reduce((sum,item)=>sum+(item.sale_listings[0]?.asking_price!=null?Number(item.sale_listings[0].asking_price):0),0);
   const analytics={
     revenue:summary.sold_value,
     average_sale_price:wonSales.length?summary.sold_value/wonSales.length:0,
     average_days_to_close:closeDurations.length?closeDurations.reduce((sum,value)=>sum+value,0)/closeDurations.length:0,
     sell_through_rate:summary.total?summary.sold/summary.total:0,
     negotiation_rate:summary.total?summary.negotiation/summary.total:0,
-    asking_to_sale_ratio:summary.asking_value?summary.sold_value/summary.asking_value:0,
+    asking_to_sale_ratio:soldAskingValue?summary.sold_value/soldAskingValue:0,
   };
   return okResponse({project,summary,analytics,inventory});
 });
