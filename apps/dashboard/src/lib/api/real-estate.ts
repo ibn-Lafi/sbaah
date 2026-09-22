@@ -32,7 +32,7 @@ export interface AssetRelationships {
  interests:Array<{id:string;lead_id:string;created_at:string;leads?:{id:string;full_name:string;phone:string|null}|null}>;
  viewings:Array<{id:string;lead_id:string;scheduled_at:string;status:string;leads?:{id:string;full_name:string;phone:string|null}|null}>;
  reservations:Array<{reservation_id:string;reservations?:{id:string;reservation_number:string;status:string;reserved_at:string;lead_id:string|null;leads?:{id:string;full_name:string;phone:string|null}|null}|null}>;
- deals:Array<{deal_id:string;deals?:{id:string;status:string;value:number|null;lead_id:string;leads?:{id:string;full_name:string;phone:string|null}|null}|null}>;
+ deals:Array<{deal_id:string;deals?:{id:string;status:string;value:number|null;deal_type:'sale'|'rent'|null;closed_at:string|null;created_at:string;responsible_user_id:string|null;listing_id:string|null;lead_id:string;leads?:{id:string;full_name:string;phone:string|null;source:string}|null;users?:{id:string;full_name:string}|null;listings?:{id:string;listing_number:string;asking_price:number|null;created_at:string}|null}|null}>;
  leases:Array<{contract_id:string;lease_contracts?:{id:string;contract_number:string;status:string;lease_contract_parties?:Array<{party_id:string;role:string;parties?:{id:string;name:string;lead_id:string|null}|null}>}|null}>;
 }
 export function getAssetRelationships(token:string,id:string){return apiGet<{relationships:AssetRelationships}>(`/v1/assets/${id}/relationships`,token);}
