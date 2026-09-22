@@ -12,15 +12,17 @@ export const GET = withErrorHandling<RouteContext>(async (request, { params }) =
   const { data, error } = await supabase.from('assets').select('*, asset_media(*)').eq('id', id).eq('tenant_id', caller.tenantId).maybeSingle();
   if (error) throw new Error(`Failed to load asset: ${error.message}`);
   if (!data) throw new ApiError(404, 'asset_not_found', 'العقار غير موجود');
-  const [parentResult, childrenResult] = await Promise.all([
+  const [parentResult, childrenResult, availabilityResult] = await Promise.all([
     data.parent_asset_id
       ? supabase.from('assets').select('*').eq('id', data.parent_asset_id).eq('tenant_id', caller.tenantId).is('archived_at', null).maybeSingle()
       : Promise.resolve({ data: null, error: null }),
     supabase.from('assets').select('*').eq('parent_asset_id', id).eq('tenant_id', caller.tenantId).is('archived_at', null).order('created_at'),
+    supabase.rpc('get_asset_commercial_availability', { p_tenant_id: caller.tenantId, p_asset_id: id }).maybeSingle(),
   ]);
   if (parentResult.error) throw new Error(`Failed to load parent asset: ${parentResult.error.message}`);
   if (childrenResult.error) throw new Error(`Failed to load child assets: ${childrenResult.error.message}`);
-  return okResponse({ asset: data, parent: parentResult.data, children: childrenResult.data ?? [] });
+  if (availabilityResult.error) throw new Error(`Failed to load asset availability: ${availabilityResult.error.message}`);
+  return okResponse({ asset: data, parent: parentResult.data, children: childrenResult.data ?? [], availability: availabilityResult.data });
 });
 
 export const PATCH = withErrorHandling<RouteContext>(async (request, { params }) => {
