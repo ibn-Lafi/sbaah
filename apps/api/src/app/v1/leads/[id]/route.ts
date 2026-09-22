@@ -32,13 +32,14 @@ export const GET = withErrorHandling<RouteContext>(async (request, { params }) =
   }
   if (isAssignedScope(grant)) await assertAssignedLeadAccess(supabase, caller.tenantId, caller.userId, id);
 
-  const [tasksResult, viewingsResult, dealsResult, reservationsResult, activitiesResult, partyResult] = await Promise.all([
+  const [tasksResult, viewingsResult, dealsResult, reservationsResult, activitiesResult, partyResult, interestsResult] = await Promise.all([
     supabase.from('crm_tasks').select('*').eq('tenant_id', caller.tenantId).eq('lead_id', id).order('due_at'),
     supabase.from('viewings').select('*').eq('tenant_id', caller.tenantId).eq('lead_id', id).order('scheduled_at', { ascending: false }),
     supabase.from('deals').select('*, deal_assets(asset_id)').eq('tenant_id', caller.tenantId).eq('lead_id', id).order('created_at', { ascending: false }),
     supabase.from('reservations').select('*, reservation_assets(asset_id)').eq('tenant_id', caller.tenantId).eq('lead_id', id).order('reserved_at', { ascending: false }),
     supabase.from('crm_activities').select('*').eq('tenant_id', caller.tenantId).eq('lead_id', id).order('occurred_at', { ascending: false }),
     supabase.from('parties').select('*').eq('tenant_id', caller.tenantId).eq('lead_id', id).maybeSingle(),
+    supabase.from('lead_interests').select('*, projects(id,name_ar), unit_types(id,name_ar,project_id), assets(id,name_ar,project_id,unit_type_id,parent_asset_id,unit_number,asset_type), listings(id,title_ar,listing_type)').eq('tenant_id', caller.tenantId).eq('lead_id', id).order('created_at', { ascending: false }),
   ]);
 
   const party = partyResult.data ?? null;
@@ -75,6 +76,7 @@ export const GET = withErrorHandling<RouteContext>(async (request, { params }) =
   return okResponse({ lead: data, customer360: {
     customer_kind: customerKind,
     customer_relationship: customerRelationship,
+    interests: interestsResult.data ?? [],
     tasks: tasksResult.data ?? [], viewings: viewingsResult.data ?? [], deals: dealsResult.data ?? [],
     reservations: reservationsResult.data ?? [], activities: activitiesResult.data ?? [], party: canViewRentPlus ? party : null, contracts, installments, payments, maintenance,
   }});
