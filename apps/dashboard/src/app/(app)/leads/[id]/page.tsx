@@ -21,6 +21,7 @@ import { useLocale } from '@/lib/i18n/locale-context';
 import { Customer360Overview, type CustomerDetailTab } from '@/components/crm/customer-360-overview';
 import { SegmentedToggle } from '@/components/ui/segmented-toggle';
 import { CustomerQuickActions } from '@/components/crm/customer-quick-actions';
+import { LeadRequirements } from '@/components/crm/lead-requirements';
 
 // Matches Button's h-[46px] — these are <a> tags (tel:/WhatsApp deep links), not <button>s, so they can't use the Button component itself, but should still line up with it.
 const ACTION_LINK_CLASSES =
@@ -56,6 +57,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
   }, [accessToken, id]);
 
   const canManage = me.user.role !== 'agent';
+  const isProspect = customer360?.customer_kind === 'prospect';
 
   useEffect(() => {
     if (canManage) {
@@ -151,7 +153,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <h2 className="truncate text-base font-semibold text-text-primary md:text-lg">{lead.full_name}</h2>
-                    {customer360?.party && <span className="rounded-full bg-surface-subtle px-2.5 py-1 text-xs text-text-secondary">عميل Rent Plus</span>}
+                    {customer360 && <span className="rounded-full bg-surface-subtle px-2.5 py-1 text-xs text-text-secondary">{isProspect ? 'عميل محتمل' : 'عميل'}</span>}
                   </div>
                   <div className="mt-1 flex flex-wrap gap-x-2 gap-y-0.5 text-xs text-text-secondary md:gap-x-3 md:text-sm">
                     <span dir="ltr">{lead.phone ?? 'بدون رقم جوال'}</span>
@@ -184,7 +186,13 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
               <SegmentedToggle
                 value={detailTab}
                 onChange={setDetailTab}
-                options={[
+                options={isProspect ? [
+                  { value: 'overview', label: 'المعلومات والسجل' },
+                  { value: 'actions', label: 'المتابعة والإجراءات' },
+                  { value: 'requirements', label: 'المتطلبات' },
+                  { value: 'viewings', label: 'المعاينات' },
+                  { value: 'opportunities', label: 'الحجوزات والصفقات' },
+                ] : [
                   { value: 'overview', label: 'المعلومات وسجل العميل' },
                   { value: 'actions', label: 'الإجراءات' },
                   { value: 'rent', label: 'العقود والإيجار' },
@@ -207,12 +215,16 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
 
               {detailTab === 'actions' && (
                 <div className="flex items-center justify-between gap-2 rounded-card border border-border-subtle bg-surface-card p-2.5 md:gap-3 md:p-4">
-                  <div className="min-w-0"><p className="text-xs font-semibold text-text-primary md:text-sm">إجراء على العميل</p><p className="mt-0.5 hidden text-xs text-text-secondary sm:block">المتابعة والمهمة والمعاينة والملاحظة ومتطلبات العميل من مكان واحد.</p></div>
+                  <div className="min-w-0"><p className="text-xs font-semibold text-text-primary md:text-sm">{isProspect ? 'متابعة العميل المحتمل' : 'إجراء على العميل'}</p><p className="mt-0.5 hidden text-xs text-text-secondary sm:block">المتابعة والمهمة والمعاينة والملاحظة من مكان واحد.</p></div>
                   <CustomerQuickActions leadId={id} accessToken={accessToken} currentUserId={me.user.id} onChanged={refreshCustomer360} />
                 </div>
               )}
 
-              <Customer360Overview lead={lead} data={customer360} tab={detailTab} />
+              {detailTab === 'requirements' ? (
+                <Card className="p-4 md:p-6"><LeadRequirements leadId={id} accessToken={accessToken} embedded onSaved={refreshCustomer360} /></Card>
+              ) : (
+                <Customer360Overview lead={lead} data={customer360} tab={detailTab} />
+              )}
             </>
           )}
 
