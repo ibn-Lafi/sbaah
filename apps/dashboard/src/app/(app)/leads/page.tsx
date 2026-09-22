@@ -77,7 +77,7 @@ export default function LeadsPage() {
           { value: 'customer', label: 'العملاء' },
           { value: 'prospect', label: 'العملاء المحتملون' },
         ]}
-        className="settings-tabs mb-5"
+        className="customer-list-tabs mb-5"
       />
 
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
@@ -101,6 +101,7 @@ export default function LeadsPage() {
         <Modal title={t.createModal.title} onClose={() => setShowCreate(false)} maxWidth="620px" mobileCentered>
           <CreateLeadForm
             accessToken={accessToken}
+            initialKind={customerKind}
             onCreated={(lead) => router.push(`/leads/${lead.id}`)}
           />
         </Modal>
@@ -119,7 +120,7 @@ export default function LeadsPage() {
                   <th className="w-[52%] px-2 py-3 text-right font-medium sm:w-auto sm:px-3 md:px-4">{t.list.table.name}</th>
                   <th className="hidden px-3 py-3 font-medium sm:table-cell md:px-4">{t.list.table.phone}</th>
                   <th className="hidden px-3 py-3 font-medium lg:table-cell md:px-4">{t.list.table.source}</th>
-                  <th className="w-[36%] px-2 py-3 text-right font-medium sm:w-auto sm:px-3 md:px-4">{t.list.table.status}</th>
+                  <th className="w-[36%] px-2 py-3 text-right font-medium sm:w-auto sm:px-3 md:px-4">{customerKind === 'prospect' ? t.list.table.status : 'النوع'}</th>
                   <th className="hidden px-3 py-3 font-medium md:table-cell md:px-4">{t.list.table.nextFollowUp}</th>
                   <th className="w-[12%] px-1 py-3 sm:w-10 sm:px-3" />
                 </tr>
@@ -153,10 +154,13 @@ export default function LeadsPage() {
                         {t.sourceLabels[lead.source]}
                       </td>
                       <td className="px-2 py-3 text-right sm:px-3 md:px-4">
-                        <LeadStatusPillSelect
-                          value={lead.status}
-                          onChange={(status) => void handleStatusChange(lead.id, status)}
-                        />
+                        {customerKind === 'prospect' ? (
+                          <LeadStatusPillSelect value={lead.status} onChange={(status) => void handleStatusChange(lead.id, status)} />
+                        ) : (
+                          <span className="inline-flex rounded-full bg-surface-subtle px-2.5 py-1 text-xs font-medium text-text-secondary">
+                            {(lead as Lead & { customer_relationship?: 'purchase' | 'tenant' | null }).customer_relationship === 'tenant' ? 'مستأجر' : 'شراء'}
+                          </span>
+                        )}
                       </td>
                       <td className="text-text-secondary hidden px-3 py-3 md:table-cell md:px-4" dir="ltr">
                         {lead.follow_up_at ? formatDate(lead.follow_up_at) : '—'}
