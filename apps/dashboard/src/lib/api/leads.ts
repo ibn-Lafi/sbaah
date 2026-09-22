@@ -2,7 +2,7 @@ import type { Lead, LeadNote, LeadSource, LeadStatus, LeadUpdateInput, ManualLea
 import { apiDelete, apiGet, apiPatch, apiPost } from './client';
 
 export interface LeadListResponse {
-  leads: Array<Lead & { customer_kind?: 'customer' | 'prospect' }>;
+  leads: Array<Lead & { customer_kind?: 'customer' | 'prospect'; customer_relationships?: Array<'purchase' | 'tenant'> }>;
   page: number;
   page_size: number;
   total: number;
