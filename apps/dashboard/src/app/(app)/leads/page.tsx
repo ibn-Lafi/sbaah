@@ -158,7 +158,7 @@ export default function LeadsPage() {
                           <LeadStatusPillSelect value={lead.status} onChange={(status) => void handleStatusChange(lead.id, status)} />
                         ) : (
                           <span className="inline-flex rounded-full bg-surface-subtle px-2.5 py-1 text-xs font-medium text-text-secondary">
-                            {(lead as Lead & { customer_relationship?: 'purchase' | 'tenant' | null }).customer_relationship === 'tenant' ? 'مستأجر' : 'شراء'}
+                            {((lead as Lead & { customer_relationships?: Array<'purchase' | 'tenant'> }).customer_relationships ?? []).map((relationship) => relationship === 'tenant' ? 'مستأجر' : 'مشتري').join(' · ') || 'عميل'}
                           </span>
                         )}
                       </td>
