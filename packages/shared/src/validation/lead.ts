@@ -41,7 +41,6 @@ export const manualLeadInputSchema = z.object({
   phone: saudiPhoneSchema,
   email: z.string().email().optional().nullable(),
   assigned_agent_id: z.string().uuid().optional().nullable(),
-  customer_relationship: z.enum(['purchase', 'tenant']).optional().nullable(),
 });
 export type ManualLeadInput = z.infer<typeof manualLeadInputSchema>;
 
