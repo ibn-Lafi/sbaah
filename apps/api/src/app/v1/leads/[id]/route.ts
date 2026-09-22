@@ -95,15 +95,19 @@ export const GET = withErrorHandling<RouteContext>(async (request, { params }) =
         .map((link) => [link.asset_id, link.assets] as const),
     ).values(),
   );
-  const rentedAssets = Array.from(
-    new Map(
-      contracts
-        .filter((contract) => Array.isArray(contract.customer_roles) && contract.customer_roles.includes('lessee') && !['cancelled', 'terminated'].includes(String(contract.status)))
-        .flatMap((contract) => Array.isArray(contract.lease_contract_assets) ? contract.lease_contract_assets : [])
-        .filter((link) => link && typeof link === 'object' && 'assets' in link && link.assets)
-        .map((link) => [String((link as { asset_id: unknown }).asset_id), (link as { assets: unknown }).assets] as const),
-    ).values(),
-  );
+  const rentedAssetMap = new Map<string, unknown>();
+  for (const contract of contracts) {
+    const roles = Array.isArray(contract.customer_roles) ? contract.customer_roles : [];
+    if (!roles.includes('lessee') || ['cancelled', 'terminated'].includes(String(contract.status))) continue;
+    const links = Array.isArray(contract.lease_contract_assets) ? contract.lease_contract_assets : [];
+    for (const rawLink of links) {
+      if (!rawLink || typeof rawLink !== 'object') continue;
+      const link = rawLink as Record<string, unknown>;
+      const assetId = typeof link.asset_id === 'string' ? link.asset_id : null;
+      if (assetId && link.assets) rentedAssetMap.set(assetId, link.assets);
+    }
+  }
+  const rentedAssets = Array.from(rentedAssetMap.values());
 
   return okResponse({ lead: data, customer360: {
     customer_kind: customerKind,
