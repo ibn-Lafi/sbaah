@@ -28,7 +28,7 @@ export const GET=withErrorHandling<RouteContext>(async(request,{params})=>{
   }));
   const summary=inventory.reduce((acc,item)=>{
     acc.total+=1;
-    const status=String(item.availability?.commercial_status??item.availability?.status??'available');
+    const status=String(item.availability?.status??'available');
     if(status==='sold'||item.won_sale)acc.sold+=1;
     else if(status==='reserved')acc.reserved+=1;
     else if(status==='under_negotiation'||status==='negotiation')acc.negotiation+=1;
