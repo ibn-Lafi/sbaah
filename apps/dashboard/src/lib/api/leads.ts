@@ -25,6 +25,7 @@ export function listLeads(
 export type LeadWithNotes = Lead & { lead_notes: LeadNote[] };
 
 export interface Customer360Snapshot {
+  customer_kind: 'customer' | 'prospect';
   tasks: Array<{id:string;title:string;due_at:string|null;completed_at:string|null;completion_notes:string|null}>;
   viewings: Array<{id:string;asset_id:string;scheduled_at:string;status:string;outcome:string|null;notes:string|null}>;
   deals: Array<{id:string;status:string;value:number|null;expected_close_date:string|null;deal_assets?:Array<{asset_id:string}>}>;
