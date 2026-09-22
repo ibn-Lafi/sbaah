@@ -4,7 +4,7 @@ import { createAnonClient } from '@sbaah/shared';
 import { okResponse, withErrorHandling } from '@/lib/http';
 import { resolvePublicTenantId } from '@/lib/tenant/resolve-public-tenant';
 
-const schema=z.object({domain:z.string().min(1),listing_type:z.enum(['sale','rent']).optional(),property_type:z.string().optional(),city_id:z.string().uuid().optional(),district_id:z.string().uuid().optional(),min_price:z.coerce.number().nonnegative().optional(),max_price:z.coerce.number().nonnegative().optional(),bedrooms:z.coerce.number().int().nonnegative().optional(),page:z.coerce.number().int().positive().default(1),page_size:z.coerce.number().int().positive().max(50).default(20)});
+const schema=z.object({domain:z.string().min(1),listing_type:z.enum(['sale','rent']).optional(),property_type:z.enum(['apartment','villa','building','land','plot','office','shop','warehouse','floor','compound','chalet','farm','parking','other']).optional(),city_id:z.string().uuid().optional(),district_id:z.string().uuid().optional(),min_price:z.coerce.number().nonnegative().optional(),max_price:z.coerce.number().nonnegative().optional(),bedrooms:z.coerce.number().int().nonnegative().optional(),page:z.coerce.number().int().positive().default(1),page_size:z.coerce.number().int().positive().max(50).default(20)}).refine(q=>q.min_price==null||q.max_price==null||q.min_price<=q.max_price,{message:'الحد الأدنى للسعر يجب ألا يتجاوز الحد الأعلى'});
 
 export const GET=withErrorHandling(async(request:NextRequest)=>{
  const q=schema.parse(Object.fromEntries(request.nextUrl.searchParams));const supabase=createAnonClient();const tenantId=await resolvePublicTenantId(q.domain,supabase);const offset=(q.page-1)*q.page_size;
