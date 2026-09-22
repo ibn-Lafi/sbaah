@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/card';
 import type { Customer360Snapshot, LeadWithNotes } from '@/lib/api/leads';
 import { CustomerActivityTimeline } from '@/components/crm/customer-activity-timeline';
 
-export type CustomerDetailTab = 'overview' | 'actions' | 'rent' | 'purchase' | 'maintenance';
+export type CustomerDetailTab = 'overview' | 'actions' | 'requirements' | 'viewings' | 'opportunities' | 'rent' | 'purchase' | 'maintenance';
 
 const money = (value:number) => new Intl.NumberFormat('ar-SA',{style:'currency',currency:'SAR',maximumFractionDigits:0}).format(value);
 const date = (value:string) => new Intl.DateTimeFormat('ar-SA-u-ca-gregory',{year:'numeric',month:'short',day:'numeric'}).format(new Date(value));
@@ -34,6 +34,13 @@ export function Customer360Overview({lead,data,tab='overview'}:{lead:LeadWithNot
     <Card className="p-4 md:p-5"><h2 className="mb-3 font-semibold text-text-primary">الإجراء القادم</h2>{nextAction?<><span className="text-xs font-medium text-brand">{nextAction.type}</span><p className="mt-1 font-semibold">{nextAction.title}</p><p className="mt-1 text-sm text-text-secondary">{date(nextAction.at)}</p></>:<p className="text-sm text-text-secondary">لا يوجد إجراء مجدول حاليًا.</p>}</Card>
     <Card className="p-4 md:p-5"><h2 className="mb-3 font-semibold text-text-primary">المهام والمتابعات</h2>{openTasks.length===0?<p className="text-sm text-text-secondary">لا توجد مهام مفتوحة.</p>:<div className="space-y-2">{openTasks.map(task=><div key={task.id} className="rounded-input border border-border-subtle p-3"><p className="font-medium">{task.title}</p>{task.due_at&&<p className="mt-1 text-xs text-text-secondary">{date(task.due_at)}</p>}</div>)}</div>}</Card>
     <Card className="p-4 md:p-5 md:col-span-2"><h2 className="mb-3 font-semibold text-text-primary">المعاينات القادمة</h2>{upcomingViewings.length===0?<p className="text-sm text-text-secondary">لا توجد معاينات قادمة.</p>:<div className="grid gap-2 sm:grid-cols-2">{upcomingViewings.map(viewing=><div key={viewing.id} className="rounded-input border border-border-subtle p-3"><p className="font-medium">معاينة عقار</p><p className="mt-1 text-xs text-text-secondary">{date(viewing.scheduled_at)}</p></div>)}</div>}</Card>
+  </div>;
+
+  if(tab==='viewings') return <Card className="p-4 md:p-5"><h2 className="mb-3 font-semibold">المعاينات</h2>{data.viewings.length===0?<p className="text-sm text-text-secondary">لا توجد معاينات مسجلة لهذا العميل المحتمل.</p>:<div className="grid gap-3 md:grid-cols-2">{data.viewings.map(viewing=><div key={viewing.id} className="rounded-input border border-border-subtle p-4"><div className="flex items-start justify-between gap-3"><p className="font-semibold">معاينة عقار</p><span className="text-xs text-text-secondary">{viewing.status}</span></div><p className="mt-2 text-sm text-text-secondary">{date(viewing.scheduled_at)}</p>{viewing.outcome&&<p className="mt-2 text-xs text-text-secondary">النتيجة: {viewing.outcome}</p>}</div>)}</div>}</Card>;
+
+  if(tab==='opportunities') return <div className="grid gap-3 md:grid-cols-2">
+    <Card className="p-4 md:p-5"><h2 className="mb-3 font-semibold">الحجوزات</h2>{data.reservations.length===0?<p className="text-sm text-text-secondary">لا توجد حجوزات حالية.</p>:<div className="space-y-2">{data.reservations.map(r=><div key={r.id} className="rounded-input border border-border-subtle p-3"><p className="font-medium">حجز #{r.reservation_number}</p><p className="mt-1 text-xs text-text-secondary">{date(r.reserved_at)} · {r.status}</p></div>)}</div>}</Card>
+    <Card className="p-4 md:p-5"><h2 className="mb-3 font-semibold">الصفقات المحتملة</h2>{data.deals.length===0?<p className="text-sm text-text-secondary">لا توجد صفقات مسجلة.</p>:<div className="space-y-2">{data.deals.map(d=><div key={d.id} className="rounded-input border border-border-subtle p-3"><div className="flex justify-between gap-2"><p className="font-medium">صفقة عقارية</p><span className="text-xs text-text-secondary">{d.status}</span></div><p className="mt-1 text-xs text-text-secondary">{d.value?money(Number(d.value)):'القيمة غير محددة'}</p></div>)}</div>}</Card>
   </div>;
 
   if(tab==='rent') return <div className="grid gap-3 lg:grid-cols-2">
