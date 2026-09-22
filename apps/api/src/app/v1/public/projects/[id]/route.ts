@@ -9,23 +9,9 @@ export const GET = withErrorHandling(async (request: NextRequest, context: { par
   if (!domain) throw new ApiError(400, 'domain_required', 'الدومين مطلوب');
   const supabase = createAnonClient();
   const tenantId = await resolvePublicTenantId(domain, supabase);
-
-  const { data: project, error: projectError } = await supabase.from('projects')
-    .select('id,slug,name_ar,name_en,description_ar,description_en,city_id,district_id,lat,lng')
-    .eq('tenant_id',tenantId).eq('status','published').or(`id.eq.${id},slug.eq.${id}`).maybeSingle();
-  if(projectError)throw new Error(`Failed to load public project: ${projectError.message}`);
-  if(!project)throw new ApiError(404,'project_not_found','المشروع غير موجود');
-
-  const [{data:media,error:mediaError},{data:unitTypes,error:unitTypesError},{data:feed,error:feedError}]=await Promise.all([
-    supabase.from('project_media').select('id,url,media_type,alt_ar,alt_en,order_index').eq('tenant_id',tenantId).eq('project_id',project.id).order('order_index'),
-    supabase.from('unit_types').select('id,name_ar,name_en,asset_type,specifications').eq('tenant_id',tenantId).eq('project_id',project.id),
-    supabase.rpc('public_project_listing_feed',{p_tenant_id:tenantId,p_project_id:project.id,p_limit:100,p_offset:0}),
-  ]);
-  if(mediaError)throw new Error(`Failed to load public project media: ${mediaError.message}`);
-  if(unitTypesError)throw new Error(`Failed to load public project unit types: ${unitTypesError.message}`);
-  if(feedError)throw new Error(`Failed to load public project inventory: ${feedError.message}`);
-  type ProjectFeedRow={listing_id:string;listing_number:string;listing_type:string;title_ar:string;title_en:string|null;asking_price:number|null;pricing_period:string|null;commercial_status:string;asset_id:string;asset_slug:string|null;asset_type:string;asset_name_ar:string;asset_name_en:string|null;unit_type_id:string|null;phase_id:string|null;unit_number:string|null;floor_number:number|null;area_sqm:number|null;bedrooms:number|null;bathrooms:number|null;asset_media:unknown[];total_count:number|string|null};
-  const rows=(feed??[]) as ProjectFeedRow[];
-  const units=rows.map(row=>({id:row.asset_id,slug:row.asset_slug,unit_type_id:row.unit_type_id,phase_id:row.phase_id,unit_number:row.unit_number,floor_number:row.floor_number,area_sqm:row.area_sqm,bedrooms:row.bedrooms,bathrooms:row.bathrooms,asset_type:row.asset_type,name_ar:row.asset_name_ar,name_en:row.asset_name_en,listing_id:row.listing_id,listing_number:row.listing_number,listing_type:row.listing_type,price:row.asking_price,pricing_period:row.pricing_period,commercial_status:row.commercial_status,media:row.asset_media}));
-  return okResponse({project,media:media??[],unit_types:unitTypes??[],units,total:Number(rows[0]?.total_count??0)});
+  const { data, error } = await supabase.rpc('public_project_detail', { p_tenant_id: tenantId, p_identifier: id });
+  if (error) throw new Error(`Failed to load public project: ${error.message}`);
+  if (!data) throw new ApiError(404, 'project_not_found', 'المشروع غير موجود');
+  const detail = data as { project:Record<string,unknown>;media?:unknown[];unit_types?:unknown[];units?:unknown[] };
+  return okResponse({ project:detail.project, media:detail.media??[], unit_types:detail.unit_types??[], units:detail.units??[], total:detail.units?.length??0 });
 });
