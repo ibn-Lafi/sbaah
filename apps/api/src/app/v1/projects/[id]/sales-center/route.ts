@@ -23,15 +23,18 @@ export const GET=withErrorHandling<RouteContext>(async(request,{params})=>{
     if(listingError)throw new Error(listingError.message);
     if(dealError)throw new Error(dealError.message);
     const saleListings=(listingLinks??[]).flatMap(x=>Array.isArray(x.listings)?x.listings:(x.listings?[x.listings]:[])).filter(x=>x.listing_type==='sale');
-    const wonSale=(dealLinks??[]).flatMap(x=>Array.isArray(x.deals)?x.deals:(x.deals?[x.deals]:[])).find(x=>x.status==='won'&&x.deal_type==='sale')??null;
-    return {...asset,availability,sale_listings:saleListings,won_sale:wonSale};
+    const deals=(dealLinks??[]).flatMap(x=>Array.isArray(x.deals)?x.deals:(x.deals?[x.deals]:[]));
+    const wonSale=deals.find(x=>x.status==='won'&&x.deal_type==='sale')??null;
+    const activeSaleDeal=deals.find(x=>(x.status==='open'||x.status==='negotiation')&&x.deal_type==='sale')??null;
+    return {...asset,availability,sale_listings:saleListings,won_sale:wonSale,active_sale_deal:activeSaleDeal};
   }));
   const summary=inventory.reduce((acc,item)=>{
     acc.total+=1;
-    const status=String((item.availability as {status?:string}|null)?.status??'available');
-    if(status==='sold'||item.won_sale)acc.sold+=1;
+    const availabilityStatus=String((item.availability as {status?:string}|null)?.status??'available');
+    const status=item.won_sale?'sold':item.active_sale_deal?'negotiation':availabilityStatus;
+    if(status==='sold')acc.sold+=1;
     else if(status==='reserved')acc.reserved+=1;
-    else if(status==='under_negotiation'||status==='negotiation')acc.negotiation+=1;
+    else if(status==='negotiation')acc.negotiation+=1;
     else acc.available+=1;
     const listing=item.sale_listings[0];
     if(listing?.asking_price!=null)acc.asking_value+=Number(listing.asking_price);
