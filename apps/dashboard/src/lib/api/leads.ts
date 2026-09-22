@@ -24,9 +24,18 @@ export function listLeads(
 
 export type LeadWithNotes = Lead & { lead_notes: LeadNote[] };
 
+export interface LeadInterest {
+  id:string; project_id:string|null; unit_type_id:string|null; asset_id:string|null; listing_id:string|null; priority:number|null; notes:string|null; created_at:string;
+  projects?:{id:string;name_ar:string}|null;
+  unit_types?:{id:string;name_ar:string;project_id:string|null}|null;
+  assets?:{id:string;name_ar:string;project_id:string|null;unit_type_id:string|null;parent_asset_id:string|null;unit_number:string|null;asset_type:string}|null;
+  listings?:{id:string;title_ar:string;listing_type:string}|null;
+}
+
 export interface Customer360Snapshot {
   customer_kind: 'customer' | 'prospect';
   customer_relationship: 'purchase' | 'tenant' | null;
+  interests: LeadInterest[];
   tasks: Array<{id:string;title:string;due_at:string|null;completed_at:string|null;completion_notes:string|null}>;
   viewings: Array<{id:string;asset_id:string;scheduled_at:string;status:string;outcome:string|null;notes:string|null}>;
   deals: Array<{id:string;status:string;value:number|null;expected_close_date:string|null;deal_assets?:Array<{asset_id:string}>}>;
@@ -58,3 +67,5 @@ export function deleteLead(accessToken: string, id: string): Promise<{ status: s
 export function addLeadNote(accessToken: string, id: string, noteText: string): Promise<{ note: LeadNote }> {
   return apiPost<{ note: LeadNote }>(`/leads/${id}/notes`, { note_text: noteText }, accessToken);
 }
+
+export function addLeadInterest(accessToken:string,id:string,input:{project_id?:string|null;unit_type_id?:string|null;asset_id?:string|null;listing_id?:string|null;priority?:number|null;notes?:string|null}):Promise<{interest:LeadInterest}>{return apiPost<{interest:LeadInterest}>(`/leads/${id}/interests`,input,accessToken);}
