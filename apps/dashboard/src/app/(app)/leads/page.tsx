@@ -99,15 +99,15 @@ export default function LeadsPage() {
         ) : leads.length === 0 ? (
           <p className="text-text-secondary p-6 text-center">{t.list.emptyState}</p>
         ) : (
-          <div className="overflow-x-auto md:overflow-visible">
-            <table className="w-full min-w-[680px] table-fixed text-sm md:min-w-0">
+          <div className="overflow-hidden">
+            <table className="w-full table-fixed text-xs sm:text-sm">
               <thead className="bg-surface-header text-text-secondary text-right">
                 <tr>
                   <th className="px-3 py-3 md:px-4 font-medium">{t.list.table.name}</th>
-                  <th className="px-3 py-3 md:px-4 font-medium">{t.list.table.phone}</th>
-                  <th className="px-3 py-3 md:px-4 font-medium">{t.list.table.source}</th>
+                  <th className="hidden px-3 py-3 font-medium sm:table-cell md:px-4">{t.list.table.phone}</th>
+                  <th className="hidden px-3 py-3 font-medium lg:table-cell md:px-4">{t.list.table.source}</th>
                   <th className="px-3 py-3 md:px-4 font-medium">{t.list.table.status}</th>
-                  <th className="px-3 py-3 md:px-4 font-medium">{t.list.table.nextFollowUp}</th>
+                  <th className="hidden px-3 py-3 font-medium md:table-cell md:px-4">{t.list.table.nextFollowUp}</th>
                   <th className="w-10 px-3 py-3" />
                 </tr>
               </thead>
