@@ -6,7 +6,6 @@ import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
 import { assertPermission } from '@/lib/auth/permissions';
 import { isAssignedScope } from '@/lib/auth/crm-scope';
-import { assertOptionalTenantOwnedRow } from '@/lib/tenant/assert-tenant-owned-row';
 
 const listQuerySchema = z.object({
   status: z.enum(LEAD_STATUSES).optional(),
@@ -87,30 +86,20 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 
   const input = manualLeadInputSchema.parse(await request.json());
 
-  await assertOptionalTenantOwnedRow({
-    supabase,
-    table: 'assets',
-    id: input.asset_id,
-    tenantId: caller.tenantId,
-    label: 'العقار',
-  });
-  await assertOptionalTenantOwnedRow({ supabase, table: 'listings', id: input.listing_id, tenantId: caller.tenantId, label: 'العرض العقاري' });
-  await assertOptionalTenantOwnedRow({
-    supabase,
-    table: 'users',
-    id: input.assigned_agent_id,
-    tenantId: caller.tenantId,
-    label: 'الموظف المسند إليه العميل',
-  });
+  const { asset_id, listing_id, ...lead } = input;
+  if (asset_id && listing_id) {
+    throw new ApiError(400, 'single_interest_target_required', 'اختر عقارًا أو عرضًا عقاريًا واحدًا فقط');
+  }
+  const interest = asset_id ? { asset_id } : listing_id ? { listing_id } : null;
 
   const { data, error } = await supabase
-    .from('leads')
-    .insert({ ...input, tenant_id: caller.tenantId, source: 'manual' })
-    .select()
+    .rpc('create_lead_with_interest', {
+      p_lead: { ...lead, source: 'manual' },
+      p_interest: interest,
+    })
     .single();
-  if (error) {
-    throw new Error(`Failed to create lead: ${error.message}`);
-  }
+  if (error) throw new Error(`Failed to create lead with interest: ${error.message}`);
+  if (!data) throw new ApiError(500, 'lead_create_failed', 'تعذر إنشاء العميل المحتمل');
 
   return okResponse({ lead: data }, 201);
 });
