@@ -18,7 +18,8 @@ import { listTeam, type TeamMember } from '@/lib/api/team';
 import { ApiRequestError } from '@/lib/api/client';
 import { datetimeLocalToIso, isoToDatetimeLocal } from '@/lib/lead/datetime';
 import { useLocale } from '@/lib/i18n/locale-context';
-import { Customer360Overview } from '@/components/crm/customer-360-overview';
+import { Customer360Overview, type CustomerDetailTab } from '@/components/crm/customer-360-overview';
+import { SegmentedToggle } from '@/components/ui/segmented-toggle';
 import { CustomerQuickActions } from '@/components/crm/customer-quick-actions';
 
 // Matches Button's h-[46px] — these are <a> tags (tel:/WhatsApp deep links), not <button>s, so they can't use the Button component itself, but should still line up with it.
@@ -36,6 +37,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
   const [team, setTeam] = useState<TeamMember[]>([]);
   const [notFound, setNotFound] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [detailTab, setDetailTab] = useState<CustomerDetailTab>('overview');
 
   useEffect(() => {
     let cancelled = false;
@@ -177,9 +179,42 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
             </details>
           </Card>
 
-          <div className="flex items-center justify-between gap-2 rounded-card border border-border-subtle bg-surface-card p-2.5 md:gap-3 md:p-4"><div className="min-w-0"><p className="text-xs font-semibold text-text-primary md:text-sm">إجراء على العميل</p><p className="mt-0.5 hidden text-xs text-text-secondary sm:block">المتابعة والمهمة والمعاينة والملاحظة ومتطلبات العميل من مكان واحد.</p></div><CustomerQuickActions leadId={id} accessToken={accessToken} currentUserId={me.user.id} onChanged={refreshCustomer360} /></div>
+          {customer360 && (
+            <>
+              <SegmentedToggle
+                value={detailTab}
+                onChange={setDetailTab}
+                options={[
+                  { value: 'overview', label: 'المعلومات وسجل العميل' },
+                  { value: 'actions', label: 'الإجراءات' },
+                  { value: 'rent', label: 'العقود والإيجار' },
+                  { value: 'purchase', label: 'الشراء' },
+                  { value: 'maintenance', label: 'الصيانة' },
+                ]}
+                className="settings-tabs"
+              />
 
-          {customer360 && <Customer360Overview lead={lead} data={customer360} />}
+              {detailTab === 'overview' && (
+                <Card className="p-3 md:p-5">
+                  <div className="grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-4">
+                    <div><p className="text-xs text-text-secondary">الاسم</p><p className="mt-1 font-medium">{lead.full_name}</p></div>
+                    <div><p className="text-xs text-text-secondary">الجوال</p><p className="mt-1 font-medium" dir="ltr">{lead.phone ?? '—'}</p></div>
+                    <div><p className="text-xs text-text-secondary">البريد الإلكتروني</p><p className="mt-1 truncate font-medium">{lead.email ?? '—'}</p></div>
+                    <div><p className="text-xs text-text-secondary">المصدر</p><p className="mt-1 font-medium">{t.sourceLabels[lead.source]}</p></div>
+                  </div>
+                </Card>
+              )}
+
+              {detailTab === 'actions' && (
+                <div className="flex items-center justify-between gap-2 rounded-card border border-border-subtle bg-surface-card p-2.5 md:gap-3 md:p-4">
+                  <div className="min-w-0"><p className="text-xs font-semibold text-text-primary md:text-sm">إجراء على العميل</p><p className="mt-0.5 hidden text-xs text-text-secondary sm:block">المتابعة والمهمة والمعاينة والملاحظة ومتطلبات العميل من مكان واحد.</p></div>
+                  <CustomerQuickActions leadId={id} accessToken={accessToken} currentUserId={me.user.id} onChanged={refreshCustomer360} />
+                </div>
+              )}
+
+              <Customer360Overview lead={lead} data={customer360} tab={detailTab} />
+            </>
+          )}
 
         </div>
       )}
