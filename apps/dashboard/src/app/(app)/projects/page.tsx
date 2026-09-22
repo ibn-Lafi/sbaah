@@ -45,7 +45,7 @@ export default function ProjectsPage() {
         {canManage && <Button onClick={() => setShowCreate(true)}>{t.list.addButton}</Button>}
       </div>
       {showCreate && (
-        <Modal title={t.list.createModalTitle} onClose={() => setShowCreate(false)}>
+        <Modal title={t.list.createModalTitle} onClose={() => setShowCreate(false)} maxWidth="820px" mobileCentered>
           <ProjectForm
             mode="create"
             accessToken={accessToken}
