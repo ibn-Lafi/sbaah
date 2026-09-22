@@ -35,6 +35,8 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
 
   const leadRows = data ?? [];
   let customerLeadIds = new Set<string>();
+  const purchaseLeadIds = new Set<string>();
+  const tenantLeadIds = new Set<string>();
 
   if (leadRows.length > 0) {
     const leadIds = leadRows.map((lead) => lead.id);
@@ -59,13 +61,22 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
       rentedPartyIds = new Set((contractLinks ?? []).map((link) => link.party_id));
     }
 
-    customerLeadIds = new Set([
-      ...(wonDealsResult.data ?? []).map((deal) => deal.lead_id),
-      ...parties.filter((party) => rentedPartyIds.has(party.id)).map((party) => party.lead_id),
-    ].filter(Boolean));
+    for (const deal of wonDealsResult.data ?? []) if (deal.lead_id) purchaseLeadIds.add(deal.lead_id);
+    for (const party of parties) if (party.lead_id && rentedPartyIds.has(party.id)) tenantLeadIds.add(party.lead_id);
+    customerLeadIds = new Set([...purchaseLeadIds, ...tenantLeadIds]);
   }
 
-  const classified = leadRows.map((lead) => ({ ...lead, customer_kind: lead.customer_relationship || customerLeadIds.has(lead.id) ? 'customer' : 'prospect' }));
+  const classified = leadRows.map((lead) => {
+    const customerRelationships = [
+      ...(purchaseLeadIds.has(lead.id) || lead.customer_relationship === 'purchase' ? ['purchase' as const] : []),
+      ...(tenantLeadIds.has(lead.id) || lead.customer_relationship === 'tenant' ? ['tenant' as const] : []),
+    ];
+    return {
+      ...lead,
+      customer_kind: customerRelationships.length > 0 || customerLeadIds.has(lead.id) ? 'customer' as const : 'prospect' as const,
+      customer_relationships: customerRelationships,
+    };
+  });
   const filtered = customer_kind ? classified.filter((lead) => lead.customer_kind === customer_kind) : classified;
   const from = (page - 1) * page_size;
   const paged = filtered.slice(from, from + page_size);
