@@ -8,11 +8,11 @@ import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { addLeadInterest, type LeadInterest } from '@/lib/api/leads';
 import { listProjects } from '@/lib/api/hierarchy';
-import { listAssets } from '@/lib/api/real-estate';
+import { listAssets, listListings, type ListingWithAssets } from '@/lib/api/real-estate';
 import { listUnitTypes, type UnitType } from '@/lib/api/developer-inventory';
 import type { Asset, Project } from '@sbaah/shared';
 
-type TargetType='project'|'unit_type'|'asset';
+type TargetType='project'|'unit_type'|'asset'|'listing';
 
 export function LeadRealEstateInterests({leadId,accessToken,interests,onSaved}:{leadId:string;accessToken:string;interests:LeadInterest[];onSaved:()=>Promise<void>|void}) {
   const [targetType,setTargetType]=useState<TargetType>('project');
@@ -20,13 +20,14 @@ export function LeadRealEstateInterests({leadId,accessToken,interests,onSaved}:{
   const [projects,setProjects]=useState<Project[]>([]);
   const [unitTypes,setUnitTypes]=useState<UnitType[]>([]);
   const [assets,setAssets]=useState<Asset[]>([]);
+  const [listings,setListings]=useState<ListingWithAssets[]>([]);
   const [notes,setNotes]=useState('');
   const [saving,setSaving]=useState(false);
 
-  useEffect(()=>{void Promise.all([listProjects(accessToken),listUnitTypes(accessToken),listAssets(accessToken,{page_size:50})]).then(([p,u,a])=>{setProjects(p.projects);setUnitTypes(u.unit_types);setAssets(a.assets);});},[accessToken]);
+  useEffect(()=>{void Promise.all([listProjects(accessToken),listUnitTypes(accessToken),listAssets(accessToken,{page_size:50}),listListings(accessToken)]).then(([p,u,a,l])=>{setProjects(p.projects);setUnitTypes(u.unit_types);setAssets(a.assets);setListings(l.listings);});},[accessToken]);
   useEffect(()=>setTargetId(''),[targetType]);
 
-  const options=useMemo(()=>targetType==='project'?projects.map(x=>({id:x.id,label:x.name_ar})):targetType==='unit_type'?unitTypes.map(x=>({id:x.id,label:x.name_ar})):assets.map(x=>({id:x.id,label:x.unit_number?`${x.name_ar} · ${x.unit_number}`:x.name_ar})),[targetType,projects,unitTypes,assets]);
+  const options=useMemo(()=>targetType==='project'?projects.map(x=>({id:x.id,label:x.name_ar})):targetType==='unit_type'?unitTypes.map(x=>({id:x.id,label:x.name_ar})):targetType==='listing'?listings.filter(x=>x.publication_status!=='archived'&&x.commercial_status!=='closed').map(x=>({id:x.id,label:`${x.title_ar} · ${x.listing_type==='sale'?'بيع':'إيجار'} · ${Number(x.asking_price).toLocaleString('ar-SA')} ر.س`})):assets.map(x=>({id:x.id,label:x.unit_number?`${x.name_ar} · ${x.unit_number}`:x.name_ar})),[targetType,projects,unitTypes,assets,listings]);
 
   async function save(){
     if(!targetId)return;
@@ -44,7 +45,7 @@ export function LeadRealEstateInterests({leadId,accessToken,interests,onSaved}:{
     <Card className="p-4 md:p-5">
       <div className="mb-4"><h2 className="font-semibold">الاهتمامات العقارية</h2><p className="mt-1 text-sm text-text-secondary">حدد المشروع أو النموذج أو العقار الذي يهتم به العميل. يمكن إضافة أكثر من اهتمام.</p></div>
       <div className="grid gap-3 md:grid-cols-[180px_1fr]">
-        <Select value={targetType} onChange={e=>setTargetType(e.target.value as TargetType)}><option value="project">مشروع</option><option value="unit_type">نموذج / نوع وحدة</option><option value="asset">عقار / وحدة</option></Select>
+        <Select value={targetType} onChange={e=>setTargetType(e.target.value as TargetType)}><option value="project">مشروع</option><option value="unit_type">نموذج / نوع وحدة</option><option value="asset">عقار / وحدة</option><option value="listing">عرض عقاري</option></Select>
         <Select value={targetId} onChange={e=>setTargetId(e.target.value)}><option value="">اختر...</option>{options.map(x=><option key={x.id} value={x.id}>{x.label}</option>)}</Select>
       </div>
       <Input className="mt-3" value={notes} onChange={e=>setNotes(e.target.value)} placeholder="ملاحظة عن اهتمام العميل (اختياري)" />
