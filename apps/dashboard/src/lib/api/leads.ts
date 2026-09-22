@@ -43,7 +43,7 @@ export interface Customer360Snapshot {
   interests: LeadInterest[];
   tasks: Array<{id:string;title:string;due_at:string|null;completed_at:string|null;completion_notes:string|null}>;
   viewings: Array<{id:string;asset_id:string;scheduled_at:string;status:string;outcome:string|null;notes:string|null;assets?:JourneyAsset|null}>;
-  deals: Array<{id:string;status:string;value:number|null;expected_close_date:string|null;created_at?:string;updated_at?:string;deal_assets?:JourneyAssetLink[]}>;
+  deals: Array<{id:string;status:string;deal_type:'sale'|'rent';value:number|null;lost_reason?:string|null;expected_close_date:string|null;created_at?:string;updated_at?:string;deal_assets?:JourneyAssetLink[]}>;
   reservations: Array<{id:string;reservation_number:string;status:string;reserved_at:string;expires_at:string|null;deposit_amount:number|null;reservation_assets?:JourneyAssetLink[]}>;
   activities: Array<{id:string;activity_type:string;summary:string;metadata:Record<string,unknown>|null;occurred_at:string}>;
   party: {id:string;name:string;phone:string|null;email:string|null}|null;
