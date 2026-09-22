@@ -17,6 +17,7 @@ import { Modal } from '@/components/ui/modal';
 import { PersonAvatar } from '@/components/ui/person-avatar';
 import { Select } from '@/components/ui/select';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
+import { SegmentedToggle } from '@/components/ui/segmented-toggle';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { listLeads, updateLead } from '@/lib/api/leads';
 import { useLocale } from '@/lib/i18n/locale-context';
@@ -24,6 +25,7 @@ import type { PageDictionaries } from '@/lib/i18n/page-dictionaries';
 import { formatDate } from '@/lib/format/date';
 
 type StatusFilter = LeadStatus | 'all';
+type CustomerKind = 'customer' | 'prospect';
 
 /**
  * جدول موحّد واحد (لا تبويب "لوحة المتابعة/جميع العملاء" — كانا نفس
@@ -36,20 +38,21 @@ export default function LeadsPage() {
   const { pages } = useLocale();
   const t = pages.leads;
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [customerKind, setCustomerKind] = useState<CustomerKind>('customer');
   const [leads, setLeads] = useState<Lead[] | null>(null);
   const [showCreate, setShowCreate] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     setLeads(null);
-    const params = statusFilter === 'all' ? {} : { status: statusFilter };
+    const params = { ...(statusFilter === 'all' ? {} : { status: statusFilter }), customer_kind: customerKind };
     void listLeads(accessToken, params).then((result) => {
       if (!cancelled) setLeads(result.leads);
     });
     return () => {
       cancelled = true;
     };
-  }, [accessToken, statusFilter]);
+  }, [accessToken, statusFilter, customerKind]);
 
   async function handleStatusChange(leadId: string, status: LeadStatus) {
     const { lead: updated } = await updateLead(accessToken, leadId, { status });
@@ -67,8 +70,18 @@ export default function LeadsPage() {
       orgName={me.tenant.name_ar}
       accountType={me.tenant.account_type}
     >
+      <SegmentedToggle
+        value={customerKind}
+        onChange={(value) => { setCustomerKind(value); setStatusFilter('all'); }}
+        options={[
+          { value: 'customer', label: 'العملاء' },
+          { value: 'prospect', label: 'العملاء المحتملون' },
+        ]}
+        className="settings-tabs mb-5"
+      />
+
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-        <Select
+        {customerKind === 'prospect' ? <Select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
           className="w-[140px]"
@@ -80,7 +93,7 @@ export default function LeadsPage() {
               {t.statusLabels[status]}
             </option>
           ))}
-        </Select>
+        </Select> : <div />}
         {canManage && <Button onClick={() => setShowCreate(true)}>+ عميل</Button>}
       </div>
 
@@ -97,7 +110,7 @@ export default function LeadsPage() {
         {leads === null ? (
           <TableSkeleton columns={5} />
         ) : leads.length === 0 ? (
-          <p className="text-text-secondary p-6 text-center">{t.list.emptyState}</p>
+          <p className="text-text-secondary p-6 text-center">{customerKind === 'customer' ? 'لا يوجد عملاء لديهم عملية شراء أو إيجار مكتملة حتى الآن.' : 'لا يوجد عملاء محتملون حاليًا.'}</p>
         ) : (
           <div className="overflow-hidden">
             <table className="w-full table-fixed text-xs sm:text-sm">
