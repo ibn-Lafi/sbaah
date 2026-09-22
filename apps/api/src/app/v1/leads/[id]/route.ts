@@ -86,9 +86,30 @@ export const GET = withErrorHandling<RouteContext>(async (request, { params }) =
   ];
   const customerKind = customerRelationships.length > 0 ? 'customer' : 'prospect';
 
+  const purchasedAssets = Array.from(
+    new Map(
+      (dealsResult.data ?? [])
+        .filter((deal) => deal.status === 'won')
+        .flatMap((deal) => deal.deal_assets ?? [])
+        .filter((link) => link.assets)
+        .map((link) => [link.asset_id, link.assets] as const),
+    ).values(),
+  );
+  const rentedAssets = Array.from(
+    new Map(
+      contracts
+        .filter((contract) => Array.isArray(contract.customer_roles) && contract.customer_roles.includes('lessee') && !['cancelled', 'terminated'].includes(String(contract.status)))
+        .flatMap((contract) => Array.isArray(contract.lease_contract_assets) ? contract.lease_contract_assets : [])
+        .filter((link) => link && typeof link === 'object' && 'assets' in link && link.assets)
+        .map((link) => [String((link as { asset_id: unknown }).asset_id), (link as { assets: unknown }).assets] as const),
+    ).values(),
+  );
+
   return okResponse({ lead: data, customer360: {
     customer_kind: customerKind,
     customer_relationships: customerRelationships,
+    purchased_assets: purchasedAssets,
+    rented_assets: rentedAssets,
     interests: interestsResult.data ?? [],
     tasks: tasksResult.data ?? [], viewings: viewingsResult.data ?? [], deals: dealsResult.data ?? [],
     reservations: reservationsResult.data ?? [], activities: activitiesResult.data ?? [], party: canViewRentPlus ? party : null, contracts, installments, payments, maintenance,
