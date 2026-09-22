@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { createAnonClient, createServiceRoleClient, publicWhatsappClickInputSchema } from '@sbaah/shared';
-import { okResponse, withErrorHandling } from '@/lib/http';
+import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { validatePublicTenantTarget } from '@/lib/tenant/validate-public-target';
 
 /**
@@ -22,18 +22,23 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   const anon = createAnonClient();
   await validatePublicTenantTarget(anon, input.tenant_id, input.listing_id, input.asset_id);
 
-  const serviceRole = createServiceRoleClient();
-  const { error } = await serviceRole.from('leads').insert({
-    tenant_id: input.tenant_id,
-    asset_id: input.asset_id ?? null,
-    listing_id: input.listing_id ?? null,
-    full_name: 'زائر عبر واتساب',
-    phone: null,
-    source: 'whatsapp_click',
-  });
-  if (error) {
-    throw new Error(`Failed to log WhatsApp click: ${error.message}`);
+  if (input.asset_id && input.listing_id) {
+    throw new ApiError(400, 'single_interest_target_required', 'يجب أن يرتبط التفاعل بهدف عقاري واحد فقط');
   }
+  const interest = input.asset_id
+    ? { asset_id: input.asset_id }
+    : input.listing_id
+      ? { listing_id: input.listing_id }
+      : null;
+  if (!interest) throw new ApiError(400, 'interest_target_required', 'الهدف العقاري مطلوب');
+
+  const serviceRole = createServiceRoleClient();
+  const { error } = await serviceRole.rpc('create_public_lead_with_interest', {
+    p_tenant_id: input.tenant_id,
+    p_lead: { full_name: 'زائر عبر واتساب', phone: null, source: 'whatsapp_click' },
+    p_interest: interest,
+  });
+  if (error) throw new Error(`Failed to log WhatsApp interest: ${error.message}`);
 
   return okResponse({ status: 'received' }, 201);
 });
