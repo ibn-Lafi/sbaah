@@ -46,6 +46,9 @@ export function ProjectInventory({projectId,accessToken,canManage}:{projectId:st
   const phaseNames=useMemo(()=>new Map(phases.map(x=>[x.id,x.name_ar])),[phases]);
   const typeNames=useMemo(()=>new Map(types.map(x=>[x.id,x.name_ar])),[types]);
   const filteredInventory=useMemo(()=>{const q=search.trim().toLowerCase();return (sales?.inventory??[]).filter(item=>{const status=String((item.availability as {status?:string}|null)?.status??(item.won_sale?'sold':'available'));const matchesSearch=!q||item.name_ar.toLowerCase().includes(q)||(item.unit_number??'').toLowerCase().includes(q);return matchesSearch&&(phaseFilter==='all'||item.phase_id===phaseFilter)&&(typeFilter==='all'||item.unit_type_id===typeFilter)&&(statusFilter==='all'||status===statusFilter);});},[sales,search,phaseFilter,typeFilter,statusFilter]);
+  const summarize=useCallback((items:ProjectSalesCenter['inventory'])=>items.reduce((acc,item)=>{const status=String((item.availability as {status?:string}|null)?.status??(item.won_sale?'sold':'available'));acc.total++;if(status==='sold'||item.won_sale)acc.sold++;else if(status==='reserved')acc.reserved++;else acc.available++;if(item.won_sale?.value!=null)acc.soldValue+=Number(item.won_sale.value);return acc;},{total:0,available:0,reserved:0,sold:0,soldValue:0}),[]);
+  const phaseGroups=useMemo(()=>phases.map(phase=>({id:phase.id,name:phase.name_ar,...summarize((sales?.inventory??[]).filter(item=>item.phase_id===phase.id))})).filter(x=>x.total>0),[phases,sales,summarize]);
+  const typeGroups=useMemo(()=>types.map(type=>({id:type.id,name:type.name_ar,...summarize((sales?.inventory??[]).filter(item=>item.unit_type_id===type.id))})).filter(x=>x.total>0),[types,sales,summarize]);
 
   return <div className="space-y-5">
     {sales&&<div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -59,6 +62,11 @@ export function ProjectInventory({projectId,accessToken,canManage}:{projectId:st
         ['قيمة المبيعات',money(sales.summary.sold_value)],
         ['نسبة البيع',sales.summary.total?Math.round((sales.summary.sold/sales.summary.total)*100)+'%':'0%'],
       ].map(([label,value])=><Card key={String(label)} className="p-4"><p className="text-xs text-text-secondary">{label}</p><p className="mt-1 text-lg font-semibold">{value}</p></Card>)}
+    </div>}
+
+    {sales&&sales.inventory.length>0&&<div className="grid gap-4 lg:grid-cols-2">
+      <Card className="p-5"><div className="mb-4"><h3 className="font-semibold">أداء مراحل المشروع</h3><p className="mt-1 text-xs text-text-secondary">توزيع المخزون والمبيعات على مراحل المشروع.</p></div><div className="space-y-3">{phaseGroups.length?phaseGroups.map(group=><button type="button" key={group.id} onClick={()=>setPhaseFilter(group.id)} className="grid w-full grid-cols-[1fr_auto] items-center gap-3 rounded-xl border border-border-subtle p-3 text-start hover:bg-surface-subtle-3"><div><p className="font-medium">{group.name}</p><p className="mt-1 text-xs text-text-secondary">{group.total} وحدة · {group.available} متاح · {group.reserved} محجوز · {group.sold} مباع</p></div><span className="text-sm font-semibold">{money(group.soldValue)}</span></button>):<p className="text-sm text-text-secondary">لا توجد وحدات مرتبطة بمراحل حتى الآن.</p>}</div></Card>
+      <Card className="p-5"><div className="mb-4"><h3 className="font-semibold">أداء أنواع الوحدات</h3><p className="mt-1 text-xs text-text-secondary">مقارنة المخزون والمبيعات حسب نوع الوحدة.</p></div><div className="space-y-3">{typeGroups.length?typeGroups.map(group=><button type="button" key={group.id} onClick={()=>setTypeFilter(group.id)} className="grid w-full grid-cols-[1fr_auto] items-center gap-3 rounded-xl border border-border-subtle p-3 text-start hover:bg-surface-subtle-3"><div><p className="font-medium">{group.name}</p><p className="mt-1 text-xs text-text-secondary">{group.total} وحدة · {group.available} متاح · {group.reserved} محجوز · {group.sold} مباع</p></div><span className="text-sm font-semibold">{money(group.soldValue)}</span></button>):<p className="text-sm text-text-secondary">لا توجد وحدات مرتبطة بأنواع وحدات حتى الآن.</p>}</div></Card>
     </div>}
 
     <Card className="p-5 md:p-8">
