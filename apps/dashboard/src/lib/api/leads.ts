@@ -2,7 +2,7 @@ import type { Lead, LeadNote, LeadSource, LeadStatus, LeadUpdateInput, ManualLea
 import { apiDelete, apiGet, apiPatch, apiPost } from './client';
 
 export interface LeadListResponse {
-  leads: Lead[];
+  leads: Array<Lead & { customer_kind?: 'customer' | 'prospect' }>;
   page: number;
   page_size: number;
   total: number;
@@ -10,11 +10,12 @@ export interface LeadListResponse {
 
 export function listLeads(
   accessToken: string,
-  params: { status?: LeadStatus; source?: LeadSource; page?: number; page_size?: number } = {},
+  params: { status?: LeadStatus; source?: LeadSource; customer_kind?: 'customer' | 'prospect'; page?: number; page_size?: number } = {},
 ): Promise<LeadListResponse> {
   const query = new URLSearchParams();
   if (params.status) query.set('status', params.status);
   if (params.source) query.set('source', params.source);
+  if (params.customer_kind) query.set('customer_kind', params.customer_kind);
   if (params.page) query.set('page', String(params.page));
   if (params.page_size) query.set('page_size', String(params.page_size));
   const qs = query.toString();
