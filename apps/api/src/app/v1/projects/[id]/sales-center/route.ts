@@ -17,7 +17,7 @@ export const GET=withErrorHandling<RouteContext>(async(request,{params})=>{
     const [{data:availability,error:availabilityError},{data:listingLinks,error:listingError},{data:dealLinks,error:dealError}]=await Promise.all([
       supabase.rpc('get_asset_commercial_availability',{p_tenant_id:caller.tenantId,p_asset_id:asset.id}).maybeSingle(),
       supabase.from('listing_assets').select('listing_id,listings(id,listing_type,asking_price,publication_status,commercial_status)').eq('tenant_id',caller.tenantId).eq('asset_id',asset.id),
-      supabase.from('deal_assets').select('deal_id,deals(id,status,deal_type,value,closed_at)').eq('tenant_id',caller.tenantId).eq('asset_id',asset.id),
+      supabase.from('deal_assets').select('deal_id,deals(id,status,deal_type,value,closed_at,created_at)').eq('tenant_id',caller.tenantId).eq('asset_id',asset.id),
     ]);
     if(availabilityError)throw new Error(availabilityError.message);
     if(listingError)throw new Error(listingError.message);
@@ -41,5 +41,15 @@ export const GET=withErrorHandling<RouteContext>(async(request,{params})=>{
     if(item.won_sale?.value!=null)acc.sold_value+=Number(item.won_sale.value);
     return acc;
   },{total:0,available:0,reserved:0,negotiation:0,sold:0,asking_value:0,sold_value:0});
-  return okResponse({project,summary,inventory});
+  const wonSales=inventory.filter(item=>item.won_sale);
+  const closeDurations=wonSales.map(item=>{const deal=item.won_sale;if(!deal?.closed_at||!deal.created_at)return null;return Math.max(0,(new Date(deal.closed_at).getTime()-new Date(deal.created_at).getTime())/86400000);}).filter((value):value is number=>value!=null);
+  const analytics={
+    revenue:summary.sold_value,
+    average_sale_price:wonSales.length?summary.sold_value/wonSales.length:0,
+    average_days_to_close:closeDurations.length?closeDurations.reduce((sum,value)=>sum+value,0)/closeDurations.length:0,
+    sell_through_rate:summary.total?summary.sold/summary.total:0,
+    negotiation_rate:summary.total?summary.negotiation/summary.total:0,
+    asking_to_sale_ratio:summary.asking_value?summary.sold_value/summary.asking_value:0,
+  };
+  return okResponse({project,summary,analytics,inventory});
 });
