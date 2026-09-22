@@ -47,18 +47,22 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   const anon = createAnonClient();
   await validatePublicTenantTarget(anon, input.tenant_id, input.listing_id, input.asset_id);
 
-  const { error: insertError } = await serviceRole.from('leads').insert({
-    tenant_id: input.tenant_id,
-    asset_id: input.asset_id ?? null,
-    listing_id: input.listing_id ?? null,
-    full_name: input.full_name,
-    phone: input.phone,
-    email: input.email ?? null,
-    source: 'website_form',
-  });
-  if (insertError) {
-    throw new Error(`Failed to save lead: ${insertError.message}`);
+  if (input.asset_id && input.listing_id) {
+    throw new ApiError(400, 'single_interest_target_required', 'يجب أن يرتبط الطلب بهدف عقاري واحد فقط');
   }
+  const interest = input.asset_id
+    ? { asset_id: input.asset_id }
+    : input.listing_id
+      ? { listing_id: input.listing_id }
+      : null;
+  if (!interest) throw new ApiError(400, 'interest_target_required', 'الهدف العقاري مطلوب');
+
+  const { error: insertError } = await serviceRole.rpc('create_public_lead_with_interest', {
+    p_tenant_id: input.tenant_id,
+    p_lead: { full_name: input.full_name, phone: input.phone, email: input.email ?? null },
+    p_interest: interest,
+  });
+  if (insertError) throw new Error(`Failed to save lead with interest: ${insertError.message}`);
 
   return okResponse({ status: 'received' }, 201);
 });
