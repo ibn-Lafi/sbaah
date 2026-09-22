@@ -85,7 +85,7 @@ export default function LeadsPage() {
       </div>
 
       {showCreate && (
-        <Modal title={t.createModal.title} onClose={() => setShowCreate(false)}>
+        <Modal title={t.createModal.title} onClose={() => setShowCreate(false)} maxWidth="620px" mobileCentered>
           <CreateLeadForm
             accessToken={accessToken}
             onCreated={(lead) => router.push(`/leads/${lead.id}`)}
