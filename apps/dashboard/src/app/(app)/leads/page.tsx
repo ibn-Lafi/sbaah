@@ -103,12 +103,12 @@ export default function LeadsPage() {
             <table className="w-full table-fixed text-xs sm:text-sm">
               <thead className="bg-surface-header text-text-secondary text-right">
                 <tr>
-                  <th className="px-3 py-3 md:px-4 font-medium">{t.list.table.name}</th>
+                  <th className="w-[52%] px-2 py-3 text-right font-medium sm:w-auto sm:px-3 md:px-4">{t.list.table.name}</th>
                   <th className="hidden px-3 py-3 font-medium sm:table-cell md:px-4">{t.list.table.phone}</th>
                   <th className="hidden px-3 py-3 font-medium lg:table-cell md:px-4">{t.list.table.source}</th>
-                  <th className="px-3 py-3 md:px-4 font-medium">{t.list.table.status}</th>
+                  <th className="w-[36%] px-2 py-3 text-right font-medium sm:w-auto sm:px-3 md:px-4">{t.list.table.status}</th>
                   <th className="hidden px-3 py-3 font-medium md:table-cell md:px-4">{t.list.table.nextFollowUp}</th>
-                  <th className="w-10 px-3 py-3" />
+                  <th className="w-[12%] px-1 py-3 sm:w-10 sm:px-3" />
                 </tr>
               </thead>
               <tbody>
