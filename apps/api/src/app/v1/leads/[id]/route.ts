@@ -34,9 +34,9 @@ export const GET = withErrorHandling<RouteContext>(async (request, { params }) =
 
   const [tasksResult, viewingsResult, dealsResult, reservationsResult, activitiesResult, partyResult, interestsResult] = await Promise.all([
     supabase.from('crm_tasks').select('*').eq('tenant_id', caller.tenantId).eq('lead_id', id).order('due_at'),
-    supabase.from('viewings').select('*').eq('tenant_id', caller.tenantId).eq('lead_id', id).order('scheduled_at', { ascending: false }),
-    supabase.from('deals').select('*, deal_assets(asset_id)').eq('tenant_id', caller.tenantId).eq('lead_id', id).order('created_at', { ascending: false }),
-    supabase.from('reservations').select('*, reservation_assets(asset_id)').eq('tenant_id', caller.tenantId).eq('lead_id', id).order('reserved_at', { ascending: false }),
+    supabase.from('viewings').select('*, assets(id,name_ar,reference_number,unit_number,project_id,unit_type_id), listings(id,title_ar,listing_type)').eq('tenant_id', caller.tenantId).eq('lead_id', id).order('scheduled_at', { ascending: false }),
+    supabase.from('deals').select('*, deal_assets(asset_id, assets(id,name_ar,reference_number,unit_number,project_id,unit_type_id)), listings(id,title_ar,listing_type)').eq('tenant_id', caller.tenantId).eq('lead_id', id).order('created_at', { ascending: false }),
+    supabase.from('reservations').select('*, reservation_assets(asset_id, assets(id,name_ar,reference_number,unit_number,project_id,unit_type_id)), listings(id,title_ar,listing_type)').eq('tenant_id', caller.tenantId).eq('lead_id', id).order('reserved_at', { ascending: false }),
     supabase.from('crm_activities').select('*').eq('tenant_id', caller.tenantId).eq('lead_id', id).order('occurred_at', { ascending: false }),
     supabase.from('parties').select('*').eq('tenant_id', caller.tenantId).eq('lead_id', id).maybeSingle(),
     supabase.from('lead_interests').select('*, projects(id,name_ar), unit_types(id,name_ar,project_id), assets(id,name_ar,project_id,unit_type_id,parent_asset_id,unit_number,asset_type), listings(id,title_ar,listing_type)').eq('tenant_id', caller.tenantId).eq('lead_id', id).order('created_at', { ascending: false }),
@@ -56,7 +56,7 @@ export const GET = withErrorHandling<RouteContext>(async (request, { params }) =
     const contractIds = [...new Set((contractLinks.data ?? []).map((row) => row.contract_id))];
     if (contractIds.length > 0) {
       const [contractsResult, installmentsResult, paymentsResult, maintenanceResult] = await Promise.all([
-        supabase.from('lease_contracts').select('*, lease_contract_assets(asset_id), lease_contract_parties(party_id,role)').eq('tenant_id', caller.tenantId).in('id', contractIds).order('created_at', { ascending: false }),
+        supabase.from('lease_contracts').select('*, lease_contract_assets(asset_id, assets(id,name_ar,reference_number,unit_number,project_id,unit_type_id)), lease_contract_parties(party_id,role)').eq('tenant_id', caller.tenantId).in('id', contractIds).order('created_at', { ascending: false }),
         supabase.from('lease_installments').select('*').eq('tenant_id', caller.tenantId).in('contract_id', contractIds).order('due_date'),
         supabase.from('lease_payments').select('*').eq('tenant_id', caller.tenantId).in('contract_id', contractIds).order('paid_at', { ascending: false }),
         supabase.from('maintenance_requests').select('*, assets(name_ar,reference_number)').eq('tenant_id', caller.tenantId).or(`contract_id.in.(${contractIds.join(',')}),reported_by_party_id.eq.${party.id}`).order('opened_at', { ascending: false }),
