@@ -81,8 +81,8 @@ export const GET = withErrorHandling<RouteContext>(async (request, { params }) =
     hasRentalContract = (count ?? 0) > 0;
   }
   const customerRelationships = [
-    ...(hasWonPurchase || data.customer_relationship === 'purchase' ? ['purchase' as const] : []),
-    ...(hasRentalContract || data.customer_relationship === 'tenant' ? ['tenant' as const] : []),
+    ...(hasWonPurchase ? ['purchase' as const] : []),
+    ...(hasRentalContract ? ['tenant' as const] : []),
   ];
   const customerKind = customerRelationships.length > 0 ? 'customer' : 'prospect';
 
