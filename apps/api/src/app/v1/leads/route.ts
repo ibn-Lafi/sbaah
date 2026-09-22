@@ -68,12 +68,12 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
 
   const classified = leadRows.map((lead) => {
     const customerRelationships = [
-      ...(purchaseLeadIds.has(lead.id) || lead.customer_relationship === 'purchase' ? ['purchase' as const] : []),
-      ...(tenantLeadIds.has(lead.id) || lead.customer_relationship === 'tenant' ? ['tenant' as const] : []),
+      ...(purchaseLeadIds.has(lead.id) ? ['purchase' as const] : []),
+      ...(tenantLeadIds.has(lead.id) ? ['tenant' as const] : []),
     ];
     return {
       ...lead,
-      customer_kind: customerRelationships.length > 0 || customerLeadIds.has(lead.id) ? 'customer' as const : 'prospect' as const,
+      customer_kind: customerRelationships.length > 0 ? 'customer' as const : 'prospect' as const,
       customer_relationships: customerRelationships,
     };
   });
