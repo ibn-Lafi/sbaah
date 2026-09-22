@@ -63,8 +63,8 @@ export default function ProjectsPage() {
         ) : projects.length === 0 ? (
           <p className="text-text-secondary p-6 text-center">{t.list.emptyState}</p>
         ) : (
-          <div className="overflow-x-auto md:overflow-visible">
-            <table className="w-full min-w-[360px] table-fixed text-sm md:min-w-0">
+          <div className="overflow-hidden">
+            <table className="w-full table-fixed text-sm">
               <thead className="bg-surface-header text-text-secondary text-right">
                 <tr>
                   <th className="px-3 py-3 md:px-4 font-medium">{t.list.table.name}</th>
