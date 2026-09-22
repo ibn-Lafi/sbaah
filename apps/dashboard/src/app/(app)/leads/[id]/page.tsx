@@ -163,17 +163,18 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
                 </div>
               </div>
 
-              <div className="grid w-full grid-cols-3 gap-1.5 lg:w-auto lg:min-w-[360px] lg:gap-2">
+              <div className="grid w-full grid-cols-2 gap-1.5 lg:w-auto lg:min-w-[240px] lg:gap-2">
                 {lead.phone?<a href={`tel:${lead.phone}`} className={`${ACTION_LINK_CLASSES} bg-brand text-white hover:bg-brand-hover`}>{t.detail.callAction}</a>:<span className={`${ACTION_LINK_CLASSES} cursor-not-allowed bg-surface-subtle text-text-tertiary`}>اتصال</span>}
                 {lead.phone?<a href={`https://wa.me/${lead.phone.replace(/^\+/, '')}`} target="_blank" rel="noreferrer" className={`${ACTION_LINK_CLASSES} border border-border-default bg-surface-card text-text-primary hover:bg-surface-subtle`}>{t.detail.whatsappAction}</a>:<span className={`${ACTION_LINK_CLASSES} cursor-not-allowed border border-border-default text-text-tertiary`}>واتساب</span>}
-                <span className={`${ACTION_LINK_CLASSES} border border-brand/20 bg-brand/[.06] text-brand`}>{t.statusLabels[lead.status]}</span>
               </div>
             </div>
 
-            <details className="mt-5 border-t border-border-subtle pt-4">
+            {isProspect && <div className="mt-4 flex items-center gap-2 border-t border-border-subtle pt-4"><span className="text-xs text-text-secondary">الحالة</span><span className="rounded-full border border-brand/20 bg-brand/[.06] px-2.5 py-1 text-xs font-semibold text-brand">{t.statusLabels[lead.status]}</span></div>}
+
+            <details className="mt-4 border-t border-border-subtle pt-4">
               <summary className="cursor-pointer select-none text-sm font-semibold text-text-primary">إدارة بيانات العميل <span className="ms-1 text-xs font-normal text-text-secondary">الحالة، المتابعة، المسؤول والمصدر</span></summary>
               <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                <div className="flex flex-col gap-1"><label className="text-xs text-text-secondary">{t.detail.statusLabel}</label><Select value={lead.status} onChange={(e) => void saveStatus(e.target.value)}>{LEAD_STATUSES.map((status) => <option key={status} value={status}>{t.statusLabels[status]}</option>)}</Select></div>
+                {isProspect ? <div className="flex flex-col gap-1"><label className="text-xs text-text-secondary">{t.detail.statusLabel}</label><Select value={lead.status} onChange={(e) => void saveStatus(e.target.value)}>{LEAD_STATUSES.map((status) => <option key={status} value={status}>{t.statusLabels[status]}</option>)}</Select></div> : <div className="flex flex-col gap-1"><label className="text-xs text-text-secondary">نوع العميل</label><p className="rounded-input border border-border-default px-3 py-3 text-sm font-medium text-text-primary">{customer360?.customer_relationship === 'tenant' ? 'مستأجر' : 'شراء'}</p></div>}
                 <div className="flex flex-col gap-1"><label className="text-xs text-text-secondary">{t.detail.followUpLabel}</label><DateTimePicker value={isoToDatetimeLocal(lead.follow_up_at)} onChange={(value) => void saveFollowUp(value)} /></div>
                 {canManage && <div className="flex flex-col gap-1"><label className="text-xs text-text-secondary">{t.detail.assignedAgentLabel}</label><Select value={lead.assigned_agent_id ?? ''} onChange={(e) => void saveAssignedAgent(e.target.value)}><option value="">{t.detail.noAgent}</option>{team.map((member) => <option key={member.id} value={member.id}>{member.full_name}</option>)}</Select></div>}
                 <div className="flex flex-col gap-1"><label className="text-xs text-text-secondary">مصدر العميل</label><p className="rounded-input border border-border-default px-3 py-3 text-sm text-text-primary">{t.sourceLabels[lead.source]}</p></div>
