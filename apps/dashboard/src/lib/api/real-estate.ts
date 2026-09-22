@@ -27,3 +27,12 @@ export const listAssetMedia=(token:string,assetId:string)=>apiGet<{media:AssetMe
 export const createAssetMedia=(token:string,assetId:string,input:AssetMediaInput)=>apiPost<{media:AssetMedia}>(`/v1/assets/${assetId}/media`,input,token);
 export const updateAssetMedia=(token:string,assetId:string,mediaId:string,input:Partial<Omit<AssetMediaInput,'media_type'|'url'>>)=>apiPatch<{media:AssetMedia}>(`/v1/assets/${assetId}/media/${mediaId}`,input,token);
 export const deleteAssetMedia=(token:string,assetId:string,mediaId:string)=>apiDelete<{status:string}>(`/v1/assets/${assetId}/media/${mediaId}`,token);
+
+export interface AssetRelationships {
+ interests:Array<{id:string;lead_id:string;created_at:string;leads?:{id:string;full_name:string;phone:string|null}|null}>;
+ viewings:Array<{id:string;lead_id:string;scheduled_at:string;status:string;leads?:{id:string;full_name:string;phone:string|null}|null}>;
+ reservations:Array<{reservation_id:string;reservations?:{id:string;reservation_number:string;status:string;reserved_at:string;lead_id:string|null;leads?:{id:string;full_name:string;phone:string|null}|null}|null}>;
+ deals:Array<{deal_id:string;deals?:{id:string;status:string;value:number|null;lead_id:string;leads?:{id:string;full_name:string;phone:string|null}|null}|null}>;
+ leases:Array<{contract_id:string;lease_contracts?:{id:string;contract_number:string;status:string;lease_contract_parties?:Array<{party_id:string;role:string;parties?:{id:string;name:string;lead_id:string|null}|null}>}|null}>;
+}
+export function getAssetRelationships(token:string,id:string){return apiGet<{relationships:AssetRelationships}>(`/v1/assets/${id}/relationships`,token);}
