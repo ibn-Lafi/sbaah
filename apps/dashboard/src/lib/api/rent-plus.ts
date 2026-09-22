@@ -25,5 +25,5 @@ export const updateLeaseContract=(token:string,id:string,input:unknown)=>apiPatc
 
 export const generateInstallments=(token:string,contractId:string)=>apiPost<{installments:InstallmentRow[]}>('/v1/rent-plus/installments/generate',{contract_id:contractId},token);
 
-export interface TenantRentalProfile { tenant:EjarPartyRow; contracts:Array<LeaseContractRow & { lease_contract_assets?:Array<{asset_id:string;assets?:{name_ar:string;reference_number:string|null}|null}> }>; installments:InstallmentRow[]; payments:LeasePaymentRow[]; maintenance:MaintenanceRow[]; }
+export interface TenantRentalProfile { tenant:EjarPartyRow; contracts:Array<Omit<LeaseContractRow,'lease_contract_assets'> & { lease_contract_assets?:Array<{asset_id:string;assets?:{name_ar:string;reference_number:string|null}|null}> }>; installments:InstallmentRow[]; payments:LeasePaymentRow[]; maintenance:MaintenanceRow[]; }
 export const getEjarTenant=(token:string,id:string)=>apiGet<TenantRentalProfile>(`/v1/rent-plus/tenants/${id}`,token);
