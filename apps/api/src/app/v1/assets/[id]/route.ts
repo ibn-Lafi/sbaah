@@ -12,17 +12,23 @@ export const GET = withErrorHandling<RouteContext>(async (request, { params }) =
   const { data, error } = await supabase.from('assets').select('*, asset_media(*)').eq('id', id).eq('tenant_id', caller.tenantId).maybeSingle();
   if (error) throw new Error(`Failed to load asset: ${error.message}`);
   if (!data) throw new ApiError(404, 'asset_not_found', 'العقار غير موجود');
-  const [parentResult, childrenResult, availabilityResult] = await Promise.all([
+  const [parentResult, childrenResult, availabilityResult, projectResult, phaseResult, unitTypeResult] = await Promise.all([
     data.parent_asset_id
       ? supabase.from('assets').select('*').eq('id', data.parent_asset_id).eq('tenant_id', caller.tenantId).is('archived_at', null).maybeSingle()
       : Promise.resolve({ data: null, error: null }),
     supabase.from('assets').select('*').eq('parent_asset_id', id).eq('tenant_id', caller.tenantId).is('archived_at', null).order('created_at'),
     supabase.rpc('get_asset_commercial_availability', { p_tenant_id: caller.tenantId, p_asset_id: id }).maybeSingle(),
+    data.project_id ? supabase.from('projects').select('id,name_ar').eq('id',data.project_id).eq('tenant_id',caller.tenantId).maybeSingle() : Promise.resolve({data:null,error:null}),
+    data.phase_id ? supabase.from('project_phases').select('id,name_ar').eq('id',data.phase_id).eq('tenant_id',caller.tenantId).maybeSingle() : Promise.resolve({data:null,error:null}),
+    data.unit_type_id ? supabase.from('unit_types').select('id,name_ar').eq('id',data.unit_type_id).eq('tenant_id',caller.tenantId).maybeSingle() : Promise.resolve({data:null,error:null}),
   ]);
   if (parentResult.error) throw new Error(`Failed to load parent asset: ${parentResult.error.message}`);
   if (childrenResult.error) throw new Error(`Failed to load child assets: ${childrenResult.error.message}`);
   if (availabilityResult.error) throw new Error(`Failed to load asset availability: ${availabilityResult.error.message}`);
-  return okResponse({ asset: data, parent: parentResult.data, children: childrenResult.data ?? [], availability: availabilityResult.data });
+  if (projectResult.error) throw new Error(`Failed to load asset project: ${projectResult.error.message}`);
+  if (phaseResult.error) throw new Error(`Failed to load asset phase: ${phaseResult.error.message}`);
+  if (unitTypeResult.error) throw new Error(`Failed to load asset unit type: ${unitTypeResult.error.message}`);
+  return okResponse({ asset: data, parent: parentResult.data, children: childrenResult.data ?? [], availability: availabilityResult.data, project:projectResult.data, phase:phaseResult.data, unit_type:unitTypeResult.data });
 });
 
 export const PATCH = withErrorHandling<RouteContext>(async (request, { params }) => {
