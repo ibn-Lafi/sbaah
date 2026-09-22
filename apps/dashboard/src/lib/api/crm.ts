@@ -10,6 +10,7 @@ export function createViewing(token:string,input:Record<string,unknown>){return 
 export function updateViewing(token:string,id:string,input:Record<string,unknown>){return apiPatch<{viewing:Viewing}>(`/v1/crm/viewings/${id}`,input,token);}
 export function listDeals(token:string){return apiGet<{deals:Deal[]}>('/v1/crm/deals',token);}
 export function createDeal(token:string,input:Record<string,unknown>){return apiPost<{deal:Deal}>('/v1/crm/deals',input,token);}
+export function updateDeal(token:string,id:string,input:Record<string,unknown>){return apiPatch<{deal:Deal}>(`/v1/crm/deals/${id}`,input,token);}
 
 export interface LeadRequirement { id:string; lead_id:string; purpose_v2:string|null; budget_min:number|null; budget_max:number|null; asset_types:string[]|null; city_ids:string[]|null; district_ids:string[]|null; area_min:number|null; area_max:number|null; bedrooms_min:number|null; }
 export function listRequirements(token:string,leadId:string){return apiGet<{requirements:LeadRequirement[]}>(`/v1/crm/requirements?lead_id=${encodeURIComponent(leadId)}`,token);}
