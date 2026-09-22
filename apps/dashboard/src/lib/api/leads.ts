@@ -38,6 +38,8 @@ export interface JourneyAssetLink { asset_id:string; assets?:JourneyAsset|null; 
 export interface Customer360Snapshot {
   customer_kind: 'customer' | 'prospect';
   customer_relationships: Array<'purchase' | 'tenant'>;
+  purchased_assets: JourneyAsset[];
+  rented_assets: JourneyAsset[];
   interests: LeadInterest[];
   tasks: Array<{id:string;title:string;due_at:string|null;completed_at:string|null;completion_notes:string|null}>;
   viewings: Array<{id:string;asset_id:string;scheduled_at:string;status:string;outcome:string|null;notes:string|null;assets?:JourneyAsset|null}>;
