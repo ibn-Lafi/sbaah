@@ -52,6 +52,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           router.replace('/login');
           return;
         }
+        if (error instanceof ApiRequestError && error.code === 'account_disabled') {
+          await getSupabaseBrowserClient().auth.signOut();
+          router.replace('/login?reason=account_disabled');
+          return;
+        }
         if (!cancelled) setLoadError(error instanceof Error ? error.message : 'تعذّر تحميل حسابك. حاول مرة أخرى.');
       }
     }

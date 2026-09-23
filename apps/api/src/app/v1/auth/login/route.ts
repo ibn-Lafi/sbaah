@@ -1,6 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { createAnonClient, createServiceRoleClient, loginWithPasswordSchema } from '@sbaah/shared';
 import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
+import { accountDisabledError } from '@/lib/auth/get-caller-context';
 
 const GENERIC_INVALID_CREDENTIALS = 'البريد الإلكتروني أو كلمة المرور غير صحيحة';
 
@@ -27,11 +28,14 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   }
 
   const serviceRole = createServiceRoleClient();
-  const { data: user } = await serviceRole
+  const { data: user, error: userError } = await serviceRole
     .from('users')
-    .select('phone')
+    .select('phone, status')
     .eq('email', input.email as string)
     .maybeSingle();
+  if (userError) {
+    throw new Error(`Failed to resolve email login: ${userError.message}`);
+  }
   if (!user) {
     throw new ApiError(401, 'invalid_credentials', GENERIC_INVALID_CREDENTIALS);
   }
@@ -40,6 +44,12 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   const { data, error } = await anon.auth.signInWithPassword({ phone: user.phone, password: input.password });
   if (error || !data.session) {
     throw new ApiError(401, 'invalid_credentials', GENERIC_INVALID_CREDENTIALS);
+  }
+  // Checked only after the password matched, so a disabled status is never
+  // revealed to someone who does not know the account's password.
+  if (user.status === 'disabled') {
+    await serviceRole.auth.admin.signOut(data.session.access_token);
+    throw accountDisabledError();
   }
 
   return okResponse({

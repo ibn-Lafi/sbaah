@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { emailSchema, otpCodeSchema, passwordSchema, saudiPhoneSchema } from '@sbaah/shared';
@@ -54,6 +54,13 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const resend = useResendCooldown();
 
+  // (app)/layout.tsx signs a removed member out and lands them here.
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('reason') === 'account_disabled') {
+      setError(t.login.accountDisabled);
+    }
+  }, [t.login.accountDisabled]);
+
   async function handlePasswordLoginByPhone() {
     const { error: signInError } = await getSupabaseBrowserClient().auth.signInWithPassword({ phone, password });
     if (signInError) {
@@ -65,7 +72,9 @@ export default function LoginPage() {
       setError(
         signInError.message === 'Invalid login credentials'
           ? t.login.invalidCredentials
-          : t.login.loginFailedWithReason(signInError.message),
+          : signInError.message === 'User is banned'
+            ? t.login.accountDisabled
+            : t.login.loginFailedWithReason(signInError.message),
       );
       return;
     }

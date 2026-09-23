@@ -2,6 +2,7 @@ import type { NextRequest } from 'next/server';
 import { createServiceRoleClient, resetPasswordSchema } from '@sbaah/shared';
 import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { verifyTempToken } from '@/lib/auth/temp-token';
+import { accountDisabledError } from '@/lib/auth/get-caller-context';
 
 export const POST = withErrorHandling(async (request: NextRequest) => {
   const { reset_token, new_password } = resetPasswordSchema.parse(await request.json());
@@ -25,6 +26,9 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   if (userError || !user) {
     throw new Error(`Failed to load user for password reset: ${userError?.message}`);
   }
+  if (user.status === 'disabled') {
+    throw accountDisabledError();
+  }
 
   const { error: updateError } = await supabase.auth.admin.updateUserById(user.auth_user_id, {
     password: new_password,
@@ -37,7 +41,11 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   // (same phone-OTP mechanism) instead of the passwordless login flow —
   // this is an equally valid activation event.
   if (user.status === 'invited') {
-    await supabase.from('users').update({ status: 'active' }).eq('phone', payload.phone);
+    const { error: activationError } = await supabase
+      .from('users')
+      .update({ status: 'active' })
+      .eq('phone', payload.phone);
+    if (activationError) throw new Error(`Failed to activate invited user: ${activationError.message}`);
   }
 
   return okResponse({ status: 'ok' });

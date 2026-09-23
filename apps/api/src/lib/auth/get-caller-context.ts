@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { UserRole } from '@sbaah/shared';
+import { createServiceRoleClient, type UserRole } from '@sbaah/shared';
 import { ApiError } from '@/lib/http';
 
 export interface CallerContext {
@@ -7,6 +7,10 @@ export interface CallerContext {
   userId: string;
   tenantId: string;
   role: UserRole;
+}
+
+export function accountDisabledError(): ApiError {
+  return new ApiError(403, 'account_disabled', 'تم إيقاف حسابك في هذا الفريق، تواصل مع مالك الحساب');
 }
 
 /**
@@ -25,10 +29,26 @@ export async function getCallerContext(supabase: SupabaseClient): Promise<Caller
 
   const { data: userRow, error: userError } = await supabase
     .from('users')
-    .select('id, tenant_id, role')
+    .select('id, tenant_id, role, status')
     .eq('auth_user_id', authData.user.id)
-    .single();
-  if (userError || !userRow) {
+    .maybeSingle();
+  if (userError) {
+    throw new Error(`Failed to resolve caller membership: ${userError.message}`);
+  }
+  if (userRow?.status === 'disabled') {
+    throw accountDisabledError();
+  }
+  if (!userRow) {
+    // Migration 0105 hides a disabled member's own row from RLS, so tell
+    // "removed from the team" apart from "never had a membership" here.
+    const { data: membership } = await createServiceRoleClient()
+      .from('users')
+      .select('status')
+      .eq('auth_user_id', authData.user.id)
+      .maybeSingle();
+    if (membership?.status === 'disabled') {
+      throw accountDisabledError();
+    }
     throw new ApiError(403, 'no_tenant_membership', 'الحساب غير مرتبط بأي حساب على المنصة');
   }
 
