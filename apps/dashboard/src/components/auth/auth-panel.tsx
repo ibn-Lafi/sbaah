@@ -72,16 +72,16 @@ export function AuthPanel() {
   }, []);
 
   return (
-    <div className="hidden flex-col justify-between bg-brand p-10 text-white lg:flex lg:w-[420px] lg:shrink-0">
-      <BrandMark invert width={63} height={28} />
+    <div className="hidden flex-col bg-brand p-10 text-white lg:flex lg:w-[420px] lg:shrink-0 xl:w-[460px] xl:p-12">
+      <BrandMark invert height={30} />
 
-      <div className="space-y-4">
-        <p className="text-2xl font-semibold leading-relaxed">{t.heading}</p>
-        <p className="text-sm text-brand-surface-3">{t.subheading}</p>
+      <div className="my-auto max-w-[330px] space-y-4">
+        <p className="text-[28px] font-bold leading-[1.45] tracking-[-0.02em]">{t.heading}</p>
+        <p className="max-w-[310px] text-[15px] leading-7 text-white/72">{t.subheading}</p>
       </div>
 
       {socialLinks.length > 0 && (
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 border-t border-white/15 pt-6">
           {socialLinks.map(({ key, href, Icon, labelKey }) => {
             const label = t.social[labelKey];
             return (
@@ -92,7 +92,7 @@ export function AuthPanel() {
                 rel="noopener noreferrer"
                 aria-label={label}
                 title={label}
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-hover text-white hover:bg-brand-surface-2 hover:text-brand"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white/85 transition-colors hover:bg-white hover:text-brand"
               >
                 <Icon className="h-[17px] w-[17px]" />
               </a>

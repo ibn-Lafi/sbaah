@@ -74,6 +74,17 @@ Scope covered: every Ejar Plus (rent-plus) route, tenant settings/domain routes,
 
 Checked and not a finding: Ejar Plus tables already restrict writes to owner/admin (0093); website tables, tenant integrations and tracking pixels match the API's role rules; console account updates are schema-validated and platform-admin only.
 
+## Findings recorded on the production branch in parallel
+
+Added on `claude/real-estate-saas-platform-sp7ua9` while audits #1/#2 ran. Their original ids were A1-012…A1-015; they are prefixed `PB-` here so they do not clash with the ids above.
+
+| ID | Severity | Category | Area | Evidence / root cause | Remediation | Status |
+|---|---|---|---|---|---|---|
+| PB-012 | P1 | Authorization architecture | Agent permission matrix | Legacy matrix granted agents property create/update while the asset/listing/project APIs deny them. | Agent property mutation grants removed. | FIXED 91a93635/cb020fc1 |
+| PB-013 | P1 | Authentication | Password-reset token replay | `reset_token` is a signed stateless token valid for 10 minutes and reset-password does not consume it, so it can be replayed until expiry. | Server-side single-use token consumption. | OPEN — needs a migration |
+| PB-014 | P2 | Architecture | Reservation API duplication | `/v1/crm/reservations` and `/v1/reservations` both create reservations with different contracts. | Converge on one contract. | OPEN |
+| PB-015 | P2 | Auth / Reliability | OTP persistence vs delivery | A code delivered before its row was saved could be unusable if the insert failed. | Save first, deliver, delete the new row on delivery failure, expire older rows only after success. | FIXED f37ec390, kept in the merged route |
+
 ## Evidence rules
 
 - A Railway build success is recorded only as build evidence.

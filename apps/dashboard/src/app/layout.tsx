@@ -24,6 +24,7 @@ const ibmPlexSansArabic = IBM_Plex_Sans_Arabic({
 
 export const metadata: Metadata = {
   title: 'سبعة — لوحة التحكم',
+  icons: { icon: '/icon.svg', shortcut: '/icon.svg', apple: '/icon.svg' },
   appleWebApp: { title: 'سبعة', statusBarStyle: 'default' },
 };
 

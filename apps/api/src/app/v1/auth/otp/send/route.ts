@@ -82,15 +82,9 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   await assertOtpNotLocked(supabase, identifier, purpose);
 
   const code = generateOtpCode();
-  // Deliver first: a provider failure must not invalidate the customer's
-  // still-usable previous code without a replacement ever reaching them.
-  if (channel === 'sms') {
-    await sendOtpSms(identifier.value, code);
-  } else {
-    const emailPurpose = purpose as Exclude<OtpPurpose, 'register' | 'change_phone'>;
-    await sendEmail({ to: identifier.value, ...otpCodeEmail({ code, purpose: emailPurpose }) });
-  }
-
+  // Persist before delivery so a delivered code always has a verification
+  // row; if delivery fails only this new row is removed, and the previous
+  // code stays usable because older rows are expired only after success.
   const { data: insertedOtp, error: insertError } = await supabase
     .from('otp_verifications')
     .insert({
@@ -104,6 +98,18 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
     .single();
   if (insertError || !insertedOtp) {
     throw new Error(`Failed to record OTP send: ${insertError?.message ?? 'missing inserted OTP row'}`);
+  }
+  try {
+    if (channel === 'sms') {
+      await sendOtpSms(identifier.value, code);
+    } else {
+      const emailPurpose = purpose as Exclude<OtpPurpose, 'register' | 'change_phone'>;
+      await sendEmail({ to: identifier.value, ...otpCodeEmail({ code, purpose: emailPurpose }) });
+    }
+  } catch (deliveryError) {
+    const { error: cleanupError } = await supabase.from('otp_verifications').delete().eq('id', insertedOtp.id);
+    if (cleanupError) console.error('Failed to clean up undelivered OTP row', cleanupError);
+    throw deliveryError;
   }
 
   // docs/OTP_FLOW.md section 6: at most one active code per identifier+purpose.
