@@ -2,7 +2,7 @@ import { isLocale, DEFAULT_LOCALE } from '@/lib/i18n/locales';
 import { getTenantSite } from '@/lib/tenant/get-tenant-site';
 import { isMarketingHost } from '@/lib/tenant/get-host';
 import { MarketingHome } from '@/components/marketing-home';
-import { resolveTheme } from '@/components/themes/registry';
+import { resolveTheme, themeSupportsSection } from '@/components/themes/registry';
 import { MapSection } from '@/components/map/map-section';
 import { FeaturedPropertiesSection, LatestPropertiesSection, ProjectsShowcaseSection, PropertiesByCitySection } from '@/components/themes/classic/data-sections';
 import { StatsSection, ServicesSection, FaqSection, CtaSection, PromoBannerSection, FreeContentSection, GallerySection, VideoSection } from '@/components/themes/classic/content-sections';
@@ -53,6 +53,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   return (
     <div>
       {site.sections.map((section) => {
+        if(!themeSupportsSection(resolvedTheme.key,section.type)) return null;
         switch (section.type) {
           case 'hero':
             return (
