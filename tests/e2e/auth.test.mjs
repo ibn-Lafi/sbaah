@@ -56,7 +56,7 @@ test('concurrent wrong OTP guesses cannot exceed the 5-attempt budget, and the l
     wrongCodes.map((code, index) => api('POST', '/auth/otp/verify', { body: { channel: 'email', email: 'owner-a@example.com', code, purpose: 'login' }, headers: { 'x-forwarded-for': `100.64.0.${index}` } })),
   );
   const evaluated = results.filter((result) => result.status === 401).length;
-  assert.ok(evaluated <= 5, `at most 5 guesses may be evaluated, got ${evaluated}`);
+  assert.ok(evaluated <= 5, `at most 5 guesses may be evaluated, got ${evaluated}: ${JSON.stringify(results.map((r) => r.status))}`);
   assert.ok(results.every((result) => [401, 409, 429].includes(result.status)), JSON.stringify(results.map((r) => r.status)));
 
   // Burn the rest of the budget sequentially, then the correct code must be refused.
@@ -64,10 +64,10 @@ test('concurrent wrong OTP guesses cannot exceed the 5-attempt budget, and the l
     await api('POST', '/auth/otp/verify', { body: { channel: 'email', email: 'owner-a@example.com', code: wrongCodes[index], purpose: 'login' } });
   }
   const correct = await api('POST', '/auth/otp/verify', { body: { channel: 'email', email: 'owner-a@example.com', code: realCode, purpose: 'login' } });
-  assert.equal(correct.status, 429);
+  assert.equal(correct.status, 429, JSON.stringify(correct.body));
 
   const resend = await api('POST', '/auth/otp/send', { body: { channel: 'email', email: 'owner-a@example.com', purpose: 'login' } });
-  assert.equal(resend.status, 429, 'a locked identifier must not receive a fresh code');
+  assert.equal(resend.status, 429, `a locked identifier must not receive a fresh code: ${JSON.stringify(resend.body)}`);
 
   const { rows } = await db.query("select coalesce(sum(attempt_count),0)::int as attempts from otp_verifications where email = 'owner-a@example.com'");
   assert.ok(rows[0].attempts <= 5, `persisted attempts ${rows[0].attempts}`);
