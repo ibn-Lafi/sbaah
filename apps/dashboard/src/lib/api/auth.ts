@@ -123,7 +123,7 @@ export function updateMyEmail(accessToken: string, email: string | null) {
   return apiPatch<{ user: MeResponse['user'] }>('/auth/me', { email }, accessToken);
 }
 
-export function updateMyProfile(accessToken: string, input: { full_name?: string; role?: UserRole }) {
+export function updateMyProfile(accessToken: string, input: { full_name?: string }) {
   return apiPatch<{ user: MeResponse['user'] }>('/auth/me', input, accessToken);
 }
 export function sendProfileChangeOtp(input: { phone: string } | { email: string }) {
