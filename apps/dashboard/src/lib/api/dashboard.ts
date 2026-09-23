@@ -21,9 +21,11 @@ export interface DashboardSummary {
   };
   property_views: { total: number; daily: { date: string; count: number }[]; delta_pct: number | null } | null;
   site_analytics: {
-    visitors: number;
-    sessions: number;
-    page_views: number;
+    connected: boolean;
+    available: boolean;
+    visitors: number | null;
+    sessions: number | null;
+    page_views: number | null;
     daily: { date: string; visitors: number; sessions: number; page_views: number }[];
   };
   latest_leads: LatestLead[];
