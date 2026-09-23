@@ -63,11 +63,9 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
     // window (see OTP_CONFIG.ttlMs) only starts once this whole request
     // resolves, so shaving time here directly gives the customer more of
     // their 5 minutes to actually receive and type the code.
-    // Do not invalidate the customer's current OTP until the provider has
-    // accepted the replacement. Otherwise a transient provider failure
-    // destroys a still-usable authentication path without delivering a new one.
-    await sendOtpSms(phone, code);
-
+    // Persist the replacement before delivery so a successfully delivered
+    // code always has a verification row. If the provider fails, remove only
+    // this new row and leave the customer's previous OTP untouched.
     const { data: insertedOtp, error: insertError } = await supabase.from('otp_verifications').insert({
       channel: 'sms',
       phone,
@@ -76,6 +74,13 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
     }).select('id').single();
     if (insertError || !insertedOtp) {
       throw new Error(`Failed to record OTP send: ${insertError?.message ?? 'missing inserted OTP row'}`);
+    }
+    try {
+      await sendOtpSms(phone, code);
+    } catch (deliveryError) {
+      const { error: cleanupError } = await supabase.from('otp_verifications').delete().eq('id', insertedOtp.id);
+      if (cleanupError) console.error('Failed to clean up undelivered SMS OTP row', cleanupError);
+      throw deliveryError;
     }
 
     const { error: invalidateError } = await supabase
@@ -125,8 +130,6 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   const code = generateOtpCode();
   const codeHash = hashEmailOtpCode(code);
 
-  await sendEmail({ to: email, ...otpCodeEmail({ code, purpose: emailPurpose }) });
-
   const { data: insertedOtp, error: insertError } = await supabase.from('otp_verifications').insert({
     channel: 'email',
     email,
@@ -136,6 +139,13 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   }).select('id').single();
   if (insertError || !insertedOtp) {
     throw new Error(`Failed to record OTP send: ${insertError?.message ?? 'missing inserted OTP row'}`);
+  }
+  try {
+    await sendEmail({ to: email, ...otpCodeEmail({ code, purpose: emailPurpose }) });
+  } catch (deliveryError) {
+    const { error: cleanupError } = await supabase.from('otp_verifications').delete().eq('id', insertedOtp.id);
+    if (cleanupError) console.error('Failed to clean up undelivered email OTP row', cleanupError);
+    throw deliveryError;
   }
 
   const { error: invalidateError } = await supabase
