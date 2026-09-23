@@ -23,17 +23,20 @@ export default function ProjectsPage() {
   const router = useRouter();
   const [projects, setProjects] = useState<Project[] | null>(null);
   const [showCreate, setShowCreate] = useState(false);
+  const [page,setPage]=useState(1);
+  const [total,setTotal]=useState(0);
+  const pageSize=20;
   const canManage = me.user.role !== 'agent';
 
   useEffect(() => {
     let cancelled = false;
-    void listProjects(accessToken).then((result) => {
-      if (!cancelled) setProjects(result.projects);
+    void listProjects(accessToken,{page,page_size:pageSize}).then((result) => {
+      if (!cancelled) { setProjects(result.projects); setTotal(result.total); }
     });
     return () => {
       cancelled = true;
     };
-  }, [accessToken]);
+  }, [accessToken,page]);
 
   return (
     <AppShell
@@ -95,6 +98,7 @@ export default function ProjectsPage() {
           </div>
         )}
       </Card>
+      {total>pageSize && <div className="mt-4 flex items-center justify-center gap-3"><Button variant="secondary" disabled={page<=1} onClick={()=>setPage(p=>Math.max(1,p-1))}>السابق</Button><span className="text-sm text-text-secondary">{page} / {Math.ceil(total/pageSize)}</span><Button variant="secondary" disabled={page>=Math.ceil(total/pageSize)} onClick={()=>setPage(p=>p+1)}>التالي</Button></div>}
     </AppShell>
   );
 }
