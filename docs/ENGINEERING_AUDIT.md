@@ -53,6 +53,27 @@ This file records only findings supported by inspected code or observed test/bui
 | A1-034 | P3 | Accessibility | Public footer | Icon-only social links had no accessible name. | `aria-label` per network. | FIXED a36dc7b |
 | A1-035 | P3 | Feature gap | WhatsApp leads | `POST /v1/public/whatsapp-click` is never called by public-site, so WhatsApp interactions do not become leads as PRODUCT_SPEC section 4 describes. | Wire a tracked WhatsApp CTA (UI/product decision). | OPEN |
 
+## Audit #2 — re-audit after the Audit #1 fixes
+
+Scope covered: every Ejar Plus (rent-plus) route, tenant settings/domain routes, public project feeds and pages, console account/auth guard, marketing pixels, reports/dashboard summaries, project sales center, lead notes/interests, custom pages, support tickets, and a database-wide sweep of every write policy granted to `authenticated` compared against the API's role rules. Not covered in depth this round: dashboard/console UI states and accessibility beyond the pages touched, performance profiling.
+
+| ID | Severity | Category | Area | Evidence / root cause | Remediation | Status |
+|---|---|---|---|---|---|---|
+| A2-001 | P1 | Business logic / Authorization | `tenants` owner writes | 0043 guarded only status/plan/payment status. A trial Owner could clear `trial_ends_at` through PostgREST (is_tenant_active reads it) and keep the trial plan forever, or mark an unverified or plan-excluded custom domain `verified`. Reproduced (SQL as the owner, and E2E through PostgREST). | 0113 extends the guard to the trial end and every custom-domain column for any tenant member; domain routes write with the service role after their owner/plan/Cloudflare checks. | FIXED 3c5fd8b |
+| A2-002 | P2 | Functional | Public projects | Projects created in the dashboard never get a slug; public-site links, sitemap and canonical redirect used it, so every published project linked to `/projects/null` (404). Reproduced (E2E). | Public API falls back to the project id, which `public_project_detail` accepts. Verified in the real public site at 1280×800 and 390×844. | FIXED 75a8830 (live slugs NOT VERIFIED) |
+| A2-003 | P3 | Data consistency | Domain removal | A suspended tenant's DELETE removed the Cloudflare hostname, then the RLS-filtered update silently changed nothing. | Active-tenant check before any Cloudflare call. | FIXED 3c5fd8b |
+| A2-004 | P3 | Authorization | Shared districts | `districts_tenant_insert` was `with check (true)`: Auth users with no tenant, disabled members and suspended tenants could add districts every tenant sees. Reproduced (RLS suite fails without the fix). | 0114 limits it to active members of active tenants; 403 instead of 500. | FIXED 533f709 |
+| A2-005 | P3 | Operations | Console guard | `requirePlatformAdmin` read `platform_admins` with `maybeSingle()`, but an admin sees every admin row: adding a second admin made every console endpoint 403. Reproduced (E2E). | Uses `is_platform_admin()`. | FIXED be7d557 |
+| A2-006 | P3 | Security hardening | Tracking pixels | `pixel_id` accepted any 200-character string although it is meant for tracking snippets. | Provider id alphabet only. | FIXED e6b702a |
+| A2-007 | P3 | Error handling | Rent Plus reads | Failures of `refresh_contract_installment_statuses` were ignored, silently showing stale overdue states. | Errors are raised. | FIXED 75a8830 |
+| A2-008 | P3 | Feature gap | Tracking pixels | Pixels can be saved through the API but no dashboard screen manages them and public-site never renders them. | Product decision: build or remove the feature. | OPEN — product decision |
+| A2-009 | P3 | API | Malformed ids | A non-UUID path or query id (e.g. `contract_id=abc`) reaches Postgres and returns 500 instead of 400/404. No data exposure. | Validate ids at the route boundary. | OPEN |
+| A2-010 | P3 | Reliability | Custom domain replace | PATCH with a new domain does not delete the previous Cloudflare custom hostname. Whether the dashboard allows replacing without removing first was not checked. | Delete the previous hostname after a successful update. | OPEN — NOT VERIFIED in UI |
+| A2-011 | P4 | Authorization | `documents`, `document_links` | Any tenant member may write them, but no application reads or writes these tables. | Scope them when a feature uses them. | ACCEPTED — dormant |
+| A2-012 | P3 | Test reliability | OTP concurrency E2E | Failed once in 19 local runs; not reproduced in 18 later runs (12 of them isolated). The failing assertion was not captured. | Assertions now print every status/body. | OPEN — monitoring |
+
+Checked and not a finding: Ejar Plus tables already restrict writes to owner/admin (0093); website tables, tenant integrations and tracking pixels match the API's role rules; console account updates are schema-validated and platform-admin only.
+
 ## Evidence rules
 
 - A Railway build success is recorded only as build evidence.
