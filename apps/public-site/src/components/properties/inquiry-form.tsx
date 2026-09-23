@@ -11,6 +11,7 @@ const LABELS = {
   ar: {
     title: 'استفسار عن هذا العقار',
     name: 'الاسم',
+    phone: 'رقم الجوال',
     email: 'البريد الإلكتروني (اختياري)',
     submit: 'إرسال الاستفسار',
     sending: 'جارٍ الإرسال...',
@@ -20,6 +21,7 @@ const LABELS = {
   en: {
     title: 'Inquire about this property',
     name: 'Name',
+    phone: 'Phone number',
     email: 'Email (optional)',
     submit: 'Send inquiry',
     sending: 'Sending...',
@@ -106,20 +108,32 @@ export function InquiryForm({ locale, tenantId, listingId, assetId }: InquiryFor
     <form onSubmit={handleSubmit} className="flex flex-col gap-3 rounded-xl border border-black/10 p-5">
       <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer onLoad={renderWidget} />
       <h3 className="font-semibold">{t.title}</h3>
+      <label className="text-sm font-medium" htmlFor="inquiry-name">{t.name}</label>
       <input
+        id="inquiry-name"
+        name="name"
+        autoComplete="name"
+        required
+        aria-required="true"
         placeholder={t.name}
         value={fullName}
         onChange={(e) => setFullName(e.target.value)}
         className="rounded-lg border border-black/15 p-2 text-sm"
       />
+      <label className="text-sm font-medium" htmlFor="inquiry-phone">{t.phone}</label>
       <div dir="ltr" className="flex items-center rounded-lg border border-black/15 p-2 text-sm">
         <span className="flex items-center gap-1 border-r border-black/15 pr-2 text-black/60">
           <span aria-hidden="true">🇸🇦</span>
           <span>+966</span>
         </span>
         <input
+          id="inquiry-phone"
+          name="tel"
           type="tel"
           inputMode="numeric"
+          autoComplete="tel"
+          required
+          aria-required="true"
           placeholder="5xxxxxxxx"
           value={phone.startsWith('+966') ? phone.slice(4) : phone}
           onChange={(e) => {
@@ -129,8 +143,12 @@ export function InquiryForm({ locale, tenantId, listingId, assetId }: InquiryFor
           className="flex-1 bg-transparent pl-2 outline-none"
         />
       </div>
+      <label className="text-sm font-medium" htmlFor="inquiry-email">{t.email}</label>
       <input
+        id="inquiry-email"
+        name="email"
         type="email"
+        autoComplete="email"
         placeholder={t.email}
         value={email}
         onChange={(e) => setEmail(e.target.value)}
@@ -138,7 +156,7 @@ export function InquiryForm({ locale, tenantId, listingId, assetId }: InquiryFor
         className="rounded-lg border border-black/15 p-2 text-sm"
       />
       <div ref={widgetRef} />
-      {error && <p className="text-sm text-danger">{error}</p>}
+      {error && <p role="alert" className="text-sm text-danger">{error}</p>}
       <button
         type="submit"
         disabled={loading}
