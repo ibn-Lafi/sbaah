@@ -12,7 +12,8 @@ export const GET=withErrorHandling(async(request:NextRequest)=>{
   const id=request.nextUrl.searchParams.get('contract_id');
   if(id){
     await assertTenantOwnedRow({supabase,table:'lease_contracts',id,tenantId:caller.tenantId,label:'العقد'});
-    await supabase.rpc('refresh_contract_installment_statuses',{p_contract_id:id});
+    const { error: refreshError } = await supabase.rpc('refresh_contract_installment_statuses', { p_contract_id: id });
+    if (refreshError) throw new Error(`Failed to refresh installment statuses: ${refreshError.message}`);
     q=q.eq('contract_id',id);
   }
   const{data,error}=await q;
