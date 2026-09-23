@@ -31,6 +31,20 @@ export const PATCH = withErrorHandling(async (request: NextRequest) => {
   const pageIds = (pages ?? []).map((page) => page.id);
   if (pageIds.length === 0 && sections.length > 0) throw new ApiError(404, 'section_not_found', 'القسم غير موجود');
 
+  // Validate the complete batch before mutating anything. Without this
+  // preflight, Promise.all could update valid rows and only afterwards
+  // discover one foreign/missing id, returning 404 after a partial reorder.
+  const sectionIds = sections.map(({ id }) => id);
+  const { data: ownedSections, error: ownedSectionsError } = await supabase
+    .from('website_sections')
+    .select('id')
+    .in('id', sectionIds)
+    .in('page_id', pageIds);
+  if (ownedSectionsError) throw new Error(`Failed to validate website sections: ${ownedSectionsError.message}`);
+  const ownedIds = new Set((ownedSections ?? []).map(({ id }) => id));
+  const missingSection = sections.find(({ id }) => !ownedIds.has(id));
+  if (missingSection) throw new ApiError(404, 'section_not_found', `القسم بالمعرّف ${missingSection.id} غير موجود`);
+
   const results = await Promise.all(
     sections.map(({ id, order_index }) =>
       supabase.from('website_sections').update({ order_index }).eq('id', id).in('page_id', pageIds).select().maybeSingle(),
