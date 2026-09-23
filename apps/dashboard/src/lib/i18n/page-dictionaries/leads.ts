@@ -50,12 +50,14 @@ export const leadsAr = {
     noProperty: 'بلا عقار محدد',
     sourceLabel: 'المصدر',
     errors: {
+      load: 'تعذّر تحميل بيانات العميل المحتمل.',
       saveAgent: 'تعذّر حفظ المسؤول',
       saveStatus: 'تعذّر حفظ الحالة',
       saveFollowUp: 'تعذّر حفظ تاريخ المتابعة',
       addNote: 'تعذّر إضافة الملاحظة',
       delete: 'تعذّر حذف العميل المحتمل',
     },
+    retry: 'إعادة المحاولة',
   },
   sourceLabels: {
     website_form: 'نموذج الموقع',
@@ -125,12 +127,14 @@ export const leadsEn: typeof leadsAr = {
     noProperty: 'No property selected',
     sourceLabel: 'Source',
     errors: {
+      load: 'Failed to load this lead.',
       saveAgent: 'Failed to save the assigned agent',
       saveStatus: 'Failed to save the status',
       saveFollowUp: 'Failed to save the follow-up date',
       addNote: 'Failed to add note',
       delete: 'Failed to delete lead',
     },
+    retry: 'Retry',
   },
   sourceLabels: {
     website_form: 'Website form',

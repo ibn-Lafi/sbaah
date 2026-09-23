@@ -2,9 +2,11 @@
 
 import { use, useEffect, useState } from 'react';
 import Link from 'next/link';
+import { isNotFoundError } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
 import { BackButton } from '@/components/ui/back-button';
 import { Card } from '@/components/ui/card';
+import { DetailLoadError } from '@/components/ui/detail-load-error';
 import { PersonAvatar } from '@/components/ui/person-avatar';
 import { SegmentedToggle } from '@/components/ui/segmented-toggle';
 import { FormPageSkeleton } from '@/components/ui/form-page-skeleton';
@@ -18,9 +20,10 @@ const contractStatus:Record<string,string>={draft:'مسودة',upcoming:'قاد�
 const maintenanceStatus:Record<string,string>={open:'مفتوح',in_review:'قيد المراجعة',scheduled:'مجدول',in_progress:'قيد التنفيذ',completed:'مكتمل',cancelled:'ملغي'};
 
 export default function TenantDetailPage({params}:{params:Promise<{id:string}>}){
-  const{id}=use(params);const{me,accessToken}=useCurrentUser();const[data,setData]=useState<TenantRentalProfile|null>(null);const[notFound,setNotFound]=useState(false);const[tab,setTab]=useState<Tab>('info');
-  useEffect(()=>{let active=true;void getEjarTenant(accessToken,id).then(r=>{if(active)setData(r)}).catch(()=>{if(active)setNotFound(true)});return()=>{active=false}},[accessToken,id]);
+  const{id}=use(params);const{me,accessToken}=useCurrentUser();const[data,setData]=useState<TenantRentalProfile|null>(null);const[notFound,setNotFound]=useState(false);const[loadError,setLoadError]=useState<string|null>(null);const[retryKey,setRetryKey]=useState(0);const[tab,setTab]=useState<Tab>('info');
+  useEffect(()=>{let active=true;void getEjarTenant(accessToken,id).then(r=>{if(!active)return;setData(r);setNotFound(false);setLoadError(null)}).catch(err=>{if(!active)return;if(isNotFoundError(err))setNotFound(true);else setLoadError(err instanceof Error?err.message:'تعذّر تحميل بيانات المستأجر.')});return()=>{active=false}},[accessToken,id,retryKey]);
   if(notFound)return <AppShell title="المستأجر" orgName={me.tenant.name_ar} accountType={me.tenant.account_type}><BackButton href="/rent-plus/tenants" label="المستأجرين"/><p className="mt-5 text-text-secondary">المستأجر غير موجود.</p></AppShell>;
+  if(loadError)return <AppShell title="المستأجر" orgName={me.tenant.name_ar} accountType={me.tenant.account_type}><BackButton href="/rent-plus/tenants" label="المستأجرين"/><div className="mt-5"><DetailLoadError message={loadError} onRetry={()=>setRetryKey(v=>v+1)}/></div></AppShell>;
   return <AppShell title={data?.tenant.name??'المستأجر'} orgName={me.tenant.name_ar} accountType={me.tenant.account_type}>
     {!data?<FormPageSkeleton fields={4} extraCards={1}/>:<div className="flex flex-col gap-4">
       <BackButton href="/rent-plus/tenants" label="المستأجرين"/>

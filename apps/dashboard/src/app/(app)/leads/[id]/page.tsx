@@ -10,12 +10,13 @@ import { DateTimePicker } from '@/components/ui/datetime-picker';
 import { DeleteButton } from '@/components/ui/delete-button';
 import { PersonAvatar } from '@/components/ui/person-avatar';
 import { Select } from '@/components/ui/select';
+import { DetailLoadError } from '@/components/ui/detail-load-error';
 import { FormError } from '@/components/ui/form-error';
 import { FormPageSkeleton } from '@/components/ui/form-page-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { deleteLead, getLead, updateLead, type Customer360Snapshot, type LeadWithNotes } from '@/lib/api/leads';
 import { listTeam, type TeamMember } from '@/lib/api/team';
-import { ApiRequestError } from '@/lib/api/client';
+import { ApiRequestError, isNotFoundError } from '@/lib/api/client';
 import { datetimeLocalToIso, isoToDatetimeLocal } from '@/lib/lead/datetime';
 import { useLocale } from '@/lib/i18n/locale-context';
 import { Customer360Overview, type CustomerDetailTab } from '@/components/crm/customer-360-overview';
@@ -38,6 +39,8 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
   const [customer360, setCustomer360] = useState<Customer360Snapshot | null>(null);
   const [team, setTeam] = useState<TeamMember[]>([]);
   const [notFound, setNotFound] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [retryKey, setRetryKey] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [detailTab, setDetailTab] = useState<CustomerDetailTab>('overview');
 
@@ -48,14 +51,18 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
         if (cancelled) return;
         setLead(loaded);
         setCustomer360(snapshot);
+        setNotFound(false);
+        setLoadError(null);
       })
-      .catch(() => {
-        if (!cancelled) setNotFound(true);
+      .catch((err) => {
+        if (cancelled) return;
+        if (isNotFoundError(err)) setNotFound(true);
+        else setLoadError(err instanceof ApiRequestError ? err.message : t.detail.errors.load);
       });
     return () => {
       cancelled = true;
     };
-  }, [accessToken, id]);
+  }, [accessToken, id, retryKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const canManage = me.user.role !== 'agent';
   const isProspect = customer360?.customer_kind === 'prospect';
@@ -119,6 +126,14 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
         accountType={me.tenant.account_type}
       >
         <p className="text-text-secondary">{t.detail.notFoundMessage}</p>
+      </AppShell>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <AppShell title={t.detail.defaultTitle} orgName={me.tenant.name_ar} accountType={me.tenant.account_type}>
+        <DetailLoadError message={loadError} retryLabel={t.detail.retry} onRetry={() => setRetryKey((value) => value + 1)} />
       </AppShell>
     );
   }

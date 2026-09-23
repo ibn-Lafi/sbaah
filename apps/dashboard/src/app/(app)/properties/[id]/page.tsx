@@ -3,13 +3,14 @@
 import Link from 'next/link';
 import { use, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import type { Asset } from '@sbaah/shared';
+import { isNotFoundError, type Asset } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
 import { CreateAssetForm, assetTypeLabels } from '@/components/properties/create-asset-form';
 import { CreateListingForm } from '@/components/properties/create-listing-form';
 import { BackButton } from '@/components/ui/back-button';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { DetailLoadError } from '@/components/ui/detail-load-error';
 import { FormPageSkeleton } from '@/components/ui/form-page-skeleton';
 import { Modal } from '@/components/ui/modal';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
@@ -29,14 +30,17 @@ export default function AssetDetail({ params }: { params: Promise<{ id: string }
   const [availability,setAvailability]=useState<{status:string;reason?:string|null}|null>(null);
   const [project,setProject]=useState<{id:string;name_ar:string}|null>(null); const [phase,setPhase]=useState<{id:string;name_ar:string}|null>(null); const [unitType,setUnitType]=useState<{id:string;name_ar:string}|null>(null);
   const [notFound, setNotFound] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [retryKey, setRetryKey] = useState(0);
   const [showListing, setShowListing] = useState(false);
   const [showChild, setShowChild] = useState(false);
 
   const load = () => Promise.all([getAsset(accessToken, id), listListings(accessToken), getAssetRelationships(accessToken, id)]).then(([detail, listingResult, relationResult]) => {
     setAsset(detail.asset); setParent(detail.parent); setChildren(detail.children); setAvailability(detail.availability); setProject(detail.project); setPhase(detail.phase); setUnitType(detail.unit_type); setListings(listingResult.listings); setRelationships(relationResult.relationships);
+    setNotFound(false); setLoadError(null);
   });
 
-  useEffect(() => { let active = true; void load().catch(() => { if (active) setNotFound(true); }); return () => { active = false; }; }, [accessToken, id]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { let active = true; void load().catch((err) => { if (!active) return; if (isNotFoundError(err)) setNotFound(true); else setLoadError(err instanceof Error ? err.message : 'تعذّر تحميل بيانات العقار.'); }); return () => { active = false; }; }, [accessToken, id, retryKey]); // eslint-disable-line react-hooks/exhaustive-deps
   const offers = useMemo(() => listings.filter(listing => (listing.listing_assets ?? []).some(relation => relation.asset_id === id)), [listings, id]);
   const sale = useMemo(() => relationships?.deals.map(link => link.deals).find(deal => deal?.status === 'won' && deal.deal_type === 'sale') ?? null, [relationships]);
   const activeLease=useMemo(()=>relationships?.leases.map(x=>x.lease_contracts).find(x=>x?.status==='active')??null,[relationships]);
@@ -45,6 +49,7 @@ export default function AssetDetail({ params }: { params: Promise<{ id: string }
   const saleDurationDays = sale?.closed_at ? Math.max(0, Math.ceil((new Date(sale.closed_at).getTime() - new Date(sale.listings?.created_at ?? sale.created_at).getTime()) / 86400000)) : null;
 
   if (notFound) return <AppShell title="العقار غير موجود" orgName={me.tenant.name_ar} accountType={me.tenant.account_type}><p className="text-text-secondary">تعذر العثور على العقار.</p></AppShell>;
+  if (loadError) return <AppShell title="تفاصيل العقار" orgName={me.tenant.name_ar} accountType={me.tenant.account_type}><DetailLoadError message={loadError} onRetry={() => setRetryKey((value) => value + 1)} /></AppShell>;
   return <AppShell title={asset?.name_ar ?? 'تفاصيل العقار'} orgName={me.tenant.name_ar} accountType={me.tenant.account_type}>
     {!asset ? <FormPageSkeleton fields={6} extraCards={2} /> : <div className="mx-auto flex max-w-[900px] flex-col gap-5">
       <BackButton href="/properties" label="رجوع" className="self-start" />

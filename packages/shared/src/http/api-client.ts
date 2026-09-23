@@ -18,6 +18,16 @@ export class ApiRequestError extends Error {
   }
 }
 
+/**
+ * A detail page's load `.catch()` must tell "this record really doesn't
+ * exist" (404) apart from any other failure (expired session, a permission
+ * error, the network, a 500) — those need a retry, not a permanent "not
+ * found" that a later successful load can never undo.
+ */
+export function isNotFoundError(err: unknown): boolean {
+  return err instanceof ApiRequestError && err.status === 404;
+}
+
 function requireApiUrl(): string {
   const url = process.env.NEXT_PUBLIC_API_URL;
   if (!url) {

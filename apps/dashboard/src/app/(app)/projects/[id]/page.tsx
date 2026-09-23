@@ -6,11 +6,12 @@ import type { Project } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
 import { BackButton } from '@/components/ui/back-button';
 import { DeleteButton } from '@/components/ui/delete-button';
+import { DetailLoadError } from '@/components/ui/detail-load-error';
 import { ProjectInventory } from '@/components/hierarchy/project-inventory';
 import { FormPageSkeleton } from '@/components/ui/form-page-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { deleteProject, getProject } from '@/lib/api/hierarchy';
-import { ApiRequestError } from '@/lib/api/client';
+import { ApiRequestError, isNotFoundError } from '@/lib/api/client';
 import { useLocale } from '@/lib/i18n/locale-context';
 
 export default function EditProjectPage({ params }: { params: Promise<{ id: string }> }) {
@@ -21,6 +22,8 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
   const t = pages.projects;
   const [project, setProject] = useState<Project | null>(null);
   const [notFound, setNotFound] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [retryKey, setRetryKey] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -28,14 +31,18 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
       .then(({ project: loaded }) => {
         if (cancelled) return;
         setProject(loaded);
+        setNotFound(false);
+        setLoadError(null);
       })
-      .catch(() => {
-        if (!cancelled) setNotFound(true);
+      .catch((err) => {
+        if (cancelled) return;
+        if (isNotFoundError(err)) setNotFound(true);
+        else setLoadError(err instanceof ApiRequestError ? err.message : t.detail.loadError);
       });
     return () => {
       cancelled = true;
     };
-  }, [accessToken, id]);
+  }, [accessToken, id, retryKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const canManage = me.user.role !== 'agent';
 
@@ -56,6 +63,14 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
         accountType={me.tenant.account_type}
       >
         <p className="text-text-secondary">{t.detail.notFoundMessage}</p>
+      </AppShell>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <AppShell title={t.detail.defaultTitle} orgName={me.tenant.name_ar} accountType={me.tenant.account_type}>
+        <DetailLoadError message={loadError} retryLabel={t.detail.retry} onRetry={() => setRetryKey((value) => value + 1)} />
       </AppShell>
     );
   }

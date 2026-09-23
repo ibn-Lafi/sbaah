@@ -26,6 +26,8 @@ export const projectsAr = {
     deleteConfirmMessage:
       'سيتم حذف هذا المشروع نهائيًا، وستبقى العمارات المرتبطة به بلا مشروع محدد. لا يمكن التراجع عن هذا الإجراء.',
     deleteFallbackError: 'تعذّر حذف المشروع',
+    loadError: 'تعذّر تحميل بيانات المشروع.',
+    retry: 'إعادة المحاولة',
   },
   form: {
     fields: {
@@ -70,6 +72,8 @@ export const projectsEn: typeof projectsAr = {
     deleteConfirmMessage:
       'This project will be permanently deleted, and its buildings will remain without an assigned project. This action cannot be undone.',
     deleteFallbackError: 'Failed to delete project',
+    loadError: 'Failed to load this project.',
+    retry: 'Retry',
   },
   form: {
     fields: {
