@@ -110,6 +110,12 @@ Neither Google Analytics integration ever reached real use: no tenant ever insta
 |---|---|---|---|---|---|
 | A4-002 | — | Removal | Google Analytics (tenant app + console/platform connection) | Deleted `apps/api/src/app/v1/integrations/google-analytics/*`, `apps/api/src/app/v1/console/analytics/google/*`, and the shared `apps/api/src/lib/google-analytics/oauth.ts` (used by nothing else — no separate "Google login" auth feature exists). Removed the dashboard's install-button component, its API client, the apps-marketplace card, the dead `site_analytics` field `GET /v1/dashboard/summary` returned (never rendered anywhere), the tenant-side GA `<Script>` tag and `google_analytics_measurement_id` field in public-site, the console's "أداء صفحة الهبوط" card, and the "Google Analytics" row from the plan comparison table. 0116 drops `tenant_integrations` (its `provider` column only ever allowed `'google_analytics'`, so the whole table existed for this feature alone), `google_analytics_oauth_states`, `platform_google_analytics` and `platform_google_analytics_oauth_states`. | REMOVED |
 
+## Audit #5 — user-reported: "حدث خطأ غير متوقع" adding a customer/lead
+
+| ID | Severity | Category | Area | Evidence / root cause | Remediation | Status |
+|---|---|---|---|---|---|---|
+| A5-001 | **P0** | Database | Manual lead creation | `create_lead_with_interest()` (migration 0099) inserted into `leads(...,notes,...)` — `leads` has never had a `notes` column (migration 0004; only `lead_notes`, a separate per-lead note timeline, exists). Postgres rejected the column reference unconditionally, so `POST /v1/leads` (the dashboard's "add a customer/lead" form) failed with a 500 on every single call, with or without a linked property. Reproduced directly against the API (curl, before/after) and through the dashboard UI (Playwright, both viewports). | 0117 redefines the function without the `notes` column/value. | FIXED |
+
 ## Evidence rules
 
 - A Railway build success is recorded only as build evidence.
