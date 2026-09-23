@@ -40,7 +40,7 @@ interface InquiryFormProps {
   locale: Locale;
   tenantId: string;
   listingId: string;
-  assetId: string;
+  assetId?: string;
 }
 
 export function InquiryForm({ locale, tenantId, listingId, assetId }: InquiryFormProps) {
@@ -74,7 +74,7 @@ export function InquiryForm({ locale, tenantId, listingId, assetId }: InquiryFor
     const result = publicLeadInputSchema.safeParse({
       tenant_id: tenantId,
       listing_id: listingId,
-      asset_id: assetId,
+      asset_id: assetId || undefined,
       full_name: fullName,
       phone,
       email: email || null,
