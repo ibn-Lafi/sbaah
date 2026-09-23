@@ -3,7 +3,7 @@
 import { useEffect, useState, type CSSProperties } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { BrandMark } from '@/components/ui/brand-mark';
+import { BrandIcon, BrandMark } from '@/components/ui/brand-mark';
 import { AccountAvatar } from '@/components/ui/account-avatar';
 import { SidebarToggleIcon } from './nav-icons';
 import { getNavItems, isNavGroup } from './nav-items';
@@ -120,7 +120,7 @@ export function Sidebar({ orgName, accountType }: SidebarProps) {
       <SidebarBackdrop />
 
       <div className="flex items-center justify-between px-2 pb-[18px]">
-        {!collapsed && <BrandMark width={52} height={23} invert />}
+        {collapsed ? <BrandIcon size={28} tone="white" /> : <BrandMark width={52} height={23} invert />}
         <button
           type="button"
           onClick={toggleCollapsed}
