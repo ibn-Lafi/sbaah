@@ -3,7 +3,7 @@
 import { useEffect,useState,type CSSProperties } from 'react';
 import Link from 'next/link';
 import { usePathname,useRouter } from 'next/navigation';
-import { BrandIcon, BrandMark } from '@/components/ui/brand-mark';
+import { BrandMark } from '@/components/ui/brand-mark';
 import { AdminAvatar } from '@/components/ui/admin-avatar';
 import { NAV_ITEMS,SETTINGS_ITEM,isNavGroup } from './nav-items';
 import { ChevronIcon,SidebarToggleIcon } from './nav-icons';
@@ -24,7 +24,7 @@ export function Sidebar(){
  function logout(){void signOut().then(()=>router.replace('/login'))}
  return <aside className={`relative z-20 hidden flex-none flex-col p-[10px_10px_18px] transition-[width] duration-200 md:flex ${collapsed?'w-[72px]':'w-[216px]'}`}>
   <Backdrop/>
-  <div className="flex items-center justify-between px-2 pb-[18px]">{collapsed?<BrandIcon size={28} tone="white"/>:<BrandMark width={52} height={23} invert/>}<button type="button" onClick={toggle} aria-label="طي أو توسيع القائمة" className="flex h-8 w-8 items-center justify-center rounded-[9px] text-white/70 hover:bg-white/10 hover:text-white"><SidebarToggleIcon collapsed={collapsed} className="h-[17px] w-[17px]"/></button></div>
+  <div className="flex items-center justify-between px-2 pb-[18px]">{!collapsed&&<BrandMark width={52} height={23} invert/>}<button type="button" onClick={toggle} aria-label="طي أو توسيع القائمة" className="flex h-8 w-8 items-center justify-center rounded-[9px] text-white/70 hover:bg-white/10 hover:text-white"><SidebarToggleIcon collapsed={collapsed} className="h-[17px] w-[17px]"/></button></div>
   <nav className="flex flex-1 flex-col gap-px overflow-y-auto">{NAV_ITEMS.map(item=>{
    if(isNavGroup(item)){const active=item.children.some(x=>pathname===x.href||pathname.startsWith(x.href+'/'));const open=!collapsed&&(openGroups[item.group]??active);const I=item.icon;const fly=collapsed&&hovered===item.group&&rect;return <div key={item.group} className="relative" onMouseEnter={e=>enter(item.group,e)} onMouseLeave={()=>setHovered(null)}>
     <button type="button" onClick={()=>!collapsed&&setOpenGroups(v=>({...v,[item.group]:!open}))} className={`flex h-[38px] w-full items-center gap-2 rounded-[9px] px-[10px] text-[15px] ${collapsed?'justify-center':''} ${active?'font-semibold text-white':'text-white/70 hover:bg-white/10 hover:text-white'}`}><I className="h-4 w-4 flex-none"/>{!collapsed&&<><span className="min-w-0 flex-1 truncate text-start">{item.label}</span><ChevronIcon open={open} className="h-3.5 w-3.5"/></>}</button>
