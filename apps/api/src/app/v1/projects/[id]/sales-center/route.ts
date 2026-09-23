@@ -14,13 +14,19 @@ export const GET=withErrorHandling<RouteContext>(async(request,{params})=>{
   const {data:assets,error:assetsError}=await supabase.from('assets').select('id,name_ar,asset_type,physical_status,unit_number,unit_type_id,phase_id').eq('tenant_id',caller.tenantId).eq('project_id',id).is('archived_at',null).order('created_at');
   if(assetsError)throw new Error(assetsError.message);
   const assetIds=(assets??[]).map(asset=>asset.id);
-  const [{data:interests,error:interestError},{data:viewings,error:viewingError},{data:reservationLinks,error:reservationError},{data:projectDeals,error:projectDealError}]=assetIds.length?await Promise.all([
-    supabase.from('lead_interests').select('lead_id').eq('tenant_id',caller.tenantId).in('asset_id',assetIds),
-    supabase.from('viewings').select('lead_id').eq('tenant_id',caller.tenantId).in('asset_id',assetIds),
-    supabase.from('reservation_assets').select('reservations(lead_id,status)').eq('tenant_id',caller.tenantId).in('asset_id',assetIds),
-    supabase.from('deal_assets').select('deals(lead_id,status,deal_type)').eq('tenant_id',caller.tenantId).in('asset_id',assetIds),
-  ]):[{data:[],error:null},{data:[],error:null},{data:[],error:null},{data:[],error:null}];
-  if(interestError)throw new Error(interestError.message);if(viewingError)throw new Error(viewingError.message);if(reservationError)throw new Error(reservationError.message);if(projectDealError)throw new Error(projectDealError.message);
+  const {data:listingLinks,error:listingLinksError}=assetIds.length?await supabase.from('listing_assets').select('listing_id').eq('tenant_id',caller.tenantId).in('asset_id',assetIds):{data:[],error:null};
+  if(listingLinksError)throw new Error(listingLinksError.message);
+  const listingIds=[...new Set((listingLinks??[]).map(x=>x.listing_id))];
+  const [{data:assetInterests,error:assetInterestError},{data:projectInterests,error:projectInterestError},{data:listingInterests,error:listingInterestError},{data:viewings,error:viewingError},{data:reservationLinks,error:reservationError},{data:projectDeals,error:projectDealError}]=await Promise.all([
+    assetIds.length?supabase.from('lead_interests').select('lead_id').eq('tenant_id',caller.tenantId).in('asset_id',assetIds):Promise.resolve({data:[],error:null}),
+    supabase.from('lead_interests').select('lead_id').eq('tenant_id',caller.tenantId).eq('project_id',id),
+    listingIds.length?supabase.from('lead_interests').select('lead_id').eq('tenant_id',caller.tenantId).in('listing_id',listingIds):Promise.resolve({data:[],error:null}),
+    assetIds.length?supabase.from('viewings').select('lead_id').eq('tenant_id',caller.tenantId).in('asset_id',assetIds):Promise.resolve({data:[],error:null}),
+    assetIds.length?supabase.from('reservation_assets').select('reservations(lead_id,status)').eq('tenant_id',caller.tenantId).in('asset_id',assetIds):Promise.resolve({data:[],error:null}),
+    assetIds.length?supabase.from('deal_assets').select('deals(lead_id,status,deal_type)').eq('tenant_id',caller.tenantId).in('asset_id',assetIds):Promise.resolve({data:[],error:null}),
+  ]);
+  if(assetInterestError)throw new Error(assetInterestError.message);if(projectInterestError)throw new Error(projectInterestError.message);if(listingInterestError)throw new Error(listingInterestError.message);
+  if(viewingError)throw new Error(viewingError.message);if(reservationError)throw new Error(reservationError.message);if(projectDealError)throw new Error(projectDealError.message);
   const unique=(values:Array<string|null|undefined>)=>new Set(values.filter((value):value is string=>Boolean(value)));
   const wonLeads=unique((projectDeals??[]).flatMap(x=>Array.isArray(x.deals)?x.deals:(x.deals?[x.deals]:[])).filter(x=>x.deal_type==='sale'&&x.status==='won').map(x=>x.lead_id));
   const projectDealRows=(projectDeals??[]).flatMap(x=>Array.isArray(x.deals)?x.deals:(x.deals?[x.deals]:[])).filter(x=>x.deal_type==='sale');
@@ -28,7 +34,7 @@ export const GET=withErrorHandling<RouteContext>(async(request,{params})=>{
   const reservationRows=(reservationLinks??[]).flatMap(x=>Array.isArray(x.reservations)?x.reservations:(x.reservations?[x.reservations]:[])).filter(x=>x.status==='active'||x.status==='converted');
   const reservationLeads=unique([...reservationRows.map(x=>x.lead_id),...negotiationLeads]);
   const viewingLeads=unique([...(viewings??[]).map(x=>x.lead_id),...reservationLeads]);
-  const interestLeads=unique([...(interests??[]).map(x=>x.lead_id),...viewingLeads]);
+  const interestLeads=unique([...(assetInterests??[]).map(x=>x.lead_id),...(projectInterests??[]).map(x=>x.lead_id),...(listingInterests??[]).map(x=>x.lead_id),...viewingLeads]);
   const funnelCounts=[interestLeads.size,viewingLeads.size,reservationLeads.size,negotiationLeads.size,wonLeads.size];
   const funnelLabels=['interest','viewing','reservation','negotiation','won'] as const;
   const funnel={stages:funnelLabels.map((stage,index)=>{const count=funnelCounts[index]??0;const previous=index>0?(funnelCounts[index-1]??0):0;return{stage,count,conversion_from_previous:index===0?1:(previous?Math.min(1,count/previous):0),drop_off_from_previous:index===0?0:(previous?Math.max(0,1-count/previous):0)};}),overall_conversion:interestLeads.size?wonLeads.size/interestLeads.size:0};
