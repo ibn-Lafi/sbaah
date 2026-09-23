@@ -172,7 +172,7 @@ export function MobileNav({ orgName, accountType }: MobileNavProps) {
         }`}
       >
         <div className="border-border-subtle flex h-14 flex-none items-center justify-between border-b px-4">
-          <BrandMark width={45} height={20} />
+          <BrandMark height={22} />
           <button
             type="button"
             onClick={() => setSheetOpen(false)}
