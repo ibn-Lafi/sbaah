@@ -1,6 +1,7 @@
 // Preloaded into the API process (NODE_OPTIONS=--require) by run.sh:
 // answers fetch calls to external providers (Authentica, SNDR, Turnstile,
-// Google, Nominatim) so OTP/email/captcha flows run without credentials.
+// Cloudflare, Google, Nominatim) so OTP/email/captcha/domain flows run
+// without credentials.
 // Delivered codes are appended to the outbox file for the tests to read.
 const fs = require('node:fs');
 const path = require('node:path');
@@ -42,6 +43,21 @@ globalThis.fetch = async function mockedFetch(input, init = {}) {
   if (url.hostname === 'challenges.cloudflare.com') {
     const token = new URLSearchParams(bodyText).get('response');
     return json(200, { success: token === 'e2e-pass' });
+  }
+  if (url.hostname === 'api.cloudflare.com') {
+    const hostnameId = /\/custom_hostnames\/([^/]+)$/.exec(url.pathname)?.[1];
+    if (init.method === 'POST') {
+      const { hostname } = JSON.parse(bodyText || '{}');
+      return json(200, {
+        success: true,
+        result: { id: `cf_${hostname}`, ownership_verification: { name: `_cf-custom-hostname.${hostname}`, value: 'e2e-ownership' } },
+      });
+    }
+    if (init.method === 'DELETE') return json(200, { success: true, result: { id: hostnameId } });
+    return json(200, {
+      success: true,
+      result: { status: 'active', ssl: { status: 'active', validation_records: [{ txt_name: '_acme-challenge.e2e', txt_value: 'e2e-ssl' }] } },
+    });
   }
   if (url.hostname.endsWith('googleapis.com') || url.hostname === 'accounts.google.com') {
     return json(503, { error: 'google disabled in e2e' });

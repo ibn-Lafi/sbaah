@@ -1,9 +1,10 @@
 import type { NextRequest } from 'next/server';
 import { createServiceRoleClient, socialLinksUpdateSchema } from '@sbaah/shared';
-import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
+import { okResponse, withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
 import { assertNotAgent } from '@/lib/auth/assert-not-agent';
+import { assertTenantActive } from '@/lib/tenant/assert-tenant-active';
 
 const SOCIAL_COLUMNS =
   'social_instagram, social_tiktok, social_whatsapp, social_snapchat, social_phone, social_facebook, social_x, social_telegram';
@@ -40,11 +41,7 @@ export const PATCH = withErrorHandling(async (request: NextRequest) => {
   const input = socialLinksUpdateSchema.parse(await request.json());
 
   const serviceRole = createServiceRoleClient();
-  const { data: isActive, error: activeError } = await serviceRole.rpc('is_tenant_active', {
-    check_tenant_id: caller.tenantId,
-  });
-  if (activeError) throw new Error(`Failed to check tenant status: ${activeError.message}`);
-  if (!isActive) throw new ApiError(403, 'tenant_not_active', 'الحساب معلَّق حاليًا، لا يمكن تعديل بياناته');
+  await assertTenantActive(serviceRole, caller.tenantId);
 
   const { data, error } = await serviceRole
     .from('tenants')

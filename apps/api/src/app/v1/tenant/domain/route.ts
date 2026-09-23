@@ -1,12 +1,13 @@
 import type { NextRequest } from 'next/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { customDomainInputSchema } from '@sbaah/shared';
+import { createServiceRoleClient, customDomainInputSchema } from '@sbaah/shared';
 import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
 import { assertOwner } from '@/lib/auth/assert-owner';
 import { createCloudflareCustomHostname, deleteCloudflareCustomHostname } from '@/lib/tenant/cloudflare-api-client';
 import { dnsRecordsFor, type DnsRecord } from '@/lib/tenant/domain-dns-records';
+import { assertTenantActive } from '@/lib/tenant/assert-tenant-active';
 
 /**
  * A custom domain equal to (or a subdomain of) the platform's own root
@@ -84,6 +85,11 @@ export const PATCH = withErrorHandling(async (request: NextRequest) => {
     throw new ApiError(403, 'plan_does_not_allow_custom_domain', 'باقتك الحالية لا تشمل ربط دومين مخصص — يلزم الترقية لباقة أعلى');
   }
 
+  // The domain columns are writable only by the service role (migration
+  // 0113), so the checks above are what authorizes this write.
+  const serviceRole = createServiceRoleClient();
+  await assertTenantActive(serviceRole, caller.tenantId);
+
   // Registers the domain with Cloudflare itself first — this is what makes
   // Cloudflare start issuing it a real certificate once DNS is pointed
   // correctly (see cloudflare-api-client.ts's doc comment). Done before the
@@ -93,7 +99,7 @@ export const PATCH = withErrorHandling(async (request: NextRequest) => {
   const cloudflareHostname = await createCloudflareCustomHostname(custom_domain);
   const dnsRecords = dnsRecordsFor(custom_domain, cloudflareHostname);
 
-  const { data, error } = await supabase
+  const { data, error } = await serviceRole
     .from('tenants')
     .update({
       custom_domain,
@@ -128,6 +134,8 @@ export const DELETE = withErrorHandling(async (request: NextRequest) => {
   const { supabase } = getAuthenticatedClient(request);
   const caller = await getCallerContext(supabase);
   assertOwner(caller.role);
+  const serviceRole = createServiceRoleClient();
+  await assertTenantActive(serviceRole, caller.tenantId);
 
   const { data: tenant, error: loadError } = await supabase
     .from('tenants')
@@ -141,7 +149,7 @@ export const DELETE = withErrorHandling(async (request: NextRequest) => {
     await deleteCloudflareCustomHostname(tenant.custom_domain_cloudflare_id);
   }
 
-  const { error } = await supabase
+  const { error } = await serviceRole
     .from('tenants')
     .update({
       custom_domain: null,

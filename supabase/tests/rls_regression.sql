@@ -107,6 +107,29 @@ do $$ begin
 end $$;
 rollback;
 
+\echo 'tenant billing and domain fields'
+update tenants set trial_ends_at = now() + interval '3 days' where subdomain = 'agency-b';
+begin;
+set local role authenticated;
+select regression.act_as('00000000-0000-0000-0000-00000000b001');
+do $$ begin
+  perform regression.expect_rejected($q$update tenants set trial_ends_at = null where id = auth_tenant_id()$q$, '42501', 'trial owner cannot clear their trial end');
+  perform regression.expect_rejected($q$update tenants set trial_ends_at = now() + interval '10 years' where id = auth_tenant_id()$q$, '42501', 'trial owner cannot extend their trial');
+  perform regression.expect_rejected($q$update tenants set custom_domain = 'owner-b.example', custom_domain_status = 'verified' where id = auth_tenant_id()$q$, '42501', 'owner cannot self-verify a custom domain');
+  perform regression.expect_rejected($q$update tenants set plan_id = (select id from plans where id <> tenants.plan_id limit 1) where id = auth_tenant_id()$q$, '42501', 'owner cannot switch plan');
+end $$;
+with updated as (update tenants set name_ar = 'وكالة ب المحدثة', subdomain = 'agency-b-renamed' where id = auth_tenant_id() returning 1)
+select regression.check(count(*) = 1, 'owner still edits name and subdomain') from updated;
+rollback;
+
+begin;
+set local role authenticated;
+select regression.act_as('00000000-0000-0000-0000-0000000ad001');
+with updated as (update tenants set trial_ends_at = now() + interval '30 days' where subdomain = 'agency-b' returning 1)
+select regression.check(count(*) = 1, 'platform admin can change a trial end') from updated;
+rollback;
+update tenants set trial_ends_at = null where subdomain = 'agency-b';
+
 \echo 'tenant isolation'
 select id as tenant_a from tenants where subdomain = 'agency-a' \gset
 begin;

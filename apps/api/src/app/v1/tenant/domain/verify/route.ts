@@ -1,10 +1,12 @@
 import type { NextRequest } from 'next/server';
+import { createServiceRoleClient } from '@sbaah/shared';
 import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
 import { assertOwner } from '@/lib/auth/assert-owner';
 import { getCloudflareCustomHostnameDetails } from '@/lib/tenant/cloudflare-api-client';
 import { withSslValidationRecords, type DnsRecord } from '@/lib/tenant/domain-dns-records';
+import { assertTenantActive } from '@/lib/tenant/assert-tenant-active';
 
 /**
  * Self-service verification (founder's explicit decision — no manual
@@ -52,8 +54,13 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   const currentRecords = (tenant.custom_domain_dns_records as DnsRecord[] | null) ?? [];
   const refreshedRecords = withSslValidationRecords(currentRecords, sslValidationRecords);
 
+  // Only the service role may write the verification state (migration
+  // 0113); Cloudflare's answer above is what authorizes it.
+  const serviceRole = createServiceRoleClient();
+  await assertTenantActive(serviceRole, caller.tenantId);
+
   if (!active) {
-    const { error: refreshError } = await supabase
+    const { error: refreshError } = await serviceRole
       .from('tenants')
       .update({ custom_domain_dns_records: refreshedRecords })
       .eq('id', caller.tenantId);
@@ -63,7 +70,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
     return okResponse({ custom_domain_status: 'pending' as const, verified: false });
   }
 
-  const { error: updateError } = await supabase
+  const { error: updateError } = await serviceRole
     .from('tenants')
     .update({ custom_domain_status: 'verified', custom_domain_dns_records: refreshedRecords })
     .eq('id', caller.tenantId);

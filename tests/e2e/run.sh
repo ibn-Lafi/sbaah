@@ -62,6 +62,7 @@ read -r ANON_KEY SERVICE_ROLE_KEY <<< "$KEYS"
   API_CORS_ALLOWED_ORIGINS=http://localhost:3002 PLATFORM_ROOT_DOMAIN=sbaah.test TURNSTILE_SECRET_KEY=e2e \
   DASHBOARD_APP_URL=http://localhost:3002 STREAMPAY_WEBHOOK_SECRET=e2e-streampay-secret STREAMPAY_API_KEY=e2e \
   WHATSAPP_WEBHOOK_SECRET=e2e-whatsapp-secret NEXT_TELEMETRY_DISABLED=1 \
+  CLOUDFLARE_API_TOKEN=e2e CLOUDFLARE_ZONE_ID=e2e-zone CLOUDFLARE_FALLBACK_CNAME_TARGET=fallback.sbaah.test \
   NODE_OPTIONS="--require $HERE/mock-providers.cjs" \
   exec pnpm exec next start -p 3001
 ) > "$CACHE/api.log" 2>&1 & PIDS+=($!)
