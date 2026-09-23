@@ -14,7 +14,14 @@ interface LeadInterestRow {
   leads: unknown;
 }
 
-const LEAD_INTEREST_COLUMNS = 'id,lead_id,created_at,leads(id,full_name,phone)';
+// Migration 0062 added a composite (lead_id, tenant_id) same-tenant FK
+// alongside the original lead_id FK on every table that references leads,
+// so an unhinted `leads(...)` embed is ambiguous to PostgREST — it refuses
+// with "Could not embed because more than one relationship was found" (a
+// hard 500 on every call, not a transient one). The simple FK is picked
+// explicitly here, the same way `users!deals_responsible_user_id_fkey`
+// already does below for the (also duplicated) responsible-user relation.
+const LEAD_INTEREST_COLUMNS = 'id,lead_id,created_at,leads!lead_interests_lead_id_fkey(id,full_name,phone)';
 const EMPTY_RESULT = { data: [], error: null };
 
 export const GET = withErrorHandling<RouteContext>(async (request, { params }) => {
@@ -71,7 +78,7 @@ export const GET = withErrorHandling<RouteContext>(async (request, { params }) =
       : Promise.resolve(EMPTY_RESULT),
     supabase
       .from('viewings')
-      .select('id,lead_id,scheduled_at,status,leads(id,full_name,phone)')
+      .select('id,lead_id,scheduled_at,status,leads!viewings_lead_id_fkey(id,full_name,phone)')
       .eq('tenant_id', caller.tenantId)
       .eq('asset_id', id)
       .order('scheduled_at', { ascending: false }),
@@ -85,7 +92,7 @@ export const GET = withErrorHandling<RouteContext>(async (request, { params }) =
     supabase
       .from('deal_assets')
       .select(
-        'deal_id,deals(id,status,value,deal_type,closed_at,created_at,responsible_user_id,listing_id,lead_id,leads(id,full_name,phone,source),users!deals_responsible_user_id_fkey(id,full_name),listings(id,listing_number,asking_price,created_at))',
+        'deal_id,deals(id,status,value,deal_type,closed_at,created_at,responsible_user_id,listing_id,lead_id,leads!deals_lead_id_fkey(id,full_name,phone,source),users!deals_responsible_user_id_fkey(id,full_name),listings(id,listing_number,asking_price,created_at))',
       )
       .eq('tenant_id', caller.tenantId)
       .eq('asset_id', id),
