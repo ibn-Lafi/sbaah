@@ -49,5 +49,7 @@ export const config = {
   // (public/marketing/hero-motion.mp4) — بلا هذا الاستثناء كان الطلب
   // يُعاد كتابته إلى `/ar/marketing/hero-motion.mp4` (غير موجود) فيسقط
   // بنفس عطل `not-found.tsx` أعلاه، فيمنع تشغيل الفيديو فعليًا في الإنتاج.
-  matcher: ['/((?!_next/|api/|favicon.ico|robots\\.txt$|sitemap\\.xml$|sw\\.js$|manifest\\.webmanifest$|offline\\.html$|.*\\.(?:svg|png|jpg|jpeg|webp|ico|mp4)$).*)'],
+  // `health` كذلك: فحص صحة Railway (railway.public-site.json) يطلب `/health`
+  // مباشرة، وإعادة كتابته إلى `/ar/health` كانت تُرجع 404.
+  matcher: ['/((?!_next/|api/|health$|favicon.ico|robots\\.txt$|sitemap\\.xml$|sw\\.js$|manifest\\.webmanifest$|offline\\.html$|.*\\.(?:svg|png|jpg|jpeg|webp|ico|mp4)$).*)'],
 };
