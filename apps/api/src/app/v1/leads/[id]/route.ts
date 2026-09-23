@@ -68,7 +68,7 @@ export const GET = withErrorHandling<RouteContext>(async (request, { params }) =
     }
   }
 
-  const hasWonPurchase = (dealsResult.data ?? []).some((deal) => deal.status === 'won');
+  const hasWonPurchase = (dealsResult.data ?? []).some((deal) => deal.status === 'won' && deal.deal_type === 'sale');
   let hasRentalContract = false;
   if (party) {
     const { count, error: rentalRelationshipError } = await supabase
@@ -89,7 +89,7 @@ export const GET = withErrorHandling<RouteContext>(async (request, { params }) =
   const purchasedAssets = Array.from(
     new Map(
       (dealsResult.data ?? [])
-        .filter((deal) => deal.status === 'won')
+        .filter((deal) => deal.status === 'won' && deal.deal_type === 'sale')
         .flatMap((deal) => deal.deal_assets ?? [])
         .filter((link) => link.assets)
         .map((link) => [link.asset_id, link.assets] as const),
