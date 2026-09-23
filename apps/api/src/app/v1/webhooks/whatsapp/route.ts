@@ -1,6 +1,7 @@
 import type { NextRequest } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createHash, timingSafeEqual } from 'node:crypto';
 import { z } from 'zod';
+import { createServiceRoleClient } from '@sbaah/shared';
 import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 
 const MAX_WEBHOOK_BYTES = 64 * 1024;
@@ -11,10 +12,16 @@ const payloadSchema = z.object({
   body: z.string().max(16_000).optional(),
 });
 
+/** Hashing first gives equal-length buffers, so the comparison is constant-time whatever the input length. */
+function hasValidWebhookSecret(supplied: string | null): boolean {
+  const configured = process.env.WHATSAPP_WEBHOOK_SECRET;
+  if (!configured || !supplied) return false;
+  const digest = (value: string) => createHash('sha256').update(value).digest();
+  return timingSafeEqual(digest(configured), digest(supplied));
+}
+
 export const POST = withErrorHandling(async (request: NextRequest) => {
-  const configuredSecret = process.env.WHATSAPP_WEBHOOK_SECRET;
-  const suppliedSecret = request.headers.get('x-sbaah-webhook-secret');
-  if (!configuredSecret || !suppliedSecret || suppliedSecret !== configuredSecret) {
+  if (!hasValidWebhookSecret(request.headers.get('x-sbaah-webhook-secret'))) {
     throw new ApiError(401, 'invalid_webhook_signature', 'Webhook authentication failed');
   }
 
@@ -29,13 +36,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   }
   const body = parsed.data;
 
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !serviceRoleKey) throw new Error('WhatsApp webhook database configuration is missing');
-
-  const supabase = createClient(url, serviceRoleKey, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
+  const supabase = createServiceRoleClient();
 
   const { data: tenant, error: tenantError } = await supabase
     .from('tenants')
