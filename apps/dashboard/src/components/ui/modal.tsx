@@ -19,7 +19,9 @@ export function Modal({ title, onClose, children, maxWidth = '720px', mobileCent
       if (event.key === 'Escape') onClose();
     }
     document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    const previousOverflow=document.body.style.overflow;
+    document.body.style.overflow='hidden';
+    return () => { document.removeEventListener('keydown', handleKeyDown); document.body.style.overflow=previousOverflow; };
   }, [onClose]);
 
   return (
@@ -28,7 +30,7 @@ export function Modal({ title, onClose, children, maxWidth = '720px', mobileCent
       onClick={onClose}
     >
       <div
-        className={`bg-surface-card w-full min-w-0 overflow-x-hidden overflow-y-auto overscroll-contain shadow-[0_20px_60px_rgba(31,29,34,.25)] [scrollbar-gutter:stable] ${mobileCentered ? 'max-h-[86dvh] rounded-card px-4 pb-4 pt-0 sm:max-h-[90vh] sm:p-8' : 'h-[calc(100dvh-8px)] max-h-[calc(100dvh-8px)] rounded-t-[24px] px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-0 sm:h-auto sm:max-h-[90vh] sm:rounded-card sm:p-8'}`}
+        className={`bg-surface-card w-full min-w-0 overflow-x-hidden overflow-y-auto overscroll-contain shadow-[0_20px_60px_rgba(31,29,34,.25)] [scrollbar-gutter:stable] ${mobileCentered ? 'max-h-[calc(100dvh-24px)] rounded-card px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-0 sm:max-h-[90vh] sm:p-8' : 'h-[calc(100dvh-8px)] max-h-[calc(100dvh-8px)] rounded-t-[24px] px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-0 sm:h-auto sm:max-h-[90vh] sm:rounded-card sm:p-8'}`}
         style={{ maxWidth }}
         onClick={(event) => event.stopPropagation()}
       >
