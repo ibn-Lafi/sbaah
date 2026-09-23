@@ -74,11 +74,11 @@ export function MarketingChrome({ locale, children }: { locale: Locale; children
     <>
       <header className={`fixed inset-x-0 top-0 z-50 text-white transition-all duration-300 ${scrolled ? 'border-b border-white/10 bg-brand/95 shadow-lg backdrop-blur-md' : 'border-b border-transparent bg-transparent shadow-none backdrop-blur-none'}`}>
         <div className="mx-auto hidden h-16 max-w-6xl items-center justify-between px-6 lg:flex">
-          <Link href={homeHref} className="flex items-center"><BrandMark label={t.brand} invert className="h-8" /></Link>
+          <Link href={homeHref} className="flex items-center"><BrandMark label={t.brand} invert className="h-9" /></Link>
           <nav className="flex items-center gap-6 text-sm font-medium text-white/90">{navLinks.map((link) => <a key={link.href} href={link.href} className="hover:text-white">{link.label}</a>)}</nav>
           <div className="flex items-center gap-2.5 text-sm font-medium"><Link href={otherLocaleHref} className="flex h-9 w-9 items-center justify-center rounded-xl text-white/90 hover:bg-white/10 hover:text-white" aria-label={t.nav.languageSwitch}><GlobeIcon className="h-4 w-4" /></Link><ThemeToggle labels={t.nav} className="h-9 w-9 rounded-xl" /><a href={`${dashboardUrl}/login`} className="inline-flex h-9 items-center rounded-xl border border-white/30 px-4 text-white transition-colors hover:bg-white/10">{t.nav.login}</a><a href={`${dashboardUrl}/register`} className="text-brand inline-flex h-9 items-center rounded-xl bg-white px-4 font-semibold transition-colors hover:bg-white/90">{t.nav.cta}</a></div>
         </div>
-        <div dir="ltr" className="flex h-16 w-full items-center justify-between px-4 lg:hidden"><div className="flex min-w-0 items-center gap-2"><a href={`${dashboardUrl}/register`} dir={locale === 'ar' ? 'rtl' : 'ltr'} className="text-brand flex h-7 flex-none items-center whitespace-nowrap rounded-[9px] bg-white px-3 text-xs font-semibold leading-none shadow-sm transition-colors hover:bg-white/90">{t.nav.cta}</a><a href={`${dashboardUrl}/login`} dir={locale === 'ar' ? 'rtl' : 'ltr'} className="flex h-7 flex-none items-center whitespace-nowrap rounded-[9px] border border-white/35 px-3 text-xs font-semibold leading-none text-white transition-colors hover:bg-white/10">{t.nav.login}</a></div><Link href={homeHref} aria-label={t.brand} className="flex h-9 flex-none items-center justify-center"><BrandMark label={t.brand} invert className="h-7 max-[359px]:h-6" /></Link></div>
+        <div dir="ltr" className="flex h-16 w-full items-center justify-between px-4 lg:hidden"><div className="flex min-w-0 items-center gap-2"><a href={`${dashboardUrl}/register`} dir={locale === 'ar' ? 'rtl' : 'ltr'} className="text-brand flex h-7 flex-none items-center whitespace-nowrap rounded-[9px] bg-white px-3 text-xs font-semibold leading-none shadow-sm transition-colors hover:bg-white/90">{t.nav.cta}</a><a href={`${dashboardUrl}/login`} dir={locale === 'ar' ? 'rtl' : 'ltr'} className="flex h-7 flex-none items-center whitespace-nowrap rounded-[9px] border border-white/35 px-3 text-xs font-semibold leading-none text-white transition-colors hover:bg-white/10">{t.nav.login}</a></div><Link href={homeHref} aria-label={t.brand} className="flex h-9 flex-none items-center justify-center"><BrandMark label={t.brand} invert className="h-8 max-[359px]:h-7" /></Link></div>
       </header>
       <div className="h-16" />
       <main>{children}</main>
@@ -89,7 +89,7 @@ export function MarketingChrome({ locale, children }: { locale: Locale; children
           <div aria-hidden="true" className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/marketing/footer-silk.svg')" }} />
           <div aria-hidden="true" className="absolute inset-0 bg-[#321846]/20" />
           <div className="relative flex flex-col items-center px-6 py-12 text-center sm:px-10 sm:py-16">
-            <BrandMark label={t.brand} invert className="h-14 sm:h-16" />
+            <BrandMark label={t.brand} invert className="h-16 sm:h-[72px]" />
             <p className="mt-4 max-w-xl text-sm leading-7 text-white/75 sm:text-base">{(locale === 'ar' ? platformSettings?.footer_tagline_ar : platformSettings?.footer_tagline_en)?.trim() || t.footer.tagline}</p>
 
             <div className="mt-10">
