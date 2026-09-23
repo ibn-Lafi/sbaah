@@ -11,6 +11,7 @@ const ibmPlexSansArabic = IBM_Plex_Sans_Arabic({
 
 export const metadata: Metadata = {
   title: 'سبعة — إدارة المنصة',
+  icons: { icon: '/icon.svg', shortcut: '/icon.svg', apple: '/icon.svg' },
   robots: { index: false, follow: false },
 };
 
