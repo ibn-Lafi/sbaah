@@ -58,6 +58,14 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   await assertOptionalTenantOwnedRow({ supabase, table: 'parties', id: input.payer_party_id, tenantId: caller.tenantId, label: 'الدافع' });
 
   const { allocations = [], ...payment } = input;
+  if (allocations.length) {
+    const ids=[...new Set(allocations.map(allocation=>allocation.installment_id))];
+    const {data:installments,error:installmentsError}=await supabase.from('lease_installments').select('id,contract_id,amount').eq('tenant_id',caller.tenantId).in('id',ids);
+    if(installmentsError)throw new Error(`Failed to validate payment installments: ${installmentsError.message}`);
+    if((installments??[]).length!==ids.length||(installments??[]).some(installment=>installment.contract_id!==input.contract_id))throw new ApiError(400,'payment_installment_contract_mismatch','أحد الاستحقاقات لا يتبع عقد الإيجار المحدد');
+    const allocated=allocations.reduce((sum,allocation)=>sum+allocation.amount,0);
+    if(allocated>input.amount)throw new ApiError(400,'payment_allocation_exceeds_amount','إجمالي توزيع الدفعة يتجاوز مبلغ الدفعة');
+  }
   const { data, error } = await supabase.rpc('record_lease_payment', { p_payment: payment, p_allocations: allocations }).single();
   if (error) throw new Error(`Failed to record lease payment: ${error.message}`);
   return okResponse({ payment: data }, 201);
