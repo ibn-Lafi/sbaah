@@ -41,9 +41,9 @@ export default function DashboardHomePage() {
   }, [accessToken]);
 
   const setupTasks = [
-    { label: 'أكمل بيانات الموقع', href: '/settings?tab=site', done: Boolean(me.tenant.fal_license_number) },
+    { label: 'أكمل بيانات الموقع', href: '/settings?tab=organization', done: Boolean(me.tenant.fal_license_number) },
     { label: 'أضف أول عقار', href: '/properties/new', done: (summary?.properties.total ?? 0) > 0 },
-    { label: 'أضف حسابات التواصل', href: '/settings?tab=site', done: Boolean(me.tenant.social_whatsapp || me.tenant.social_instagram || me.tenant.social_tiktok || me.tenant.social_snapchat || me.tenant.social_facebook || me.tenant.social_x || me.tenant.social_telegram) },
+    { label: 'أضف حسابات التواصل', href: '/settings?tab=contact', done: Boolean(me.tenant.social_whatsapp || me.tenant.social_phone || me.tenant.social_instagram || me.tenant.social_tiktok || me.tenant.social_snapchat) },
     { label: 'خصّص موقعك العقاري', href: '/website', done: websiteCustomized },
   ];
   const completedSetup = setupTasks.filter((task) => task.done).length;
