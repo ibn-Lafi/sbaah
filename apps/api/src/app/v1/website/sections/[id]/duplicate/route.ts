@@ -20,10 +20,15 @@ export const POST = withErrorHandling<RouteContext>(async (request, { params }) 
   const caller = await getCallerContext(supabase);
   assertNotAgent(caller.role);
 
+  const {data:website,error:websiteError}=await supabase.from('websites').select('id').eq('tenant_id',caller.tenantId).maybeSingle();
+  if(websiteError)throw new Error(`Failed to resolve website: ${websiteError.message}`);
+  if(!website)throw new ApiError(404,'website_not_found','الموقع غير موجود');
+
   const { data: original, error: fetchError } = await supabase
     .from('website_sections')
     .select('website_id, page_id, type, is_visible, config')
     .eq('id', id)
+    .eq('website_id',website.id)
     .maybeSingle();
   if (fetchError) {
     throw new Error(`Failed to load section: ${fetchError.message}`);
