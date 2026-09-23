@@ -1,9 +1,12 @@
 /** Official Sbaah horizontal lockup. Size it by height and always preserve the SVG's native aspect ratio. */
 export function BrandMark({
+  width: _legacyWidth,
   height = 24,
   invert = false,
   className = '',
 }: {
+  /** @deprecated The official lockup is height-driven; retained for call-site compatibility. */
+  width?: number;
   height?: number;
   invert?: boolean;
   className?: string;
