@@ -52,8 +52,11 @@ const agentPermissions: readonly Permission[] = [
   // mutation is owner/admin-only in the API and database policies.
   'properties.read',
   'projects.read',
-  // CRM work is limited to records assigned to the agent.
+  // CRM work is limited to records assigned to the agent. `crm.create`
+  // means creating workflow records (interest/viewing/task/deal/reservation)
+  // for that assigned lead; manual lead creation remains separately blocked.
   'crm.read',
+  'crm.create',
   'crm.update',
   'reports.read',
 ];
