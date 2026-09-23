@@ -30,7 +30,15 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
   if (source) query = query.eq('source', source);
   if (assigned_agent_id && !isAssignedScope(grant)) query = query.eq('assigned_agent_id', assigned_agent_id);
 
-  const { data, error } = await query.order('created_at', { ascending: false });
+  // The common list path does not need customer classification across the
+  // tenant's entire history. Page it in Postgres first; only the explicit
+  // customer/prospect filter needs the full relationship classification
+  // below to preserve its current total/filter semantics.
+  const from = (page - 1) * page_size;
+  const listQuery = customer_kind
+    ? query.order('created_at', { ascending: false })
+    : query.order('created_at', { ascending: false }).range(from, from + page_size - 1);
+  const { data, error, count } = await listQuery;
   if (error) throw new Error(`Failed to list leads: ${error.message}`);
 
   const leadRows = data ?? [];
@@ -78,10 +86,9 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     };
   });
   const filtered = customer_kind ? classified.filter((lead) => lead.customer_kind === customer_kind) : classified;
-  const from = (page - 1) * page_size;
-  const paged = filtered.slice(from, from + page_size);
+  const paged = customer_kind ? filtered.slice(from, from + page_size) : filtered;
 
-  return okResponse({ leads: paged, page, page_size, total: filtered.length });
+  return okResponse({ leads: paged, page, page_size, total: customer_kind ? filtered.length : (count ?? 0) });
 });
 
 export const POST = withErrorHandling(async (request: NextRequest) => {
