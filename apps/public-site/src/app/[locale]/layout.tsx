@@ -43,6 +43,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   if (await isMarketingHost()) {
     return {
       title: MARKETING_CONTENT[locale].brand,
+      icons: { icon: '/icon.svg', shortcut: '/icon.svg', apple: '/icon.svg' },
+      appleWebApp: { title: 'سبعة', statusBarStyle: 'default' },
       alternates: requestOrigin ? await buildLocalizedAlternates(locale, pathname, requestOrigin) : undefined,
     };
   }
@@ -56,7 +58,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     ? canonicalTenantOrigin(requestOrigin, result.site.tenant.custom_domain)
     : undefined;
 
-  const faviconUrl = result.site.website.favicon_url || result.site.website.logo_url || '/icon.png';
+  const faviconUrl = result.site.website.favicon_url || result.site.website.logo_url || '/icon.svg';
 
   return {
     title: locale === 'ar' ? result.site.tenant.name_ar : result.site.tenant.name_en,
