@@ -13,7 +13,6 @@ const FEATURES = [
   { ar: 'المعاينات', en: 'Viewings', platinum: 'yes', gold: 'yes' },
   { ar: 'المشاريع العقارية', en: 'Real estate projects', platinum: 'no', gold: 'yes' },
   { ar: 'التقارير والإحصائيات المتقدمة', en: 'Advanced reports & analytics', platinum: 'basic', gold: 'yes' },
-  { ar: 'Google Analytics', en: 'Google Analytics', platinum: 'no', gold: 'yes' },
   { ar: 'الدومين المخصص', en: 'Custom domain', platinum: 'no', gold: 'yes' },
 ] as const;
 

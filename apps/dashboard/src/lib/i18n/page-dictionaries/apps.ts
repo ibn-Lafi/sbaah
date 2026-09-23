@@ -11,12 +11,6 @@ export const appsAr = {
       category: 'التواصل والدردشة',
       price: 'مجاني',
     },
-    googleanalytics: {
-      name: 'Google Analytics',
-      description: 'خدمة تمكنك من جمع وتحليل البيانات وتحليل زوار متجرك بسهولة وسلاسة',
-      category: 'التحليلات والتقارير',
-      price: 'مجاني',
-    },
     mailchimp: {
       name: 'Mailchimp',
       description: 'أرسل حملات بريدية احترافية لعملائك المحتملين وتابع أداءها بسهولة',
@@ -55,12 +49,6 @@ export const appsEn: typeof appsAr = {
       name: 'WhatsApp Business',
       description: 'Reach your leads directly on WhatsApp from your site pages',
       category: 'Communication & Chat',
-      price: 'Free',
-    },
-    googleanalytics: {
-      name: 'Google Analytics',
-      description: 'Collect and analyze data about your site visitors easily and smoothly',
-      category: 'Analytics & Reports',
       price: 'Free',
     },
     mailchimp: {

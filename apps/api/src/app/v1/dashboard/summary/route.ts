@@ -1,6 +1,5 @@
 import type { NextRequest } from 'next/server';
-import { LEAD_SOURCES, createServiceRoleClient, type LeadSource } from '@sbaah/shared';
-import { refreshGoogleAccessToken, runAnalyticsReport } from '@/lib/google-analytics/oauth';
+import { LEAD_SOURCES, type LeadSource } from '@sbaah/shared';
 import { okResponse, withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
@@ -79,39 +78,6 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
 
   const conversionRate = leadsTotal && leadsTotal > 0 ? Math.round(((leadsWon ?? 0) / leadsTotal) * 1000) / 10 : 0;
 
-  // Google metrics are optional. A disconnected/revoked Google account must
-  // never break the home dashboard; Google-sourced values simply stay zero.
-  let siteAnalytics: {
-    connected: boolean;
-    available: boolean;
-    visitors: number | null;
-    sessions: number | null;
-    page_views: number | null;
-    daily: { date: string; visitors: number; sessions: number; page_views: number }[];
-  } = { connected: false, available: false, visitors: null, sessions: null, page_views: null, daily: [] };
-  if (caller.role === 'owner' || caller.role === 'admin') {
-    try {
-      const serviceRole = createServiceRoleClient();
-      const { data: integration } = await serviceRole
-        .from('tenant_integrations')
-        .select('status, external_property_id, oauth_refresh_token_ciphertext')
-        .eq('tenant_id', caller.tenantId)
-        .eq('provider', 'google_analytics')
-        .maybeSingle();
-      if (integration?.status === 'connected') siteAnalytics.connected = true;
-      if (integration?.status === 'connected' && integration.external_property_id && integration.oauth_refresh_token_ciphertext) {
-        const googleAccessToken = await refreshGoogleAccessToken(integration.oauth_refresh_token_ciphertext);
-        const report = await runAnalyticsReport(googleAccessToken, integration.external_property_id, 30);
-        siteAnalytics = { connected: true, available: true, ...report };
-      }
-    } catch (error) {
-      console.error('Google Analytics dashboard summary unavailable', error);
-      // Preserve the distinction between "connected but temporarily unavailable"
-      // and "not connected"; never present missing analytics as a real zero.
-      siteAnalytics.available = false;
-    }
-  }
-
   return okResponse({
     properties: {
       total: propertiesTotal ?? 0,
@@ -127,7 +93,6 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
       conversion_rate: conversionRate,
     },
     property_views: null,
-    site_analytics: siteAnalytics,
     latest_leads: latestLeadsResult.data,
   });
 });

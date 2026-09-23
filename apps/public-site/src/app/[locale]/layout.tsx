@@ -141,7 +141,6 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   }
 
   const { site } = result;
-  const analyticsId = safeGoogleAnalyticsId(site.google_analytics_measurement_id);
   const font = resolveWebsiteFont(site.website.font_family);
   const tenantName = locale === 'ar' ? site.tenant.name_ar : site.tenant.name_en;
   const { Header, Footer } = getThemeComponents(site.website.theme_key);
@@ -183,17 +182,6 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
       }
     >
       <body className={font.className}>
-        {analyticsId && (
-          <>
-            <Script
-              src={`https://www.googletagmanager.com/gtag/js?id=${analyticsId}`}
-              strategy="afterInteractive"
-            />
-            <Script id="sbaah-google-analytics" strategy="afterInteractive">
-              {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config',${JSON.stringify(analyticsId)});`}
-            </Script>
-          </>
-        )}
         <Header locale={locale} dict={dict} website={site.website} tenantName={tenantName} otherLocaleHref={otherLocaleHref} />
 
         <main>{children}</main>

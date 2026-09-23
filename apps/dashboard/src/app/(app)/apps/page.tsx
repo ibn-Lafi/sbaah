@@ -1,20 +1,17 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { AppShell } from '@/components/layout/app-shell';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { useLocale } from '@/lib/i18n/locale-context';
 import type { PageDictionaries } from '@/lib/i18n/page-dictionaries';
-import { GoogleAnalyticsInstallButton } from '@/components/apps/google-analytics-install-button';
-import { getGoogleAnalyticsIntegration } from '@/lib/api/google-analytics';
 
 /**
  * سوق التطبيقات — شبكة بطاقات (نفس نمط تصميم المؤسس: أيقونة الشعار الرسمي +
  * اسم + وصف + تصنيف + سعر + زر "أضف التطبيق")، وليست سوقًا فعليًا
- * واتساب يفتح إعداداته الحالية، وGoogle Analytics يملك تدفق تثبيت فعليًا
- * خاصًا بكل tenant. أي تطبيق غير موصول فعليًا يبقى "قريبًا" بدل إظهار
- * حالة اتصال غير حقيقية.
+ * واتساب يفتح إعداداته الحالية. أي تطبيق غير موصول فعليًا يبقى "قريبًا"
+ * بدل إظهار حالة اتصال غير حقيقية.
  *
  * الأيقونات: شعارات رسمية (حزمة simple-icons، CC0) محفوظة بـ
  * public/app-icons — بلونها الرسمي. البطاقات ذات الألوان الفاتحة جدًا
@@ -31,7 +28,6 @@ interface AppConfig {
 
 const APPS: AppConfig[] = [
   { slug: 'whatsapp', tile: 'light', connected: true },
-  { slug: 'googleanalytics', tile: 'light', connected: false },
 ];
 
 function SearchIcon({ className }: { className?: string }) {
@@ -68,14 +64,10 @@ function AppCard({
   app,
   entry,
   t,
-  accessToken,
-  locale,
 }: {
   app: AppConfig;
   entry: PageDictionaries['apps']['apps'][AppSlug];
   t: PageDictionaries['apps'];
-  accessToken: string;
-  locale: 'ar' | 'en';
 }) {
   const [justClicked, setJustClicked] = useState(false);
 
@@ -88,9 +80,7 @@ function AppCard({
         {entry.category}
       </span>
       <div className="mt-1 flex items-center justify-between gap-2">
-        {app.slug === 'googleanalytics' ? (
-          <GoogleAnalyticsInstallButton accessToken={accessToken} locale={locale} label={t.addApp} />
-        ) : app.connected ? (
+        {app.connected ? (
           <Link
             href="/settings"
             className="border-border-default text-text-primary hover:bg-surface-card flex items-center gap-1.5 rounded-full border px-4 py-2 text-[13px] font-semibold"
@@ -120,26 +110,12 @@ function AppCard({
 }
 
 export default function AppsPage() {
-  const { me, accessToken } = useCurrentUser();
+  const { me } = useCurrentUser();
   const { pages, locale } = useLocale();
   const t = pages.apps;
   const [query, setQuery] = useState('');
-  const [googleInstalled, setGoogleInstalled] = useState(false);
 
-  useEffect(() => {
-    let active = true;
-    getGoogleAnalyticsIntegration(accessToken)
-      .then((integration) => {
-        if (active) setGoogleInstalled(integration.installed);
-      })
-      .catch(() => undefined);
-    return () => { active = false; };
-  }, [accessToken]);
-
-  const installedApps = useMemo(
-    () => APPS.filter((app) => app.slug === 'whatsapp' ? app.connected : app.slug === 'googleanalytics' ? googleInstalled : false),
-    [googleInstalled],
-  );
+  const installedApps = useMemo(() => APPS.filter((app) => app.connected), []);
 
   const visibleApps = useMemo(
     () =>
@@ -174,7 +150,7 @@ export default function AppsPage() {
           <div className="flex gap-4 overflow-x-auto pb-1">
             {installedApps.map((app) => (
               <div key={app.slug} className="min-w-[280px] max-w-[360px] flex-1">
-                <AppCard app={app} entry={t.apps[app.slug]} t={t} accessToken={accessToken} locale={locale} />
+                <AppCard app={app} entry={t.apps[app.slug]} t={t} />
               </div>
             ))}
           </div>
@@ -186,7 +162,7 @@ export default function AppsPage() {
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {visibleApps.map((app) => (
-            <AppCard key={app.slug} app={app} entry={t.apps[app.slug]} t={t} accessToken={accessToken} locale={locale} />
+            <AppCard key={app.slug} app={app} entry={t.apps[app.slug]} t={t} />
           ))}
         </div>
       )}

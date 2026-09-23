@@ -47,7 +47,7 @@ This file records only findings supported by inspected code or observed test/bui
 | A1-028 | P2 | Security | Notification email | Public lead names interpolated into HTML emails unescaped. | HTML-escape every user value. | FIXED 6b6be23 |
 | A1-029 | P2 | Operations | public-site health | Middleware rewrote `/health` to `/ar/health` → 404, while `railway.public-site.json` uses it as the healthcheck. | Excluded from the locale rewrite. | FIXED c788c9d (Railway config NOT VERIFIED) |
 | A1-030 | P2 | Business logic | Plan limits | `plans.max_properties` is not enforced anywhere since the real-estate core cutover. | Needs a product decision on what counts (assets incl. project units vs listings) and on tenants already above their limit. | OPEN — product decision |
-| A1-031 | P3 | Reliability | Outbound calls | Google OAuth/Analytics and Cloudflare calls had no timeout (dashboard home awaits Google). | 10–15 s timeouts. | FIXED d3e6116 |
+| A1-031 | P3 | Reliability | Outbound calls | Google OAuth/Analytics and Cloudflare calls had no timeout (dashboard home awaits Google). | 10–15 s timeouts. | FIXED d3e6116, then the Google Analytics calls removed entirely — see A4-002 |
 | A1-032 | P3 | Data | Support tracking | Ticket lookup used ILIKE, so `_` in an email matched any character. | Exact match on the lowercased email. | FIXED 02c51ac |
 | A1-033 | P3 | UX | Setup checklist | Linked to `/settings?tab=site`, which does not exist; settings ignored `?tab=`. | Real tab targets; deep links honored. | FIXED 36807f3 |
 | A1-034 | P3 | Accessibility | Public footer | Icon-only social links had no accessible name. | `aria-label` per network. | FIXED a36dc7b |
@@ -101,6 +101,14 @@ The founder decided to remove the WhatsApp click-to-lead tracking, the inbound-m
 | ID | Severity | Category | Area | Change | Status |
 |---|---|---|---|---|---|
 | A4-001 | — | Removal | WhatsApp click tracking, inbound webhook, AI bot code | Deleted `POST /v1/public/whatsapp-click` and `POST /v1/webhooks/whatsapp` (route files, their Zod schema, their rate-limit bucket, `WHATSAPP_WEBHOOK_SECRET`), and `apps/api/src/lib/ai/` (`inventory-tools.ts`, `handoff.ts` — never imported by any route). 0115 drops `whatsapp_conversations`, `whatsapp_messages` and the `conversation_status` enum. | REMOVED |
+
+## Audit #4 continued — Google Analytics removed by product decision (both integrations)
+
+Neither Google Analytics integration ever reached real use: no tenant ever installed the apps-marketplace "app" (it required a manual OAuth completion no tenant went through), and the founder never completed the console/platform connection either. The founder decided to remove both rather than keep dormant, unfinished features. Sbaah's own marketing-site GA tag (`NEXT_PUBLIC_MARKETING_GA_MEASUREMENT_ID`, a plain client-side gtag.js snippet, unrelated to either integration) is untouched.
+
+| ID | Severity | Category | Area | Change | Status |
+|---|---|---|---|---|---|
+| A4-002 | — | Removal | Google Analytics (tenant app + console/platform connection) | Deleted `apps/api/src/app/v1/integrations/google-analytics/*`, `apps/api/src/app/v1/console/analytics/google/*`, and the shared `apps/api/src/lib/google-analytics/oauth.ts` (used by nothing else — no separate "Google login" auth feature exists). Removed the dashboard's install-button component, its API client, the apps-marketplace card, the dead `site_analytics` field `GET /v1/dashboard/summary` returned (never rendered anywhere), the tenant-side GA `<Script>` tag and `google_analytics_measurement_id` field in public-site, the console's "أداء صفحة الهبوط" card, and the "Google Analytics" row from the plan comparison table. 0116 drops `tenant_integrations` (its `provider` column only ever allowed `'google_analytics'`, so the whole table existed for this feature alone), `google_analytics_oauth_states`, `platform_google_analytics` and `platform_google_analytics_oauth_states`. | REMOVED |
 
 ## Evidence rules
 
