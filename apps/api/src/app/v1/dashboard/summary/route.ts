@@ -36,23 +36,23 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     leadsBySourceResults,
     latestLeadsResult,
   ] = await Promise.all([
-    supabase.from('assets').select('id', { count: 'exact', head: true }).is('archived_at', null),
-    supabase.from('listings').select('id', { count: 'exact', head: true }).eq('publication_status', 'published'),
+    supabase.from('assets').select('id', { count: 'exact', head: true }).eq('tenant_id',caller.tenantId).is('archived_at', null),
+    supabase.from('listings').select('id', { count: 'exact', head: true }).eq('tenant_id',caller.tenantId).eq('publication_status', 'published'),
     supabase
       .from('listings')
       .select('id', { count: 'exact', head: true })
       .eq('publication_status', 'published')
       .gte('published_at', startOfMonthIso),
-    supabase.from('leads').select('id', { count: 'exact', head: true }),
-    supabase.from('leads').select('id', { count: 'exact', head: true }).gte('created_at', startOfMonthIso),
-    supabase.from('leads').select('id', { count: 'exact', head: true }).eq('status', 'won'),
+    supabase.from('leads').select('id', { count: 'exact', head: true }).eq('tenant_id',caller.tenantId),
+    supabase.from('leads').select('id', { count: 'exact', head: true }).eq('tenant_id',caller.tenantId).gte('created_at', startOfMonthIso),
+    supabase.from('leads').select('id', { count: 'exact', head: true }).eq('tenant_id',caller.tenantId).eq('status', 'won'),
     // "Overdue follow-up" — a lead whose follow_up_at has passed and isn't won/lost yet.
-    supabase.from('leads').select('id', { count: 'exact', head: true }).lt('follow_up_at', nowIso).not('status', 'in', '(won,lost)'),
-    Promise.all(LEAD_SOURCES.map((source) => supabase.from('leads').select('id', { count: 'exact', head: true }).eq('source', source))),
+    supabase.from('leads').select('id', { count: 'exact', head: true }).eq('tenant_id',caller.tenantId).lt('follow_up_at', nowIso).not('status', 'in', '(won,lost)'),
+    Promise.all(LEAD_SOURCES.map((source) => supabase.from('leads').select('id', { count: 'exact', head: true }).eq('tenant_id',caller.tenantId).eq('source', source))),
     // property_views has no select policy at all for Agent (migration
     // 0005) — represent that as "not applicable" rather than a
     // misleading 0 from an RLS-filtered-to-empty query.
-    supabase.from('leads').select('id, full_name, source, status, created_at').order('created_at', { ascending: false }).limit(5),
+    supabase.from('leads').select('id, full_name, source, status, created_at').eq('tenant_id',caller.tenantId).order('created_at', { ascending: false }).limit(5),
   ]);
 
   const firstError = [
