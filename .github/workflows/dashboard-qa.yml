@@ -29,6 +29,8 @@ jobs:
         run: pnpm typecheck
       - name: Lint all workspaces
         run: pnpm lint
+      - name: Unit tests
+        run: pnpm test
       - name: Check formatting baseline
         continue-on-error: true
         run: pnpm format:check
@@ -36,3 +38,43 @@ jobs:
         run: pnpm audit --prod --audit-level high
       - name: Build all applications
         run: pnpm build
+
+  # Replays every migration onto plain Postgres with Supabase-like roles, then
+  # checks the authorization matrix in SQL and through the real API.
+  database-and-api:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: localhost
+      PGPORT: 5432
+      PGUSER: postgres
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.34.5
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.20.2
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: RLS and privilege regression
+        run: supabase/tests/run.sh
+      - name: Build API
+        run: pnpm --filter @sbaah/api build
+      - name: API end-to-end authorization tests
+        run: tests/e2e/run.sh

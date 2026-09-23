@@ -1,0 +1,13 @@
+{
+  "name": "@sbaah/e2e",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "API end-to-end authorization tests against PostgREST and a GoTrue stand-in",
+  "scripts": {
+    "e2e": "./run.sh"
+  },
+  "dependencies": {
+    "pg": "^8.13.1"
+  }
+}
