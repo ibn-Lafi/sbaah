@@ -40,9 +40,9 @@ function SectionLink({ href, children }: { href: string; children: string }) {
 }
 
 export async function FeaturedPropertiesSection({ locale, config }: { locale: Locale; config: FeaturedPropertiesSectionConfig }) {
-  const [result, cities] = await Promise.all([listPublicProperties({}), listCities()]);
+  const [result, cities] = await Promise.all([listPublicProperties({page_size:100}), listCities()]);
   const selectedIds = new Set(config.property_ids ?? []);
-  const items = (selectedIds.size ? result.properties.filter((property) => selectedIds.has(property.id)) : result.properties).slice(0, 6);
+  const items = (selectedIds.size ? result.properties.filter((property) => selectedIds.has(property.asset_id)) : result.properties).slice(0, 6);
   const citiesById = new Map(cities.map((city) => [city.id, city]));
   return (
     <ClassicSection className={classicToneClass(config.tone)}>
@@ -53,7 +53,7 @@ export async function FeaturedPropertiesSection({ locale, config }: { locale: Lo
 }
 
 export async function LatestPropertiesSection({ locale, config }: { locale: Locale; config: LatestPropertiesSectionConfig }) {
-  const [result, cities] = await Promise.all([listPublicProperties({}), listCities()]);
+  const [result, cities] = await Promise.all([listPublicProperties({page_size:12}), listCities()]);
   const citiesById = new Map(cities.map((city) => [city.id, city]));
   const items = result.properties.slice(0, Math.min(Math.max(config.limit ?? 6, 1), 12));
   return (
@@ -77,7 +77,7 @@ export async function ProjectsShowcaseSection({ locale, config }: { locale: Loca
 }
 
 export async function PropertiesByCitySection({ locale, config }: { locale: Locale; config: PropertiesByCitySectionConfig }) {
-  const [cities, propertyResult] = await Promise.all([listCities(), listPublicProperties({})]);
+  const [cities, propertyResult] = await Promise.all([listCities(), listPublicProperties({page_size:100})]);
   const inventoryCityIds = new Set(propertyResult.properties.map((property) => property.city_id));
   const configuredIds = new Set(config.city_ids ?? []);
   const selected = cities
