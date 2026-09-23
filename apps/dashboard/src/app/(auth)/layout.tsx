@@ -40,8 +40,8 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
   return (
     <div className="flex h-dvh overflow-hidden">
       <AuthPanel />
-      <div className="flex min-h-0 min-w-0 flex-1 items-center justify-center p-6">
-        <Card className="flex max-h-full w-full max-w-[440px] flex-col overflow-y-auto overscroll-contain p-8">
+      <div className="flex min-h-0 min-w-0 flex-1 items-center justify-center overflow-y-auto p-4 sm:p-6 lg:overflow-hidden">
+        <Card className="my-auto flex max-h-full w-full max-w-[440px] flex-col overflow-y-auto overscroll-contain p-6 sm:p-8 lg:max-h-none lg:overflow-visible">
           <div className="mb-4 flex flex-none items-center justify-end gap-2">
             <ThemeToggle variant="surface" />
             <LanguageToggle variant="surface" iconOnly />
