@@ -35,17 +35,18 @@ export const GET=withErrorHandling<RouteContext>(async(request,{params})=>{
   const inventory=await Promise.all((assets??[]).map(async asset=>{
     const [{data:availability,error:availabilityError},{data:listingLinks,error:listingError},{data:dealLinks,error:dealError}]=await Promise.all([
       supabase.rpc('get_asset_commercial_availability',{p_tenant_id:caller.tenantId,p_asset_id:asset.id}).maybeSingle(),
-      supabase.from('listing_assets').select('listing_id,listings(id,listing_type,asking_price,publication_status,commercial_status)').eq('tenant_id',caller.tenantId).eq('asset_id',asset.id),
+      supabase.from('listing_assets').select('listing_id,listings(id,listing_type,asking_price,publication_status,commercial_status,created_at)').eq('tenant_id',caller.tenantId).eq('asset_id',asset.id),
       supabase.from('deal_assets').select('deal_id,deals(id,status,deal_type,value,closed_at,created_at)').eq('tenant_id',caller.tenantId).eq('asset_id',asset.id),
     ]);
     if(availabilityError)throw new Error(availabilityError.message);
     if(listingError)throw new Error(listingError.message);
     if(dealError)throw new Error(dealError.message);
-    const saleListings=(listingLinks??[]).flatMap(x=>Array.isArray(x.listings)?x.listings:(x.listings?[x.listings]:[])).filter(x=>x.listing_type==='sale');
+    const saleListings=(listingLinks??[]).flatMap(x=>Array.isArray(x.listings)?x.listings:(x.listings?[x.listings]:[])).filter(x=>x.listing_type==='sale').sort((a,b)=>new Date(b.created_at).getTime()-new Date(a.created_at).getTime());
+    const currentSaleListing=saleListings.find(x=>x.publication_status!=='archived'&&x.commercial_status!=='closed')??saleListings[0]??null;
     const deals=(dealLinks??[]).flatMap(x=>Array.isArray(x.deals)?x.deals:(x.deals?[x.deals]:[]));
     const wonSale=deals.find(x=>x.status==='won'&&x.deal_type==='sale')??null;
     const activeSaleDeal=deals.find(x=>(x.status==='open'||x.status==='negotiation')&&x.deal_type==='sale')??null;
-    return {...asset,availability,sale_listings:saleListings,won_sale:wonSale,active_sale_deal:activeSaleDeal};
+    return {...asset,availability,sale_listings:saleListings,current_sale_listing:currentSaleListing,won_sale:wonSale,active_sale_deal:activeSaleDeal};
   }));
   const summary=inventory.reduce((acc,item)=>{
     acc.total+=1;
@@ -55,14 +56,14 @@ export const GET=withErrorHandling<RouteContext>(async(request,{params})=>{
     else if(status==='reserved')acc.reserved+=1;
     else if(status==='negotiation')acc.negotiation+=1;
     else if(status==='available')acc.available+=1;
-    const listing=item.sale_listings[0];
+    const listing=item.current_sale_listing;
     if(listing?.asking_price!=null)acc.asking_value+=Number(listing.asking_price);
     if(item.won_sale?.value!=null)acc.sold_value+=Number(item.won_sale.value);
     return acc;
   },{total:0,available:0,reserved:0,negotiation:0,sold:0,asking_value:0,sold_value:0});
   const wonSales=inventory.filter(item=>item.won_sale);
   const closeDurations=wonSales.map(item=>{const deal=item.won_sale;if(!deal?.closed_at||!deal.created_at)return null;return Math.max(0,(new Date(deal.closed_at).getTime()-new Date(deal.created_at).getTime())/86400000);}).filter((value):value is number=>value!=null);
-  const soldAskingValue=wonSales.reduce((sum,item)=>sum+(item.sale_listings[0]?.asking_price!=null?Number(item.sale_listings[0].asking_price):0),0);
+  const soldAskingValue=wonSales.reduce((sum,item)=>sum+(item.current_sale_listing?.asking_price!=null?Number(item.current_sale_listing.asking_price):0),0);
   const analytics={
     revenue:summary.sold_value,
     average_sale_price:wonSales.length?summary.sold_value/wonSales.length:0,
@@ -70,6 +71,11 @@ export const GET=withErrorHandling<RouteContext>(async(request,{params})=>{
     sell_through_rate:summary.total?summary.sold/summary.total:0,
     negotiation_rate:summary.total?summary.negotiation/summary.total:0,
     asking_to_sale_ratio:soldAskingValue?summary.sold_value/soldAskingValue:0,
+    sold_units:wonSales.length,
+    listed_units:inventory.filter(item=>item.current_sale_listing!=null).length,
+    unlisted_units:inventory.filter(item=>item.current_sale_listing==null).length,
+    reserved_rate:summary.total?summary.reserved/summary.total:0,
+    available_rate:summary.total?summary.available/summary.total:0,
   };
   return okResponse({project,summary,analytics,funnel,inventory});
 });
