@@ -126,10 +126,10 @@ export function updateMyEmail(accessToken: string, email: string | null) {
 export function updateMyProfile(accessToken: string, input: { full_name?: string }) {
   return apiPatch<{ user: MeResponse['user'] }>('/auth/me', input, accessToken);
 }
-export function sendProfileChangeOtp(input: { phone: string } | { email: string }) {
+export function sendProfileChangeOtp(accessToken: string, input: { phone: string } | { email: string }) {
   return 'phone' in input
-    ? apiPost<{status:'sent'}>('/auth/otp/send',{channel:'sms',phone:input.phone,purpose:'change_phone'})
-    : apiPost<{status:'sent'}>('/auth/otp/send',{channel:'email',email:input.email,purpose:'change_email'});
+    ? apiPost<{status:'sent'}>('/auth/otp/send',{channel:'sms',phone:input.phone,purpose:'change_phone'},accessToken)
+    : apiPost<{status:'sent'}>('/auth/otp/send',{channel:'email',email:input.email,purpose:'change_email'},accessToken);
 }
 export function verifyProfileChange(accessToken:string,input:({phone:string}|{email:string})&{code:string}) {
   return 'phone' in input

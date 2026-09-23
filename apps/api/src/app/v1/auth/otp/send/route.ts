@@ -4,10 +4,15 @@ import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { sendOtpSms } from '@/lib/authentica/client';
 import { sendEmail } from '@/lib/email/send';
 import { otpCodeEmail } from '@/lib/email/templates';
+import { accountDisabledError, getCallerContext } from '@/lib/auth/get-caller-context';
+import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { generateOtpCode } from '@/lib/otp/generate-code';
 import { hashEmailOtpCode } from '@/lib/otp/hash-email-code';
 import { OTP_CONFIG } from '@/lib/otp/otp-config';
 import { computeExpiresAt, hasExceededSendLimit } from '@/lib/otp/otp-policy';
+import { assertOtpNotLocked, type OtpIdentifier } from '@/lib/otp/attempt-guard';
+
+const NEW_IDENTIFIER_PURPOSES: readonly OtpPurpose[] = ['register', 'change_phone', 'change_email'];
 
 export const POST = withErrorHandling(async (request: NextRequest) => {
   const input = requestOtpSchema.parse(await request.json());
@@ -18,130 +23,90 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   if (channel === 'email' && (purpose === 'register' || purpose === 'change_phone')) {
     throw new ApiError(400, 'email_otp_unsupported_purpose', 'هذا الإجراء يتطلب التحقق عبر رقم الجوال');
   }
+  if (channel === 'sms' && purpose === 'change_email') {
+    throw new ApiError(400, 'sms_otp_unsupported_purpose', 'تغيير البريد الإلكتروني يتطلب التحقق عبر البريد نفسه');
+  }
   if (purpose === 'register' && !REGISTRATION_OPEN) {
     throw new ApiError(503, 'registration_closed', 'التسجيل الجديد متوقف مؤقتًا، سيعاد فتحه قريبًا');
   }
+  // Changing a phone/email is an account action: an anonymous caller must
+  // not be able to make us send paid SMS/email to arbitrary new identifiers.
+  if (purpose === 'change_phone' || purpose === 'change_email') {
+    const { supabase: userClient } = getAuthenticatedClient(request);
+    await getCallerContext(userClient);
+  }
 
   const supabase = createServiceRoleClient();
+  const identifier: OtpIdentifier =
+    channel === 'sms' ? { column: 'phone', value: input.phone as string } : { column: 'email', value: input.email as string };
   const windowStart = new Date(Date.now() - OTP_CONFIG.sendWindowMs).toISOString();
 
-  if (channel === 'sms') {
-    const phone = input.phone as string;
-
-    // Independent reads — no reason to make the customer wait through them
-    // one at a time before the (much slower) Authentica call even starts.
-    const [{ data: existingUser }, { data: recentSends, error: recentSendsError }] = await Promise.all([
-      supabase.from('users').select('id').eq('phone', phone).maybeSingle(),
+  // Independent reads — no reason to make the customer wait through them
+  // one at a time before the (much slower) provider call even starts.
+  const [{ data: existingUser, error: existingUserError }, { data: recentSends, error: recentSendsError }] =
+    await Promise.all([
+      supabase.from('users').select('id, status').eq(identifier.column, identifier.value).maybeSingle(),
       supabase
         .from('otp_verifications')
         .select('id')
-        .eq('phone', phone)
+        .eq(identifier.column, identifier.value)
         .eq('purpose', purpose)
         .gte('created_at', windowStart),
     ]);
+  if (existingUserError) throw new Error(`Failed to look up OTP recipient: ${existingUserError.message}`);
+  if (recentSendsError) throw new Error(`Failed to check OTP send rate limit: ${recentSendsError.message}`);
 
-    if (purpose === 'change_phone' && existingUser) {
-      throw new ApiError(409, 'phone_already_registered', 'رقم الجوال مستخدم لحساب آخر');
+  if (NEW_IDENTIFIER_PURPOSES.includes(purpose)) {
+    if (existingUser) {
+      throw channel === 'sms'
+        ? new ApiError(409, 'phone_already_registered', 'رقم الجوال مسجّل بالفعل')
+        : new ApiError(409, 'email_already_used', 'البريد الإلكتروني مستخدم لحساب آخر');
     }
-    if (purpose === 'register' && existingUser) {
-      throw new ApiError(409, 'phone_already_registered', 'رقم الجوال مسجّل بالفعل');
+  } else {
+    if (!existingUser) {
+      throw channel === 'sms'
+        ? new ApiError(404, 'phone_not_registered', 'رقم الجوال غير مسجّل')
+        : new ApiError(404, 'email_not_registered', 'البريد الإلكتروني غير مسجّل');
     }
-    if (!['register', 'change_phone'].includes(purpose) && !existingUser) {
-      throw new ApiError(404, 'phone_not_registered', 'رقم الجوال غير مسجّل');
-    }
-    if (recentSendsError) {
-      throw new Error(`Failed to check OTP send rate limit: ${recentSendsError.message}`);
-    }
-    if (hasExceededSendLimit(recentSends?.length ?? 0)) {
-      throw new ApiError(429, 'otp_rate_limited', 'عدد كبير من الطلبات، حاول لاحقًا');
-    }
-
-    const code = generateOtpCode();
-    // docs/OTP_FLOW.md section 6: a new send invalidates any still-active
-    // previous row — independent of the SMS actually going out, so it runs
-    // alongside the Authentica call instead of before it. The `expires_at`
-    // window (see OTP_CONFIG.ttlMs) only starts once this whole request
-    // resolves, so shaving time here directly gives the customer more of
-    // their 5 minutes to actually receive and type the code.
-    // Do not invalidate the customer's current OTP until the provider has
-    // accepted the replacement. Otherwise a transient provider failure
-    // destroys a still-usable authentication path without delivering a new one.
-    await sendOtpSms(phone, code);
-
-    const { data: insertedOtp, error: insertError } = await supabase.from('otp_verifications').insert({
-      channel: 'sms',
-      phone,
-      purpose,
-      expires_at: computeExpiresAt(),
-    }).select('id').single();
-    if (insertError || !insertedOtp) {
-      throw new Error(`Failed to record OTP send: ${insertError?.message ?? 'missing inserted OTP row'}`);
-    }
-
-    const { error: invalidateError } = await supabase
-      .from('otp_verifications')
-      .update({ expires_at: new Date().toISOString() })
-      .eq('phone', phone)
-      .eq('purpose', purpose)
-      .is('consumed_at', null)
-      .neq('id', insertedOtp.id);
-    if (invalidateError) {
-      throw new Error(`Failed to invalidate previous OTP sends: ${invalidateError.message}`);
-    }
-
-    return okResponse({ status: 'sent' });
-  }
-
-  // channel === 'email' — no external verifier (migration 0042's header):
-  // we generate the code, hash it for storage, and check it ourselves in
-  // otp/verify. `purpose` is 'login' | 'reset_password' here, the
-  // 'register' case having already been rejected above.
-  const email = input.email as string;
-  const emailPurpose = purpose as Exclude<OtpPurpose, 'register' | 'change_phone'>;
-
-  const [{ data: existingUser }, { data: recentSends, error: recentSendsError }] = await Promise.all([
-    supabase.from('users').select('id').eq('email', email).maybeSingle(),
-    supabase
-      .from('otp_verifications')
-      .select('id')
-      .eq('email', email)
-      .eq('purpose', purpose)
-      .gte('created_at', windowStart),
-  ]);
-
-  if (purpose === 'change_email' && existingUser) {
-    throw new ApiError(409, 'email_already_used', 'البريد الإلكتروني مستخدم لحساب آخر');
-  }
-  if (purpose !== 'change_email' && !existingUser) {
-    throw new ApiError(404, 'email_not_registered', 'البريد الإلكتروني غير مسجّل');
-  }
-  if (recentSendsError) {
-    throw new Error(`Failed to check OTP send rate limit: ${recentSendsError.message}`);
+    if (existingUser.status === 'disabled') throw accountDisabledError();
   }
   if (hasExceededSendLimit(recentSends?.length ?? 0)) {
     throw new ApiError(429, 'otp_rate_limited', 'عدد كبير من الطلبات، حاول لاحقًا');
   }
+  // A locked identifier gets no new code: resending must not reset the
+  // verify budget, and there is no point paying for an SMS it cannot use.
+  await assertOtpNotLocked(supabase, identifier, purpose);
 
   const code = generateOtpCode();
-  const codeHash = hashEmailOtpCode(code);
+  // Deliver first: a provider failure must not invalidate the customer's
+  // still-usable previous code without a replacement ever reaching them.
+  if (channel === 'sms') {
+    await sendOtpSms(identifier.value, code);
+  } else {
+    const emailPurpose = purpose as Exclude<OtpPurpose, 'register' | 'change_phone'>;
+    await sendEmail({ to: identifier.value, ...otpCodeEmail({ code, purpose: emailPurpose }) });
+  }
 
-  await sendEmail({ to: email, ...otpCodeEmail({ code, purpose: emailPurpose }) });
-
-  const { data: insertedOtp, error: insertError } = await supabase.from('otp_verifications').insert({
-    channel: 'email',
-    email,
-    purpose,
-    expires_at: computeExpiresAt(),
-    code_hash: codeHash,
-  }).select('id').single();
+  const { data: insertedOtp, error: insertError } = await supabase
+    .from('otp_verifications')
+    .insert({
+      channel,
+      [identifier.column]: identifier.value,
+      purpose,
+      expires_at: computeExpiresAt(),
+      ...(channel === 'email' ? { code_hash: hashEmailOtpCode(code) } : {}),
+    })
+    .select('id')
+    .single();
   if (insertError || !insertedOtp) {
     throw new Error(`Failed to record OTP send: ${insertError?.message ?? 'missing inserted OTP row'}`);
   }
 
+  // docs/OTP_FLOW.md section 6: at most one active code per identifier+purpose.
   const { error: invalidateError } = await supabase
     .from('otp_verifications')
     .update({ expires_at: new Date().toISOString() })
-    .eq('email', email)
+    .eq(identifier.column, identifier.value)
     .eq('purpose', purpose)
     .is('consumed_at', null)
     .neq('id', insertedOtp.id);

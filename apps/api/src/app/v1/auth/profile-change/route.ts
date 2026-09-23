@@ -5,17 +5,94 @@ import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
 import { verifyOtpSms } from '@/lib/authentica/client';
 import { verifyEmailOtpCode } from '@/lib/otp/hash-email-code';
-import { isExpired,isLocked,computeLockedUntil,shouldLockAfterFailedAttempt } from '@/lib/otp/otp-policy';
+import {
+  assertOtpNotLocked,
+  consumeOtp,
+  findActiveOtp,
+  recordFailedOtpAttempt,
+  reserveOtpAttempt,
+  type OtpIdentifier,
+} from '@/lib/otp/attempt-guard';
 
-export const POST=withErrorHandling(async(request:NextRequest)=>{
- const {supabase:userClient}=getAuthenticatedClient(request);const caller=await getCallerContext(userClient);const input=verifyProfileChangeSchema.parse(await request.json());
- const service=createServiceRoleClient();const purpose=input.channel==='sms'?'change_phone':'change_email';const target=input.channel==='sms'?input.phone:input.email;
- let q=service.from('otp_verifications').select('id,attempt_count,locked_until,expires_at,code_hash').eq('purpose',purpose).eq('channel',input.channel).is('consumed_at',null).order('created_at',{ascending:false}).limit(1);
- q=input.channel==='sms'?q.eq('phone',target):q.eq('email',target);const {data:row,error}=await q.maybeSingle();if(error)throw new Error(error.message);if(!row)throw new ApiError(400,'otp_not_found','لا يوجد رمز تحقق فعّال');
- if(isLocked(row.locked_until))throw new ApiError(429,'otp_locked','محاولات كثيرة خاطئة، حاول لاحقًا');if(isExpired(row.expires_at))throw new ApiError(400,'otp_expired','انتهت صلاحية الرمز، اطلب رمزًا جديدًا');
- const verified=input.channel==='sms'?await verifyOtpSms(input.phone,input.code):verifyEmailOtpCode(input.code,row.code_hash as string);
- if(!verified){const lock=shouldLockAfterFailedAttempt(row.attempt_count);await service.from('otp_verifications').update({attempt_count:row.attempt_count+1,locked_until:lock?computeLockedUntil():null}).eq('id',row.id);throw new ApiError(401,'otp_incorrect','رمز التحقق غير صحيح')}
- if(input.channel==='sms'){const [{data:exists},{data:currentUser,error:currentUserError}]=await Promise.all([service.from('users').select('id').eq('phone',input.phone).neq('id',caller.userId).maybeSingle(),service.from('users').select('phone').eq('id',caller.userId).single()]);if(exists)throw new ApiError(409,'phone_already_registered','رقم الجوال مستخدم لحساب آخر');if(currentUserError||!currentUser)throw new Error(`Failed to load current phone: ${currentUserError?.message}`);const {error:authUpdateError}=await service.auth.admin.updateUserById(caller.authUserId,{phone:input.phone,phone_confirm:true});if(authUpdateError)throw new Error(`Failed to update auth phone: ${authUpdateError.message}`);const {error:updateError}=await service.from('users').update({phone:input.phone}).eq('id',caller.userId);if(updateError){const {error:rollbackError}=await service.auth.admin.updateUserById(caller.authUserId,{phone:currentUser.phone,phone_confirm:true});throw new Error(`Failed to update profile phone: ${updateError.message}${rollbackError?`; auth rollback also failed: ${rollbackError.message}`:''}`)}}
- else{const {data:exists}=await service.from('users').select('id').eq('email',input.email).neq('id',caller.userId).maybeSingle();if(exists)throw new ApiError(409,'email_already_used','البريد الإلكتروني مستخدم لحساب آخر');const {error:updateError}=await service.from('users').update({email:input.email}).eq('id',caller.userId);if(updateError)throw new Error(updateError.message)}
- await service.from('otp_verifications').update({consumed_at:new Date().toISOString()}).eq('id',row.id);return okResponse({status:'updated'});
+/**
+ * Applies a verified phone or email change to the caller's own account.
+ * The OTP was sent to the *new* identifier, so a correct code proves the
+ * caller controls it. Phone is also the Supabase Auth password-login
+ * identifier, so both records change together.
+ */
+export const POST = withErrorHandling(async (request: NextRequest) => {
+  const { supabase: userClient } = getAuthenticatedClient(request);
+  const caller = await getCallerContext(userClient);
+  const input = verifyProfileChangeSchema.parse(await request.json());
+
+  const service = createServiceRoleClient();
+  const purpose = input.channel === 'sms' ? 'change_phone' : 'change_email';
+  const identifier: OtpIdentifier =
+    input.channel === 'sms' ? { column: 'phone', value: input.phone } : { column: 'email', value: input.email };
+
+  const failedAttempts = await assertOtpNotLocked(service, identifier, purpose);
+  const row = await findActiveOtp(service, identifier, purpose, input.channel);
+  await reserveOtpAttempt(service, row);
+
+  const verified =
+    input.channel === 'sms'
+      ? await verifyOtpSms(input.phone, input.code)
+      : verifyEmailOtpCode(input.code, row.code_hash as string);
+  if (!verified) {
+    await recordFailedOtpAttempt(service, row, failedAttempts);
+    throw new ApiError(401, 'otp_incorrect', 'رمز التحقق غير صحيح');
+  }
+
+  const { data: takenBy, error: takenError } = await service
+    .from('users')
+    .select('id')
+    .eq(identifier.column, identifier.value)
+    .neq('id', caller.userId)
+    .maybeSingle();
+  if (takenError) throw new Error(`Failed to check identifier ownership: ${takenError.message}`);
+  if (takenBy) {
+    throw input.channel === 'sms'
+      ? new ApiError(409, 'phone_already_registered', 'رقم الجوال مستخدم لحساب آخر')
+      : new ApiError(409, 'email_already_used', 'البريد الإلكتروني مستخدم لحساب آخر');
+  }
+
+  await consumeOtp(service, row);
+
+  if (input.channel === 'email') {
+    const { error } = await service.from('users').update({ email: input.email }).eq('id', caller.userId);
+    if (error) {
+      if (error.code === '23505') throw new ApiError(409, 'email_already_used', 'البريد الإلكتروني مستخدم لحساب آخر');
+      throw new Error(`Failed to update profile email: ${error.message}`);
+    }
+    return okResponse({ status: 'updated' });
+  }
+
+  const { data: currentUser, error: currentUserError } = await service
+    .from('users')
+    .select('phone')
+    .eq('id', caller.userId)
+    .single();
+  if (currentUserError || !currentUser) throw new Error(`Failed to load current phone: ${currentUserError?.message}`);
+
+  const { error: authUpdateError } = await service.auth.admin.updateUserById(caller.authUserId, {
+    phone: input.phone,
+    phone_confirm: true,
+  });
+  if (authUpdateError) throw new Error(`Failed to update auth phone: ${authUpdateError.message}`);
+
+  const { error: updateError } = await service.from('users').update({ phone: input.phone }).eq('id', caller.userId);
+  if (updateError) {
+    const { error: rollbackError } = await service.auth.admin.updateUserById(caller.authUserId, {
+      phone: currentUser.phone,
+      phone_confirm: true,
+    });
+    if (updateError.code === '23505' && !rollbackError) {
+      throw new ApiError(409, 'phone_already_registered', 'رقم الجوال مستخدم لحساب آخر');
+    }
+    throw new Error(
+      `Failed to update profile phone: ${updateError.message}${rollbackError ? `; auth rollback also failed: ${rollbackError.message}` : ''}`,
+    );
+  }
+
+  return okResponse({ status: 'updated' });
 });

@@ -19,9 +19,13 @@ export function isExpired(expiresAt: string, now: Date = new Date()): boolean {
   return new Date(expiresAt) <= now;
 }
 
-/** Called after a failed verify attempt with the attempt count *before* incrementing. */
-export function shouldLockAfterFailedAttempt(previousAttemptCount: number): boolean {
-  return previousAttemptCount + 1 >= OTP_CONFIG.maxVerifyAttempts;
+/** Unconsumed attempts across every recent code for one identifier+purpose, so a resend never resets the budget. */
+export function sumFailedAttempts(rows: readonly { attempt_count: number }[]): number {
+  return rows.reduce((total, row) => total + row.attempt_count, 0);
+}
+
+export function hasExhaustedVerifyAttempts(failedAttempts: number): boolean {
+  return failedAttempts >= OTP_CONFIG.maxVerifyAttempts;
 }
 
 export function computeExpiresAt(now: Date = new Date()): string {

@@ -4,13 +4,16 @@ import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { verifyOtpSms } from '@/lib/authentica/client';
 import { verifyEmailOtpCode } from '@/lib/otp/hash-email-code';
 import {
-  computeLockedUntil,
-  isExpired,
-  isLocked,
-  shouldLockAfterFailedAttempt,
-} from '@/lib/otp/otp-policy';
+  assertOtpNotLocked,
+  consumeOtp,
+  findActiveOtp,
+  recordFailedOtpAttempt,
+  reserveOtpAttempt,
+  type OtpIdentifier,
+} from '@/lib/otp/attempt-guard';
 import { signTempToken } from '@/lib/auth/temp-token';
 import { mintSessionForUser } from '@/lib/auth/mint-session';
+import { accountDisabledError } from '@/lib/auth/get-caller-context';
 
 export const POST = withErrorHandling(async (request: NextRequest) => {
   const input = verifyOtpSchema.parse(await request.json());
@@ -19,64 +22,41 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   if (channel === 'email' && purpose === 'register') {
     throw new ApiError(400, 'email_otp_unsupported_purpose', 'التسجيل الجديد يتم برقم الجوال فقط');
   }
+  if (purpose === 'change_phone' || purpose === 'change_email') {
+    throw new ApiError(400, 'otp_purpose_not_supported', 'هذا الرمز يُستخدم من صفحة الحساب فقط');
+  }
 
   const supabase = createServiceRoleClient();
+  const identifier: OtpIdentifier =
+    channel === 'sms' ? { column: 'phone', value: input.phone as string } : { column: 'email', value: input.email as string };
 
-  let rowQuery = supabase
-    .from('otp_verifications')
-    .select('id, attempt_count, locked_until, expires_at, code_hash')
-    .eq('purpose', purpose)
-    .eq('channel', channel)
-    .is('consumed_at', null)
-    .order('created_at', { ascending: false })
-    .limit(1);
-  rowQuery = channel === 'sms' ? rowQuery.eq('phone', input.phone as string) : rowQuery.eq('email', input.email as string);
-  const { data: row, error: rowError } = await rowQuery.maybeSingle();
-
-  if (rowError) {
-    throw new Error(`Failed to look up OTP request: ${rowError.message}`);
-  }
-  if (!row) {
-    throw new ApiError(400, 'otp_not_found', 'لا يوجد رمز تحقق فعّال، اطلب رمزًا جديدًا');
-  }
-  if (isLocked(row.locked_until)) {
-    throw new ApiError(429, 'otp_locked', 'محاولات كثيرة خاطئة، حاول لاحقًا');
-  }
-  if (isExpired(row.expires_at)) {
-    throw new ApiError(400, 'otp_expired', 'انتهت صلاحية الرمز، اطلب رمزًا جديدًا');
-  }
+  const failedAttempts = await assertOtpNotLocked(supabase, identifier, purpose);
+  const row = await findActiveOtp(supabase, identifier, purpose, channel);
+  await reserveOtpAttempt(supabase, row);
 
   // sms is verified remotely by Authentica; email has no such provider —
   // the code is checked locally against the hash stored at send time
   // (migration 0042's header explains why).
   const verified =
-    channel === 'sms' ? await verifyOtpSms(input.phone as string, code) : verifyEmailOtpCode(code, row.code_hash as string);
-
+    channel === 'sms' ? await verifyOtpSms(identifier.value, code) : verifyEmailOtpCode(code, row.code_hash as string);
   if (!verified) {
-    const willLock = shouldLockAfterFailedAttempt(row.attempt_count);
-    await supabase
-      .from('otp_verifications')
-      .update({
-        attempt_count: row.attempt_count + 1,
-        locked_until: willLock ? computeLockedUntil() : null,
-      })
-      .eq('id', row.id);
+    await recordFailedOtpAttempt(supabase, row, failedAttempts);
     throw new ApiError(401, 'otp_incorrect', 'رمز التحقق غير صحيح');
   }
 
-  await supabase.from('otp_verifications').update({ consumed_at: new Date().toISOString() }).eq('id', row.id);
+  await consumeOtp(supabase, row);
 
   // Every downstream step (temp token / session) is keyed by phone, since
   // every account has one regardless of which channel this OTP used —
   // email is only ever a second way to *find* the same account.
   let phone: string;
   if (channel === 'sms') {
-    phone = input.phone as string;
+    phone = identifier.value;
   } else {
     const { data: userByEmail, error: userByEmailError } = await supabase
       .from('users')
       .select('phone')
-      .eq('email', input.email as string)
+      .eq('email', identifier.value)
       .single();
     if (userByEmailError || !userByEmail) {
       throw new Error(`Failed to resolve user by email during OTP verify: ${userByEmailError?.message}`);
@@ -89,25 +69,28 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
     return okResponse({ registration_token });
   }
 
-  if (purpose === 'reset_password') {
-    const reset_token = await signTempToken({ phone, purpose: 'reset_password' });
-    return okResponse({ reset_token });
-  }
-
-  // purpose === 'login': the account already exists (checked at send time).
   const { data: user, error: userError } = await supabase
     .from('users')
     .select('auth_user_id, status')
     .eq('phone', phone)
     .single();
   if (userError || !user) {
-    throw new Error(`Failed to load user for login session minting: ${userError?.message}`);
+    throw new Error(`Failed to load user after OTP verify: ${userError?.message}`);
+  }
+  if (user.status === 'disabled') {
+    throw accountDisabledError();
+  }
+
+  if (purpose === 'reset_password') {
+    const reset_token = await signTempToken({ phone, purpose: 'reset_password' });
+    return okResponse({ reset_token });
   }
 
   // A team invite creates the user with status 'invited' and no password;
   // their first successful login (this OTP flow) is the activation event.
   if (user.status === 'invited') {
-    await supabase.from('users').update({ status: 'active' }).eq('phone', phone);
+    const { error: activationError } = await supabase.from('users').update({ status: 'active' }).eq('phone', phone);
+    if (activationError) throw new Error(`Failed to activate invited user: ${activationError.message}`);
   }
 
   const session = await mintSessionForUser(supabase, user.auth_user_id);
