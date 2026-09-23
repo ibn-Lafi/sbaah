@@ -62,26 +62,40 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
     // switch — this is the ONE place a checkout's outcome is trusted
     // (never the browser's redirect back from StreamPay's hosted page),
     // so applying it is what actually makes "غيّر باقتك" or a renewal
-    // take effect. A no-op when the payment was for the tenant's
-    // already-current plan.
-    const [{ error: paymentUpdateError }, { error: tenantUpdateError }] = await Promise.all([
-      supabase.from('payments').update({ status: 'paid' }).eq('id', payment.id),
-      supabase.from('tenants').update({ payment_status: 'paid', plan_id: payment.plan_id }).eq('id', payment.tenant_id),
-    ]);
-    if (paymentUpdateError || tenantUpdateError) {
-      throw new Error(
-        `Failed to record successful payment: ${paymentUpdateError?.message ?? tenantUpdateError?.message}`,
-      );
+    // take effect. A paid plan also ends any free trial: otherwise
+    // is_tenant_active() would still lock the account when the old trial
+    // date passes. The tenant is updated before the payment row, so if
+    // either write fails the payment stays unpaid and StreamPay's retry
+    // re-applies both instead of skipping an already-"paid" payment.
+    const { error: tenantUpdateError } = await supabase
+      .from('tenants')
+      .update({ payment_status: 'paid', plan_id: payment.plan_id, trial_ends_at: null })
+      .eq('id', payment.tenant_id);
+    if (tenantUpdateError) {
+      throw new Error(`Failed to apply successful payment to tenant: ${tenantUpdateError.message}`);
     }
-  } else if (failed && payment.status !== 'paid') {
-    const [{ error: paymentUpdateError }, { error: tenantUpdateError }] = await Promise.all([
-      supabase.from('payments').update({ status: 'failed' }).eq('id', payment.id),
-      supabase.from('tenants').update({ payment_status: 'failed' }).eq('id', payment.tenant_id),
-    ]);
-    if (paymentUpdateError || tenantUpdateError) {
-      throw new Error(
-        `Failed to record failed payment: ${paymentUpdateError?.message ?? tenantUpdateError?.message}`,
-      );
+    const { error: paymentUpdateError } = await supabase.from('payments').update({ status: 'paid' }).eq('id', payment.id);
+    if (paymentUpdateError) {
+      throw new Error(`Failed to record successful payment: ${paymentUpdateError.message}`);
+    }
+  } else if (failed && payment.status === 'pending') {
+    const { error: paymentUpdateError } = await supabase
+      .from('payments')
+      .update({ status: 'failed' })
+      .eq('id', payment.id)
+      .eq('status', 'pending');
+    if (paymentUpdateError) {
+      throw new Error(`Failed to record failed payment: ${paymentUpdateError.message}`);
+    }
+    // A failed plan switch or renewal attempt must not flag a tenant whose
+    // current subscription is already paid.
+    const { error: tenantUpdateError } = await supabase
+      .from('tenants')
+      .update({ payment_status: 'failed' })
+      .eq('id', payment.tenant_id)
+      .neq('payment_status', 'paid');
+    if (tenantUpdateError) {
+      throw new Error(`Failed to record failed payment on tenant: ${tenantUpdateError.message}`);
     }
   }
 
