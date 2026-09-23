@@ -10,7 +10,7 @@ import { apiGet } from '@/lib/api/client';
 import { safeExternalUrl } from '@/lib/security/public-values';
 
 function BrandMark({ label, invert = false, className = 'h-6' }: { label: string; invert?: boolean; className?: string }) {
-  return <img src={invert ? '/brand-mark-white.svg' : '/brand-mark.svg'} alt={label} width={54} height={24} className={`${className} w-auto`} />;
+  return <img src={invert ? '/sbaah-lockup-white.svg' : '/sbaah-lockup-purple.svg'} alt={label} width={54} height={24} className={`${className} w-auto`} />;
 }
 
 function GlobeIcon({ className }: { className?: string }) {

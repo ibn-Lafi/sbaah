@@ -10,6 +10,15 @@ export function BrandMark({
 }) {
   return (
     // eslint-disable-next-line @next/next/no-img-element -- static SVG brand asset, no responsive/optimization needs
-    <img src={invert ? '/brand-mark-white.svg' : '/brand-mark.svg'} alt="سبعة" width={width} height={height} />
+    <img src={invert ? '/sbaah-lockup-white.svg' : '/sbaah-lockup-purple.svg'} alt="سبعة" width={width} height={height} />
+  );
+}
+
+
+/** Compact standalone platform symbol for constrained UI surfaces. */
+export function BrandIcon({ size = 28, tone = 'purple' }: { size?: number; tone?: 'purple' | 'white' | 'black' }) {
+  return (
+    // eslint-disable-next-line @next/next/no-img-element -- static SVG brand asset
+    <img src={`/sbaah-icon-${tone}.svg`} alt="" aria-hidden="true" width={size} height={size} />
   );
 }
