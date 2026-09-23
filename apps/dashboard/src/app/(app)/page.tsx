@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { DashboardHomeSkeleton } from '@/components/dashboard/dashboard-home-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { getDashboardSummary, type DashboardSummary } from '@/lib/api/dashboard';
+import { getWebsite } from '@/lib/api/website';
 import { useLocale } from '@/lib/i18n/locale-context';
 
 function dayLabel(dateIso: string, range: 7 | 30, weekdayShort: readonly string[]): string {
@@ -32,17 +33,18 @@ export default function DashboardHomePage() {
   const { pages } = useLocale();
   const t = pages.dashboardHome;
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
+  const [websiteCustomized, setWebsiteCustomized] = useState(false);
   const [range, setRange] = useState<7 | 30>(7);
 
   useEffect(() => {
-    void getDashboardSummary(accessToken).then(setSummary);
+    void Promise.all([getDashboardSummary(accessToken),getWebsite(accessToken)]).then(([dashboard,site])=>{setSummary(dashboard);const w=site.website;setWebsiteCustomized(Boolean(w.logo_url||w.banner_image_url||w.banner_video_url||w.announcement_bar_text||w.footer_description||w.primary_color!=='#68458A'||w.secondary_color!=='#68458A'));});
   }, [accessToken]);
 
   const setupTasks = [
     { label: 'أكمل بيانات الموقع', href: '/settings?tab=site', done: Boolean(me.tenant.fal_license_number) },
     { label: 'أضف أول عقار', href: '/properties/new', done: (summary?.properties.total ?? 0) > 0 },
     { label: 'أضف حسابات التواصل', href: '/settings?tab=site', done: Boolean(me.tenant.social_whatsapp || me.tenant.social_instagram || me.tenant.social_tiktok || me.tenant.social_snapchat || me.tenant.social_facebook || me.tenant.social_x || me.tenant.social_telegram) },
-    { label: 'خصّص موقعك العقاري', href: '/website', done: false },
+    { label: 'خصّص موقعك العقاري', href: '/website', done: websiteCustomized },
   ];
   const completedSetup = setupTasks.filter((task) => task.done).length;
   const bars = summary?.property_views ? summary.property_views.daily.slice(-range) : [];
