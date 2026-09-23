@@ -15,10 +15,12 @@ export interface ProjectListResponse {
 
 export function listProjects(
   accessToken: string,
-  params: { status?: ProjectStatus } = {},
+  params: { status?: ProjectStatus; page?: number; page_size?: number } = {},
 ): Promise<ProjectListResponse> {
   const query = new URLSearchParams();
   if (params.status) query.set('status', params.status);
+  if (params.page) query.set('page', String(params.page));
+  if (params.page_size) query.set('page_size', String(params.page_size));
   const qs = query.toString();
   return apiGet<ProjectListResponse>(`/projects${qs ? `?${qs}` : ''}`, accessToken);
 }
