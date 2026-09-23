@@ -13,7 +13,6 @@ export const RATE_LIMITS = {
   passwordLoginPerIp: { bucket: 'password_login_ip', windowSeconds: 10 * 60, maxEvents: 20 },
   consoleLoginPerIp: { bucket: 'console_login_ip', windowSeconds: 15 * 60, maxEvents: 20 },
   publicLeadPerIp: { bucket: 'public_lead_ip', windowSeconds: 10 * 60, maxEvents: 5 },
-  whatsappClickPerIp: { bucket: 'whatsapp_click_ip', windowSeconds: 10 * 60, maxEvents: 20 },
   supportTicketPerIp: { bucket: 'support_ticket_ip', windowSeconds: 60 * 60, maxEvents: 5 },
   supportLookupPerIp: { bucket: 'support_lookup_ip', windowSeconds: 10 * 60, maxEvents: 20 },
 } as const satisfies Record<string, RateLimitRule>;

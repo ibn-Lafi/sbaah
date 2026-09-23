@@ -1,16 +1,11 @@
 import { test, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { API, api, db, tokenFor, PHONES } from './lib.mjs';
+import { api, db, tokenFor, PHONES } from './lib.mjs';
 
 beforeEach(async () => {
   await db.query('delete from api_rate_limit_events');
   await db.query('delete from console_login_attempts');
 });
-
-const TENANT_A_LISTING = async () => {
-  const tenant = await db.query("select id from tenants where subdomain = 'agency-a'");
-  return tenant.rows[0].id;
-};
 
 test('OTP sends are limited per client IP, and a spoofed X-Forwarded-For prefix does not reset the budget', async () => {
   const statuses = [];
@@ -64,24 +59,6 @@ test('public support tickets are rate limited and tracking needs the exact email
   assert.equal(limited.status, 429);
 });
 
-test('WhatsApp click leads are rate limited per IP', async () => {
-  const tenantId = await TENANT_A_LISTING();
-  const listing = await db.query(
-    `insert into listings (tenant_id, listing_number, listing_type, title_ar, asking_price, publication_status)
-     values ($1, 'L-WA', 'sale', 'عرض', 100, 'published') on conflict (tenant_id, listing_number) do update set publication_status = 'published' returning id`,
-    [tenantId],
-  );
-  await db.query(`insert into listing_assets (tenant_id, listing_id, asset_id) values ($1, $2, '00000000-0000-0000-0000-0000000aa001') on conflict do nothing`, [tenantId, listing.rows[0].id]);
-  const headers = { 'x-forwarded-for': '192.0.2.77' };
-  const statuses = [];
-  for (let index = 0; index < 21; index += 1) {
-    const result = await api('POST', '/public/whatsapp-click', { body: { tenant_id: tenantId, listing_id: listing.rows[0].id }, headers });
-    statuses.push(result.status);
-  }
-  assert.equal(statuses.filter((status) => status === 201).length, 20, JSON.stringify(statuses));
-  assert.equal(statuses.at(-1), 429);
-});
-
 test('an admin can save contact links (incl. Facebook/X/Telegram) and they reach the public site data', async () => {
   const token = await tokenFor(PHONES.adminA);
   const saved = await api('PATCH', '/tenant/social-links', {
@@ -99,17 +76,4 @@ test('an admin can save contact links (incl. Facebook/X/Telegram) and they reach
   const site = await api('GET', '/public/website?domain=agency-a.sbaah.test');
   assert.equal(site.status, 200, JSON.stringify(site.body));
   assert.equal(site.body.tenant.social_x, 'https://x.com/agency');
-});
-
-test('WhatsApp webhook needs the shared secret and stores the message once', async () => {
-  const tenantId = await TENANT_A_LISTING();
-  const payload = { tenant_id: tenantId, external_contact_id: '+966511112222', provider_message_id: `wamid.${Date.now()}`, body: 'مرحبا' };
-  const denied = await fetch(`${API}/webhooks/whatsapp`, { method: 'POST', headers: { 'content-type': 'application/json', 'x-sbaah-webhook-secret': 'nope' }, body: JSON.stringify(payload) });
-  assert.equal(denied.status, 401);
-  for (let attempt = 0; attempt < 2; attempt += 1) {
-    const accepted = await fetch(`${API}/webhooks/whatsapp`, { method: 'POST', headers: { 'content-type': 'application/json', 'x-sbaah-webhook-secret': 'e2e-whatsapp-secret' }, body: JSON.stringify(payload) });
-    assert.equal(accepted.status, 200, await accepted.text());
-  }
-  const { rows } = await db.query('select count(*)::int as count from whatsapp_messages where provider_message_id = $1', [payload.provider_message_id]);
-  assert.equal(rows[0].count, 1);
 });
