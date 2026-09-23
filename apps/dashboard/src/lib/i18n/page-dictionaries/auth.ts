@@ -25,9 +25,9 @@ export const authAr = {
     invalidEmailFallback: 'بريد إلكتروني غير صحيح',
     invalidOtpCodeFallback: 'رمز غير صحيح',
     panel: {
-      heading: 'موقعك العقاري ولوحة متابعة عملائك، في مكان واحد',
+      heading: 'مكتبك العقاري الإلكتروني',
       subheading:
-        'أضف العقار مرة واحدة، يظهر على موقعك، وكل تفاعل زائر عليه يتحول تلقائيًا لعميل محتمل تتابعه من هنا.',
+        'موقعك، عقاراتك، وعملاؤك في منصة واحدة تساعدك تدير أعمالك العقارية بشكل أبسط.',
       social: {
         tiktok: 'تيك توك',
         instagram: 'إنستغرام',
@@ -133,9 +133,9 @@ export const authEn: typeof authAr = {
     invalidEmailFallback: 'Invalid email address',
     invalidOtpCodeFallback: 'Invalid code',
     panel: {
-      heading: 'Your real-estate website and lead pipeline, in one place',
+      heading: 'Your digital real-estate office',
       subheading:
-        'Add a property once, it appears on your website, and every visitor interaction with it automatically becomes a lead you follow up on from here.',
+        'Your website, properties, and clients in one platform built to make real-estate operations simpler.',
       social: {
         tiktok: 'TikTok',
         instagram: 'Instagram',
