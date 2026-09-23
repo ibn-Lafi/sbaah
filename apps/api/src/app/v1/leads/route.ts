@@ -41,7 +41,7 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
   if (leadRows.length > 0) {
     const leadIds = leadRows.map((lead) => lead.id);
     const [wonDealsResult, partiesResult] = await Promise.all([
-      supabase.from('deals').select('lead_id').eq('tenant_id', caller.tenantId).eq('status', 'won').in('lead_id', leadIds),
+      supabase.from('deals').select('lead_id').eq('tenant_id', caller.tenantId).eq('status', 'won').eq('deal_type','sale').in('lead_id', leadIds),
       supabase.from('parties').select('id, lead_id').eq('tenant_id', caller.tenantId).in('lead_id', leadIds),
     ]);
     if (wonDealsResult.error) throw new Error(`Failed to classify purchased customers: ${wonDealsResult.error.message}`);
