@@ -81,12 +81,14 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
 
   // Google metrics are optional. A disconnected/revoked Google account must
   // never break the home dashboard; Google-sourced values simply stay zero.
-  let siteAnalytics = {
-    visitors: 0,
-    sessions: 0,
-    page_views: 0,
-    daily: [] as { date: string; visitors: number; sessions: number; page_views: number }[],
-  };
+  let siteAnalytics: {
+    connected: boolean;
+    available: boolean;
+    visitors: number | null;
+    sessions: number | null;
+    page_views: number | null;
+    daily: { date: string; visitors: number; sessions: number; page_views: number }[];
+  } = { connected: false, available: false, visitors: null, sessions: null, page_views: null, daily: [] };
   if (caller.role === 'owner' || caller.role === 'admin') {
     try {
       const serviceRole = createServiceRoleClient();
@@ -96,12 +98,17 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
         .eq('tenant_id', caller.tenantId)
         .eq('provider', 'google_analytics')
         .maybeSingle();
+      if (integration?.status === 'connected') siteAnalytics.connected = true;
       if (integration?.status === 'connected' && integration.external_property_id && integration.oauth_refresh_token_ciphertext) {
         const googleAccessToken = await refreshGoogleAccessToken(integration.oauth_refresh_token_ciphertext);
-        siteAnalytics = await runAnalyticsReport(googleAccessToken, integration.external_property_id, 30);
+        const report = await runAnalyticsReport(googleAccessToken, integration.external_property_id, 30);
+        siteAnalytics = { connected: true, available: true, ...report };
       }
     } catch (error) {
       console.error('Google Analytics dashboard summary unavailable', error);
+      // Preserve the distinction between "connected but temporarily unavailable"
+      // and "not connected"; never present missing analytics as a real zero.
+      siteAnalytics.available = false;
     }
   }
 
