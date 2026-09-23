@@ -14,6 +14,13 @@ export interface EmailContent {
  * calling `sendEmail()` (./send.ts) with it from wherever that event
  * happens; there is no registry to update.
  */
+const HTML_ESCAPES: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+
+/** Names and phones come from tenants and anonymous website visitors — never trust them as markup. */
+function escapeHtml(value: string): string {
+  return value.replace(/[&<>"']/g, (character) => HTML_ESCAPES[character] ?? character);
+}
+
 function layout(bodyHtml: string): string {
   return `<div dir="rtl" style="font-family:Tahoma,Arial,sans-serif;color:#1F1D22;line-height:1.7">
     ${bodyHtml}
@@ -59,8 +66,8 @@ export function teamInviteEmail(params: { fullName: string; tenantName: string }
   return {
     subject: `تمت إضافتك كموظف لدى ${params.tenantName} — سبعة`,
     html: layout(`
-      <p>مرحبًا ${params.fullName}،</p>
-      <p>تمت إضافتك كموظف في حساب <strong>${params.tenantName}</strong> على منصة سبعة.</p>
+      <p>مرحبًا ${escapeHtml(params.fullName)}،</p>
+      <p>تمت إضافتك كموظف في حساب <strong>${escapeHtml(params.tenantName)}</strong> على منصة سبعة.</p>
       <p>يمكنك تسجيل الدخول برقم جوالك عبر رمز التحقق المرسل بالرسائل النصية.</p>
     `),
   };
@@ -75,11 +82,11 @@ export function newLeadAssignedEmail(params: {
   return {
     subject: `تم تعيين عميل محتمل جديد لك — سبعة`,
     html: layout(`
-      <p>مرحبًا ${params.agentName}،</p>
+      <p>مرحبًا ${escapeHtml(params.agentName)}،</p>
       <p>تم تعيين عميل محتمل جديد لك:</p>
       <p style="padding:12px 16px;background:#F7F5FA;border-radius:8px">
-        <strong>${params.leadName}</strong><br />
-        <span dir="ltr">${params.leadPhone ?? '—'}</span>
+        <strong>${escapeHtml(params.leadName)}</strong><br />
+        <span dir="ltr">${params.leadPhone ? escapeHtml(params.leadPhone) : '—'}</span>
       </p>
       <p style="color:#666;font-size:13px">يمكنك متابعته من لوحة التحكم.</p>
     `),
