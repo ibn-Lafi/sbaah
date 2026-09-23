@@ -17,10 +17,10 @@ export function PropertyGallery({ media, title }: { media: PublicPropertyMedia[]
     <div className="flex flex-col gap-3">
       <div className="aspect-video w-full overflow-hidden rounded-xl bg-black/5">
         {active.media_type === 'video' ? (
-          <video src={active.url} controls className="h-full w-full object-cover" />
+          <video src={active.url} controls preload="metadata" className="h-full w-full object-cover" />
         ) : (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={active.url} alt={title} className="h-full w-full object-cover" />
+          <img src={active.url} alt={title} fetchPriority="high" decoding="async" className="h-full w-full object-cover" />
         )}
       </div>
 
@@ -31,15 +31,17 @@ export function PropertyGallery({ media, title }: { media: PublicPropertyMedia[]
               key={item.id}
               type="button"
               onClick={() => setActiveIndex(index)}
+              aria-label={`${title} ${index + 1}`}
+              aria-pressed={index === activeIndex}
               className={`h-16 w-24 flex-none overflow-hidden rounded-lg border-2 ${
                 index === activeIndex ? 'border-tenant-primary' : 'border-transparent'
               }`}
             >
               {item.media_type === 'video' ? (
-                <video src={item.url} className="h-full w-full object-cover" muted />
+                <video src={item.url} preload="metadata" className="h-full w-full object-cover" muted />
               ) : (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={item.url} alt="" className="h-full w-full object-cover" />
+                <img src={item.url} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
               )}
             </button>
           ))}
