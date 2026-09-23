@@ -1,4 +1,5 @@
 import type { NextRequest } from 'next/server';
+import { z } from 'zod';
 import { okResponse,withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
@@ -12,7 +13,7 @@ type MatchingAsset = { id: string; asset_type: string; area_sqm: number | null; 
 
 export const GET=withErrorHandling(async(r:NextRequest)=>{
  const{supabase}=getAuthenticatedClient(r);const c=await getCallerContext(supabase);const grant=assertPermission(c.role,'crm.read');
- const leadId=r.nextUrl.searchParams.get('lead_id');if(!leadId)throw new Error('lead_id is required');
+ const { lead_id: leadId } = z.object({ lead_id: z.string().uuid() }).parse(Object.fromEntries(r.nextUrl.searchParams));
  await assertTenantOwnedRow({supabase,table:'leads',id:leadId,tenantId:c.tenantId,label:'العميل'});if(isAssignedScope(grant))await assertAssignedLeadAccess(supabase,c.tenantId,c.userId,leadId);
  const{data:req,error:reqError}=await supabase.from('lead_requirements').select('*').eq('tenant_id',c.tenantId).eq('lead_id',leadId).order('created_at',{ascending:false}).limit(1).maybeSingle();
  if(reqError)throw new Error(reqError.message);if(!req)return okResponse({matches:[]});
