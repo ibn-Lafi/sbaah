@@ -24,21 +24,17 @@ const publicProjectsQuerySchema = z.object({
  */
 export const GET = withErrorHandling(async (request: NextRequest) => {
   const { domain, page, page_size } = publicProjectsQuerySchema.parse(Object.fromEntries(request.nextUrl.searchParams));
-
   const supabase = createAnonClient();
   const tenantId = await resolvePublicTenantId(domain, supabase);
-
-  const from = (page - 1) * page_size;
-  const { data, error, count } = await supabase
-    .from('projects')
-    .select('id, slug, name_ar, name_en, description_ar, description_en, city_id, district_id', { count: 'exact' })
-    .eq('tenant_id', tenantId)
-    .eq('status', 'published')
-    .order('created_at', { ascending: false })
-    .range(from, from + page_size - 1);
-  if (error) {
-    throw new Error(`Failed to list public projects: ${error.message}`);
-  }
-
-  return okResponse({ projects: data, page, page_size, total: count ?? 0 });
+  const offset = (page - 1) * page_size;
+  const { data, error } = await supabase.rpc('public_projects_feed', {
+    p_tenant_id: tenantId,
+    p_limit: page_size,
+    p_offset: offset,
+  });
+  if (error) throw new Error(`Failed to list public projects: ${error.message}`);
+  type PublicProjectRow={id:string;slug:string;name_ar:string;name_en?:string|null;description_ar?:string|null;description_en?:string|null;city_id?:string|null;district_id?:string|null;lat?:number|null;lng?:number|null;media?:unknown[];total_count?:number|string|null};
+  const rows=(data??[]) as PublicProjectRow[];
+  const projects=rows.map(({total_count:_,...project})=>project);
+  return okResponse({ projects, page, page_size, total:Number(rows[0]?.total_count??0) });
 });
