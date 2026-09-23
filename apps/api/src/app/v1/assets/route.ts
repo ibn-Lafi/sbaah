@@ -23,9 +23,28 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   if (caller.role === 'agent') throw new ApiError(403, 'forbidden', 'لا يملك الوسيط صلاحية إضافة عقارات');
   const input = assetInputSchema.parse(await request.json());
   if (input.parent_asset_id) {
-    const { data: parent, error: parentError } = await supabase.from('assets').select('id').eq('id', input.parent_asset_id).eq('tenant_id', caller.tenantId).is('archived_at', null).maybeSingle();
+    const { data: parent, error: parentError } = await supabase.from('assets').select('id,project_id').eq('id', input.parent_asset_id).eq('tenant_id', caller.tenantId).is('archived_at', null).maybeSingle();
     if (parentError) throw new Error(`Failed to validate parent asset: ${parentError.message}`);
     if (!parent) throw new ApiError(400, 'invalid_parent_asset', 'العقار الرئيسي غير موجود أو مؤرشف');
+    if (input.project_id && parent.project_id && input.project_id !== parent.project_id) throw new ApiError(400, 'parent_project_mismatch', 'العقار الرئيسي مرتبط بمشروع مختلف');
+  }
+  if (input.project_id) {
+    const { data: project, error: projectError } = await supabase.from('projects').select('id,status').eq('id', input.project_id).eq('tenant_id', caller.tenantId).maybeSingle();
+    if (projectError) throw new Error(`Failed to validate project: ${projectError.message}`);
+    if (!project || project.status === 'archived') throw new ApiError(400, 'invalid_project', 'المشروع غير موجود أو مؤرشف');
+  }
+  if (input.phase_id) {
+    if (!input.project_id) throw new ApiError(400, 'phase_requires_project', 'لا يمكن ربط مرحلة بدون مشروع');
+    const { data: phase, error: phaseError } = await supabase.from('project_phases').select('id,project_id').eq('id', input.phase_id).eq('tenant_id', caller.tenantId).maybeSingle();
+    if (phaseError) throw new Error(`Failed to validate project phase: ${phaseError.message}`);
+    if (!phase || phase.project_id !== input.project_id) throw new ApiError(400, 'phase_project_mismatch', 'المرحلة لا تتبع المشروع المحدد');
+  }
+  if (input.unit_type_id) {
+    const { data: unitType, error: unitTypeError } = await supabase.from('unit_types').select('id,project_id,asset_type').eq('id', input.unit_type_id).eq('tenant_id', caller.tenantId).maybeSingle();
+    if (unitTypeError) throw new Error(`Failed to validate unit type: ${unitTypeError.message}`);
+    if (!unitType) throw new ApiError(400, 'invalid_unit_type', 'نوع الوحدة غير موجود');
+    if (unitType.project_id && unitType.project_id !== input.project_id) throw new ApiError(400, 'unit_type_project_mismatch', 'نوع الوحدة لا يتبع المشروع المحدد');
+    if (unitType.asset_type && unitType.asset_type !== input.asset_type) throw new ApiError(400, 'unit_type_asset_mismatch', 'نوع العقار لا يطابق نوع الوحدة المحدد');
   }
   const { data, error } = await supabase.from('assets').insert({ ...input, tenant_id: caller.tenantId }).select().single();
   if (error) throw new Error(`Failed to create asset: ${error.message}`);
