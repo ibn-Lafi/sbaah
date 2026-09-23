@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { WEBSITE_PAGE_KEYS, websiteUpdateSchema } from '@sbaah/shared';
-import { okResponse, withErrorHandling } from '@/lib/http';
+import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
 import { assertNotAgent } from '@/lib/auth/assert-not-agent';
@@ -52,6 +52,14 @@ export const PATCH = withErrorHandling(async (request: NextRequest) => {
   assertNotAgent(caller.role);
 
   const input = websiteUpdateSchema.parse(await request.json());
+  if(input.theme_id){
+    const {data:theme,error:themeError}=await supabase.from('themes').select('id,key,is_active').eq('id',input.theme_id).maybeSingle();
+    if(themeError)throw new Error(`Failed to validate theme: ${themeError.message}`);
+    // Only theme families implemented in public-site may be selected. Add keys here
+    // together with their React implementation/registry entry, never DB-only.
+    const implementedThemeKeys=new Set(['classic']);
+    if(!theme||!theme.is_active||!implementedThemeKeys.has(theme.key))throw new ApiError(400,'unsupported_theme','الثيم غير متاح للموقع حاليًا');
+  }
 
   const { data, error } = await supabase
     .from('websites')
