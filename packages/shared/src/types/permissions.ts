@@ -48,12 +48,12 @@ const adminPermissions: readonly Permission[] = PERMISSIONS.filter(
   (permission) => permission !== 'billing.manage' && permission !== 'tenant.settings.manage',
 );
 const agentPermissions: readonly Permission[] = [
+  // Agents can inspect inventory/project context, but asset/listing/project
+  // mutation is owner/admin-only in the API and database policies.
   'properties.read',
-  'properties.create',
-  'properties.update',
   'projects.read',
+  // CRM work is limited to records assigned to the agent.
   'crm.read',
-  'crm.create',
   'crm.update',
   'reports.read',
 ];
