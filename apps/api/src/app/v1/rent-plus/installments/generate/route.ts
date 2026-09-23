@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
+import { ApiError, okResponse, withErrorHandling, databaseWriteError } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
 import { assertTenantOwnedRow } from '@/lib/tenant/assert-tenant-owned-row';
@@ -13,6 +13,6 @@ export const POST=withErrorHandling(async(request)=>{
   const {contract_id}=schema.parse(await request.json());
   await assertTenantOwnedRow({supabase,table:'lease_contracts',id:contract_id,tenantId:caller.tenantId,label:'العقد'});
   const {data,error}=await supabase.rpc('generate_lease_installments',{p_contract_id:contract_id});
-  if(error) throw new Error(`Failed to generate lease installments: ${error.message}`);
+  if(error) throw databaseWriteError(error,'Failed to generate lease installments');
   return okResponse({installments:data},201);
 });

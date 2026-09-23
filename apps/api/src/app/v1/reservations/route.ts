@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { reservationInputSchema, RESERVATION_STATUSES } from '@sbaah/shared';
 import { z } from 'zod';
-import { okResponse, withErrorHandling } from '@/lib/http';
+import { okResponse, withErrorHandling, databaseWriteError } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
 import { assertPermission } from '@/lib/auth/permissions';
@@ -16,5 +16,5 @@ export const GET=withErrorHandling(async(request:NextRequest)=>{
 export const POST=withErrorHandling(async(request:NextRequest)=>{
  const {supabase}=getAuthenticatedClient(request); const caller=await getCallerContext(supabase); const grant=assertPermission(caller.role,'crm.create'); const input=reservationInputSchema.parse(await request.json()); if(isAssignedScope(grant))await assertAssignedLeadAccess(supabase,caller.tenantId,caller.userId,input.lead_id); const {asset_ids,...payload}=input;
  const {data,error}=await supabase.rpc('create_reservation_with_assets',{p_reservation:payload,p_asset_ids:asset_ids}).single();
- if(error) throw new Error(`Failed to create reservation: ${error.message}`); return okResponse({reservation:data},201);
+ if(error) throw databaseWriteError(error,'Failed to create reservation'); return okResponse({reservation:data},201);
 });

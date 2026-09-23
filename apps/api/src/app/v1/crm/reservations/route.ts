@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { z } from 'zod';
-import { ApiError,okResponse,withErrorHandling } from '@/lib/http';
+import { ApiError,okResponse,withErrorHandling, databaseWriteError } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
 import { assertPermission } from '@/lib/auth/permissions';
@@ -20,6 +20,6 @@ export const POST=withErrorHandling(async(r:NextRequest)=>{
  const number=`RSV-${Date.now().toString(36).toUpperCase()}-${crypto.randomUUID().slice(0,4).toUpperCase()}`;
  const {asset_ids,...rest}=i;
  const {data,error}=await supabase.rpc('create_reservation_with_assets',{p_reservation:{...rest,reservation_number:number,status:'active',reserved_at:new Date().toISOString()},p_asset_ids:asset_ids}).single();
- if(error)throw new Error(error.message);if(!data)throw new ApiError(500,'reservation_create_failed','تعذر إنشاء الحجز');
+ if(error)throw databaseWriteError(error,'Failed to create reservation');if(!data)throw new ApiError(500,'reservation_create_failed','تعذر إنشاء الحجز');
  return okResponse({reservation:{...(data as Record<string,unknown>),asset_ids}},201);
 });

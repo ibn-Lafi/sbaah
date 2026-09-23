@@ -29,6 +29,7 @@
  */
 
 const CLOUDFLARE_API_URL = 'https://api.cloudflare.com/client/v4';
+const CLOUDFLARE_TIMEOUT_MS = 15_000;
 
 function requireEnv(name: string): string {
   const value = process.env[name];
@@ -39,13 +40,19 @@ function requireEnv(name: string): string {
 async function cloudflareFetch<T>(path: string, init: RequestInit): Promise<T> {
   const response = await fetch(`${CLOUDFLARE_API_URL}${path}`, {
     ...init,
+    signal: AbortSignal.timeout(CLOUDFLARE_TIMEOUT_MS),
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${requireEnv('CLOUDFLARE_API_TOKEN')}`,
       ...init.headers,
     },
   });
-  const json = (await response.json()) as { success: boolean; result?: T; errors?: { message: string }[] };
+  const json = (await response.json().catch(() => null)) as
+    | { success: boolean; result?: T; errors?: { message: string }[] }
+    | null;
+  if (!json) {
+    throw new Error(`Cloudflare API returned a non-JSON response (HTTP ${response.status})`);
+  }
   if (!json.success) {
     throw new Error(`Cloudflare API error: ${json.errors?.map((e) => e.message).join('; ') ?? 'unknown error'}`);
   }

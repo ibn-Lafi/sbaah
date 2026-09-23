@@ -74,6 +74,6 @@ export async function verifyOtpSms(phone: string, otp: string, fetchImpl: typeof
     return false;
   }
 
-  const data = (await response.json()) as { status?: boolean };
-  return data.status === true;
+  const data = (await response.json().catch(() => null)) as { status?: boolean } | null;
+  return data?.status === true;
 }

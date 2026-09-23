@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { leasePaymentInputSchema } from '@sbaah/shared';
-import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
+import { ApiError, okResponse, withErrorHandling, databaseWriteError } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
 import { assertOptionalTenantOwnedRow, assertTenantOwnedRow } from '@/lib/tenant/assert-tenant-owned-row';
@@ -67,6 +67,6 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
     if(allocated>input.amount)throw new ApiError(400,'payment_allocation_exceeds_amount','إجمالي توزيع الدفعة يتجاوز مبلغ الدفعة');
   }
   const { data, error } = await supabase.rpc('record_lease_payment', { p_payment: payment, p_allocations: allocations }).single();
-  if (error) throw new Error(`Failed to record lease payment: ${error.message}`);
+  if (error) throw databaseWriteError(error, 'Failed to record lease payment');
   return okResponse({ payment: data }, 201);
 });

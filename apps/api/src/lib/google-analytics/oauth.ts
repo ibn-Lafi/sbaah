@@ -4,6 +4,8 @@ import { ApiError } from '@/lib/http';
 const GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
 const GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token';
 const ANALYTICS_SCOPE = 'https://www.googleapis.com/auth/analytics.readonly';
+// The dashboard home awaits these calls; a stalled Google API must not hang it.
+const GOOGLE_TIMEOUT_MS = 10_000;
 
 function requireEnv(name: string): string {
   const value = process.env[name];
@@ -57,6 +59,7 @@ export async function exchangeAuthorizationCode(code: string, redirectUri = requ
       grant_type: 'authorization_code',
     }),
     cache: 'no-store',
+    signal: AbortSignal.timeout(GOOGLE_TIMEOUT_MS),
   });
   const body = await response.json().catch(() => null);
   if (!response.ok || !body?.access_token) throw new ApiError(502, 'google_oauth_failed', 'تعذر إكمال الربط مع Google');
@@ -84,7 +87,7 @@ export function decryptRefreshToken(payload: string): string {
 }
 
 async function googleGet<T>(url: string, accessToken: string): Promise<T> {
-  const response = await fetch(url, { headers: { Authorization: `Bearer ${accessToken}` }, cache: 'no-store' });
+  const response = await fetch(url, { headers: { Authorization: `Bearer ${accessToken}` }, cache: 'no-store', signal: AbortSignal.timeout(GOOGLE_TIMEOUT_MS) });
   if (!response.ok) throw new ApiError(502, 'google_analytics_api_failed', 'تعذر قراءة إعداد Google Analytics');
   return response.json() as Promise<T>;
 }
@@ -121,6 +124,7 @@ export async function refreshGoogleAccessToken(encryptedRefreshToken: string): P
       grant_type: 'refresh_token',
     }),
     cache: 'no-store',
+    signal: AbortSignal.timeout(GOOGLE_TIMEOUT_MS),
   });
   const body = await response.json().catch(() => null);
   if (!response.ok || !body?.access_token) throw new ApiError(502, 'google_token_refresh_failed', 'تعذر تحديث اتصال Google Analytics');
@@ -138,6 +142,7 @@ export async function runAnalyticsReport(accessToken: string, propertyId: string
       orderBys: [{ dimension: { dimensionName: 'date' } }],
     }),
     cache: 'no-store',
+    signal: AbortSignal.timeout(GOOGLE_TIMEOUT_MS),
   });
   if (!response.ok) throw new ApiError(502, 'google_analytics_report_failed', 'تعذر قراءة إحصائيات Google Analytics');
   const body = await response.json() as { rows?: Array<{ dimensionValues?: Array<{ value?: string }>; metricValues?: Array<{ value?: string }> }> };

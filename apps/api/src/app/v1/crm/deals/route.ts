@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { dealInputSchema } from '@sbaah/shared';
-import { ApiError,okResponse,withErrorHandling } from '@/lib/http';
+import { ApiError,okResponse,withErrorHandling, databaseWriteError } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
 import { assertPermission } from '@/lib/auth/permissions';
@@ -19,7 +19,7 @@ export const POST=withErrorHandling(async(r:NextRequest)=>{
  if(i.reservation_id){const{data:reservation,error:reservationError}=await supabase.from('reservations').select('id,lead_id,listing_id,status').eq('id',i.reservation_id).eq('tenant_id',c.tenantId).maybeSingle();if(reservationError)throw new Error(`Failed to validate deal reservation: ${reservationError.message}`);if(!reservation||!['pending','active'].includes(reservation.status))throw new ApiError(400,'invalid_deal_reservation','الحجز غير متاح للتحويل إلى صفقة');if(reservation.lead_id&&reservation.lead_id!==i.lead_id)throw new ApiError(400,'reservation_lead_mismatch','الحجز مرتبط بعميل مختلف');if(i.listing_id&&reservation.listing_id&&reservation.listing_id!==i.listing_id)throw new ApiError(400,'reservation_listing_mismatch','الحجز مرتبط بعرض عقاري مختلف');const{data:reservationAssets,error:reservationAssetsError}=await supabase.from('reservation_assets').select('asset_id').eq('tenant_id',c.tenantId).eq('reservation_id',i.reservation_id).in('asset_id',i.asset_ids);if(reservationAssetsError)throw new Error(`Failed to validate deal reservation assets: ${reservationAssetsError.message}`);if((reservationAssets??[]).length!==new Set(i.asset_ids).size)throw new ApiError(400,'reservation_asset_mismatch','عقارات الصفقة لا تطابق عقارات الحجز');}
  const{asset_ids,...rawDeal}=i;const deal=isAssignedScope(grant)?{...rawDeal,responsible_user_id:c.userId}:rawDeal;
  const{data,error}=await supabase.rpc('create_deal_with_assets',{p_deal:deal,p_asset_ids:asset_ids}).single();
- if(error)throw new Error(error.message);
+ if(error)throw databaseWriteError(error,'Failed to create deal');
  const createdDeal = data as Record<string, unknown> | null;
  if(!createdDeal)throw new Error('Deal RPC returned no row');
  return okResponse({deal:{...createdDeal,asset_ids}},201);

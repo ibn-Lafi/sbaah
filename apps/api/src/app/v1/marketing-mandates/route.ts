@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { marketingMandateInputSchema } from '@sbaah/shared';
-import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
+import { ApiError, okResponse, withErrorHandling, databaseWriteError } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
 import { assertOptionalTenantOwnedRow, assertTenantOwnedRow } from '@/lib/tenant/assert-tenant-owned-row';
@@ -21,7 +21,7 @@ export const POST=withErrorHandling(async(request:NextRequest)=>{
  for(const assetId of input.asset_ids)await assertTenantOwnedRow({supabase,table:'assets',id:assetId,tenantId:caller.tenantId,label:'العقار'});
  const{asset_ids,...mandate}=input;
  const{data,error}=await supabase.rpc('create_marketing_mandate_with_assets',{p_mandate:mandate,p_asset_ids:asset_ids}).single();
- if(error)throw new Error(error.message);
+ if(error)throw databaseWriteError(error,'Failed to create marketing mandate');
  const createdMandate = data as Record<string, unknown> | null;
  if(!createdMandate)throw new Error('Marketing mandate RPC returned no row');
  return okResponse({mandate:{...createdMandate,marketing_mandate_assets:asset_ids.map(asset_id=>({asset_id}))}},201);

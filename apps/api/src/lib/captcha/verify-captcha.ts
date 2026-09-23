@@ -32,7 +32,10 @@ export async function verifyCaptcha(token: string, remoteIp: string | null): Pro
     throw new Error(`Turnstile verification request failed with status ${response.status}`);
   }
 
-  const result = (await response.json()) as { success: boolean };
+  const result = (await response.json().catch(() => null)) as { success?: boolean } | null;
+  if (!result) {
+    throw new Error('Turnstile verification returned a non-JSON response');
+  }
   if (!result.success) {
     throw new ApiError(400, 'captcha_failed', 'فشل التحقق الأمني، حاول مرة أخرى');
   }

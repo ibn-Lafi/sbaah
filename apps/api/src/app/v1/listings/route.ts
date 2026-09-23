@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { listingInputSchema, LISTING_COMMERCIAL_STATUSES, LISTING_PUBLICATION_STATUSES, LISTING_TYPES } from '@sbaah/shared';
 import { z } from 'zod';
-import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
+import { ApiError, okResponse, withErrorHandling, databaseWriteError } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
 
@@ -32,6 +32,6 @@ export const POST=withErrorHandling(async(request:NextRequest)=>{
   const input=listingInputSchema.parse(await request.json());
   const {asset_ids,...payload}=input;
   const {data,error}=await supabase.rpc('create_listing_with_assets',{p_listing:payload,p_asset_ids:asset_ids}).single();
-  if(error) throw new Error(`Failed to create listing: ${error.message}`);
+  if(error) throw databaseWriteError(error,'Failed to create listing');
   return okResponse({listing:data},201);
 });

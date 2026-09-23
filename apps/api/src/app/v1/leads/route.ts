@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { LEAD_SOURCES, LEAD_STATUSES, manualLeadInputSchema } from '@sbaah/shared';
-import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
+import { ApiError, okResponse, withErrorHandling, databaseWriteError } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
 import { assertPermission } from '@/lib/auth/permissions';
@@ -114,7 +114,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
       p_interest: interest,
     })
     .single();
-  if (error) throw new Error(`Failed to create lead with interest: ${error.message}`);
+  if (error) throw databaseWriteError(error, 'Failed to create lead with interest');
   if (!data) throw new ApiError(500, 'lead_create_failed', 'تعذر إنشاء العميل المحتمل');
 
   return okResponse({ lead: data }, 201);
