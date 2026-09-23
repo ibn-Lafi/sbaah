@@ -50,9 +50,8 @@ export const PATCH = withErrorHandling(async (request: NextRequest) => {
   const caller = await getCallerContext(supabase);
   const body = await request.json();
   const profile = updateMyProfileSchema.safeParse(body);
-  if (profile.success && (profile.data.full_name !== undefined || profile.data.role !== undefined)) {
+  if (profile.success && profile.data.full_name !== undefined) {
     const updates = profile.data;
-    if (updates.role === 'owner' && caller.role !== 'owner') throw new ApiError(403, 'forbidden', 'لا يمكن منح دور مالك الحساب');
     const { data: updated, error: profileError } = await supabase.from('users').update(updates).eq('id', caller.userId).select('id, full_name, phone, email, role, status').single();
     if (profileError) throw new Error(`Failed to update profile: ${profileError.message}`);
     return okResponse({ user: updated });
