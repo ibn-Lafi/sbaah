@@ -1,7 +1,8 @@
 import type { NextRequest } from 'next/server';
 import { createAnonClient, createServiceRoleClient, loginWithPasswordSchema } from '@sbaah/shared';
-import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
+import { ApiError, extractClientIp, okResponse, withErrorHandling } from '@/lib/http';
 import { accountDisabledError } from '@/lib/auth/get-caller-context';
+import { enforceRateLimit, RATE_LIMITS } from '@/lib/rate-limit/enforce-rate-limit';
 
 const GENERIC_INVALID_CREDENTIALS = 'البريد الإلكتروني أو كلمة المرور غير صحيحة';
 
@@ -28,6 +29,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   }
 
   const serviceRole = createServiceRoleClient();
+  await enforceRateLimit(serviceRole, RATE_LIMITS.passwordLoginPerIp, extractClientIp(request.headers));
   const { data: user, error: userError } = await serviceRole
     .from('users')
     .select('phone, status')

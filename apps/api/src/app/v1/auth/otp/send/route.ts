@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { createServiceRoleClient, requestOtpSchema, REGISTRATION_OPEN, type OtpPurpose } from '@sbaah/shared';
-import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
+import { ApiError, extractClientIp, okResponse, withErrorHandling } from '@/lib/http';
 import { sendOtpSms } from '@/lib/authentica/client';
 import { sendEmail } from '@/lib/email/send';
 import { otpCodeEmail } from '@/lib/email/templates';
@@ -11,6 +11,7 @@ import { hashEmailOtpCode } from '@/lib/otp/hash-email-code';
 import { OTP_CONFIG } from '@/lib/otp/otp-config';
 import { computeExpiresAt, hasExceededSendLimit } from '@/lib/otp/otp-policy';
 import { assertOtpNotLocked, type OtpIdentifier } from '@/lib/otp/attempt-guard';
+import { enforceRateLimit, RATE_LIMITS } from '@/lib/rate-limit/enforce-rate-limit';
 
 const NEW_IDENTIFIER_PURPOSES: readonly OtpPurpose[] = ['register', 'change_phone', 'change_email'];
 
@@ -37,6 +38,9 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   }
 
   const supabase = createServiceRoleClient();
+  // Per-identifier limits alone let one client send paid SMS to endless
+  // different numbers (e.g. 'register' to unregistered ones).
+  await enforceRateLimit(supabase, RATE_LIMITS.otpSendPerIp, extractClientIp(request.headers));
   const identifier: OtpIdentifier =
     channel === 'sms' ? { column: 'phone', value: input.phone as string } : { column: 'email', value: input.email as string };
   const windowStart = new Date(Date.now() - OTP_CONFIG.sendWindowMs).toISOString();

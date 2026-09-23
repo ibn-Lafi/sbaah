@@ -1,7 +1,8 @@
 import type { NextRequest } from 'next/server';
 import { createAnonClient, createServiceRoleClient, publicWhatsappClickInputSchema } from '@sbaah/shared';
-import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
+import { ApiError, extractClientIp, okResponse, withErrorHandling } from '@/lib/http';
 import { validatePublicTenantTarget } from '@/lib/tenant/validate-public-target';
+import { enforceRateLimit, RATE_LIMITS } from '@/lib/rate-limit/enforce-rate-limit';
 
 /**
  * Unauthenticated — public-site's WhatsApp click-to-chat button fires
@@ -18,6 +19,9 @@ import { validatePublicTenantTarget } from '@/lib/tenant/validate-public-target'
  */
 export const POST = withErrorHandling(async (request: NextRequest) => {
   const input = publicWhatsappClickInputSchema.parse(await request.json());
+  // No captcha by design (see above), so an IP budget is the only thing
+  // standing between this endpoint and unlimited placeholder leads.
+  await enforceRateLimit(createServiceRoleClient(), RATE_LIMITS.whatsappClickPerIp, extractClientIp(request.headers));
 
   const anon = createAnonClient();
   await validatePublicTenantTarget(anon, input.tenant_id, input.listing_id, input.asset_id);

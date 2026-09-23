@@ -1,11 +1,9 @@
 import type { NextRequest } from 'next/server';
 import { createAnonClient, createServiceRoleClient, publicLeadInputSchema } from '@sbaah/shared';
-import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
-import { extractClientIp, verifyCaptcha } from '@/lib/captcha/verify-captcha';
+import { ApiError, extractClientIp, okResponse, withErrorHandling } from '@/lib/http';
+import { verifyCaptcha } from '@/lib/captcha/verify-captcha';
 import { validatePublicTenantTarget } from '@/lib/tenant/validate-public-target';
-import { createIpRateLimitPolicy } from '@/lib/rate-limit/ip-rate-limit-policy';
-
-const LEAD_RATE_LIMIT = createIpRateLimitPolicy(10 * 60 * 1000, 5);
+import { enforceRateLimit, RATE_LIMITS } from '@/lib/rate-limit/enforce-rate-limit';
 
 /**
  * Unauthenticated — public-site's inquiry form. `leads` intentionally has
@@ -14,35 +12,18 @@ const LEAD_RATE_LIMIT = createIpRateLimitPolicy(10 * 60 * 1000, 5);
  * after re-validating tenant_id/property_id server-side, never trusting
  * them as sent (PRODUCT_SPEC section 10).
  *
- * Rate-limited by IP (migration 0029, security audit finding) as
- * defense-in-depth on top of Turnstile — the attempt is logged and
- * checked BEFORE the captcha call/target validation so a burst against
+ * Rate-limited by IP as defense-in-depth on top of Turnstile — the attempt
+ * is counted BEFORE the captcha call/target validation so a burst against
  * this endpoint doesn't also burn Turnstile verify requests or DB reads.
  */
 export const POST = withErrorHandling(async (request: NextRequest) => {
   const input = publicLeadInputSchema.parse(await request.json());
-  const ip = extractClientIp(request.headers) ?? 'unknown';
+  const ip = extractClientIp(request.headers);
 
   const serviceRole = createServiceRoleClient();
-  const windowStart = new Date(Date.now() - LEAD_RATE_LIMIT.windowMs).toISOString();
-  const { count: recentAttempts, error: rateLimitError } = await serviceRole
-    .from('lead_submission_attempts')
-    .select('id', { count: 'exact', head: true })
-    .eq('ip', ip)
-    .gte('created_at', windowStart);
-  if (rateLimitError) {
-    throw new Error(`Failed to check lead rate limit: ${rateLimitError.message}`);
-  }
-  if (LEAD_RATE_LIMIT.hasExceeded(recentAttempts ?? 0)) {
-    throw new ApiError(429, 'lead_rate_limited', 'عدد كبير من الطلبات، حاول لاحقًا');
-  }
+  await enforceRateLimit(serviceRole, RATE_LIMITS.publicLeadPerIp, ip);
 
-  const { error: attemptInsertError } = await serviceRole.from('lead_submission_attempts').insert({ ip });
-  if (attemptInsertError) {
-    throw new Error(`Failed to record lead submission attempt: ${attemptInsertError.message}`);
-  }
-
-  await verifyCaptcha(input.captcha_token, ip === 'unknown' ? null : ip);
+  await verifyCaptcha(input.captcha_token, ip);
 
   const anon = createAnonClient();
   await validatePublicTenantTarget(anon, input.tenant_id, input.listing_id, input.asset_id);

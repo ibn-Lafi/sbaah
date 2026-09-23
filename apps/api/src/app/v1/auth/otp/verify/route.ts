@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { createServiceRoleClient, verifyOtpSchema } from '@sbaah/shared';
-import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
+import { ApiError, extractClientIp, okResponse, withErrorHandling } from '@/lib/http';
 import { verifyOtpSms } from '@/lib/authentica/client';
 import { verifyEmailOtpCode } from '@/lib/otp/hash-email-code';
 import {
@@ -14,6 +14,7 @@ import {
 import { signTempToken } from '@/lib/auth/temp-token';
 import { mintSessionForUser } from '@/lib/auth/mint-session';
 import { accountDisabledError } from '@/lib/auth/get-caller-context';
+import { enforceRateLimit, RATE_LIMITS } from '@/lib/rate-limit/enforce-rate-limit';
 
 export const POST = withErrorHandling(async (request: NextRequest) => {
   const input = verifyOtpSchema.parse(await request.json());
@@ -27,6 +28,9 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   }
 
   const supabase = createServiceRoleClient();
+  // The per-identifier budget stops guessing one account; this stops one
+  // client spraying a few guesses across many accounts.
+  await enforceRateLimit(supabase, RATE_LIMITS.otpVerifyPerIp, extractClientIp(request.headers));
   const identifier: OtpIdentifier =
     channel === 'sms' ? { column: 'phone', value: input.phone as string } : { column: 'email', value: input.email as string };
 

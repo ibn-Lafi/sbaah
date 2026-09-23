@@ -40,10 +40,3 @@ export async function verifyCaptcha(token: string, remoteIp: string | null): Pro
     throw new ApiError(400, 'captcha_failed', 'فشل التحقق الأمني، حاول مرة أخرى');
   }
 }
-
-/** Railway/most proxies set this; first entry is the original client IP. */
-export function extractClientIp(headers: Headers): string | null {
-  const forwardedFor = headers.get('x-forwarded-for');
-  if (!forwardedFor) return null;
-  return forwardedFor.split(',')[0]?.trim() || null;
-}
