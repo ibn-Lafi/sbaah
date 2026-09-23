@@ -120,7 +120,7 @@ export function Sidebar({ orgName, accountType }: SidebarProps) {
       <SidebarBackdrop />
 
       <div className="flex items-center justify-between px-2 pb-[18px]">
-        {!collapsed && <BrandMark width={52} height={23} invert />}
+        {!collapsed && <BrandMark height={24} invert />}
         <button
           type="button"
           onClick={toggleCollapsed}
