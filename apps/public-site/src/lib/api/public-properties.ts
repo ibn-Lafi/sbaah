@@ -16,14 +16,14 @@ export interface PublicProperty {
 export type PublicPropertyDetail = PublicProperty;
 
 export interface PublicPropertyListResponse { properties:PublicProperty[]; page:number; page_size:number; total:number; }
-export interface PublicPropertySearchFilters { city_id?:string; district_id?:string; property_type?:string; listing_type?:string; min_price?:number; max_price?:number; bedrooms?:number; page?:number; }
+export interface PublicPropertySearchFilters { city_id?:string; district_id?:string; property_type?:string; listing_type?:string; min_price?:number; max_price?:number; bedrooms?:number; page?:number; page_size?:number; }
 
 export async function listPublicProperties(filters:PublicPropertySearchFilters):Promise<PublicPropertyListResponse>{
   const host=await getHost(); const query=new URLSearchParams({domain:host??''});
   if(filters.city_id)query.set('city_id',filters.city_id); if(filters.district_id)query.set('district_id',filters.district_id);
   if(filters.property_type)query.set('property_type',filters.property_type); if(filters.listing_type)query.set('listing_type',filters.listing_type);
   if(filters.min_price!==undefined)query.set('min_price',String(filters.min_price)); if(filters.max_price!==undefined)query.set('max_price',String(filters.max_price));
-  if(filters.bedrooms!==undefined)query.set('bedrooms',String(filters.bedrooms)); if(filters.page)query.set('page',String(filters.page));
+  if(filters.bedrooms!==undefined)query.set('bedrooms',String(filters.bedrooms)); if(filters.page)query.set('page',String(filters.page)); if(filters.page_size)query.set('page_size',String(filters.page_size));
   return apiGet<PublicPropertyListResponse>(`/public/properties?${query.toString()}`);
 }
 export async function getPublicProperty(id:string):Promise<PublicPropertyDetail|null>{
