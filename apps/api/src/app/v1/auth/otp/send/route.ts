@@ -63,24 +63,30 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
     // window (see OTP_CONFIG.ttlMs) only starts once this whole request
     // resolves, so shaving time here directly gives the customer more of
     // their 5 minutes to actually receive and type the code.
-    await Promise.all([
-      supabase
-        .from('otp_verifications')
-        .update({ expires_at: new Date().toISOString() })
-        .eq('phone', phone)
-        .eq('purpose', purpose)
-        .is('consumed_at', null),
-      sendOtpSms(phone, code),
-    ]);
+    // Do not invalidate the customer's current OTP until the provider has
+    // accepted the replacement. Otherwise a transient provider failure
+    // destroys a still-usable authentication path without delivering a new one.
+    await sendOtpSms(phone, code);
 
-    const { error: insertError } = await supabase.from('otp_verifications').insert({
+    const { data: insertedOtp, error: insertError } = await supabase.from('otp_verifications').insert({
       channel: 'sms',
       phone,
       purpose,
       expires_at: computeExpiresAt(),
-    });
-    if (insertError) {
-      throw new Error(`Failed to record OTP send: ${insertError.message}`);
+    }).select('id').single();
+    if (insertError || !insertedOtp) {
+      throw new Error(`Failed to record OTP send: ${insertError?.message ?? 'missing inserted OTP row'}`);
+    }
+
+    const { error: invalidateError } = await supabase
+      .from('otp_verifications')
+      .update({ expires_at: new Date().toISOString() })
+      .eq('phone', phone)
+      .eq('purpose', purpose)
+      .is('consumed_at', null)
+      .neq('id', insertedOtp.id);
+    if (invalidateError) {
+      throw new Error(`Failed to invalidate previous OTP sends: ${invalidateError.message}`);
     }
 
     return okResponse({ status: 'sent' });
@@ -119,25 +125,28 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   const code = generateOtpCode();
   const codeHash = hashEmailOtpCode(code);
 
-  await Promise.all([
-    supabase
-      .from('otp_verifications')
-      .update({ expires_at: new Date().toISOString() })
-      .eq('email', email)
-      .eq('purpose', purpose)
-      .is('consumed_at', null),
-    sendEmail({ to: email, ...otpCodeEmail({ code, purpose: emailPurpose }) }),
-  ]);
+  await sendEmail({ to: email, ...otpCodeEmail({ code, purpose: emailPurpose }) });
 
-  const { error: insertError } = await supabase.from('otp_verifications').insert({
+  const { data: insertedOtp, error: insertError } = await supabase.from('otp_verifications').insert({
     channel: 'email',
     email,
     purpose,
     expires_at: computeExpiresAt(),
     code_hash: codeHash,
-  });
-  if (insertError) {
-    throw new Error(`Failed to record OTP send: ${insertError.message}`);
+  }).select('id').single();
+  if (insertError || !insertedOtp) {
+    throw new Error(`Failed to record OTP send: ${insertError?.message ?? 'missing inserted OTP row'}`);
+  }
+
+  const { error: invalidateError } = await supabase
+    .from('otp_verifications')
+    .update({ expires_at: new Date().toISOString() })
+    .eq('email', email)
+    .eq('purpose', purpose)
+    .is('consumed_at', null)
+    .neq('id', insertedOtp.id);
+  if (invalidateError) {
+    throw new Error(`Failed to invalidate previous OTP sends: ${invalidateError.message}`);
   }
 
   return okResponse({ status: 'sent' });
