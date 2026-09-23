@@ -76,11 +76,13 @@ export default async function ProjectDetailPage({ params }: PageProps) {
               <img
                 key={media.id}
                 src={media.url}
+                loading="lazy"
+                decoding="async"
                 alt={pickLocalized(locale, media.alt_ar ?? title, media.alt_en)}
                 className="aspect-[4/3] w-full rounded-xl object-cover"
               />
             ) : (
-              <video key={media.id} src={media.url} controls className="aspect-video w-full rounded-xl" />
+              <video key={media.id} src={media.url} controls preload="metadata" className="aspect-video w-full rounded-xl" />
             ),
           )}
         </div>
