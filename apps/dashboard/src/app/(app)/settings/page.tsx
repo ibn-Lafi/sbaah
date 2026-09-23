@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { Button } from '@/components/ui/button';
 import { FormError } from '@/components/ui/form-error';
+import { Skeleton } from '@/components/ui/skeleton';
 import { VerifiedBadge } from '@/components/ui/verified-badge';
 import { SegmentedToggle } from '@/components/ui/segmented-toggle';
 import { TeamManagementPanel } from '@/components/team/team-management-panel';
@@ -30,7 +31,7 @@ import {
 } from '@/components/website/editor-icons';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { useLocale } from '@/lib/i18n/locale-context';
-import { updateSocialLinks, updateAccountType, updateFalLicense, type SocialLinks } from '@/lib/api/tenant';
+import { getSocialLinks, updateSocialLinks, updateAccountType, updateFalLicense, type SocialLinks } from '@/lib/api/tenant';
 import { getWebsite, updateWebsite } from '@/lib/api/website';
 import { sendProfileChangeOtp, updateMyProfile, verifyProfileChange } from '@/lib/api/auth';
 import { signOut } from '@/lib/auth/session';
@@ -514,10 +515,27 @@ function OrganizationTab({ accessToken }: { accessToken: string }) {
 }
 
 function ContactTab({ accessToken }: { accessToken: string }) {
-  const { me } = useCurrentUser();
   const { pages } = useLocale();
   const settings = pages.settings;
-  return <><SocialLinksCard accessToken={accessToken} initial={{ social_instagram: me.tenant.social_instagram, social_tiktok: me.tenant.social_tiktok, social_whatsapp: me.tenant.social_whatsapp, social_snapchat: me.tenant.social_snapchat, social_phone: me.tenant.social_phone, social_facebook: me.tenant.social_facebook, social_x: me.tenant.social_x, social_telegram: me.tenant.social_telegram }} /><WebsiteTextFieldCard accessToken={accessToken} field="address" icon={<LocationIcon className="h-[18px] w-[18px] text-text-secondary" />} title={settings.address.title} description={settings.address.description} placeholder={settings.address.placeholder} saveFailedMessage={settings.address.saveFailed} /></>;
+  const [socialLinks, setSocialLinks] = useState<SocialLinks | null>(null);
+  const [socialLinksError, setSocialLinksError] = useState<string | null>(null);
+
+  // /auth/me carries only part of the contact links; this endpoint has all of them.
+  useEffect(() => {
+    let cancelled = false;
+    getSocialLinks(accessToken)
+      .then((links) => {
+        if (!cancelled) setSocialLinks(links);
+      })
+      .catch((err) => {
+        if (!cancelled) setSocialLinksError(err instanceof ApiRequestError ? err.message : settings.socialLinks.loadFailed);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [accessToken, settings.socialLinks.loadFailed]);
+
+  return <>{socialLinks ? <SocialLinksCard accessToken={accessToken} initial={socialLinks} /> : <Card className="p-6">{socialLinksError ? <FormError message={socialLinksError} /> : <div className="flex flex-col gap-4" aria-busy="true"><Skeleton className="h-5 w-40" /><Skeleton className="h-11 w-full" /><Skeleton className="h-11 w-full" /></div>}</Card>}<WebsiteTextFieldCard accessToken={accessToken} field="address" icon={<LocationIcon className="h-[18px] w-[18px] text-text-secondary" />} title={settings.address.title} description={settings.address.description} placeholder={settings.address.placeholder} saveFailedMessage={settings.address.saveFailed} /></>;
 }
 
 function BrandTab({ accessToken }: { accessToken: string }) {
@@ -543,6 +561,15 @@ export default function SettingsPage() {
     ...(canSeeBilling ? [{ value: 'billing' as const, label: settings.tabs.billing }] : []),
   ];
   const [tab, setTab] = useState<SettingsTab>('account');
+
+  // Deep links such as /settings?tab=contact (dashboard setup checklist).
+  useEffect(() => {
+    const requested = new URLSearchParams(window.location.search).get('tab');
+    const available = tabOptions.find((option) => option.value === requested);
+    if (available) setTab(available.value);
+    // tabOptions is derived from the signed-in role and only needs reading once.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <AppShell title={settings.pageTitle} orgName={me.tenant.name_ar} accountType={me.tenant.account_type}>

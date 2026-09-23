@@ -2,11 +2,14 @@ import Link from 'next/link';
 import { SiteBadge } from '@/components/site-badge';
 import {
   CallIcon,
+  FacebookIcon,
   InstagramIcon,
   LocationIcon,
   SnapchatIcon,
+  TelegramIcon,
   TiktokIcon,
   WhatsappIcon,
+  XIcon,
 } from '@/components/footer-icons';
 import type { FooterProps } from '../types';
 import { safeExternalUrl } from '@/lib/security/public-values';
@@ -27,10 +30,13 @@ export function Footer({ locale, dict, tenant, website, customPages }: FooterPro
   // "تواصل معنا" (الاتصال/واتساب) لهما سطر خاص بهما بالعمود الأوسط —
   // هذه القائمة فقط حسابات التواصل الاجتماعي البحتة (عمود يمين، صف أيقونات).
   const socialLinks = [
-    safeExternalUrl(tenant.social_instagram) && { key: 'instagram', href: safeExternalUrl(tenant.social_instagram)!, Icon: InstagramIcon },
-    safeExternalUrl(tenant.social_tiktok) && { key: 'tiktok', href: safeExternalUrl(tenant.social_tiktok)!, Icon: TiktokIcon },
-    safeExternalUrl(tenant.social_snapchat) && { key: 'snapchat', href: safeExternalUrl(tenant.social_snapchat)!, Icon: SnapchatIcon },
-  ].filter((entry): entry is { key: string; href: string; Icon: typeof InstagramIcon } => Boolean(entry));
+    safeExternalUrl(tenant.social_instagram) && { key: 'instagram', label: 'Instagram', href: safeExternalUrl(tenant.social_instagram)!, Icon: InstagramIcon },
+    safeExternalUrl(tenant.social_tiktok) && { key: 'tiktok', label: 'TikTok', href: safeExternalUrl(tenant.social_tiktok)!, Icon: TiktokIcon },
+    safeExternalUrl(tenant.social_snapchat) && { key: 'snapchat', label: 'Snapchat', href: safeExternalUrl(tenant.social_snapchat)!, Icon: SnapchatIcon },
+    safeExternalUrl(tenant.social_facebook) && { key: 'facebook', label: 'Facebook', href: safeExternalUrl(tenant.social_facebook)!, Icon: FacebookIcon },
+    safeExternalUrl(tenant.social_x) && { key: 'x', label: 'X', href: safeExternalUrl(tenant.social_x)!, Icon: XIcon },
+    safeExternalUrl(tenant.social_telegram) && { key: 'telegram', label: 'Telegram', href: safeExternalUrl(tenant.social_telegram)!, Icon: TelegramIcon },
+  ].filter((entry): entry is { key: string; label: string; href: string; Icon: typeof InstagramIcon } => Boolean(entry));
 
   const businessNumbers = [
     tenant.cr_number && {
@@ -83,8 +89,8 @@ export function Footer({ locale, dict, tenant, website, customPages }: FooterPro
           {website.footer_description && <p className="text-white/60">{website.footer_description}</p>}
           {socialLinks.length > 0 && (
             <div className="flex items-center gap-4">
-              {socialLinks.map(({ key, href, Icon }) => (
-                <a key={key} href={href} target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-tenant-primary">
+              {socialLinks.map(({ key, label, href, Icon }) => (
+                <a key={key} href={href} target="_blank" rel="noopener noreferrer" aria-label={label} className="text-white/60 hover:text-tenant-primary">
                   <Icon className="h-[18px] w-[18px]" />
                 </a>
               ))}

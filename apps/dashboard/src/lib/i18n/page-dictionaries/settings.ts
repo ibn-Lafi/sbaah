@@ -69,6 +69,7 @@ export const settingsAr = {
     call: 'اتصال',
     phonePlaceholder: '5xxxxxxxx',
     saveFailed: 'تعذّر حفظ حسابات التواصل',
+    loadFailed: 'تعذّر تحميل حسابات التواصل',
   },
   address: {
     title: 'العنوان',
@@ -164,6 +165,7 @@ export const settingsEn: typeof settingsAr = {
     call: 'Call',
     phonePlaceholder: '5xxxxxxxx',
     saveFailed: 'Failed to save social accounts',
+    loadFailed: 'Could not load your contact links',
   },
   address: {
     title: 'Address',

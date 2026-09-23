@@ -64,6 +64,9 @@ export interface PublicTenantChrome {
   social_whatsapp: string | null;
   social_snapchat: string | null;
   social_phone: string | null;
+  social_facebook?: string | null;
+  social_x?: string | null;
+  social_telegram?: string | null;
   custom_domain: string | null;
   custom_domain_status: CustomDomainStatus | null;
 }

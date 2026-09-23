@@ -46,6 +46,32 @@ export function SnapchatIcon({ className }: IconProps) {
   );
 }
 
+export function FacebookIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M14.5 21v-7.5h2.6l.4-3h-3V8.6c0-.9.3-1.5 1.5-1.5h1.6V4.4a20 20 0 0 0-2.3-.1c-2.3 0-3.8 1.4-3.8 3.9v2.3H9v3h2.5V21" />
+    </Svg>
+  );
+}
+
+export function XIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M4 4l16 16" />
+      <path d="M20 4l-6.6 7.5M10.6 12.5L4 20" />
+    </Svg>
+  );
+}
+
+export function TelegramIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M21 4.5L3.5 11.3c-.8.3-.8 1.4 0 1.6l4.3 1.4 1.7 5.1c.2.7 1.1.9 1.6.3l2.4-2.5 4.4 3.3c.6.4 1.4.1 1.6-.6L21.9 5.6c.2-.8-.5-1.4-.9-1.1z" />
+      <path d="M7.8 14.3L17 8" />
+    </Svg>
+  );
+}
+
 export function CallIcon({ className }: IconProps) {
   return (
     <Svg className={className}>
