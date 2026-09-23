@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { districtCreateSchema } from '@sbaah/shared';
-import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
+import { ApiError, databaseWriteError, okResponse, withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { geocodeSaudiPlace } from '@/lib/geocode/nominatim';
 
@@ -61,7 +61,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
     if (error.code === '23503') {
       throw new ApiError(400, 'invalid_city', 'المدينة المحددة غير موجودة');
     }
-    throw new Error(`Failed to create district: ${error.message}`);
+    throw databaseWriteError(error, 'Failed to create district');
   }
   return okResponse({ district: data }, 201);
 });

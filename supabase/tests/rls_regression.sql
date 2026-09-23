@@ -130,6 +130,22 @@ select regression.check(count(*) = 1, 'platform admin can change a trial end') f
 rollback;
 update tenants set trial_ends_at = null where subdomain = 'agency-b';
 
+\echo 'shared districts'
+begin;
+set local role authenticated;
+select regression.act_as('00000000-0000-0000-0000-00000000a003');
+with inserted as (insert into districts (city_id, name_ar, name_en) select id, 'حي تجريبي', 'Test' from cities limit 1 returning 1)
+select regression.check(count(*) = 1, 'an active agent can add a district') from inserted;
+select regression.act_as('00000000-0000-0000-0000-00000000c001');
+do $$ begin
+  perform regression.expect_rejected($q$insert into districts (city_id, name_ar, name_en) select id, 'حي دخيل', 'Intruder' from cities limit 1$q$, '42501', 'an Auth user with no tenant cannot add a district');
+end $$;
+select regression.act_as('00000000-0000-0000-0000-00000000a005');
+do $$ begin
+  perform regression.expect_rejected($q$insert into districts (city_id, name_ar, name_en) select id, 'حي معطل', 'Disabled' from cities limit 1$q$, '42501', 'a disabled member cannot add a district');
+end $$;
+rollback;
+
 \echo 'tenant isolation'
 select id as tenant_a from tenants where subdomain = 'agency-a' \gset
 begin;
@@ -227,6 +243,7 @@ select regression.act_as('00000000-0000-0000-0000-00000000b001');
 do $$ begin
   perform regression.check((select count(*) from leads) = 1, 'suspended owner can still read');
   perform regression.expect_rejected($q$insert into crm_activities (tenant_id, lead_id, user_id, activity_type, summary) values (auth_tenant_id(), '00000000-0000-0000-0000-00000000e101', auth_app_user_id(), 'note', 'x')$q$, '42501', 'suspended tenant cannot write CRM records');
+  perform regression.expect_rejected($q$insert into districts (city_id, name_ar, name_en) select id, 'حي معلق', 'Suspended' from cities limit 1$q$, '42501', 'suspended tenant cannot add a district');
 end $$;
 rollback;
 
