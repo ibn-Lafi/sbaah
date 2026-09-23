@@ -25,15 +25,20 @@ export default function PropertiesPage() {
   const [status, setStatus] = useState<AssetPhysicalStatus | ''>('');
   const [type, setType] = useState<AssetType | ''>(initialType && initialType in assetTypeLabels ? initialType as AssetType : '');
   const [showCreate, setShowCreate] = useState(false);
+  const [page,setPage]=useState(1);
+  const [total,setTotal]=useState(0);
+  const pageSize=20;
   const canManage = me.user.role !== 'agent';
 
   useEffect(() => {
     let active = true;
     setAssets(null);
-    void Promise.all([listAssets(accessToken, { physical_status: status || undefined, asset_type: type || undefined, page_size: 50 }), listListings(accessToken)])
-      .then(([assetResult, listingResult]) => { if (active) { setAssets(assetResult.assets); setListings(listingResult.listings); } });
+    void Promise.all([listAssets(accessToken, { physical_status: status || undefined, asset_type: type || undefined, page, page_size: pageSize }), listListings(accessToken)])
+      .then(([assetResult, listingResult]) => { if (active) { setAssets(assetResult.assets); setTotal(assetResult.total); setListings(listingResult.listings); } });
     return () => { active = false; };
-  }, [accessToken, status, type]);
+  }, [accessToken, status, type, page]);
+
+  useEffect(()=>{setPage(1);},[status,type]);
 
   const offers = useMemo(() => {
     const result = new Map<string, ListingWithAssets[]>();
@@ -51,5 +56,6 @@ export default function PropertiesPage() {
     </div>
     {showCreate && <Modal title="إضافة عقار" onClose={() => setShowCreate(false)} maxWidth="860px" mobileCentered><CreateAssetForm accessToken={accessToken} onCreated={id => { setShowCreate(false); router.push(`/properties/${id}`); }} /></Modal>}
     <Card className="overflow-hidden">{assets === null ? <TableSkeleton columns={3} /> : assets.length === 0 ? <p className="p-8 text-center text-text-secondary">لا توجد عقارات مطابقة</p> : <table className="w-full table-fixed text-xs sm:text-sm"><thead className="bg-surface-header text-right text-text-secondary"><tr><th className="px-2 py-3 text-right font-medium sm:px-4">العقار</th><th className="px-2 py-3 text-right font-medium sm:px-4">النوع</th><th className="px-2 py-3 text-right font-medium sm:px-4">الحالة</th></tr></thead><tbody>{assets.map(asset => <tr key={asset.id} className="border-border-subtle border-t"><td className="px-2 py-3 text-right sm:px-4"><button onClick={() => router.push(`/properties/${asset.id}`)} className="font-medium hover:text-brand">{asset.name_ar}</button></td><td className="px-4 py-3 text-text-secondary">{assetTypeLabels[asset.asset_type]}</td><td className="px-2 py-3 text-right sm:px-4">{statusLabels[asset.physical_status]}</td></tr>)}</tbody></table>}</Card>
+    {total>pageSize && <div className="mt-4 flex items-center justify-center gap-3"><Button variant="secondary" disabled={page<=1} onClick={()=>setPage(p=>Math.max(1,p-1))}>السابق</Button><span className="text-sm text-text-secondary">{page} / {Math.ceil(total/pageSize)}</span><Button variant="secondary" disabled={page>=Math.ceil(total/pageSize)} onClick={()=>setPage(p=>p+1)}>التالي</Button></div>}
   </AppShell>;
 }
