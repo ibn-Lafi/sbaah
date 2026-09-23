@@ -72,8 +72,7 @@ export const updateMyEmailSchema = z.object({ email: emailSchema.nullable() });
 
 export const updateMyProfileSchema = z.object({
   full_name: z.string().trim().min(3, 'الاسم الكريم مطلوب').optional(),
-  role: z.enum(['owner', 'admin', 'agent']).optional(),
-});
+}).strict();
 export type UpdateMyProfileInput = z.infer<typeof updateMyProfileSchema>;
 
 export const verifyProfileChangeSchema = z.discriminatedUnion('channel', [
