@@ -42,3 +42,13 @@ test('a trial owner cannot extend the trial or self-verify a domain through Post
     await db.query(`update tenants set trial_ends_at = null where id = ${TENANT_B}`);
   }
 });
+
+test('tracking pixel ids are limited to the provider id alphabet', async () => {
+  const owner = await tokenFor(PHONES.ownerA);
+  const admin = await tokenFor(PHONES.adminA);
+  const injected = await api('POST', '/marketing/pixels', { token: owner, body: { provider: 'meta', pixel_id: '1"></script><script>alert(1)</script>' } });
+  assert.equal(injected.status, 400, JSON.stringify(injected.body));
+  assert.equal((await api('POST', '/marketing/pixels', { token: admin, body: { provider: 'meta', pixel_id: '123456789012345' } })).status, 403);
+  const saved = await api('POST', '/marketing/pixels', { token: owner, body: { provider: 'meta', pixel_id: '123456789012345' } });
+  assert.equal(saved.status, 201, JSON.stringify(saved.body));
+});
