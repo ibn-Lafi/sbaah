@@ -42,7 +42,6 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
   if (error) throw new Error(`Failed to list leads: ${error.message}`);
 
   const leadRows = data ?? [];
-  let customerLeadIds = new Set<string>();
   const purchaseLeadIds = new Set<string>();
   const tenantLeadIds = new Set<string>();
 
@@ -71,7 +70,6 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
 
     for (const deal of wonDealsResult.data ?? []) if (deal.lead_id) purchaseLeadIds.add(deal.lead_id);
     for (const party of parties) if (party.lead_id && rentedPartyIds.has(party.id)) tenantLeadIds.add(party.lead_id);
-    customerLeadIds = new Set([...purchaseLeadIds, ...tenantLeadIds]);
   }
 
   const classified = leadRows.map((lead) => {
