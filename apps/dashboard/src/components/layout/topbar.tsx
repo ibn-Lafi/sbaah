@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { BrandIcon } from '@/components/ui/brand-mark';
+import { BrandMark } from '@/components/ui/brand-mark';
 import { LanguageToggle } from './language-toggle';
 import { ThemeToggle } from './theme-toggle';
 import { getNavItems, isNavGroup } from './nav-items';
@@ -54,7 +54,7 @@ export function Topbar({ title, siteUrl }: TopbarProps) {
 
   return (
     <div className="bg-brand md:border-border-subtle md:bg-surface-card relative flex h-20 flex-none items-center gap-2 px-4 pb-5 md:h-[72px] md:gap-4 md:border-b md:px-7 md:pb-0">
-      <div className="flex-none md:hidden"><BrandIcon size={28} tone="white" /></div>
+      <div className="flex-none md:hidden"><BrandMark width={39} height={17} invert /></div>
       <div className="md:text-text-primary min-w-0 flex-1 truncate text-[15px] font-semibold text-white md:flex-none md:text-[19px]">{title}</div>
       <div className="hidden flex-1 md:block" />
 
