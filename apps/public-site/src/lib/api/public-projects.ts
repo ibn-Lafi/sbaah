@@ -10,6 +10,9 @@ export interface PublicProject {
   description_en: string | null;
   city_id: string;
   district_id: string | null;
+  lat?: number | null;
+  lng?: number | null;
+  media?: Array<{id:string;url:string;media_type:'image'|'video';alt_ar:string|null;alt_en:string|null;order_index:number}>;
 }
 
 export interface PublicProjectListResponse {
