@@ -306,6 +306,7 @@ const SECTION_TYPE_ICONS: Record<WebsiteSectionType, (props: IconProps) => React
   gallery: GridSectionIcon,
   video: HeroSectionIcon,
   property_detail: DocumentSectionIcon,
+  project_detail: DocumentSectionIcon,
   about: InfoSectionIcon,
   why_us: StarSectionIcon,
   contact: CallIcon,
