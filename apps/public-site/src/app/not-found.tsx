@@ -1,23 +1,23 @@
 import './globals.css';
+import { ErrorState } from '@/components/system/error-state';
 
 /**
- * Top-level (outside `[locale]`) and fully self-contained with its own
- * `<html>/<body>` — required because the failure this catches
- * originates in `app/[locale]/layout.tsx` itself (unresolved locale, or
- * `getTenantSite()` returning null for an unrecognized Host header), so
- * that root layout never renders its own `<html>` wrapper for this page
- * to nest inside. Locale-neutral by necessity: at this point the
- * visitor's locale (and even their tenant) couldn't be resolved, so
- * both languages are shown rather than guessing one.
+ * This boundary also handles an unknown tenant host, before a tenant locale/theme
+ * can be resolved. It is intentionally Sbaah-branded and bilingual.
  */
 export default function NotFound() {
   return (
     <html lang="ar" dir="rtl">
       <body>
-        <div className="flex min-h-screen flex-col items-center justify-center gap-2 text-center">
-          <p className="text-lg font-semibold">الموقع غير موجود</p>
-          <p className="text-sm text-black/60">Site not found</p>
-        </div>
+        <ErrorState
+          code="404"
+          eyebrowAr="العنوان غير معروف"
+          eyebrowEn="Unknown address"
+          titleAr="الموقع غير موجود"
+          titleEn="Site not found"
+          descriptionAr="لم نتمكن من العثور على موقع مرتبط بهذا العنوان. تأكد من الرابط أو ارجع للصفحة السابقة."
+          descriptionEn="We couldn't find a site connected to this address. Check the link or return to the previous page."
+        />
       </body>
     </html>
   );
