@@ -4,7 +4,7 @@ import { pickLocalized } from '@/lib/i18n/localized-field';
 import { localizedPath } from '@/lib/routing/public-url';
 import Link from 'next/link';
 
-export function LavenderProjectDetail({locale,data,tenantId}:{locale:Locale;data:PublicProjectDetailResponse;tenantId:string}){
+export function LavenderProjectDetail({locale,data}:{locale:Locale;data:PublicProjectDetailResponse}){
  const p=data.project; const title=pickLocalized(locale,p.name_ar,p.name_en); const desc=pickLocalized(locale,p.description_ar??'',p.description_en??null);
  const images=data.media.filter(m=>m.media_type==='image'); const primary=images.find(m=>m.is_primary)??images[0]; const by=(x:string)=>images.filter(m=>m.category===x);
  const groups=new Map<string,typeof data.units>(); for(const u of data.units){const k=u.floor_number==null?(locale==='ar'?'وحدات أخرى':'Other units'):(locale==='ar'?'الدور '+u.floor_number:'Floor '+u.floor_number);groups.set(k,[...(groups.get(k)??[]),u])}
