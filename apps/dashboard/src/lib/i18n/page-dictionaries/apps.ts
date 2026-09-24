@@ -1,5 +1,5 @@
 export const appsAr = {
-  pageTitle: 'سوق التطبيقات',
+  pageTitle: 'سبعة Ai',
   searchPlaceholder: 'ابحث عن تطبيق...',
   noResults: 'لا توجد تطبيقات مطابقة لبحثك',
   addApp: 'أضف التطبيق',
@@ -39,7 +39,7 @@ export const appsAr = {
 };
 
 export const appsEn: typeof appsAr = {
-  pageTitle: 'Apps',
+  pageTitle: 'Sbaah AI',
   searchPlaceholder: 'Search for an app...',
   noResults: 'No apps match your search',
   addApp: 'Add App',
