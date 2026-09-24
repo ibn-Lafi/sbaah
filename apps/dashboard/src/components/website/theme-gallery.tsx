@@ -51,12 +51,14 @@ export function ThemeGallery({
   primaryColor,
   siteUrl,
   onSelect,
+  selectingThemeId,
 }: {
   themes: Theme[];
   selectedThemeId: string;
   primaryColor: string;
   siteUrl: string;
   onSelect: (themeId: string) => void;
+  selectingThemeId?: string | null;
 }) {
   const { pages } = useLocale();
   const t = pages.website;
@@ -70,16 +72,11 @@ export function ThemeGallery({
             key={theme.id}
             className={`group relative aspect-[4/3] overflow-hidden rounded-2xl border shadow-sm ${selected ? 'border-brand' : 'border-border-default'}`}
           >
-            <button
-              type="button"
-              onClick={() => onSelect(theme.id)}
-              disabled={selected}
-              className={`absolute inset-0 h-full w-full overflow-hidden text-start ${!selected ? 'cursor-pointer' : ''}`}
-            >
+            <div className="absolute inset-0 h-full w-full overflow-hidden">
               <div className="h-full w-full transition-transform duration-300 group-hover:scale-105">
                 <ThemePreview themeKey={theme.key} primaryColor={primaryColor} previewImageUrl={theme.preview_image_url} />
               </div>
-            </button>
+            </div>
 
             {/* الصورة تملأ الكرت كاملًا (طلب المؤسس، مرجع "Image Scale Effect") — تدرّج داكن أسفل الكرت فقط حتى تبقى الشارة/الاسم/الأزرار واضحة فوق أي صورة، دون تعتيم الصورة كلها. */}
             <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/85 via-black/40 to-transparent" />
@@ -121,9 +118,10 @@ export function ThemeGallery({
                 <button
                   type="button"
                   onClick={() => onSelect(theme.id)}
-                  className="text-text-primary flex h-8 items-center justify-center rounded-full bg-white/90 text-xs font-semibold backdrop-blur hover:bg-white sm:h-9 sm:text-sm"
+                  disabled={Boolean(selectingThemeId)}
+                  className="text-text-primary flex h-8 items-center justify-center rounded-full bg-white/90 text-xs font-semibold backdrop-blur hover:bg-white disabled:cursor-wait disabled:opacity-70 sm:h-9 sm:text-sm"
                 >
-                  {t.themeStore.selectTheme}
+                  {selectingThemeId === theme.id ? (pages.common?.loading ?? 'جارٍ التفعيل...') : t.themeStore.selectTheme}
                 </button>
               )}
             </div>
