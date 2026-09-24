@@ -5,7 +5,7 @@ import { getCallerContext } from '@/lib/auth/get-caller-context';
 import { assertTenantOwnedRow } from '@/lib/tenant/assert-tenant-owned-row';
 
 interface RouteContext { params: Promise<{ id: string; mediaId: string }>; }
-const updateSchema=z.object({alt_ar:z.string().optional().nullable(),alt_en:z.string().optional().nullable(),order_index:z.number().int().nonnegative().optional(),is_primary:z.boolean().optional()}).refine(v=>Object.keys(v).length>0);
+const updateSchema=z.object({category:z.enum(['general','exterior','entrance','living','bedrooms','kitchen','bathrooms','outdoor','amenities','parking','floor_plan','location','view','construction','other']).optional(),alt_ar:z.string().optional().nullable(),alt_en:z.string().optional().nullable(),order_index:z.number().int().nonnegative().optional(),is_primary:z.boolean().optional()}).refine(v=>Object.keys(v).length>0);
 
 export const PATCH=withErrorHandling<RouteContext>(async(request,{params})=>{
   const{id,mediaId}=await params;const{supabase}=getAuthenticatedClient(request);const caller=await getCallerContext(supabase);
