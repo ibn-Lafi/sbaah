@@ -49,6 +49,8 @@ export interface ProjectGridSectionConfig {
 
 /** No editable fields — the property detail page's content (gallery/price/specs/contact) is entirely data-driven, not authorable. This type only exists so a tenant can toggle/reposition it among that page's other sections (a hero banner above it, for example). */
 export type PropertyDetailSectionConfig = Record<string, never>;
+/** Data-driven project detail experience; presentation comes from the active theme. */
+export type ProjectDetailSectionConfig = Record<string, never>;
 
 /** Also used for `why_us` — same shape (title + one body of text), not a separate multi-item feature-list editor (kept deliberately simple). */
 export interface AboutSectionConfig {
@@ -112,6 +114,7 @@ export type WebsiteSectionConfigByType = {
   gallery: GallerySectionConfig;
   video: VideoSectionConfig;
   property_detail: PropertyDetailSectionConfig;
+  project_detail: ProjectDetailSectionConfig;
   about: AboutSectionConfig;
   why_us: AboutSectionConfig;
   contact: ContactSectionConfig;
