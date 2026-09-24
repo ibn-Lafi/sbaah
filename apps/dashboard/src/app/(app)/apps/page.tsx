@@ -191,13 +191,29 @@ export default function AppsPage() {
           <h2 className="text-text-primary mb-3 text-base font-bold">{locale === 'ar' ? 'التطبيقات المثبتة' : 'Installed apps'}</h2>
           <div className="-mx-1 flex snap-x snap-mandatory flex-nowrap gap-3 overflow-x-auto px-1 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {installedApps.map((app) => (
-              <div key={app.slug} className="w-[178px] min-w-[178px] snap-start sm:w-[220px] sm:min-w-[220px] md:w-[250px] md:min-w-[250px]">
+              <div key={app.slug} className="w-[150px] min-w-[150px] snap-start sm:w-[185px] sm:min-w-[185px] md:w-[210px] md:min-w-[210px]">
                 <AppCard app={app} entry={t.apps[app.slug]} t={t} compact />
               </div>
             ))}
           </div>
         </section>
       )}
+
+      <div className="mb-5 mt-1 flex items-center gap-3" aria-hidden="true">
+        <div className="bg-border-default h-px flex-1" />
+        <span className="bg-border-default h-1 w-1 rounded-full" />
+        <div className="bg-border-default h-px flex-1" />
+      </div>
+
+      <section>
+        <div className="mb-3">
+          <h2 className="text-text-primary text-base font-bold">
+            {locale === 'ar' ? 'استكشف التطبيقات' : 'Explore apps'}
+          </h2>
+          <p className="text-text-secondary mt-0.5 text-xs">
+            {locale === 'ar' ? 'تطبيقات أخرى يمكنك تثبيتها واستخدامها' : 'More apps you can install and use'}
+          </p>
+        </div>
 
       {visibleApps.length === 0 ? (
         <p className="text-text-secondary py-10 text-center">{t.noResults}</p>
@@ -208,6 +224,7 @@ export default function AppsPage() {
           ))}
         </div>
       )}
+      </section>
     </AppShell>
   );
 }
