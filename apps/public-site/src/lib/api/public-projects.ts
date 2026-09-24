@@ -12,7 +12,7 @@ export interface PublicProject {
   district_id: string | null;
   lat?: number | null;
   lng?: number | null;
-  media?: Array<{id:string;url:string;media_type:'image'|'video';alt_ar:string|null;alt_en:string|null;order_index:number}>;
+  media?: ProjectMedia[];
 }
 
 export interface PublicProjectListResponse {
@@ -22,7 +22,7 @@ export interface PublicProjectListResponse {
   total: number;
 }
 
-export interface PublicProjectDetailResponse { project: PublicProject & Record<string, unknown>; media: Array<{id:string;url:string;media_type:'image'|'video';alt_ar:string|null;alt_en:string|null;order_index:number}>; unit_types: Array<{id:string;name_ar:string;name_en:string|null;asset_type:string|null;specifications:Record<string,unknown>}>; units: Array<{id:string;slug:string|null;unit_type_id:string|null;unit_number:string|null;floor_number:number|null;area_sqm:number|null;asset_type:string;name_ar:string;name_en:string|null;listing_id:string;listing_number:string;listing_type:string;price:number|null;media:unknown[]}>; }
+export type ProjectMediaCategory='general'|'exterior'|'master_plan'|'unit_plans'|'interior'|'amenities'|'location'|'construction'|'other';\nexport interface ProjectMedia {id:string;url:string;media_type:'image'|'video';category:ProjectMediaCategory;alt_ar:string|null;alt_en:string|null;order_index:number;is_primary:boolean}\n\nexport interface PublicProjectDetailResponse { project: PublicProject & Record<string, unknown>; media: ProjectMedia[]; unit_types: Array<{id:string;name_ar:string;name_en:string|null;asset_type:string|null;specifications:Record<string,unknown>}>; units: Array<{id:string;slug:string|null;unit_type_id:string|null;unit_number:string|null;floor_number:number|null;area_sqm:number|null;asset_type:string;name_ar:string;name_en:string|null;listing_id:string;listing_number:string;listing_type:string;price:number|null;media:unknown[]}>; }
 export async function listPublicProjects(page = 1): Promise<PublicProjectListResponse> {
   const host = await getHost();
   const query = new URLSearchParams({ domain: host ?? '', page: String(page) });
