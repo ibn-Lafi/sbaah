@@ -8,9 +8,12 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
   const { supabase } = getAuthenticatedClient(request);
   const caller = await getCallerContext(supabase);
   const input = assetSearchSchema.parse(Object.fromEntries(request.nextUrl.searchParams));
-  const { page, page_size, ...filters } = input;
+  const { page, page_size, scope, ...filters } = input;
   let query = supabase.from('assets').select('*', { count: 'exact' }).eq('tenant_id', caller.tenantId).is('archived_at', null);
   for (const [key, value] of Object.entries(filters)) if (value != null) query = query.eq(key, value);
+  // A unit is still an Asset: it is a child of another asset (e.g. building → apartment)
+  // or a concrete project unit tied to a unit type. Keep one source of truth in `assets`.
+  if (scope === 'units') query = query.or('parent_asset_id.not.is.null,unit_type_id.not.is.null');
   const from = (page - 1) * page_size;
   const { data, error, count } = await query.order('created_at', { ascending: false }).range(from, from + page_size - 1);
   if (error) throw new Error(`Failed to list assets: ${error.message}`);
