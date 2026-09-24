@@ -1,4 +1,4 @@
-import { apiGet, apiPut } from './client';
+import { apiGet, apiPatch } from './client';
 
 export interface AiAssistant {
   id: string;
@@ -15,5 +15,5 @@ export function getAiAssistant(accessToken: string) {
 }
 
 export function saveAiAssistant(accessToken: string, input: { name: string; personality: string }) {
-  return apiPut<AiAssistant>('/ai/assistant', input, accessToken);
+  return apiPatch<AiAssistant>('/ai/assistant', input, accessToken);
 }
