@@ -82,7 +82,6 @@ export function getNavItems(t: ChromeDictionary): NavEntry[] {
       label: t.nav.rentPlus.label,
       icon: RentalsIcon,
       children: [
-        { href: '/rent-plus/properties', label: t.nav.rentPlus.properties, icon: PropertiesIcon },
         { href: '/rent-plus/contracts', label: t.nav.rentPlus.contracts, icon: PagesIcon },
         { href: '/rent-plus/maintenance', label: t.nav.rentPlus.maintenance, icon: SupportIcon },
         { href: '/rent-plus/payments', label: t.nav.rentPlus.payments, icon: RentalsIcon },
