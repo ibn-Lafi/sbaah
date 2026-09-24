@@ -6,7 +6,9 @@ import { listCities, listDistricts } from '@/lib/api/reference-data';
 import { PropertyCard } from '@/components/properties/property-card';
 import { PropertyFilters, type PropertyFiltersValue } from '@/components/properties/property-filters';
 import { getTenantSitePage } from '@/lib/tenant/get-tenant-site';
-import { getThemeComponents } from '@/components/themes/registry';
+import { resolveTheme } from '@/components/themes/registry';
+import { LavenderProperty } from '@/components/themes/lavender/cards';
+import { LavenderPropertyFilters } from '@/components/themes/lavender/property-filters';
 import { renderThemedSection } from '@/lib/website/render-section';
 
 const PAGE_LABELS = {
@@ -70,7 +72,9 @@ export default async function PropertiesPage({ params, searchParams }: PageProps
   const citiesById = new Map(cities.map((city) => [city.id, city]));
   const totalPages = Math.max(1, Math.ceil(listResult.total / listResult.page_size));
   const tenantName = locale === 'ar' ? site.tenant.name_ar : site.tenant.name_en;
-  const theme = getThemeComponents(site.website.theme_key);
+  const resolvedTheme = resolveTheme(site.website.theme_key);
+  const theme = resolvedTheme.components;
+  const isLavender = resolvedTheme.key === 'lavender';
 
   const gridSection = site.sections.find((s) => s.type === 'property_grid');
   const themedCtx = {
@@ -98,20 +102,19 @@ export default async function PropertiesPage({ params, searchParams }: PageProps
       {before.map((s) => renderThemedSection(s, theme, themedCtx))}
 
       {gridSection && (
-        <div className="mx-auto max-w-6xl px-6 py-8">
-          <h1 className="mb-6 text-2xl font-bold">{t.title}</h1>
+        <div className={isLavender ? "bg-[#f4f1ea] px-5 py-16 sm:px-6 sm:py-24" : "mx-auto max-w-6xl px-6 py-8"}>
+          <div className={isLavender ? "mx-auto max-w-7xl" : ""}>
+          <h1 className={isLavender ? "mb-10 border-b border-black/20 pb-6 text-4xl font-medium sm:text-6xl" : "mb-6 text-2xl font-bold"}>{t.title}</h1>
 
           <div className="mb-8">
-            <PropertyFilters locale={locale} cities={cities} districts={districts} value={filters} />
+            {isLavender ? <LavenderPropertyFilters locale={locale} cities={cities} districts={districts} value={filters} /> : <PropertyFilters locale={locale} cities={cities} districts={districts} value={filters} />}
           </div>
 
           {listResult.properties.length === 0 ? (
             <p className="text-black/60">{t.noResults}</p>
           ) : (
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {listResult.properties.map((property) => (
-                <PropertyCard key={property.id} property={property} city={property.city_id ? citiesById.get(property.city_id) : undefined} locale={locale} />
-              ))}
+            <div className={isLavender ? "grid gap-x-5 gap-y-10 sm:grid-cols-2 lg:grid-cols-3" : "grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"}>
+              {listResult.properties.map((property) => isLavender ? <LavenderProperty key={property.id} property={property} city={property.city_id ? citiesById.get(property.city_id) : undefined} locale={locale}/> : <PropertyCard key={property.id} property={property} city={property.city_id ? citiesById.get(property.city_id) : undefined} locale={locale} />)}
             </div>
           )}
 
@@ -124,6 +127,7 @@ export default async function PropertiesPage({ params, searchParams }: PageProps
               {page < totalPages && <Link href={pageHref(page + 1)}>{t.next}</Link>}
             </nav>
           )}
+          </div>
         </div>
       )}
 
