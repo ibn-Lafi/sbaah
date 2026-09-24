@@ -25,7 +25,7 @@ export function renderThemedSection(
     whatsappPhone: string;
     tenantId: string;
     /** Only set on the property_detail page — ties a submission to the property being viewed. */
-    propertyId?: string;
+    assetId?: string;
     projectId?: string;
     listingId?: string;
     cities?: City[];
@@ -53,7 +53,7 @@ export function renderThemedSection(
           locale={ctx.locale}
           tenantId={ctx.tenantId}
           projectId={ctx.projectId}
-          assetId={ctx.propertyId}
+          assetId={ctx.listingId ? undefined : ctx.assetId}
           listingId={ctx.listingId}
           config={section.config}
         />
