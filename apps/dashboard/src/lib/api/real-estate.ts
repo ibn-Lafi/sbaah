@@ -23,7 +23,8 @@ export const updateListing=(token:string,id:string,input:ListingUpdateInput)=>ap
 export const archiveListing=(token:string,id:string)=>apiDelete<{status:string}>(`/v1/listings/${id}`,token);
 
 
-export type AssetMediaCategory='general'|'exterior'|'entrance'|'living'|'bedrooms'|'kitchen'|'bathrooms'|'outdoor'|'amenities'|'parking'|'floor_plan'|'location'|'view'|'construction'|'other';\nexport interface AssetMedia { id:string; tenant_id:string; asset_id:string; media_type:'image'|'video'; category:AssetMediaCategory; url:string; alt_ar:string|null; alt_en:string|null; order_index:number; is_primary:boolean; created_at:string; }
+export type AssetMediaCategory='general'|'exterior'|'entrance'|'living'|'bedrooms'|'kitchen'|'bathrooms'|'outdoor'|'amenities'|'parking'|'floor_plan'|'location'|'view'|'construction'|'other';
+export interface AssetMedia { id:string; tenant_id:string; asset_id:string; media_type:'image'|'video'; category:AssetMediaCategory; url:string; alt_ar:string|null; alt_en:string|null; order_index:number; is_primary:boolean; created_at:string; }
 export interface AssetMediaInput { media_type:'image'|'video'; category:AssetMediaCategory; url:string; alt_ar?:string|null; alt_en?:string|null; order_index?:number; is_primary?:boolean; }
 export const listAssetMedia=(token:string,assetId:string)=>apiGet<{media:AssetMedia[]}>(`/v1/assets/${assetId}/media`,token);
 export const createAssetMedia=(token:string,assetId:string,input:AssetMediaInput)=>apiPost<{media:AssetMedia}>(`/v1/assets/${assetId}/media`,input,token);
