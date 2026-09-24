@@ -2,7 +2,7 @@ import type { Asset, AssetInput, AssetPhysicalStatus, AssetType, Listing, Listin
 import { apiDelete, apiGet, apiPatch, apiPost } from './client';
 
 export interface AssetListResponse { assets:Asset[]; page:number; page_size:number; total:number; }
-export interface AssetListParams { asset_type?:AssetType; physical_status?:AssetPhysicalStatus; parent_asset_id?:string; project_id?:string; page?:number; page_size?:number; }
+export interface AssetListParams { scope?:'all'|'units'; asset_type?:AssetType; physical_status?:AssetPhysicalStatus; parent_asset_id?:string; project_id?:string; page?:number; page_size?:number; }
 export function listAssets(accessToken:string,params:AssetListParams={}):Promise<AssetListResponse>{const q=new URLSearchParams();for(const[key,value]of Object.entries(params))if(value!=null&&value!=='')q.set(key,String(value));return apiGet<AssetListResponse>(`/v1/assets${q.size?`?${q}`:''}`,accessToken);}
 export function createAsset(accessToken:string,input:AssetInput):Promise<{asset:Asset}>{return apiPost<{asset:Asset}>('/v1/assets',input,accessToken);}
 export interface ListingWithAssets extends Listing { listing_assets:Array<{asset_id:string}>; }
