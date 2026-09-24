@@ -39,12 +39,24 @@ export type AccountTypeSwitchInput = z.infer<typeof accountTypeSwitchSchema>;
  * فقط. account_type مُعاد إرساله هنا (بلا تغييره فعليًا) لتحديد أي فرع من
  * القيدين ينطبق — الـAPI يرفض الطلب إن كان نوع الحساب الحالي "فرد".
  */
-export const organizationInfoUpdateSchema = z.object({
-  account_type: z.enum(['institution', 'company']),
-  name_ar: z.string().min(2, 'اسم الجهة مطلوب'),
-  cr_number: z.string().min(1, 'رقم السجل التجاري مطلوب'),
-  tax_number: z.string().min(1, 'الرقم الضريبي مطلوب'),
-});
+const optionalLicenseNumber = z.string().trim().max(100).optional().nullable().transform((value) => value === '' ? null : value);
+
+export const organizationInfoUpdateSchema = z.discriminatedUnion('account_type', [
+  z.object({
+    account_type: z.literal('individual'),
+    name_ar: z.string().min(2, 'اسم الجهة مطلوب'),
+    fal_license_number: falLicenseNumberSchema,
+    freelance_document_number: optionalLicenseNumber,
+  }),
+  z.object({
+    account_type: z.enum(['institution', 'company']),
+    name_ar: z.string().min(2, 'اسم الجهة مطلوب'),
+    cr_number: z.string().min(1, 'رقم السجل التجاري مطلوب'),
+    tax_number: z.string().min(1, 'الرقم الضريبي مطلوب'),
+    fal_license_number: falLicenseNumberSchema,
+    wafi_license_number: optionalLicenseNumber,
+  }),
+]);
 export type OrganizationInfoUpdateInput = z.infer<typeof organizationInfoUpdateSchema>;
 
 export type AccountTypeUpdateInput = AccountTypeSwitchInput | OrganizationInfoUpdateInput;
