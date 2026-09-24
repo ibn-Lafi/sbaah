@@ -65,6 +65,20 @@ export const AI_TOOL_DEFINITIONS = [
   },
   {
     type: 'function',
+    name: 'update_lead_status',
+    description: 'يغيّر حالة عميل محتمل. هذه عملية حساسة ويجب تجهيزها فقط ثم انتظار تأكيد المستخدم قبل التنفيذ.',
+    parameters: {
+      type: 'object',
+      properties: {
+        lead_id: { type: 'string', description: 'معرف العميل المحتمل UUID' },
+        status: { type: 'string', enum: ['new', 'contacted', 'qualified', 'in_progress', 'won', 'lost', 'expired'] },
+      },
+      required: ['lead_id', 'status'],
+      additionalProperties: false,
+    },
+  },
+  {
+    type: 'function',
     name: 'create_lead',
     description: 'ينشئ عميلًا محتملًا يدويًا داخل CRM في سبعة. لا تستخدمه إلا عندما يطلب المستخدم إنشاء/إضافة العميل.',
     parameters: {
@@ -185,6 +199,32 @@ export async function executeAiTool(input: {
       if (activityError) console.error('Failed to record AI follow-up activity', activityError);
     }
     return { lead: data };
+  }
+
+  if (name === 'update_lead_status') {
+    const grant = assertPermission(caller.role, 'crm.update');
+    const args = z.object({
+      lead_id: z.string().uuid(),
+      status: z.enum(['new', 'contacted', 'qualified', 'in_progress', 'won', 'lost', 'expired']),
+    }).parse(input.arguments);
+    if (isAssignedScope(grant)) await assertAssignedLeadAccess(supabase, caller.tenantId, caller.userId, args.lead_id);
+    const { data: previous, error: previousError } = await supabase.from('leads').select('id, full_name, status').eq('id', args.lead_id).eq('tenant_id', caller.tenantId).maybeSingle();
+    if (previousError) throw new Error(`Failed to load lead: ${previousError.message}`);
+    if (!previous) throw new ApiError(404, 'lead_not_found', 'العميل المحتمل غير موجود');
+    const { data, error } = await supabase.from('leads').update({ status: args.status }).eq('id', args.lead_id).eq('tenant_id', caller.tenantId).select('id, full_name, status').single();
+    if (error) throw databaseWriteError(error, 'Failed to update AI lead status');
+    if (previous.status !== args.status) {
+      const { error: activityError } = await supabase.from('crm_activities').insert({
+        tenant_id: caller.tenantId,
+        lead_id: args.lead_id,
+        user_id: caller.userId,
+        activity_type: 'status_changed',
+        summary: 'تم تغيير حالة العميل',
+        metadata: { from: previous.status, to: args.status },
+      });
+      if (activityError) console.error('Failed to record AI status activity', activityError);
+    }
+    return { lead: data, previous_status: previous.status };
   }
 
   if (name === 'create_lead') {
