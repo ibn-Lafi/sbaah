@@ -138,6 +138,7 @@ export default function AppsPage() {
   return (
     <AppShell
       title={t.pageTitle}
+      titleIcon="ai"
       orgName={me.tenant.name_ar}
       accountType={me.tenant.account_type}
     >
