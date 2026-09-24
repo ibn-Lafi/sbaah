@@ -9,21 +9,21 @@ import { ApiRequestError } from '@/lib/api/client';
 
 const LABELS = {
   ar: {
-    title: 'استفسار عن هذا العقار',
+    title: 'سجل اهتمامك',
     name: 'الاسم',
     phone: 'رقم الجوال',
     email: 'البريد الإلكتروني (اختياري)',
-    submit: 'إرسال الاستفسار',
+    submit: 'إرسال',
     sending: 'جارٍ الإرسال...',
-    success: 'تم إرسال استفسارك، سنتواصل معك قريبًا',
+    success: 'تم تسجيل اهتمامك، سنتواصل معك قريبًا',
     genericError: 'تعذّر إرسال الاستفسار، حاول مرة أخرى',
   },
   en: {
-    title: 'Inquire about this property',
+    title: 'Register your interest',
     name: 'Name',
     phone: 'Phone number',
     email: 'Email (optional)',
-    submit: 'Send inquiry',
+    submit: 'Submit',
     sending: 'Sending...',
     success: "Your inquiry was sent — we'll be in touch soon",
     genericError: 'Could not send your inquiry, please try again',
@@ -41,11 +41,13 @@ function requireSiteKey(): string {
 interface InquiryFormProps {
   locale: Locale;
   tenantId: string;
-  listingId: string;
+  listingId?: string;
   assetId?: string;
+  projectId?: string;
+  variant?: 'default' | 'lavender';
 }
 
-export function InquiryForm({ locale, tenantId, listingId, assetId }: InquiryFormProps) {
+export function InquiryForm({ locale, tenantId, listingId, assetId, projectId, variant = 'default' }: InquiryFormProps) {
   const t = LABELS[locale];
   const widgetRef = useRef<HTMLDivElement>(null);
   const widgetId = useRef<string | null>(null);
@@ -75,8 +77,9 @@ export function InquiryForm({ locale, tenantId, listingId, assetId }: InquiryFor
 
     const result = publicLeadInputSchema.safeParse({
       tenant_id: tenantId,
-      listing_id: listingId,
-      asset_id: assetId || undefined,
+      project_id: projectId || undefined,
+      listing_id: listingId || undefined,
+      asset_id: listingId ? undefined : assetId || undefined,
       full_name: fullName,
       phone,
       email: email || null,
@@ -105,7 +108,7 @@ export function InquiryForm({ locale, tenantId, listingId, assetId }: InquiryFor
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-3 rounded-xl border border-black/10 p-5">
+    <form onSubmit={handleSubmit} className={variant === 'lavender' ? 'flex flex-col gap-6 bg-white px-6 py-10 sm:px-10 sm:py-12' : 'flex flex-col gap-3 rounded-xl border border-black/10 p-5'}>
       <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer onLoad={renderWidget} />
       <h3 className="font-semibold">{t.title}</h3>
       <label className="text-sm font-medium" htmlFor="inquiry-name">{t.name}</label>
@@ -160,7 +163,7 @@ export function InquiryForm({ locale, tenantId, listingId, assetId }: InquiryFor
       <button
         type="submit"
         disabled={loading}
-        className="h-11 rounded-lg bg-tenant-primary text-sm font-semibold text-white disabled:opacity-50"
+        className={variant === 'lavender' ? 'h-14 bg-tenant-primary text-sm font-semibold text-white disabled:opacity-50' : 'h-11 rounded-lg bg-tenant-primary text-sm font-semibold text-white disabled:opacity-50'}
       >
         {loading ? t.sending : t.submit}
       </button>
