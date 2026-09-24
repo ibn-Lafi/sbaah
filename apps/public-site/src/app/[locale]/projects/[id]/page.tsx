@@ -56,7 +56,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
   let data; try { data = await getPublicProject(id); } catch { notFound(); }
   const project=data.project;if(id!==project.slug)permanentRedirect(localizedPath(locale,`/projects/${project.slug}`));
   const tenantResult=await getTenantSiteResult();
-  if(tenantResult.status==='active'&&resolveTheme(tenantResult.site.website.theme_key).key==='lavender') return <><LavenderProjectDetail locale={locale} data={data} tenantId={tenantResult.site.tenant.id}/><section className="bg-[#f4f1ea] px-5 py-16 sm:px-6 sm:py-24"><div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[.7fr_1.3fr]"><div><h2 className="text-3xl font-medium sm:text-5xl">{locale==='ar'?'سجل اهتمامك بالمشروع':'Register your interest'}</h2></div><InquiryForm locale={locale} tenantId={tenantResult.site.tenant.id} projectId={project.id} variant="lavender"/></div></section></>;
+  if(tenantResult.status==='active'&&resolveTheme(tenantResult.site.website.theme_key).key==='lavender') return <><LavenderProjectDetail locale={locale} data={data}/><section className="bg-[#f4f1ea] px-5 py-16 sm:px-6 sm:py-24"><div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[.7fr_1.3fr]"><div><h2 className="text-3xl font-medium sm:text-5xl">{locale==='ar'?'سجل اهتمامك بالمشروع':'Register your interest'}</h2></div><InquiryForm locale={locale} tenantId={tenantResult.site.tenant.id} projectId={project.id} variant="lavender"/></div></section></>;
   const title=pickLocalized(locale,project.name_ar,project.name_en);
   const description=pickLocalized(locale,project.description_ar??'',project.description_en??null);
   const images=data.media.filter(m=>m.media_type==='image');
