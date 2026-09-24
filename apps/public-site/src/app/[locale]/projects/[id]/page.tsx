@@ -55,7 +55,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
   let data; try { data = await getPublicProject(id); } catch { notFound(); }
   const project=data.project;if(id!==project.slug)permanentRedirect(localizedPath(locale,`/projects/${project.slug}`));
   const tenantResult=await getTenantSiteResult();
-  if(tenantResult.status==='active'&&resolveTheme(tenantResult.site.website.theme_key).key==='lavender') return <LavenderProjectDetail locale={locale} data={data}/>;
+  if(tenantResult.status==='active'&&resolveTheme(tenantResult.site.website.theme_key).key==='lavender') return <LavenderProjectDetail locale={locale} data={data} tenantId={tenantResult.site.tenant.id}/>;
   const title=pickLocalized(locale,project.name_ar,project.name_en);
   const description=pickLocalized(locale,project.description_ar??'',project.description_en??null);
   const images=data.media.filter(m=>m.media_type==='image');
