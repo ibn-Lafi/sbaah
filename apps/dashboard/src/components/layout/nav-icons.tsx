@@ -101,11 +101,9 @@ export function WebsiteIcon({ className }: IconProps) {
 export function AppsIcon({ className }: IconProps) {
   return (
     <Svg className={className}>
-      {[6, 12, 18].flatMap((cy) =>
-        [6, 12, 18].map((cx) => (
-          <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="1.5" fill="currentColor" stroke="none" />
-        )),
-      )}
+      <path d="M12 3.5 13.35 7.15 17 8.5l-3.65 1.35L12 13.5l-1.35-3.65L7 8.5l3.65-1.35L12 3.5Z" />
+      <path d="m18.25 13.5.75 2 .75.75 2 .75-2 .75-.75 2-.75-2-2-.75 2-.75.75-2Z" />
+      <path d="m5.25 14 .55 1.45L7.25 16l-1.45.55L5.25 18l-.55-1.45L3.25 16l1.45-.55L5.25 14Z" />
     </Svg>
   );
 }
