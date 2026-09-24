@@ -1,7 +1,7 @@
 import { apiGet, apiPost } from './client';
 import type { Asset, AssetInput, AssetType } from '@sbaah/shared';
 export interface ProjectPhase { id:string; project_id:string; name_ar:string; name_en:string|null; order_index:number; start_date:string|null; expected_completion_date:string|null; }
-export interface UnitType { id:string; project_id:string|null; name_ar:string; name_en:string|null; asset_type:AssetType|null; area_sqm:number; base_price:number|null; specifications:Record<string,unknown>; }
+export interface UnitType { id:string; project_id:string|null; name_ar:string; name_en:string|null; asset_type:AssetType|null; area_sqm:number; bedrooms:number|null; bathrooms:number|null; base_price:number|null; specifications:Record<string,unknown>; }
 export function listPhases(token:string){return apiGet<{phases:ProjectPhase[]}>('/v1/projects/phases',token);}
 export function createPhase(token:string,input:Record<string,unknown>){return apiPost<{phase:ProjectPhase}>('/v1/projects/phases',input,token);}
 export function listUnitTypes(token:string){return apiGet<{unit_types:UnitType[]}>('/v1/projects/unit-types',token);}
