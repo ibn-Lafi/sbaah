@@ -7,7 +7,6 @@ import { getTenantSitePage } from '@/lib/tenant/get-tenant-site';
 import { listCities, listDistricts } from '@/lib/api/reference-data';
 import { formatPrice, getListingTypeLabel, getPropertyTypeLabel } from '@/lib/property/labels';
 import { PropertyGallery } from '@/components/properties/property-gallery';
-import { InquiryForm } from '@/components/properties/inquiry-form';
 import { getThemeComponents } from '@/components/themes/registry';
 import { renderThemedSection } from '@/lib/website/render-section';
 import { buildLocalizedAlternates, localizedPath, getPublicOrigin } from '@/lib/routing/public-url';
@@ -94,7 +93,8 @@ export default async function PropertyDetailPage({ params }: PageProps) {
     tenantName,
     whatsappPhone: site.whatsapp_phone,
     tenantId: site.tenant.id,
-    propertyId: property.id,
+    assetId: property.asset_id,
+    listingId: property.id,
     cities,
   };
 
@@ -118,8 +118,8 @@ export default async function PropertyDetailPage({ params }: PageProps) {
 
       {detailSection && (
         <div className="mx-auto max-w-6xl px-6 py-8">
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-            <div className="flex flex-col gap-6 lg:col-span-2">
+          <div className="grid grid-cols-1 gap-8">
+            <div className="flex flex-col gap-6">
               <PropertyGallery media={property.property_media} title={title} />
 
               <div>
@@ -154,10 +154,6 @@ export default async function PropertyDetailPage({ params }: PageProps) {
                   <p className="whitespace-pre-line text-black/80">{description}</p>
                 </div>
               )}
-            </div>
-
-            <div className="flex flex-col gap-4">
-              <InquiryForm locale={locale} tenantId={property.tenant_id} listingId={property.id} />
             </div>
           </div>
         </div>
