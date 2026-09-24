@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import type { WebsitePageKey } from '@sbaah/shared';
 import { useLocale } from '@/lib/i18n/locale-context';
 import { WEBSITE_PAGE_PATHS } from '@/lib/website/labels';
-import { listAssets, listProjects } from '@/lib/api/real-estate';
+import { listAssets } from '@/lib/api/real-estate';
+import { listProjects } from '@/lib/api/hierarchy';
 
 const DEVICE_WIDTHS = { desktop: '100%', mobile: '390px' } as const;
 export type Device = keyof typeof DEVICE_WIDTHS;
