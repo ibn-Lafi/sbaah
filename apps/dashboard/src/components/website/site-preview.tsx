@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import type { WebsitePageKey } from '@sbaah/shared';
 import { useLocale } from '@/lib/i18n/locale-context';
 import { WEBSITE_PAGE_PATHS } from '@/lib/website/labels';
-import { listAssets } from '@/lib/api/real-estate';
+import { listAssets, listProjects } from '@/lib/api/real-estate';
 
 const DEVICE_WIDTHS = { desktop: '100%', mobile: '390px' } as const;
 export type Device = keyof typeof DEVICE_WIDTHS;
@@ -32,6 +32,7 @@ export function SitePreview({ siteUrl, pageKey, device, accessToken, revision = 
   const { pages } = useLocale();
   const t = pages.website;
   const [previewPropertyId, setPreviewPropertyId] = useState<string | null>(null);
+  const [previewProjectId, setPreviewProjectId] = useState<string | null>(null);
 
   useEffect(() => {
     if (pageKey !== 'property_detail') return;
@@ -44,7 +45,21 @@ export function SitePreview({ siteUrl, pageKey, device, accessToken, revision = 
     };
   }, [pageKey, accessToken]);
 
-  const path = pageKey === 'property_detail' ? (previewPropertyId ? `/properties/${previewPropertyId}` : null) : WEBSITE_PAGE_PATHS[pageKey];
+  useEffect(() => {
+    if (pageKey !== 'project_detail') return;
+    let cancelled = false;
+    void listProjects(accessToken, { page: 1 }).then((result) => {
+      if (!cancelled) setPreviewProjectId(result.projects[0]?.id ?? null);
+    });
+    return () => { cancelled = true; };
+  }, [pageKey, accessToken]);
+
+  const path =
+    pageKey === 'property_detail'
+      ? (previewPropertyId ? `/properties/${previewPropertyId}` : null)
+      : pageKey === 'project_detail'
+        ? (previewProjectId ? `/projects/${previewProjectId}` : null)
+        : WEBSITE_PAGE_PATHS[pageKey];
 
   return (
     <div className="flex h-full items-center justify-center overflow-auto bg-surface-page p-6">
