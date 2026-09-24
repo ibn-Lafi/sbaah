@@ -6,6 +6,8 @@ import { resolveTheme, themeSupportsSection } from '@/components/themes/registry
 import { MapSection } from '@/components/map/map-section';
 import { FeaturedPropertiesSection, LatestPropertiesSection, ProjectsShowcaseSection, PropertiesByCitySection } from '@/components/themes/classic/data-sections';
 import { StatsSection, ServicesSection, FaqSection, CtaSection, PromoBannerSection, FreeContentSection, GallerySection, VideoSection } from '@/components/themes/classic/content-sections';
+import { LavenderFeaturedProperties, LavenderLatestProperties, LavenderProjects, LavenderCities } from '@/components/themes/lavender/data-sections';
+import { LavenderStats, LavenderServices, LavenderFaq, LavenderCta, LavenderPromo, LavenderFreeContent, LavenderGallery, LavenderVideo } from '@/components/themes/lavender/content-sections';
 
 /**
  * Renders `website_sections` in order (task 35/42) — replaces the
@@ -46,6 +48,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const tenantName = locale === 'ar' ? site.tenant.name_ar : site.tenant.name_en;
   const resolvedTheme = resolveTheme(site.website.theme_key);
   const { HeroSection, PropertyGridSection, TextSection } = resolvedTheme.components;
+  const isLavender = resolvedTheme.key === 'lavender';
 
   return (
     <div>
@@ -65,18 +68,18 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             );
           case 'property_grid':
             return <PropertyGridSection key={section.id} locale={locale} config={section.config} />;
-          case 'featured_properties': return <FeaturedPropertiesSection key={section.id} locale={locale} config={section.config} />;
-          case 'latest_properties': return <LatestPropertiesSection key={section.id} locale={locale} config={section.config} />;
-          case 'projects_showcase': return <ProjectsShowcaseSection key={section.id} locale={locale} config={section.config} />;
-          case 'properties_by_city': return <PropertiesByCitySection key={section.id} locale={locale} config={section.config} />;
-          case 'stats': return <StatsSection key={section.id} locale={locale} config={section.config} />;
-          case 'services': return <ServicesSection key={section.id} locale={locale} config={section.config} />;
-          case 'faq': return <FaqSection key={section.id} locale={locale} config={section.config} />;
-          case 'cta': return <CtaSection key={section.id} locale={locale} config={section.config} />;
-          case 'promo_banner': return <PromoBannerSection key={section.id} locale={locale} config={section.config} />;
-          case 'free_content': return <FreeContentSection key={section.id} locale={locale} config={section.config} />;
-          case 'gallery': return <GallerySection key={section.id} locale={locale} config={section.config} />;
-          case 'video': return <VideoSection key={section.id} locale={locale} config={section.config} />;
+          case 'featured_properties': return isLavender ? <LavenderFeaturedProperties key={section.id} locale={locale} config={section.config} /> : <FeaturedPropertiesSection key={section.id} locale={locale} config={section.config} />;
+          case 'latest_properties': return isLavender ? <LavenderLatestProperties key={section.id} locale={locale} config={section.config} /> : <LatestPropertiesSection key={section.id} locale={locale} config={section.config} />;
+          case 'projects_showcase': return isLavender ? <LavenderProjects key={section.id} locale={locale} config={section.config} /> : <ProjectsShowcaseSection key={section.id} locale={locale} config={section.config} />;
+          case 'properties_by_city': return isLavender ? <LavenderCities key={section.id} locale={locale} config={section.config} /> : <PropertiesByCitySection key={section.id} locale={locale} config={section.config} />;
+          case 'stats': return isLavender ? <LavenderStats key={section.id} locale={locale} config={section.config} /> : <StatsSection key={section.id} locale={locale} config={section.config} />;
+          case 'services': return isLavender ? <LavenderServices key={section.id} locale={locale} config={section.config} /> : <ServicesSection key={section.id} locale={locale} config={section.config} />;
+          case 'faq': return isLavender ? <LavenderFaq key={section.id} locale={locale} config={section.config} /> : <FaqSection key={section.id} locale={locale} config={section.config} />;
+          case 'cta': return isLavender ? <LavenderCta key={section.id} locale={locale} config={section.config} /> : <CtaSection key={section.id} locale={locale} config={section.config} />;
+          case 'promo_banner': return isLavender ? <LavenderPromo key={section.id} locale={locale} config={section.config} /> : <PromoBannerSection key={section.id} locale={locale} config={section.config} />;
+          case 'free_content': return isLavender ? <LavenderFreeContent key={section.id} locale={locale} config={section.config} /> : <FreeContentSection key={section.id} locale={locale} config={section.config} />;
+          case 'gallery': return isLavender ? <LavenderGallery key={section.id} locale={locale} config={section.config} /> : <GallerySection key={section.id} locale={locale} config={section.config} />;
+          case 'video': return isLavender ? <LavenderVideo key={section.id} locale={locale} config={section.config} /> : <VideoSection key={section.id} locale={locale} config={section.config} />;
           case 'about':
           case 'why_us':
             return <TextSection key={section.id} type={section.type} locale={locale} config={section.config} />;
