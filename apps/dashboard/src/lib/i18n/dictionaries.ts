@@ -86,7 +86,7 @@ export const dictionaries: Record<Locale, ChromeDictionary> = {
       website: {
         label: 'الموقع الالكتروني',
         themeEditor: 'تخصيص الثيم',
-        themeStore: 'متجر الثيمات',
+        themeStore: 'تصميم الموقع',
         pages: 'الصفحات',
         domain: 'الدومين',
       },
@@ -147,7 +147,7 @@ export const dictionaries: Record<Locale, ChromeDictionary> = {
       website: {
         label: 'Website',
         themeEditor: 'Theme Editor',
-        themeStore: 'Theme Store',
+        themeStore: 'Website Design',
         pages: 'Pages',
         domain: 'Domain',
       },
