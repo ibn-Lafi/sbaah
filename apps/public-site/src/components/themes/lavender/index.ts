@@ -7,4 +7,4 @@ import { LeadSection } from './lead-section';
 import { Header } from './header';
 import { Footer } from './footer';
 
-export const lavenderTheme:ThemeSectionComponents={HeroSection,PropertyGridSection,TextSection,ContactSection,Header,Footer};
+export const lavenderTheme:ThemeSectionComponents={HeroSection,PropertyGridSection,TextSection,ContactSection,LeadSection,Header,Footer};
