@@ -46,9 +46,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const tenantName = locale === 'ar' ? site.tenant.name_ar : site.tenant.name_en;
   const resolvedTheme = resolveTheme(site.website.theme_key);
   const { HeroSection, PropertyGridSection, TextSection } = resolvedTheme.components;
-  // Classic owns its extended homepage section library. Unknown/deactivated
-  // legacy keys intentionally resolve to Classic through the registry.
-  const isClassic = resolvedTheme.key === 'classic';
 
   return (
     <div>
