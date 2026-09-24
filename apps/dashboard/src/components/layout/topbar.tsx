@@ -9,13 +9,13 @@ import { getNavItems, isNavGroup } from './nav-items';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { useLocale } from '@/lib/i18n/locale-context';
 
-interface TopbarProps { title: string; siteUrl: string; }
+interface TopbarProps { title: string; siteUrl: string; titleIcon?: 'ai'; }
 
 function SearchIcon({ className }: { className?: string }) {
   return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" className={className}><circle cx="10.5" cy="10.5" r="6.5" /><path d="M20 20l-4.7-4.7" /></svg>;
 }
 
-export function Topbar({ title, siteUrl }: TopbarProps) {
+export function Topbar({ title, siteUrl, titleIcon }: TopbarProps) {
   const router = useRouter();
   const { t, locale } = useLocale();
   const { me, business, capabilities } = useCurrentUser();
@@ -55,7 +55,18 @@ export function Topbar({ title, siteUrl }: TopbarProps) {
   return (
     <div className="bg-brand md:border-border-subtle md:bg-surface-card relative flex h-20 flex-none items-center gap-2 px-4 pb-5 md:h-[72px] md:gap-4 md:border-b md:px-7 md:pb-0">
       <div className="flex-none md:hidden"><BrandIcon size={28} tone="white" /></div>
-      <div className="md:text-text-primary min-w-0 flex-1 truncate text-[15px] font-semibold text-white md:flex-none md:text-[19px]">{title}</div>
+      <div className="md:text-text-primary flex min-w-0 flex-1 items-center gap-2 truncate text-[15px] font-semibold text-white md:flex-none md:text-[19px]">
+        {titleIcon === 'ai' && (
+          <span className="md:bg-brand-surface md:text-brand flex h-7 w-7 flex-none items-center justify-center rounded-[9px] bg-white/15 text-white md:h-8 md:w-8">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="h-[16px] w-[16px] md:h-[18px] md:w-[18px]" aria-hidden="true">
+              <path d="M12 3.5 13.35 7.15 17 8.5l-3.65 1.35L12 13.5l-1.35-3.65L7 8.5l3.65-1.35L12 3.5Z" />
+              <path d="m18.25 13.5.75 2 .75.75 2 .75-2 .75-.75 2-.75-2-2-.75 2-.75.75-2Z" />
+              <path d="m5.25 14 .55 1.45L7.25 16l-1.45.55L5.25 18l-.55-1.45L3.25 16l1.45-.55L5.25 14Z" />
+            </svg>
+          </span>
+        )}
+        <span className="truncate">{title}</span>
+      </div>
       <div className="hidden flex-1 md:block" />
 
       <div className="relative flex-none">
