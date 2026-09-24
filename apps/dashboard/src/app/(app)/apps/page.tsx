@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { AppShell } from '@/components/layout/app-shell';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { useLocale } from '@/lib/i18n/locale-context';
-import { getAiAssistant, saveAiAssistant, type AiAssistant } from '@/lib/api/ai';
+import { createAiConversation, getAiAssistant, getAiConversation, listAiConversations, saveAiAssistant, sendAiMessage, type AiAssistant, type AiConversation, type AiMessage } from '@/lib/api/ai';
 
 type Section = 'assistant' | 'whatsapp';
 
@@ -19,6 +19,11 @@ export default function AppsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [conversations, setConversations] = useState<AiConversation[]>([]);
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [messages, setMessages] = useState<AiMessage[]>([]);
+  const [draft, setDraft] = useState('');
+  const [sending, setSending] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -41,6 +46,47 @@ export default function AppsPage() {
       active = false;
     };
   }, [accessToken, ar]);
+
+  useEffect(() => {
+    if (!assistant) return;
+    let active = true;
+    void listAiConversations(accessToken).then(async ({ conversations: rows }) => {
+      if (!active) return;
+      setConversations(rows);
+      if (rows[0]) {
+        setConversationId(rows[0].id);
+        const detail = await getAiConversation(accessToken, rows[0].id);
+        if (active) setMessages(detail.messages);
+      }
+    }).catch(() => {
+      if (active) setError(ar ? 'تعذر تحميل المحادثات.' : 'Could not load conversations.');
+    });
+    return () => { active = false; };
+  }, [accessToken, assistant, ar]);
+
+  async function handleSend(event: React.FormEvent) {
+    event.preventDefault();
+    const content = draft.trim();
+    if (!content || sending || !assistant) return;
+    setSending(true);
+    setError('');
+    try {
+      let id = conversationId;
+      if (!id) {
+        const created = await createAiConversation(accessToken);
+        id = created.id;
+        setConversationId(created.id);
+        setConversations((current) => [created, ...current]);
+      }
+      const result = await sendAiMessage(accessToken, id, content);
+      setMessages((current) => [...current, result.message]);
+      setDraft('');
+    } catch {
+      setError(ar ? 'تعذر إرسال الرسالة.' : 'Could not send the message.');
+    } finally {
+      setSending(false);
+    }
+  }
 
   async function handleCreate(event: React.FormEvent) {
     event.preventDefault();
@@ -105,29 +151,43 @@ export default function AppsPage() {
                 </span>
               </header>
 
-              <div className="flex flex-1 items-center justify-center px-5 py-10 text-center">
-                <div className="max-w-md">
-                  <h2 className="text-text-primary text-lg font-bold">
-                    {ar ? `مرحبًا، أنا ${assistant.name}` : `Hi, I'm ${assistant.name}`}
-                  </h2>
-                  <p className="text-text-secondary mt-2 text-sm leading-6">
-                    {ar
-                      ? 'تم إنشاء مساعدك وحفظ شخصيته. سنربط المحادثة وأدوات سبعة هنا مباشرة.'
-                      : 'Your assistant and personality are saved. Chat and Sbaah tools will be connected here.'}
-                  </p>
-                </div>
+              <div className="flex flex-1 flex-col justify-end overflow-y-auto px-4 py-5 sm:px-5">
+                {messages.length === 0 ? (
+                  <div className="m-auto max-w-md text-center">
+                    <h2 className="text-text-primary text-lg font-bold">
+                      {ar ? `مرحبًا، أنا ${assistant.name}` : `Hi, I'm ${assistant.name}`}
+                    </h2>
+                    <p className="text-text-secondary mt-2 text-sm leading-6">
+                      {ar ? 'ابدأ محادثتك. يتم الآن حفظ المحادثات بأمان داخل سبعة، وسيتم توصيل الردود الذكية مع Grok في الخطوة التالية.' : 'Start chatting. Conversations are now stored in Sbaah; Grok responses will be connected next.'}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-3">
+                    {messages.filter((message) => message.sender === 'user' || message.sender === 'assistant').map((message) => (
+                      <div key={message.id} className={`max-w-[85%] rounded-[14px] px-4 py-3 text-sm leading-6 ${
+                        message.sender === 'user' ? 'bg-brand ms-auto text-white' : 'bg-surface-subtle text-text-primary me-auto'
+                      }`}>
+                        {message.content}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              <div className="border-border-default border-t p-3 sm:p-4">
-                <div className="border-border-default bg-surface-subtle flex min-h-12 items-center rounded-[12px] border px-4">
-                  <span className="text-text-placeholder flex-1 text-sm">
-                    {ar ? `اكتب رسالة إلى ${assistant.name}...` : `Message ${assistant.name}...`}
-                  </span>
-                  <button type="button" disabled className="bg-brand rounded-[9px] px-4 py-2 text-sm font-semibold text-white opacity-50">
-                    {ar ? 'إرسال' : 'Send'}
+              <form onSubmit={(event) => void handleSend(event)} className="border-border-default border-t p-3 sm:p-4">
+                <div className="border-border-default bg-surface-subtle flex min-h-12 items-end gap-2 rounded-[12px] border p-2">
+                  <textarea
+                    value={draft}
+                    onChange={(event) => setDraft(event.target.value)}
+                    rows={1}
+                    placeholder={ar ? `اكتب رسالة إلى ${assistant.name}...` : `Message ${assistant.name}...`}
+                    className="text-text-primary placeholder:text-text-placeholder max-h-32 min-h-9 flex-1 resize-none bg-transparent px-2 py-2 text-sm outline-none"
+                  />
+                  <button type="submit" disabled={!draft.trim() || sending} className="bg-brand rounded-[9px] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">
+                    {sending ? (ar ? '...' : '...') : ar ? 'إرسال' : 'Send'}
                   </button>
                 </div>
-              </div>
+              </form>
             </section>
           ) : (
             <section className="mx-auto max-w-2xl">
