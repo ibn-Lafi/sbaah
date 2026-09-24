@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { AccountType } from '@sbaah/shared';
-import { organizationInfoUpdateSchema, falLicenseUpdateSchema, socialLinksUpdateSchema } from '@sbaah/shared';
+import { organizationInfoUpdateSchema, socialLinksUpdateSchema } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -31,7 +31,7 @@ import {
 } from '@/components/website/editor-icons';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { useLocale } from '@/lib/i18n/locale-context';
-import { getSocialLinks, updateSocialLinks, updateAccountType, updateFalLicense, type SocialLinks } from '@/lib/api/tenant';
+import { getSocialLinks, updateSocialLinks, updateAccountType, type SocialLinks } from '@/lib/api/tenant';
 import { getWebsite, updateWebsite } from '@/lib/api/website';
 import { sendProfileChangeOtp, updateMyProfile, verifyProfileChange } from '@/lib/api/auth';
 import { signOut } from '@/lib/auth/session';
@@ -155,13 +155,18 @@ function OrganizationInfoCard({
   accessToken,
   accountType,
   initial,
-  falLicense,
   canEdit,
 }: {
   accessToken: string;
-  accountType: 'institution' | 'company';
-  initial: { name_ar: string; cr_number: string | null; tax_number: string | null };
-  falLicense: string | null;
+  accountType: AccountType;
+  initial: {
+    name_ar: string;
+    cr_number: string | null;
+    tax_number: string | null;
+    fal_license_number: string | null;
+    freelance_document_number: string | null;
+    wafi_license_number: string | null;
+  };
   canEdit: boolean;
 }) {
   const { pages } = useLocale();
@@ -169,7 +174,9 @@ function OrganizationInfoCard({
   const [nameAr, setNameAr] = useState(initial.name_ar);
   const [crNumber, setCrNumber] = useState(initial.cr_number ?? '');
   const [taxNumber, setTaxNumber] = useState(initial.tax_number ?? '');
-  const [fal, setFal] = useState(falLicense ?? '');
+  const [fal, setFal] = useState(initial.fal_license_number ?? '');
+  const [freelanceDocument, setFreelanceDocument] = useState(initial.freelance_document_number ?? '');
+  const [wafiLicense, setWafiLicense] = useState(initial.wafi_license_number ?? '');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -179,22 +186,31 @@ function OrganizationInfoCard({
     setError(null);
     setSaved(false);
 
-    const result = organizationInfoUpdateSchema.safeParse({
-      account_type: accountType,
-      name_ar: nameAr,
-      cr_number: crNumber,
-      tax_number: taxNumber,
-    });
+    const payload = accountType === 'individual'
+      ? {
+          account_type: 'individual' as const,
+          name_ar: nameAr,
+          fal_license_number: fal,
+          freelance_document_number: freelanceDocument,
+        }
+      : {
+          account_type: accountType,
+          name_ar: nameAr,
+          cr_number: crNumber,
+          tax_number: taxNumber,
+          fal_license_number: fal,
+          wafi_license_number: wafiLicense,
+        };
+
+    const result = organizationInfoUpdateSchema.safeParse(payload);
     if (!result.success) {
       setError(result.error.issues[0]?.message ?? t.common.invalidData);
       return;
     }
 
-    const falResult = falLicenseUpdateSchema.safeParse({ fal_license_number: fal });
-    if (!falResult.success) { setError(falResult.error.issues[0]?.message ?? t.falLicense.invalidNumber); return; }
     setLoading(true);
     try {
-      await Promise.all([updateAccountType(accessToken, result.data), updateFalLicense(accessToken, falResult.data)]);
+      await updateAccountType(accessToken, result.data);
       setSaved(true);
     } catch (err) {
       setError(err instanceof ApiRequestError ? err.message : t.organizationInfo.saveFailed);
@@ -203,36 +219,32 @@ function OrganizationInfoCard({
     }
   }
 
+  const namePlaceholder =
+    accountType === 'individual'
+      ? t.organizationInfo.individualNamePlaceholder
+      : accountType === 'institution'
+        ? t.organizationInfo.institutionNamePlaceholder
+        : t.organizationInfo.companyNamePlaceholder;
+
   return (
     <Card className="p-6">
       <h2 className="mb-1 text-base font-semibold text-text-primary">{t.organizationInfo.title}</h2>
       <p className="mb-4 text-sm text-text-secondary">{t.organizationInfo.description}</p>
       {canEdit ? (
         <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-3">
-          <Input
-            placeholder={
-              accountType === 'institution'
-                ? t.organizationInfo.institutionNamePlaceholder
-                : t.organizationInfo.companyNamePlaceholder
-            }
-            value={nameAr}
-            onChange={(e) => setNameAr(e.target.value)}
-          />
-          <Input
-            placeholder={t.organizationInfo.crNumberPlaceholder}
-            value={crNumber}
-            onChange={(e) => setCrNumber(e.target.value)}
-            dir="ltr"
-          />
-          <Input
-            placeholder={t.organizationInfo.taxNumberPlaceholder}
-            value={taxNumber}
-            onChange={(e) => setTaxNumber(e.target.value)}
-            dir="ltr"
-          />
-          <div className="my-2 h-px bg-border-subtle" />
-          <h3 className="text-base font-semibold text-text-primary">التراخيص</h3>
+          <Input placeholder={namePlaceholder} value={nameAr} onChange={(e) => setNameAr(e.target.value)} />
+          {accountType !== 'individual' && (
+            <>
+              <Input placeholder={t.organizationInfo.crNumberPlaceholder} value={crNumber} onChange={(e) => setCrNumber(e.target.value)} dir="ltr" />
+              <Input placeholder={t.organizationInfo.taxNumberPlaceholder} value={taxNumber} onChange={(e) => setTaxNumber(e.target.value)} dir="ltr" />
+            </>
+          )}
           <Input value={fal} onChange={(e) => setFal(e.target.value)} placeholder={t.falLicense.placeholder} dir="ltr" />
+          {accountType === 'individual' ? (
+            <Input value={freelanceDocument} onChange={(e) => setFreelanceDocument(e.target.value)} placeholder={t.organizationInfo.freelanceDocumentPlaceholder} dir="ltr" />
+          ) : (
+            <Input value={wafiLicense} onChange={(e) => setWafiLicense(e.target.value)} placeholder={t.organizationInfo.wafiLicensePlaceholder} dir="ltr" />
+          )}
           <FormError message={error} />
           <Button type="submit" disabled={loading} className="w-fit">
             {loading ? t.common.saving : saved ? t.common.saved : t.common.save}
@@ -241,8 +253,17 @@ function OrganizationInfoCard({
       ) : (
         <>
           <InfoRow label={t.organizationInfo.websiteNameLabel} value={initial.name_ar} />
-          <InfoRow label={t.organizationInfo.crNumberLabel} value={initial.cr_number ?? '—'} />
-          <InfoRow label={t.organizationInfo.taxNumberLabel} value={initial.tax_number ?? '—'} />
+          {accountType !== 'individual' && (
+            <>
+              <InfoRow label={t.organizationInfo.crNumberLabel} value={initial.cr_number ?? '—'} />
+              <InfoRow label={t.organizationInfo.taxNumberLabel} value={initial.tax_number ?? '—'} />
+            </>
+          )}
+          <InfoRow label={t.falLicense.title} value={initial.fal_license_number ?? '—'} />
+          <InfoRow
+            label={accountType === 'individual' ? t.organizationInfo.freelanceDocumentLabel : t.organizationInfo.wafiLicenseLabel}
+            value={(accountType === 'individual' ? initial.freelance_document_number : initial.wafi_license_number) ?? '—'}
+          />
         </>
       )}
     </Card>
@@ -440,64 +461,6 @@ function WebsiteTextFieldCard({
  * وحدها (FalLicenseCard، حساب فرد) أو مدمجة داخل بطاقة "بيانات الجهة"
  * (OrganizationInfoCard، حساب مؤسسة/شركة).
  */
-function FalLicenseFields({ accessToken, initial, canEdit }: { accessToken: string; initial: string | null; canEdit: boolean }) {
-  const { pages } = useLocale();
-  const t = pages.settings;
-  const [draft, setDraft] = useState(initial ?? '');
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [saved, setSaved] = useState(false);
-
-  async function handleSubmit(event: React.FormEvent) {
-    event.preventDefault();
-    setError(null);
-    setSaved(false);
-
-    const result = falLicenseUpdateSchema.safeParse({ fal_license_number: draft });
-    if (!result.success) {
-      setError(result.error.issues[0]?.message ?? t.falLicense.invalidNumber);
-      return;
-    }
-
-    setLoading(true);
-    try {
-      await updateFalLicense(accessToken, result.data);
-      setSaved(true);
-    } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : t.falLicense.saveFailed);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  return (
-    <>
-      <h2 className="mb-1 text-base font-semibold text-text-primary">{t.falLicense.title}</h2>
-      <p className="mb-4 text-sm text-text-secondary">
-        {initial ? t.falLicense.descriptionSet : t.falLicense.descriptionUnset}
-      </p>
-      {canEdit ? (
-        <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-3">
-          <Input
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            placeholder={t.falLicense.placeholder}
-            dir="ltr"
-          />
-          <FormError message={error} />
-          <Button type="submit" disabled={loading} className="w-fit">
-            {loading ? t.common.saving : saved ? t.common.saved : t.common.save}
-          </Button>
-        </form>
-      ) : (
-        <p className="text-sm font-medium text-text-primary" dir="ltr">
-          {initial ?? '—'}
-        </p>
-      )}
-    </>
-  );
-}
-
 function AccountTab({ accessToken }: { accessToken: string }) {
   const { me } = useCurrentUser(); const { pages } = useLocale(); const settings=pages.settings; const router=useRouter();
   const [name,setName]=useState(me.user.full_name); const [phone,setPhone]=useState(me.user.phone); const [email,setEmail]=useState(me.user.email??'');
@@ -511,7 +474,24 @@ function AccountTab({ accessToken }: { accessToken: string }) {
 function OrganizationTab({ accessToken }: { accessToken: string }) {
   const { me } = useCurrentUser();
   const canEdit = me.user.role === 'owner';
-  return <><AccountTypeCard accessToken={accessToken} canEdit={canEdit} initial={me.tenant.account_type} />{me.tenant.account_type === 'individual' ? <Card className="p-6"><h2 className="mb-4 text-base font-semibold text-text-primary">التراخيص</h2><FalLicenseFields accessToken={accessToken} canEdit={canEdit} initial={me.tenant.fal_license_number} /></Card> : <OrganizationInfoCard accessToken={accessToken} canEdit={canEdit} accountType={me.tenant.account_type} initial={{ name_ar: me.tenant.name_ar, cr_number: me.tenant.cr_number, tax_number: me.tenant.tax_number }} falLicense={me.tenant.fal_license_number} />}</>;
+  return (
+    <>
+      <AccountTypeCard accessToken={accessToken} canEdit={canEdit} initial={me.tenant.account_type} />
+      <OrganizationInfoCard
+        accessToken={accessToken}
+        canEdit={canEdit}
+        accountType={me.tenant.account_type}
+        initial={{
+          name_ar: me.tenant.name_ar,
+          cr_number: me.tenant.cr_number,
+          tax_number: me.tenant.tax_number,
+          fal_license_number: me.tenant.fal_license_number,
+          freelance_document_number: me.tenant.freelance_document_number,
+          wafi_license_number: me.tenant.wafi_license_number,
+        }}
+      />
+    </>
+  );
 }
 
 function ContactTab({ accessToken }: { accessToken: string }) {
