@@ -41,7 +41,7 @@ export type AccountTypeSwitchInput = z.infer<typeof accountTypeSwitchSchema>;
  */
 const optionalLicenseNumber = z.string().trim().max(100).optional().nullable().transform((value) => value === '' ? null : value);
 
-export const organizationInfoUpdateSchema = z.discriminatedUnion('account_type', [
+export const organizationInfoUpdateSchema = z.union([
   z.object({
     account_type: z.literal('individual'),
     name_ar: z.string().min(2, 'اسم الجهة مطلوب'),
