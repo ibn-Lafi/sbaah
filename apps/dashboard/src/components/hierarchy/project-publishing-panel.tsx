@@ -1,0 +1,15 @@
+'use client';
+import { useState } from 'react';
+import type { Project } from '@sbaah/shared';
+import { updateProject } from '@/lib/api/hierarchy';
+
+export function ProjectPublishingPanel({project,accessToken,onChange}:{project:Project;accessToken:string;onChange:(p:Project)=>void}){
+ const [completion,setCompletion]=useState(project.completion_percentage?.toString()??'');
+ const [planned,setPlanned]=useState(project.planned_units_count?.toString()??'');
+ const [expected,setExpected]=useState(project.expected_completion_date??'');
+ const [saving,setSaving]=useState(false); const [error,setError]=useState<string|null>(null);
+ const save=async(status?:'draft'|'published')=>{setSaving(true);setError(null);try{const {project:p}=await updateProject(accessToken,project.id,{completion_percentage:completion===''?null:Number(completion),planned_units_count:planned===''?null:Number(planned),expected_completion_date:expected||null,...(status?{status}: {})});onChange(p)}catch(e){setError(e instanceof Error?e.message:'تعذر حفظ المشروع')}finally{setSaving(false)}};
+ return <section className="rounded-card border border-border-default bg-surface-card p-5"><div className="mb-5 flex flex-wrap items-center justify-between gap-3"><div><h2 className="font-semibold text-text-primary">بيانات ونشر المشروع</h2><p className="mt-1 text-xs text-text-secondary">{project.status==='published'?'المشروع منشور ويظهر في موقعك العام.':'المشروع مسودة ولن يظهر في الموقع حتى يتم نشره.'}</p></div><span className="rounded-full border border-border-default px-3 py-1 text-xs">{project.status==='published'?'منشور':'مسودة'}</span></div>
+ <div className="grid gap-4 sm:grid-cols-3"><label className="text-sm text-text-secondary">نسبة الإنجاز %<input type="number" min="0" max="100" value={completion} onChange={e=>setCompletion(e.target.value)} className="mt-2 h-10 w-full rounded-input border border-border-default bg-surface px-3 text-text-primary"/></label><label className="text-sm text-text-secondary">عدد الوحدات المخطط<input type="number" min="0" value={planned} onChange={e=>setPlanned(e.target.value)} className="mt-2 h-10 w-full rounded-input border border-border-default bg-surface px-3 text-text-primary"/></label><label className="text-sm text-text-secondary">تاريخ الإنجاز المتوقع<input type="date" value={expected} onChange={e=>setExpected(e.target.value)} className="mt-2 h-10 w-full rounded-input border border-border-default bg-surface px-3 text-text-primary"/></label></div>
+ {error&&<p className="mt-3 text-sm text-danger">{error}</p>}<div className="mt-5 flex flex-wrap gap-2"><button disabled={saving} onClick={()=>void save()} className="rounded-button border border-border-default px-4 py-2 text-sm font-medium disabled:opacity-50">حفظ البيانات</button><button disabled={saving} onClick={()=>void save(project.status==='published'?'draft':'published')} className="rounded-button bg-brand px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">{saving?'جارٍ الحفظ...':project.status==='published'?'إرجاع إلى مسودة':'نشر المشروع'}</button></div></section>;
+}
