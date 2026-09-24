@@ -7,7 +7,7 @@ import { AppShell } from '@/components/layout/app-shell';
 import { BackButton } from '@/components/ui/back-button';
 import { DeleteButton } from '@/components/ui/delete-button';
 import { DetailLoadError } from '@/components/ui/detail-load-error';
-import { ProjectInventory } from '@/components/hierarchy/project-inventory';
+import { ProjectInventory } from '@/components/hierarchy/project-inventory';\nimport { ProjectMediaManager } from '@/components/hierarchy/project-media-manager';
 import { FormPageSkeleton } from '@/components/ui/form-page-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { deleteProject, getProject } from '@/lib/api/hierarchy';
@@ -86,7 +86,7 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
       ) : (
         <div className="mx-auto flex max-w-[720px] flex-col gap-6">
           <BackButton href="/projects" label="رجوع" className="self-start" />
-          <ProjectInventory projectId={id} accessToken={accessToken} canManage={canManage} />
+          <ProjectMediaManager projectId={id} tenantId={me.tenant.id} accessToken={accessToken} canManage={canManage} />\n          <ProjectInventory projectId={id} accessToken={accessToken} canManage={canManage} />
 
           {canManage && (
             <DeleteButton
