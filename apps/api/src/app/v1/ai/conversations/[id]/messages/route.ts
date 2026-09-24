@@ -99,7 +99,7 @@ export const POST = withErrorHandling(async (
     },
   });
 
-  const { data: assistantMessage, error: assistantMessageError } = await supabase
+  const { data: assistantMessage, error: assistantMessageError } = await systemSupabase
     .rpc('append_ai_assistant_message', {
       p_conversation_id: conversation.id,
       p_content: generated.text,
