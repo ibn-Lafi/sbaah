@@ -2,7 +2,7 @@ import type { HeroVariant, WebsitePageKey, WebsiteSectionType } from '@sbaah/sha
 
 export const websiteAr = {
   themeStore: {
-    pageTitle: 'متجر الثيمات',
+    pageTitle: 'تصميم الموقع',
     description:
       'اختر شكل موقعك، ثم اضغط "تخصيص الثيم" على الثيم الحالي لتعديل أقسامه وألوانه ومحتواه',
     customizeTheme: 'تخصيص الثيم',
@@ -150,7 +150,7 @@ export const websiteAr = {
 
 export const websiteEn: typeof websiteAr = {
   themeStore: {
-    pageTitle: 'Theme Store',
+    pageTitle: 'Website Design',
     description:
       'Choose the look of your website, then click "Customize theme" on your current theme to edit its sections, colors and content',
     customizeTheme: 'Customize theme',
