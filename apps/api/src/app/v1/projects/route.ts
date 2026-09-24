@@ -18,7 +18,8 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     Object.fromEntries(request.nextUrl.searchParams),
   );
 
-  let query = supabase.from('projects').select('*', { count: 'exact' }).eq('tenant_id', caller.tenantId)\n    .neq('status', 'archived');
+  let query = supabase.from('projects').select('*', { count: 'exact' }).eq('tenant_id', caller.tenantId)
+    .neq('status', 'archived');
   if (status) query = query.eq('status', status);
 
   const from = (page - 1) * page_size;
