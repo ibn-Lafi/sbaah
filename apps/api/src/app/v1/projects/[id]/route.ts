@@ -12,7 +12,7 @@ export const GET = withErrorHandling<RouteContext>(async (request, { params }) =
   const { supabase } = getAuthenticatedClient(request);
   const caller = await getCallerContext(supabase);
 
-  const { data, error } = await supabase.from('projects').select('*').eq('id', id).eq('tenant_id', caller.tenantId).maybeSingle();
+  const { data, error } = await supabase.from('projects').select('*').eq('id', id).eq('tenant_id', caller.tenantId).neq('status', 'archived').maybeSingle();
   if (error) {
     throw new Error(`Failed to load project: ${error.message}`);
   }
