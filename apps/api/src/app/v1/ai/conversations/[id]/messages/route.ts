@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
+import { createServiceRoleClient } from '@sbaah/shared';
 import { generateGrokReply } from '@/lib/ai/grok';
 import { AI_TOOL_DEFINITIONS, executeAiTool } from '@/lib/ai/tools';
 
@@ -15,6 +16,7 @@ export const POST = withErrorHandling(async (
 ) => {
   const { supabase } = getAuthenticatedClient(request);
   const caller = await getCallerContext(supabase);
+  const systemSupabase = createServiceRoleClient();
   const { id } = paramsSchema.parse(await context.params);
   const input = messageSchema.parse(await request.json());
 
@@ -85,10 +87,10 @@ export const POST = withErrorHandling(async (
       if (logError || !log) throw new Error(`Failed to create AI action log: ${logError?.message}`);
       try {
         const result = await executeAiTool({ supabase, caller, name, arguments: args });
-        await supabase.from('ai_action_logs').update({ status: 'succeeded', output: result }).eq('id', log.id).eq('tenant_id', caller.tenantId);
+        await systemSupabase.from('ai_action_logs').update({ status: 'succeeded', output: result }).eq('id', log.id).eq('tenant_id', caller.tenantId);
         return result;
       } catch (error) {
-        await supabase.from('ai_action_logs').update({
+        await systemSupabase.from('ai_action_logs').update({
           status: 'failed',
           error_message: error instanceof Error ? error.message.slice(0, 1000) : 'Unknown tool error',
         }).eq('id', log.id).eq('tenant_id', caller.tenantId);
