@@ -14,7 +14,6 @@ interface AppShellProps {
   orgName: string;
   accountType: AccountType;
   children: React.ReactNode;
-  titleIcon?: 'ai';
 }
 
 /** Whole days left until `iso` — 0 on its final calendar day, never negative (callers check expiry separately). */
@@ -32,7 +31,7 @@ function daysRemaining(iso: string): number {
  * enforced server-side (RLS, migration 0019), this just tells the user why
  * their next edit will fail before they attempt it.
  */
-export function AppShell({ title, orgName, accountType, children, titleIcon }: AppShellProps) {
+export function AppShell({ title, orgName, accountType, children }: AppShellProps) {
   const { me } = useCurrentUser();
   const { t } = useLocale();
   const status = me.tenant.status;
@@ -65,7 +64,7 @@ export function AppShell({ title, orgName, accountType, children, titleIcon }: A
     <div className="flex h-dvh overflow-hidden">
       <Sidebar orgName={orgName} accountType={accountType} />
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-        <Topbar title={title} siteUrl={siteUrl} titleIcon={titleIcon} />
+        <Topbar title={title} siteUrl={siteUrl} />
         {/* Mobile: the page content is a rounded-top sheet that overlaps UP into the purple header by -mt-5 (founder's Zid reference, red-circled) — the header stays a plain square rectangle behind it; the curve itself, and the small light notches it cuts into the header's own bottom corners, come entirely from this card's corner radius sitting on top. Desktop is untouched (no radius, no overlap, transparent). */}
         <div className="bg-surface-page relative z-10 -mt-5 flex min-h-0 flex-1 flex-col rounded-t-[28px] md:mt-0 md:rounded-none md:bg-transparent">
           {status !== 'active' && (
