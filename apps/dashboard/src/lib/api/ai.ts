@@ -55,3 +55,12 @@ export function sendAiMessage(accessToken: string, conversationId: string, conte
     accessToken,
   );
 }
+
+
+export function decideAiAction(accessToken: string, actionId: string, decision: 'confirm' | 'cancel') {
+  return apiPost<{ action_id: string; status: 'cancelled' | 'succeeded'; result?: unknown }>(
+    `/ai/actions/${actionId}/decision`,
+    { decision },
+    accessToken,
+  );
+}
