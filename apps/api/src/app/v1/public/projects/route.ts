@@ -17,6 +17,11 @@ interface PublicProjectRow {
   lat?: number | null;
   lng?: number | null;
   media?: unknown[];
+  status?: string | null;
+  completion_percentage?: number | null;
+  expected_completion_date?: string | null;
+  planned_units_count?: number | null;
+  models_count?: number | string | null;
   total_count?: number | string | null;
 }
 
