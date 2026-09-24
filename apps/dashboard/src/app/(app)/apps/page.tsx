@@ -79,7 +79,7 @@ export default function AppsPage() {
         setConversations((current) => [created, ...current]);
       }
       const result = await sendAiMessage(accessToken, id, content);
-      setMessages((current) => [...current, result.message]);
+      setMessages((current) => [...current, result.message, result.assistant_message]);
       setDraft('');
     } catch {
       setError(ar ? 'تعذر إرسال الرسالة.' : 'Could not send the message.');
