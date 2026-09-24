@@ -2,7 +2,16 @@
 import {useEffect,useMemo,useState} from 'react';
 import {Button} from '@/components/ui/button';import{Card}from'@/components/ui/card';import{Select}from'@/components/ui/select';import{getSupabaseBrowserClient}from'@/lib/supabase/client';
 import{createAssetMedia,deleteAssetMedia,listAssetMedia,updateAssetMedia,type AssetMedia,type AssetMediaCategory}from'@/lib/api/real-estate';
-const categories:Array<{value:AssetMediaCategory;label:string}>=[['general','صور العقار'],['exterior','الواجهة الخارجية'],['entrance','المدخل'],['living','المجلس / الصالة'],['bedrooms','غرف النوم'],['kitchen','المطبخ'],['bathrooms','دورات المياه'],['outdoor','المساحات الخارجية'],['amenities','المرافق'],['parking','المواقف'],['floor_plan','المخطط'],['location','الموقع والمحيط'],['view','الإطلالة'],['construction','مراحل الإنشاء'],['other','أخرى']].map(([value,label])=>({value:value as AssetMediaCategory,label}));
+const categories: Array<{ value: AssetMediaCategory; label: string }> = [
+  { value: 'general', label: 'صور العقار' }, { value: 'exterior', label: 'الواجهة الخارجية' },
+  { value: 'entrance', label: 'المدخل' }, { value: 'living', label: 'المجلس / الصالة' },
+  { value: 'bedrooms', label: 'غرف النوم' }, { value: 'kitchen', label: 'المطبخ' },
+  { value: 'bathrooms', label: 'دورات المياه' }, { value: 'outdoor', label: 'المساحات الخارجية' },
+  { value: 'amenities', label: 'المرافق' }, { value: 'parking', label: 'المواقف' },
+  { value: 'floor_plan', label: 'المخطط' }, { value: 'location', label: 'الموقع والمحيط' },
+  { value: 'view', label: 'الإطلالة' }, { value: 'construction', label: 'مراحل الإنشاء' },
+  { value: 'other', label: 'أخرى' },
+];
 export function AssetMediaManager({assetId,tenantId,accessToken,canManage,isUnit=false}:{assetId:string;tenantId:string;accessToken:string;canManage:boolean;isUnit?:boolean}){
  const[media,setMedia]=useState<AssetMedia[]>([]),[category,setCategory]=useState<AssetMediaCategory>('general'),[busy,setBusy]=useState(false),[error,setError]=useState('');const visible=categories.filter(c=>!isUnit||!['exterior','entrance','parking','construction'].includes(c.value));
  const load=async()=>setMedia((await listAssetMedia(accessToken,assetId)).media);useEffect(()=>{void load().catch(e=>setError(e instanceof Error?e.message:'تعذر تحميل الوسائط'))},[accessToken,assetId]);
