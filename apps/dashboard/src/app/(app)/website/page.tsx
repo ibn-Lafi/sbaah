@@ -22,6 +22,7 @@ export default function ThemeStorePage() {
   const [website, setWebsite] = useState<Website | null>(null);
   const [themes, setThemes] = useState<Theme[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [selectingThemeId, setSelectingThemeId] = useState<string | null>(null);
   const siteUrl = `https://${me.tenant.subdomain}.${getPlatformRootDomain()}`;
 
   useEffect(() => {
@@ -48,11 +49,14 @@ export default function ThemeStorePage() {
 
   async function saveTheme(themeId: string) {
     setError(null);
+    setSelectingThemeId(themeId);
     try {
       const { website: updated } = await updateWebsite(accessToken, { theme_id: themeId });
       setWebsite((current) => (current ? { ...current, ...updated } : current));
     } catch (err) {
       setError(err instanceof ApiRequestError ? err.message : t.themeStore.errors.saveTheme);
+    } finally {
+      setSelectingThemeId(null);
     }
   }
 
@@ -99,6 +103,7 @@ export default function ThemeStorePage() {
             primaryColor={website.primary_color}
             siteUrl={siteUrl}
             onSelect={(themeId) => void saveTheme(themeId)}
+            selectingThemeId={selectingThemeId}
           />
         </Card>
       </div>
