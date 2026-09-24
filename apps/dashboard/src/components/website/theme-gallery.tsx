@@ -121,7 +121,7 @@ export function ThemeGallery({
                   disabled={Boolean(selectingThemeId)}
                   className="text-text-primary flex h-8 items-center justify-center rounded-full bg-white/90 text-xs font-semibold backdrop-blur hover:bg-white disabled:cursor-wait disabled:opacity-70 sm:h-9 sm:text-sm"
                 >
-                  {selectingThemeId === theme.id ? (pages.common?.loading ?? 'جارٍ التفعيل...') : t.themeStore.selectTheme}
+                  {selectingThemeId === theme.id ? 'جارٍ التفعيل...' : t.themeStore.selectTheme}
                 </button>
               )}
             </div>
