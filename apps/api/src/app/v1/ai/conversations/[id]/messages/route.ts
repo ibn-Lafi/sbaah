@@ -68,6 +68,7 @@ export const POST = withErrorHandling(async (
       .map((item) => ({ role: item.sender as 'user' | 'assistant', content: item.content })),
     tools: AI_TOOL_DEFINITIONS,
     executeTool: async (name, args) => {
+      const sensitive = name === 'update_lead_status';
       const startedAt = new Date().toISOString();
       const { data: log, error: logError } = await systemSupabase
         .from('ai_action_logs')
@@ -77,14 +78,15 @@ export const POST = withErrorHandling(async (
           conversation_id: conversation.id,
           requested_by: caller.userId,
           tool_name: name,
-          risk_level: ['create_lead', 'add_lead_note', 'set_lead_follow_up'].includes(name) ? 'write' : 'read',
-          status: 'running',
+          risk_level: sensitive ? 'sensitive' : ['create_lead', 'add_lead_note', 'set_lead_follow_up'].includes(name) ? 'write' : 'read',
+          status: sensitive ? 'awaiting_confirmation' : 'running',
           input: args,
           executed_at: startedAt,
         })
         .select('id')
         .single();
       if (logError || !log) throw new Error(`Failed to create AI action log: ${logError?.message}`);
+      if (sensitive) return { requires_confirmation: true, action_id: log.id, tool_name: name, input: args };
       try {
         const result = await executeAiTool({ supabase, caller, name, arguments: args });
         await systemSupabase.from('ai_action_logs').update({ status: 'succeeded', output: result }).eq('id', log.id).eq('tenant_id', caller.tenantId);
