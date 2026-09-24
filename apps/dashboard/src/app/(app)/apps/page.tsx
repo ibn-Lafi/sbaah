@@ -71,6 +71,17 @@ export default function AppsPage() {
     if (!content || sending || !assistant) return;
     setSending(true);
     setError('');
+    setDraft('');
+    const optimisticId = `optimistic-${Date.now()}`;
+    const optimisticMessage: AiMessage = {
+      id: optimisticId,
+      sender: 'user',
+      content,
+      metadata: {},
+      created_by: me.id,
+      created_at: new Date().toISOString(),
+    };
+    setMessages((current) => [...current, optimisticMessage]);
     try {
       let id = conversationId;
       if (!id) {
@@ -80,10 +91,14 @@ export default function AppsPage() {
         setConversations((current) => [created, ...current]);
       }
       const result = await sendAiMessage(accessToken, id, content);
-      setMessages((current) => [...current, result.message, result.assistant_message]);
-      setDraft('');
+      setMessages((current) => [
+        ...current.map((item) => item.id === optimisticId ? result.message : item),
+        result.assistant_message,
+      ]);
     } catch {
-      setError(ar ? 'تعذر إرسال الرسالة.' : 'Could not send the message.');
+      setMessages((current) => current.filter((item) => item.id !== optimisticId));
+      setDraft(content);
+      setError(ar ? 'تعذر الحصول على رد المساعد. أعد المحاولة.' : 'Could not get an assistant response. Please retry.');
     } finally {
       setSending(false);
     }
@@ -220,7 +235,7 @@ export default function AppsPage() {
                     className="text-text-primary placeholder:text-text-placeholder max-h-32 min-h-9 flex-1 resize-none bg-transparent px-2 py-2 text-sm outline-none"
                   />
                   <button type="submit" disabled={!draft.trim() || sending} className="bg-brand rounded-[9px] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">
-                    {sending ? (ar ? '...' : '...') : ar ? 'إرسال' : 'Send'}
+                    {sending ? (ar ? 'يفكر...' : 'Thinking...') : ar ? 'إرسال' : 'Send'}
                   </button>
                 </div>
               </form>
