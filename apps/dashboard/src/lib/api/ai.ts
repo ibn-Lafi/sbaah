@@ -49,7 +49,7 @@ export function getAiConversation(accessToken: string, conversationId: string) {
 }
 
 export function sendAiMessage(accessToken: string, conversationId: string, content: string) {
-  return apiPost<{ message: AiMessage; generation: 'pending_model_connection' }>(
+  return apiPost<{ message: AiMessage; assistant_message: AiMessage }>(
     `/ai/conversations/${conversationId}/messages`,
     { content },
     accessToken,
