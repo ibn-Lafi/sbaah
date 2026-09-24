@@ -26,6 +26,7 @@ export default function AppsPage() {
   const { me } = useCurrentUser();
   const { locale } = useLocale();
   const [agent, setAgent] = useState<AgentDraft>(EMPTY_AGENT);
+  const [activeSection, setActiveSection] = useState<'employees' | 'whatsapp'>('employees');
   const ar = locale === 'ar';
 
   return (
@@ -35,6 +36,35 @@ export default function AppsPage() {
       accountType={me.tenant.account_type}
     >
       <div className="mx-auto w-full max-w-3xl">
+        <nav className="border-border-default mb-6 flex w-full gap-1 overflow-x-auto border-b" aria-label={ar ? 'أقسام سبعة Ai' : 'Sbaah AI sections'}>
+          <button
+            type="button"
+            onClick={() => setActiveSection('employees')}
+            aria-current={activeSection === 'employees' ? 'page' : undefined}
+            className={`relative shrink-0 px-4 py-3 text-sm font-semibold transition ${
+              activeSection === 'employees'
+                ? 'text-brand after:absolute after:inset-x-0 after:bottom-[-1px] after:h-0.5 after:bg-brand'
+                : 'text-text-secondary hover:text-text-primary'
+            }`}
+          >
+            {ar ? 'موظفين Ai' : 'AI Employees'}
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveSection('whatsapp')}
+            aria-current={activeSection === 'whatsapp' ? 'page' : undefined}
+            className={`relative shrink-0 px-4 py-3 text-sm font-semibold transition ${
+              activeSection === 'whatsapp'
+                ? 'text-brand after:absolute after:inset-x-0 after:bottom-[-1px] after:h-0.5 after:bg-brand'
+                : 'text-text-secondary hover:text-text-primary'
+            }`}
+          >
+            {ar ? 'واتس اب Ai' : 'WhatsApp AI'}
+          </button>
+        </nav>
+
+        {activeSection === 'employees' ? (
+          <>
         <div className="mb-5">
           <h1 className="text-text-primary text-xl font-bold sm:text-2xl">
             {ar ? 'إنشاء وكيل' : 'Create agent'}
@@ -122,6 +152,15 @@ export default function AppsPage() {
             </button>
           </div>
         </section>
+          </>
+        ) : (
+          <section className="border-border-default bg-surface-card rounded-card border p-6 sm:p-8">
+            <h2 className="text-text-primary text-lg font-bold">{ar ? 'واتس اب Ai' : 'WhatsApp AI'}</h2>
+            <p className="text-text-secondary mt-2 text-sm leading-6">
+              {ar ? 'سيتم بناء إعدادات واتس اب Ai في المرحلة القادمة.' : 'WhatsApp AI settings will be built in the next phase.'}
+            </p>
+          </section>
+        )}
       </div>
     </AppShell>
   );
