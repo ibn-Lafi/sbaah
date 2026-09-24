@@ -7,7 +7,7 @@ import { assertTenantOwnedRow } from '@/lib/tenant/assert-tenant-owned-row';
 interface RouteContext { params: Promise<{ id: string }>; }
 
 const createMediaSchema = z.object({
-  media_type: z.enum(['image', 'video']),
+  media_type: z.enum(['image', 'video']),\n  category: z.enum(['general','exterior','entrance','living','bedrooms','kitchen','bathrooms','outdoor','amenities','parking','floor_plan','location','view','construction','other']).default('general'),
   url: z.string().url(),
   alt_ar: z.string().optional().nullable(),
   alt_en: z.string().optional().nullable(),
