@@ -4,6 +4,9 @@ import { buildLocalizedAlternates, getPublicOrigin, localizedPath } from '@/lib/
 import { getPublicProject } from '@/lib/api/public-projects';
 import { isLocale, DEFAULT_LOCALE } from '@/lib/i18n/locales';
 import { pickLocalized } from '@/lib/i18n/localized-field';
+import { getTenantSiteResult } from '@/lib/tenant/get-tenant-site';
+import { resolveTheme } from '@/components/themes/registry';
+import { LavenderProjectDetail } from '@/components/themes/lavender/project-detail';
 
 interface PageProps {
   params: Promise<{ locale: string; id: string }>;
@@ -51,6 +54,8 @@ export default async function ProjectDetailPage({ params }: PageProps) {
   const locale = isLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
   let data; try { data = await getPublicProject(id); } catch { notFound(); }
   const project=data.project;if(id!==project.slug)permanentRedirect(localizedPath(locale,`/projects/${project.slug}`));
+  const tenantResult=await getTenantSiteResult();
+  if(tenantResult.status==='active'&&resolveTheme(tenantResult.site.website.theme_key).key==='lavender') return <LavenderProjectDetail locale={locale} data={data}/>;
   const title=pickLocalized(locale,project.name_ar,project.name_en);
   const description=pickLocalized(locale,project.description_ar??'',project.description_en??null);
   const images=data.media.filter(m=>m.media_type==='image');
