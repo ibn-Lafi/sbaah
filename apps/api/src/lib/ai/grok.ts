@@ -2,9 +2,9 @@ type GrokMessage = { role: 'system' | 'user' | 'assistant'; content: string };
 
 interface GrokResponse {
   id?: string;
-  output_text?: string;
+  model?: string;
   output?: Array<{ type?: string; content?: Array<{ type?: string; text?: string }> }>;
-  error?: { message?: string };
+  error?: { message?: string; type?: string; code?: string };
 }
 
 export async function generateGrokReply(input: {
@@ -24,6 +24,8 @@ export async function generateGrokReply(input: {
     input.personality ? `تعليمات وشخصية المساعد التي حددها العميل: ${input.personality}` : '',
   ].filter(Boolean).join('\n');
 
+  const model = process.env.XAI_MODEL || 'grok-4.20';
+
   const response = await fetch('https://api.x.ai/v1/responses', {
     method: 'POST',
     headers: {
@@ -31,18 +33,27 @@ export async function generateGrokReply(input: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: process.env.XAI_MODEL || 'grok-4.20',
+      model,
       input: [{ role: 'system', content: system }, ...input.messages],
-      reasoning: { effort: 'low' },
       prompt_cache_key: `sbaah-ai:${input.conversationId}`,
     }),
     signal: AbortSignal.timeout(45_000),
   });
 
-  const body = (await response.json()) as GrokResponse;
-  if (!response.ok) throw new Error(`xAI request failed: ${body.error?.message || response.status}`);
+  const raw = await response.text();
+  let body: GrokResponse = {};
+  try {
+    body = raw ? JSON.parse(raw) as GrokResponse : {};
+  } catch {
+    // Preserve non-JSON provider errors in the server log without exposing secrets.
+  }
 
-  const text = body.output_text?.trim() || body.output
+  if (!response.ok) {
+    const providerMessage = body.error?.message || raw.slice(0, 1200) || `HTTP ${response.status}`;
+    throw new Error(`xAI request failed (${response.status}): ${providerMessage}`);
+  }
+
+  const text = body.output
     ?.filter((item) => item.type === 'message')
     .flatMap((item) => item.content ?? [])
     .filter((part) => part.type === 'output_text' || part.type === 'text')
@@ -51,5 +62,5 @@ export async function generateGrokReply(input: {
     .trim();
 
   if (!text) throw new Error('xAI returned an empty response');
-  return { text, responseId: body.id ?? null, model: process.env.XAI_MODEL || 'grok-4.20' };
+  return { text, responseId: body.id ?? null, model: body.model ?? model };
 }
