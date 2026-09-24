@@ -101,29 +101,50 @@ export const POST = withErrorHandling(async (
     },
   });
 
-  const { data: assistantMessage, error: assistantMessageError } = await systemSupabase
-    .rpc('append_ai_assistant_message', {
-      p_conversation_id: conversation.id,
-      p_content: generated.text,
-      p_metadata: {
-        provider: 'xai',
-        model: generated.model,
-        response_id: generated.responseId,
-        tools: generated.executedTools.map((tool) => tool.name),
-        ...(() => {
-          const pending = generated.executedTools.find((tool) => {
-            const result = tool.result as { requires_confirmation?: boolean } | null;
-            return result?.requires_confirmation === true;
-          });
-          const result = pending?.result as { action_id?: string; tool_name?: string } | undefined;
-          return result?.action_id ? { pending_action_id: result.action_id, pending_action_tool: result.tool_name, pending_action_status: 'awaiting_confirmation' } : {};
-        })(),
-      },
-    })
-    .single();
-  if (assistantMessageError || !assistantMessage) {
-    throw new Error(`Failed to persist AI response: ${assistantMessageError?.message}`);
-  }
+  const assistantMessageId = crypto.randomUUID();
+  const assistantMessagePayload = {
+    id: assistantMessageId,
+    tenant_id: caller.tenantId,
+    conversation_id: conversation.id,
+    sender: 'assistant',
+    content: generated.text,
+    metadata: {
+      provider: 'xai',
+      model: generated.model,
+      response_id: generated.responseId,
+      tools: generated.executedTools.map((tool) => tool.name),
+      ...(() => {
+        const pending = generated.executedTools.find((tool) => {
+          const result = tool.result as { requires_confirmation?: boolean } | null;
+          return result?.requires_confirmation === true;
+        });
+        const result = pending?.result as { action_id?: string; tool_name?: string } | undefined;
+        return result?.action_id ? { pending_action_id: result.action_id, pending_action_tool: result.tool_name, pending_action_status: 'awaiting_confirmation' } : {};
+      })(),
+    },
+    created_by: null,
+    created_at: new Date().toISOString(),
+  };
+  const { error: assistantMessageError } = await systemSupabase
+    .from('ai_messages')
+    .insert(assistantMessagePayload);
+  if (assistantMessageError) throw new Error(`Failed to persist AI response: ${assistantMessageError.message}`);
+
+  const { error: conversationTouchError } = await systemSupabase
+    .from('ai_conversations')
+    .update({ last_message_at: assistantMessagePayload.created_at, updated_at: assistantMessagePayload.created_at })
+    .eq('id', conversation.id)
+    .eq('tenant_id', caller.tenantId);
+  if (conversationTouchError) throw new Error(`Failed to update AI conversation after response: ${conversationTouchError.message}`);
+
+  const assistantMessage = {
+    id: assistantMessagePayload.id,
+    sender: 'assistant',
+    content: assistantMessagePayload.content,
+    metadata: assistantMessagePayload.metadata,
+    created_by: null,
+    created_at: assistantMessagePayload.created_at,
+  };
 
   return okResponse({ message, assistant_message: assistantMessage }, 201);
 });
