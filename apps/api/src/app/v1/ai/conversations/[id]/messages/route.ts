@@ -69,7 +69,7 @@ export const POST = withErrorHandling(async (
     tools: AI_TOOL_DEFINITIONS,
     executeTool: async (name, args) => {
       const startedAt = new Date().toISOString();
-      const { data: log, error: logError } = await supabase
+      const { data: log, error: logError } = await systemSupabase
         .from('ai_action_logs')
         .insert({
           tenant_id: caller.tenantId,
