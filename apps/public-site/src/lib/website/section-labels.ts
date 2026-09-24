@@ -20,6 +20,7 @@ export const DEFAULT_SECTION_TITLE: Record<WebsiteSectionType, Record<Locale, st
   video: { ar: 'فيديو', en: 'Video' },
   project_grid: { ar: 'مشاريعنا', en: 'Our Projects' },
   property_detail: { ar: '', en: '' },
+  project_detail: { ar: '', en: '' },
   about: { ar: 'من نحن', en: 'About Us' },
   why_us: { ar: 'لماذا نحن', en: 'Why Choose Us' },
   contact: { ar: 'تواصل معنا', en: 'Contact Us' },
