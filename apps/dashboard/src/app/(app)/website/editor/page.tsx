@@ -90,7 +90,7 @@ export default function WebsiteEditorPage() {
   // التي تحذف الصف نفسه من قاعدة البيانات لكل مستأجر.
   const contentSections =
     activePage?.website_sections.filter((s) => {
-      if (s.type === 'footer' || s.type === 'broker_marketer_form' || s.type === 'property_request') return false;
+      if (s.type === 'footer' || s.type === 'broker_marketer_form') return false;
       if (s.type === 'contact' && (activePageKey === 'home' || activePageKey === 'property_detail'))
         return false;
       return true;
