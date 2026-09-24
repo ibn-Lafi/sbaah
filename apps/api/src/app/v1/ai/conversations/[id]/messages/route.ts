@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
+import { generateGrokReply } from '@/lib/ai/grok';
 
 const paramsSchema = z.object({ id: z.string().uuid() });
 const messageSchema = z.object({ content: z.string().trim().min(1).max(12000) });
@@ -47,5 +48,33 @@ export const POST = withErrorHandling(async (
     .eq('tenant_id', caller.tenantId);
   if (touchError) throw new Error(`Failed to update AI conversation: ${touchError.message}`);
 
-  return okResponse({ message, generation: 'pending_model_connection' }, 201);
+  const [{ data: assistant, error: assistantError }, { data: history, error: historyError }] = await Promise.all([
+    supabase.from('ai_assistants').select('name, personality, status').eq('id', conversation.assistant_id).eq('tenant_id', caller.tenantId).single(),
+    supabase.from('ai_messages').select('sender, content').eq('tenant_id', caller.tenantId).eq('conversation_id', conversation.id).in('sender', ['user', 'assistant']).order('created_at', { ascending: true }).limit(60),
+  ]);
+  if (assistantError || !assistant) throw new Error(`Failed to load AI assistant: ${assistantError?.message}`);
+  if (assistant.status !== 'active') throw new ApiError(409, 'ai_assistant_paused', 'مساعد Ai متوقف حاليًا');
+  if (historyError) throw new Error(`Failed to load AI history: ${historyError.message}`);
+
+  const generated = await generateGrokReply({
+    assistantName: assistant.name,
+    personality: assistant.personality,
+    conversationId: conversation.id,
+    messages: (history ?? [])
+      .filter((item) => item.sender === 'user' || item.sender === 'assistant')
+      .map((item) => ({ role: item.sender as 'user' | 'assistant', content: item.content })),
+  });
+
+  const { data: assistantMessage, error: assistantMessageError } = await supabase
+    .rpc('append_ai_assistant_message', {
+      p_conversation_id: conversation.id,
+      p_content: generated.text,
+      p_metadata: { provider: 'xai', model: generated.model, response_id: generated.responseId },
+    })
+    .single();
+  if (assistantMessageError || !assistantMessage) {
+    throw new Error(`Failed to persist AI response: ${assistantMessageError?.message}`);
+  }
+
+  return okResponse({ message, assistant_message: assistantMessage }, 201);
 });
