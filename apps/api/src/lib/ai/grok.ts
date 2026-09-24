@@ -34,7 +34,11 @@ async function callXai(body: Record<string, unknown>) {
   });
   const raw = await response.text();
   let parsed: GrokResponse = {};
-  try { parsed = raw ? JSON.parse(raw) as GrokResponse : {}; } catch {}
+  try {
+    parsed = raw ? JSON.parse(raw) as GrokResponse : {};
+  } catch {
+    parsed = {};
+  }
   if (!response.ok) {
     const providerMessage = parsed.error?.message || raw.slice(0, 1200) || `HTTP ${response.status}`;
     throw new Error(`xAI request failed (${response.status}): ${providerMessage}`);
