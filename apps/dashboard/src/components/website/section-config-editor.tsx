@@ -61,7 +61,7 @@ export function SectionConfigEditor({ section, accessToken, onSaved, website, on
   const t = pages.website;
   const isHero = section.type === 'hero';
   const hasBody = ['about','why_us','cta','property_request','promo_banner','free_content'].includes(section.type);
-  const hasSimpleTitle = !['property_detail','map','footer'].includes(section.type);
+  const hasSimpleTitle = !['property_detail','project_detail','map','footer'].includes(section.type);
   const config = section.config as HeroSectionConfig & AboutSectionConfig;
 
   const [titleAr, setTitleAr] = useState(config.title_ar ?? '');
