@@ -3,7 +3,6 @@ import type { PublicProjectDetailResponse } from '@/lib/api/public-projects';
 import { pickLocalized } from '@/lib/i18n/localized-field';
 import { localizedPath } from '@/lib/routing/public-url';
 import Link from 'next/link';
-import { LeadSection } from './lead-section';
 
 export function LavenderProjectDetail({locale,data,tenantId}:{locale:Locale;data:PublicProjectDetailResponse;tenantId:string}){
  const p=data.project; const title=pickLocalized(locale,p.name_ar,p.name_en); const desc=pickLocalized(locale,p.description_ar??'',p.description_en??null);
