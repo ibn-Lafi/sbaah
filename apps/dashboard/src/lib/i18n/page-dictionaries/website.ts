@@ -106,6 +106,7 @@ export const websiteAr = {
     video: 'فيديو',
     project_grid: 'شبكة المشاريع',
     property_detail: 'محتوى تفاصيل العقار',
+    project_detail: 'محتوى تفاصيل المشروع',
     about: 'من نحن',
     why_us: 'لماذا نحن',
     contact: 'تواصل',
@@ -118,6 +119,7 @@ export const websiteAr = {
     properties: 'العقارات',
     property_detail: 'تفاصيل العقار',
     projects: 'المشاريع',
+    project_detail: 'تفاصيل المشروع',
   } satisfies Record<WebsitePageKey, string>,
   customPages: {
     pageTitle: 'الصفحات',
@@ -254,6 +256,7 @@ export const websiteEn: typeof websiteAr = {
     video: 'Video',
     project_grid: 'Project Grid',
     property_detail: 'Property Detail Content',
+    project_detail: 'Project Detail Content',
     about: 'About',
     why_us: 'Why Us',
     contact: 'Contact',
@@ -266,6 +269,7 @@ export const websiteEn: typeof websiteAr = {
     properties: 'Properties',
     property_detail: 'Property Detail',
     projects: 'Projects',
+    project_detail: 'Project Detail',
   },
   customPages: {
     pageTitle: 'Pages',
