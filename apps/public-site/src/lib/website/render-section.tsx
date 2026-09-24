@@ -26,6 +26,8 @@ export function renderThemedSection(
     tenantId: string;
     /** Only set on the property_detail page — ties a submission to the property being viewed. */
     propertyId?: string;
+    projectId?: string;
+    listingId?: string;
     cities?: City[];
   },
 ): React.ReactNode {
@@ -44,6 +46,18 @@ export function renderThemedSection(
     case 'about':
     case 'why_us':
       return <theme.TextSection key={section.id} type={section.type} locale={ctx.locale} config={section.config} />;
+    case 'property_request':
+      return (
+        <theme.LeadSection
+          key={section.id}
+          locale={ctx.locale}
+          tenantId={ctx.tenantId}
+          projectId={ctx.projectId}
+          assetId={ctx.propertyId}
+          listingId={ctx.listingId}
+          config={section.config}
+        />
+      );
     case 'contact':
       return (
         <theme.ContactSection
