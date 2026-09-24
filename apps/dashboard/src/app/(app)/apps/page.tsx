@@ -191,8 +191,8 @@ export default function AppsPage() {
           <h2 className="text-text-primary mb-3 text-base font-bold">{locale === 'ar' ? 'التطبيقات المثبتة' : 'Installed apps'}</h2>
           <div className="-mx-1 flex snap-x snap-mandatory flex-nowrap gap-3 overflow-x-auto px-1 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {installedApps.map((app) => (
-              <div key={app.slug} className="min-w-[280px] max-w-[360px] flex-1">
-                <AppCard app={app} entry={t.apps[app.slug]} t={t} />
+              <div key={app.slug} className="w-[178px] min-w-[178px] snap-start sm:w-[220px] sm:min-w-[220px] md:w-[250px] md:min-w-[250px]">
+                <AppCard app={app} entry={t.apps[app.slug]} t={t} compact />
               </div>
             ))}
           </div>
