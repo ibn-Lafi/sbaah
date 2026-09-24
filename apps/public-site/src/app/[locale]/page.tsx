@@ -47,7 +47,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
   const tenantName = locale === 'ar' ? site.tenant.name_ar : site.tenant.name_en;
   const resolvedTheme = resolveTheme(site.website.theme_key);
-  const { HeroSection, PropertyGridSection, TextSection } = resolvedTheme.components;
+  const { HeroSection, PropertyGridSection, TextSection, LeadSection } = resolvedTheme.components;
   const isLavender = resolvedTheme.key === 'lavender';
 
   return (
@@ -80,6 +80,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           case 'free_content': return isLavender ? <LavenderFreeContent key={section.id} locale={locale} config={section.config} /> : <FreeContentSection key={section.id} locale={locale} config={section.config} />;
           case 'gallery': return isLavender ? <LavenderGallery key={section.id} locale={locale} config={section.config} /> : <GallerySection key={section.id} locale={locale} config={section.config} />;
           case 'video': return isLavender ? <LavenderVideo key={section.id} locale={locale} config={section.config} /> : <VideoSection key={section.id} locale={locale} config={section.config} />;
+          case 'property_request':
+            return <LeadSection key={section.id} locale={locale} tenantId={site.tenant.id} config={section.config} />;
           case 'about':
           case 'why_us':
             return <TextSection key={section.id} type={section.type} locale={locale} config={section.config} />;
