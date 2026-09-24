@@ -82,13 +82,13 @@ export async function executeAiTool(input: {
 
   if (name === 'search_leads') {
     assertPermission(caller.role, 'crm.read');
-    const args = z.object({ query: z.string().trim().min(1).max(100) }).parse(input.arguments);
+    const args = z.object({ query: z.string().trim().max(100).default('') }).parse(input.arguments);
     const escaped = args.query.replace(/[%,]/g, '');
     const { data, error } = await supabase
       .from('leads')
       .select('id, full_name, phone, email, status, source, follow_up_at, created_at')
       .eq('tenant_id', caller.tenantId)
-      .or(`full_name.ilike.%${escaped}%,phone.ilike.%${escaped}%`)
+      .or(escaped ? `full_name.ilike.%${escaped}%,phone.ilike.%${escaped}%` : 'id.not.is.null')
       .order('created_at', { ascending: false })
       .limit(10);
     if (error) throw new Error(`Failed to search leads: ${error.message}`);
@@ -97,18 +97,18 @@ export async function executeAiTool(input: {
 
   if (name === 'search_projects') {
     assertPermission(caller.role, 'projects.read');
-    const args = z.object({ query: z.string().trim().min(1).max(100) }).parse(input.arguments);
+    const args = z.object({ query: z.string().trim().max(100).default('') }).parse(input.arguments);
     const escaped = args.query.replace(/[%,]/g, '');
-    const { data, error } = await supabase.from('projects').select('id, name, status, created_at').eq('tenant_id', caller.tenantId).ilike('name', `%${escaped}%`).order('created_at', { ascending: false }).limit(10);
+    const { data, error } = await supabase.from('projects').select('id, name_ar, name_en, status, reference_number, slug, created_at').eq('tenant_id', caller.tenantId).or(escaped ? `name_ar.ilike.%${escaped}%,name_en.ilike.%${escaped}%,reference_number.ilike.%${escaped}%` : 'id.not.is.null').order('created_at', { ascending: false }).limit(10);
     if (error) throw new Error(`Failed to search projects: ${error.message}`);
     return { projects: data ?? [] };
   }
 
   if (name === 'search_listings') {
     assertPermission(caller.role, 'properties.read');
-    const args = z.object({ query: z.string().trim().min(1).max(100) }).parse(input.arguments);
+    const args = z.object({ query: z.string().trim().max(100).default('') }).parse(input.arguments);
     const escaped = args.query.replace(/[%,]/g, '');
-    const { data, error } = await supabase.from('listings').select('id, title, listing_type, status, price, created_at').eq('tenant_id', caller.tenantId).ilike('title', `%${escaped}%`).order('created_at', { ascending: false }).limit(10);
+    const { data, error } = await supabase.from('listings').select('id, listing_number, title_ar, title_en, listing_type, publication_status, commercial_status, asking_price, created_at').eq('tenant_id', caller.tenantId).or(escaped ? `title_ar.ilike.%${escaped}%,title_en.ilike.%${escaped}%,listing_number.ilike.%${escaped}%` : 'id.not.is.null').order('created_at', { ascending: false }).limit(10);
     if (error) throw new Error(`Failed to search listings: ${error.message}`);
     return { listings: data ?? [] };
   }
