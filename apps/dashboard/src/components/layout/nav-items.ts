@@ -99,7 +99,7 @@ export function getNavItems(t: ChromeDictionary): NavEntry[] {
         { href: '/domain', label: t.nav.website.domain, icon: DomainIcon },
       ],
     },
-    { href: '/apps', label: t.nav.apps, icon: AppsIcon, roles: ['owner', 'admin'] },
+    { href: '/apps', label: 'سبعة Ai', icon: AppsIcon, roles: ['owner', 'admin'] },
     { href: '/support', label: t.nav.support, icon: SupportIcon },
   ];
 }
