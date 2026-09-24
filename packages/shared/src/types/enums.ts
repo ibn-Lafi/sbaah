@@ -121,6 +121,7 @@ export const WEBSITE_SECTION_TYPES = [
   'gallery',
   'video',
   'property_detail',
+  'project_detail',
   'about',
   'why_us',
   'contact',
@@ -141,7 +142,7 @@ export type BrokerMarketerApplicantType = (typeof BROKER_MARKETER_APPLICANT_TYPE
  * there is deliberately no "add a page" flow, matching the same
  * "curated, not a free canvas" philosophy as the section library itself.
  */
-export const WEBSITE_PAGE_KEYS = ['home', 'properties', 'property_detail', 'projects'] as const;
+export const WEBSITE_PAGE_KEYS = ['home', 'properties', 'property_detail', 'projects', 'project_detail'] as const;
 export type WebsitePageKey = (typeof WEBSITE_PAGE_KEYS)[number];
 
 /** Not part of PRODUCT_SPEC's original data model — see docs/OTP_FLOW.md. */
