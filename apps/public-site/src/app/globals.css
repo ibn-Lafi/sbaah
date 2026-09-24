@@ -133,3 +133,42 @@ body {
 .sbaah-map-popup .maplibregl-popup-tip {
   display: none;
 }
+
+
+/* Sbaah system error illustration: motion stays decorative and respects accessibility. */
+.sbaah-error-route {
+  stroke-dasharray: 12 14;
+  animation: sbaah-route-flow 7s linear infinite;
+}
+.sbaah-error-building {
+  transform-origin: 260px 238px;
+  animation: sbaah-building-float 4.8s ease-in-out infinite;
+}
+.sbaah-error-pin {
+  transform-origin: 131px 154px;
+  animation: sbaah-pin-bob 3.2s ease-in-out infinite;
+}
+.sbaah-error-dot {
+  animation: sbaah-dot-pulse 2.4s ease-in-out infinite;
+}
+@keyframes sbaah-route-flow {
+  to { stroke-dashoffset: -104; }
+}
+@keyframes sbaah-building-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+@keyframes sbaah-pin-bob {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-9px) rotate(-2deg); }
+}
+@keyframes sbaah-dot-pulse {
+  0%, 100% { opacity: .45; transform: scale(.85); transform-origin: 38px 222px; }
+  50% { opacity: 1; transform: scale(1.15); transform-origin: 38px 222px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sbaah-error-route,
+  .sbaah-error-building,
+  .sbaah-error-pin,
+  .sbaah-error-dot { animation: none !important; }
+}
