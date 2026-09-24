@@ -24,7 +24,7 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
   return okResponse(data);
 });
 
-export const PUT = withErrorHandling(async (request: NextRequest) => {
+export const PATCH = withErrorHandling(async (request: NextRequest) => {
   const { supabase } = getAuthenticatedClient(request);
   const caller = await getCallerContext(supabase);
   assertOwner(caller.role);
