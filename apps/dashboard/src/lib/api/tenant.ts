@@ -28,6 +28,8 @@ export interface AccountTypeInfo {
   cr_number: string | null;
   tax_number: string | null;
   fal_license_number: string | null;
+  freelance_document_number: string | null;
+  wafi_license_number: string | null;
 }
 
 export function updateAccountType(accessToken: string, input: AccountTypeUpdateInput) {
