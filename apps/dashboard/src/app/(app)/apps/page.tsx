@@ -1,230 +1,128 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
-import Link from 'next/link';
+import { useState } from 'react';
 import { AppShell } from '@/components/layout/app-shell';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { useLocale } from '@/lib/i18n/locale-context';
-import type { PageDictionaries } from '@/lib/i18n/page-dictionaries';
 
-/**
- * سوق التطبيقات — شبكة بطاقات (نفس نمط تصميم المؤسس: أيقونة الشعار الرسمي +
- * اسم + وصف + تصنيف + سعر + زر "أضف التطبيق")، وليست سوقًا فعليًا
- * واتساب يفتح إعداداته الحالية. أي تطبيق غير موصول فعليًا يبقى "قريبًا"
- * بدل إظهار حالة اتصال غير حقيقية.
- *
- * الأيقونات: شعارات رسمية (حزمة simple-icons، CC0) محفوظة بـ
- * public/app-icons — بلونها الرسمي. البطاقات ذات الألوان الفاتحة جدًا
- * (Mailchimp الأصفر، سلة النعناعي، سناب شات الأصفر) توضع على مربع داكن
- * بدل الفاتح لتبقى مقروءة، والباقي على المربع الفاتح المعتاد.
- */
-type AppSlug = keyof PageDictionaries['apps']['apps'];
+type AgentRole = 'sales' | 'support' | 'assistant';
+type AgentStatus = 'active' | 'paused';
 
-interface AppConfig {
-  slug: AppSlug;
-  tile: 'light' | 'dark';
-  connected: boolean;
+interface AgentDraft {
+  name: string;
+  role: AgentRole;
+  personality: string;
+  status: AgentStatus;
 }
 
-const APPS: AppConfig[] = [
-  { slug: 'whatsapp', tile: 'light', connected: true },
-];
-
-function SearchIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" className={className}>
-      <circle cx="10.5" cy="10.5" r="6.5" />
-      <path d="M20 20l-4.8-4.8" />
-    </svg>
-  );
-}
-
-function PlusIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className={className}>
-      <path d="M12 5v14M5 12h14" />
-    </svg>
-  );
-}
-
-function AppIcon({ app, name }: { app: AppConfig; name: string }) {
-  return (
-    <div
-      className={`flex h-14 w-14 flex-none items-center justify-center rounded-[16px] p-3 ${
-        app.tile === 'dark' ? 'bg-text-primary' : 'bg-surface-subtle'
-      }`}
-    >
-      {/* eslint-disable-next-line @next/next/no-img-element -- static local brand mark, not a Next/Image-managed remote asset */}
-      <img src={`/app-icons/${app.slug}.svg`} alt={name} className="h-full w-full object-contain" />
-    </div>
-  );
-}
-
-function AppCard({
-  app,
-  entry,
-  t,
-  compact = false,
-}: {
-  app: AppConfig;
-  entry: PageDictionaries['apps']['apps'][AppSlug];
-  t: PageDictionaries['apps'];
-  compact?: boolean;
-}) {
-  const [justClicked, setJustClicked] = useState(false);
-
-  return (
-    <div className={`rounded-card bg-surface-subtle-2 flex h-full flex-col ${compact ? 'gap-2.5 p-3.5 sm:gap-3 sm:p-4' : 'gap-3.5 p-5'}`}>
-      <div className={compact ? 'scale-[.82] origin-top-right -mb-2 sm:scale-90 sm:-mb-1' : ''}><AppIcon app={app} name={entry.name} /></div>
-      <div className={`text-text-primary font-bold ${compact ? 'text-[14px] sm:text-[15px]' : 'text-[17px]'}`}>{entry.name}</div>
-      <p className={`text-text-secondary leading-relaxed ${compact ? 'line-clamp-2 text-[12px] sm:text-[13px]' : 'text-sm'}`}>{entry.description}</p>
-      <span className={`border-border-default text-text-secondary w-fit rounded-full border ${compact ? 'px-2.5 py-1 text-[10px] sm:text-[11px]' : 'px-3.5 py-1.5 text-xs'}`}>
-        {entry.category}
-      </span>
-      <div className="mt-1 flex items-center justify-between gap-2">
-        {app.connected ? (
-          <Link
-            href="/settings"
-            className={`border-border-default text-text-primary hover:bg-surface-card flex items-center gap-1.5 rounded-full border font-semibold ${compact ? 'px-3 py-1.5 text-[11px] sm:text-xs' : 'px-4 py-2 text-[13px]'}`}
-          >
-            <PlusIcon className="h-3.5 w-3.5" />
-            {t.addApp}
-          </Link>
-        ) : (
-          <button
-            type="button"
-            onClick={() => {
-              setJustClicked(true);
-              window.setTimeout(() => setJustClicked(false), 1800);
-            }}
-            className={`border-border-default text-text-primary hover:bg-surface-card flex items-center gap-1.5 rounded-full border font-semibold ${compact ? 'px-3 py-1.5 text-[11px] sm:text-xs' : 'px-4 py-2 text-[13px]'}`}
-          >
-            <PlusIcon className="h-3.5 w-3.5" />
-            {justClicked ? t.comingSoon : t.addApp}
-          </button>
-        )}
-        <span className={`bg-brand-surface text-brand rounded-[8px] font-semibold ${compact ? 'px-2 py-1 text-[10px] sm:text-[11px]' : 'px-2.5 py-1 text-xs'}`}>
-          {entry.price}
-        </span>
-      </div>
-    </div>
-  );
-}
+const EMPTY_AGENT: AgentDraft = {
+  name: '',
+  role: 'sales',
+  personality: '',
+  status: 'active',
+};
 
 export default function AppsPage() {
   const { me } = useCurrentUser();
-  const { pages, locale } = useLocale();
-  const t = pages.apps;
-  const [query, setQuery] = useState('');
-  const [searchOpen, setSearchOpen] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (searchOpen) window.setTimeout(() => inputRef.current?.focus(), 80);
-  }, [searchOpen]);
-
-  const installedApps = useMemo(() => APPS.filter((app) => app.connected), []);
-
-  const visibleApps = useMemo(
-    () =>
-      query.trim()
-        ? APPS.filter((app) =>
-            t.apps[app.slug].name.toLowerCase().includes(query.trim().toLowerCase()),
-          )
-        : APPS,
-    [query, t],
-  );
+  const { locale } = useLocale();
+  const [agent, setAgent] = useState<AgentDraft>(EMPTY_AGENT);
+  const ar = locale === 'ar';
 
   return (
     <AppShell
-      title={t.pageTitle}
+      title={ar ? 'سبعة Ai' : 'Sbaah AI'}
       orgName={me.tenant.name_ar}
       accountType={me.tenant.account_type}
     >
-      <div className="mb-5 flex justify-end">
-        <div className={`border-border-default flex h-[42px] items-center overflow-hidden border transition-[width,background-color,box-shadow] duration-300 ease-out ${searchOpen ? 'bg-surface-card w-full rounded-full shadow-[0_1px_6px_rgba(31,29,34,.08)] sm:w-[320px]' : 'w-[42px] rounded-full'}`}>
-          <button
-            type="button"
-            onClick={() => {
-              setSearchOpen((open) => {
-                if (open) setQuery('');
-                return !open;
-              });
-            }}
-            aria-label={t.searchPlaceholder}
-            className="text-text-primary bg-surface-subtle flex h-[42px] w-[42px] flex-none items-center justify-center rounded-full"
-          >
-            <SearchIcon className="h-[18px] w-[18px]" />
-          </button>
-          <div className={`flex min-w-0 flex-1 items-center transition-opacity duration-200 ${searchOpen ? 'opacity-100' : 'pointer-events-none opacity-0'}`}>
-            <input
-              ref={inputRef}
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Escape') {
-                  setSearchOpen(false);
-                  setQuery('');
-                }
-              }}
-              placeholder={t.searchPlaceholder}
-              className="text-text-primary placeholder:text-text-placeholder min-w-0 flex-1 border-none bg-transparent px-3 text-sm outline-none"
-            />
-            <button
-              type="button"
-              onClick={() => {
-                setSearchOpen(false);
-                setQuery('');
-              }}
-              aria-label={locale === 'ar' ? 'إغلاق البحث' : 'Close search'}
-              className="text-text-secondary hover:bg-surface-subtle me-1 flex h-8 w-8 flex-none items-center justify-center rounded-full text-lg leading-none"
-            >
-              ×
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {installedApps.length > 0 && (
-        <section className="mb-6">
-          <h2 className="text-text-primary mb-3 text-base font-bold">{locale === 'ar' ? 'التطبيقات المثبتة' : 'Installed apps'}</h2>
-          <div className="-mx-1 flex snap-x snap-mandatory flex-nowrap gap-3 overflow-x-auto px-1 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {installedApps.map((app) => (
-              <div key={app.slug} className="w-[150px] min-w-[150px] snap-start sm:w-[185px] sm:min-w-[185px] md:w-[210px] md:min-w-[210px]">
-                <AppCard app={app} entry={t.apps[app.slug]} t={t} compact />
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      <div className="mb-5 mt-1 flex items-center gap-3" aria-hidden="true">
-        <div className="bg-border-default h-px flex-1" />
-        <span className="bg-border-default h-1 w-1 rounded-full" />
-        <div className="bg-border-default h-px flex-1" />
-      </div>
-
-      <section>
-        <div className="mb-3">
-          <h2 className="text-text-primary text-base font-bold">
-            {locale === 'ar' ? 'استكشف التطبيقات' : 'Explore apps'}
-          </h2>
-          <p className="text-text-secondary mt-0.5 text-xs">
-            {locale === 'ar' ? 'تطبيقات أخرى يمكنك تثبيتها واستخدامها' : 'More apps you can install and use'}
+      <div className="mx-auto w-full max-w-3xl">
+        <div className="mb-5">
+          <h1 className="text-text-primary text-xl font-bold sm:text-2xl">
+            {ar ? 'إنشاء وكيل' : 'Create agent'}
+          </h1>
+          <p className="text-text-secondary mt-1 text-sm leading-6">
+            {ar
+              ? 'أنشئ وكيلك وحدد دوره وشخصيته وحالته. سيتم إضافة الأدوات والإعدادات المتقدمة لاحقًا.'
+              : 'Create an agent and define its role, personality, and status. Tools and advanced settings will be added later.'}
           </p>
         </div>
 
-      {visibleApps.length === 0 ? (
-        <p className="text-text-secondary py-10 text-center">{t.noResults}</p>
-      ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {visibleApps.map((app) => (
-            <AppCard key={app.slug} app={app} entry={t.apps[app.slug]} t={t} />
-          ))}
-        </div>
-      )}
-      </section>
+        <section className="border-border-default bg-surface-card rounded-card border p-4 sm:p-6">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+            <label className="flex flex-col gap-2">
+              <span className="text-text-primary text-sm font-semibold">{ar ? 'الاسم' : 'Name'}</span>
+              <input
+                type="text"
+                value={agent.name}
+                onChange={(event) => setAgent((current) => ({ ...current, name: event.target.value }))}
+                placeholder={ar ? 'اسم الوكيل' : 'Agent name'}
+                className="border-border-default bg-surface-card text-text-primary placeholder:text-text-placeholder h-11 w-full rounded-[10px] border px-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/10"
+              />
+            </label>
+
+            <label className="flex flex-col gap-2">
+              <span className="text-text-primary text-sm font-semibold">{ar ? 'الدور' : 'Role'}</span>
+              <select
+                value={agent.role}
+                onChange={(event) => setAgent((current) => ({ ...current, role: event.target.value as AgentRole }))}
+                className="border-border-default bg-surface-card text-text-primary h-11 w-full rounded-[10px] border px-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/10"
+              >
+                <option value="sales">{ar ? 'فريق المبيعات' : 'Sales team'}</option>
+                <option value="support">{ar ? 'دعم عملاء' : 'Customer support'}</option>
+                <option value="assistant">{ar ? 'مساعد' : 'Assistant'}</option>
+              </select>
+            </label>
+
+            <label className="flex flex-col gap-2 sm:col-span-2">
+              <span className="text-text-primary text-sm font-semibold">{ar ? 'الشخصية والدور' : 'Personality and role'}</span>
+              <textarea
+                value={agent.personality}
+                onChange={(event) => setAgent((current) => ({ ...current, personality: event.target.value }))}
+                placeholder={ar ? 'اكتب كيف يتحدث الوكيل، أسلوبه، مهامه ودوره...' : 'Describe how the agent speaks, behaves, and what it should do...'}
+                rows={5}
+                className="border-border-default bg-surface-card text-text-primary placeholder:text-text-placeholder min-h-[132px] w-full resize-y rounded-[10px] border px-3 py-3 text-sm leading-6 outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/10"
+              />
+            </label>
+
+            <fieldset className="sm:col-span-2">
+              <legend className="text-text-primary mb-2 text-sm font-semibold">{ar ? 'الحالة' : 'Status'}</legend>
+              <div className="flex gap-2">
+                {([
+                  ['active', ar ? 'نشط' : 'Active'],
+                  ['paused', ar ? 'متوقف' : 'Paused'],
+                ] as const).map(([value, label]) => {
+                  const selected = agent.status === value;
+                  return (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => setAgent((current) => ({ ...current, status: value }))}
+                      aria-pressed={selected}
+                      className={`h-10 rounded-[10px] border px-4 text-sm font-semibold transition ${
+                        selected
+                          ? 'border-brand bg-brand-surface text-brand'
+                          : 'border-border-default bg-surface-card text-text-secondary hover:bg-surface-subtle'
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+            </fieldset>
+          </div>
+
+          <div className="border-border-default mt-6 flex items-center justify-end border-t pt-4">
+            <button
+              type="button"
+              disabled
+              title={ar ? 'سيتم ربط الحفظ عند بناء نظام الوكلاء' : 'Saving will be connected when the agent system is built'}
+              className="bg-brand cursor-not-allowed rounded-[10px] px-5 py-2.5 text-sm font-semibold text-white opacity-55"
+            >
+              {ar ? 'إنشاء الوكيل' : 'Create agent'}
+            </button>
+          </div>
+        </section>
+      </div>
     </AppShell>
   );
 }
