@@ -57,7 +57,7 @@ export const PATCH = withErrorHandling(async (request: NextRequest) => {
     if(themeError)throw new Error(`Failed to validate theme: ${themeError.message}`);
     // Only theme families implemented in public-site may be selected. Add keys here
     // together with their React implementation/registry entry, never DB-only.
-    const implementedThemeKeys=new Set(['classic']);
+    const implementedThemeKeys=new Set(['classic','lavender']);
     if(!theme||!theme.is_active||!implementedThemeKeys.has(theme.key))throw new ApiError(400,'unsupported_theme','الثيم غير متاح للموقع حاليًا');
   }
 
