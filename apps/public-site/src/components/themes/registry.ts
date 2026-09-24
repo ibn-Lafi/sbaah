@@ -13,7 +13,7 @@ import { lavenderTheme } from './lavender';
  */
 export const DEFAULT_THEME_KEY = 'classic' as const;
 
-const CLASSIC_SUPPORTED_SECTIONS = new Set<WebsiteSectionType>(['hero','property_grid','featured_properties','latest_properties','projects_showcase','properties_by_city','stats','services','faq','cta','promo_banner','free_content','gallery','video','about','why_us','map']);
+const CLASSIC_SUPPORTED_SECTIONS = new Set<WebsiteSectionType>(['hero','property_grid','featured_properties','latest_properties','projects_showcase','properties_by_city','stats','services','faq','cta','property_request','promo_banner','free_content','gallery','video','about','why_us','map']);
 
 const THEME_REGISTRY = {
   [DEFAULT_THEME_KEY]: { components: classicTheme, supportedSections: CLASSIC_SUPPORTED_SECTIONS },
