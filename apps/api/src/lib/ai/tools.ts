@@ -24,6 +24,18 @@ export const AI_TOOL_DEFINITIONS = [
   },
   {
     type: 'function',
+    name: 'search_projects',
+    description: 'يبحث في مشاريع المنشأة بالاسم ويعيد بيانات مختصرة حقيقية عن المشاريع.',
+    parameters: { type: 'object', properties: { query: { type: 'string' } }, required: ['query'], additionalProperties: false },
+  },
+  {
+    type: 'function',
+    name: 'search_listings',
+    description: 'يبحث في العروض العقارية للمنشأة ويعيد بيانات مختصرة حقيقية. استخدمه عند السؤال عن العقارات أو العروض المتاحة.',
+    parameters: { type: 'object', properties: { query: { type: 'string' } }, required: ['query'], additionalProperties: false },
+  },
+  {
+    type: 'function',
     name: 'create_lead',
     description: 'ينشئ عميلًا محتملًا يدويًا داخل CRM في سبعة. لا تستخدمه إلا عندما يطلب المستخدم إنشاء/إضافة العميل.',
     parameters: {
@@ -81,6 +93,24 @@ export async function executeAiTool(input: {
       .limit(10);
     if (error) throw new Error(`Failed to search leads: ${error.message}`);
     return { leads: data ?? [] };
+  }
+
+  if (name === 'search_projects') {
+    assertPermission(caller.role, 'projects.read');
+    const args = z.object({ query: z.string().trim().min(1).max(100) }).parse(input.arguments);
+    const escaped = args.query.replace(/[%,]/g, '');
+    const { data, error } = await supabase.from('projects').select('id, name, status, created_at').eq('tenant_id', caller.tenantId).ilike('name', `%${escaped}%`).order('created_at', { ascending: false }).limit(10);
+    if (error) throw new Error(`Failed to search projects: ${error.message}`);
+    return { projects: data ?? [] };
+  }
+
+  if (name === 'search_listings') {
+    assertPermission(caller.role, 'properties.read');
+    const args = z.object({ query: z.string().trim().min(1).max(100) }).parse(input.arguments);
+    const escaped = args.query.replace(/[%,]/g, '');
+    const { data, error } = await supabase.from('listings').select('id, title, listing_type, status, price, created_at').eq('tenant_id', caller.tenantId).ilike('title', `%${escaped}%`).order('created_at', { ascending: false }).limit(10);
+    if (error) throw new Error(`Failed to search listings: ${error.message}`);
+    return { listings: data ?? [] };
   }
 
   if (name === 'create_lead') {
