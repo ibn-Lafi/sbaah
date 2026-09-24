@@ -55,10 +55,10 @@ export const PATCH = withErrorHandling(async (request: NextRequest) => {
   if(input.theme_id){
     const {data:theme,error:themeError}=await supabase.from('themes').select('id,key,is_active').eq('id',input.theme_id).maybeSingle();
     if(themeError)throw new Error(`Failed to validate theme: ${themeError.message}`);
-    // Only theme families implemented in public-site may be selected. Add keys here
-    // together with their React implementation/registry entry, never DB-only.
-    const implementedThemeKeys=new Set(['classic','lavender']);
-    if(!theme||!theme.is_active||!implementedThemeKeys.has(theme.key))throw new ApiError(400,'unsupported_theme','الثيم غير متاح للموقع حاليًا');
+    // The theme store and activation endpoint share one source of truth:
+    // an existing active row in themes. Rendering support is resolved by
+    // public-site's registry, which has a safe Classic fallback.
+    if(!theme||!theme.is_active)throw new ApiError(400,'unsupported_theme','الثيم غير متاح للموقع حاليًا');
   }
 
   const { data, error } = await supabase
