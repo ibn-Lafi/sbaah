@@ -68,18 +68,18 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             );
           case 'property_grid':
             return <PropertyGridSection key={section.id} locale={locale} config={section.config} />;
-          case 'featured_properties': return isClassic ? <FeaturedPropertiesSection key={section.id} locale={locale} config={section.config} /> : null;
-          case 'latest_properties': return isClassic ? <LatestPropertiesSection key={section.id} locale={locale} config={section.config} /> : null;
-          case 'projects_showcase': return isClassic ? <ProjectsShowcaseSection key={section.id} locale={locale} config={section.config} /> : null;
-          case 'properties_by_city': return isClassic ? <PropertiesByCitySection key={section.id} locale={locale} config={section.config} /> : null;
-          case 'stats': return isClassic ? <StatsSection key={section.id} locale={locale} config={section.config} /> : null;
-          case 'services': return isClassic ? <ServicesSection key={section.id} locale={locale} config={section.config} /> : null;
-          case 'faq': return isClassic ? <FaqSection key={section.id} locale={locale} config={section.config} /> : null;
-          case 'cta': return isClassic ? <CtaSection key={section.id} locale={locale} config={section.config} /> : null;
-          case 'promo_banner': return isClassic ? <PromoBannerSection key={section.id} locale={locale} config={section.config} /> : null;
-          case 'free_content': return isClassic ? <FreeContentSection key={section.id} locale={locale} config={section.config} /> : null;
-          case 'gallery': return isClassic ? <GallerySection key={section.id} locale={locale} config={section.config} /> : null;
-          case 'video': return isClassic ? <VideoSection key={section.id} locale={locale} config={section.config} /> : null;
+          case 'featured_properties': return <FeaturedPropertiesSection key={section.id} locale={locale} config={section.config} />;
+          case 'latest_properties': return <LatestPropertiesSection key={section.id} locale={locale} config={section.config} />;
+          case 'projects_showcase': return <ProjectsShowcaseSection key={section.id} locale={locale} config={section.config} />;
+          case 'properties_by_city': return <PropertiesByCitySection key={section.id} locale={locale} config={section.config} />;
+          case 'stats': return <StatsSection key={section.id} locale={locale} config={section.config} />;
+          case 'services': return <ServicesSection key={section.id} locale={locale} config={section.config} />;
+          case 'faq': return <FaqSection key={section.id} locale={locale} config={section.config} />;
+          case 'cta': return <CtaSection key={section.id} locale={locale} config={section.config} />;
+          case 'promo_banner': return <PromoBannerSection key={section.id} locale={locale} config={section.config} />;
+          case 'free_content': return <FreeContentSection key={section.id} locale={locale} config={section.config} />;
+          case 'gallery': return <GallerySection key={section.id} locale={locale} config={section.config} />;
+          case 'video': return <VideoSection key={section.id} locale={locale} config={section.config} />;
           case 'about':
           case 'why_us':
             return <TextSection key={section.id} type={section.type} locale={locale} config={section.config} />;
