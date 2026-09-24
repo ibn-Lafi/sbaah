@@ -30,6 +30,15 @@ export interface TextSectionProps {
   config: AboutSectionConfig;
 }
 
+export interface LeadSectionProps {
+  locale: Locale;
+  tenantId: string;
+  projectId?: string;
+  assetId?: string;
+  listingId?: string;
+  config: { title_ar?: string; body_ar?: string };
+}
+
 export interface ContactSectionProps {
   locale: Locale;
   config: ContactSectionConfig;
@@ -68,6 +77,7 @@ export interface ThemeSectionComponents {
   PropertyGridSection: SectionComponent<PropertyGridSectionProps>;
   TextSection: SectionComponent<TextSectionProps>;
   ContactSection: SectionComponent<ContactSectionProps>;
+  LeadSection: SectionComponent<LeadSectionProps>;
   Header: SectionComponent<HeaderProps>;
   Footer: SectionComponent<FooterProps>;
 }
