@@ -116,6 +116,10 @@ export interface Tenant {
   account_type: AccountType;
   /** No longer collected at registration (migration 0047) — filled in later from حسابي. Required for the tenant's public site to publish. */
   fal_license_number: string | null;
+  /** Individual accounts only — optional free-work document number, managed from Settings > بيانات الجهة. */
+  freelance_document_number: string | null;
+  /** Institution/company accounts only — optional Wafi license number, managed from Settings > بيانات الجهة. */
+  wafi_license_number: string | null;
   cr_number: string | null;
   tax_number: string | null;
   /** الحساب's social links (حسابي) — نطاقًا اختياريًا؛ يظهر في تذييل الموقع فقط ما تم تعبئته. */
