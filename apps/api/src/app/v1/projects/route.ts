@@ -46,7 +46,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 
   // Public project URLs require a non-null, tenant-unique slug. Generate it
   // server-side so dashboard forms never need to know about URL internals.
-  const baseSlug = `project-${crypto.randomUUID().slice(0, 8)}`;
+  const baseSlug = `project-${crypto.randomUUID().slice(0, 8)}`; // required public URL slug
   const { data, error } = await supabase
     .from('projects')
     .insert({ ...input, tenant_id: caller.tenantId, slug: baseSlug })
