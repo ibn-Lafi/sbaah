@@ -7,7 +7,8 @@ import { getTenantSitePage } from '@/lib/tenant/get-tenant-site';
 import { listCities, listDistricts } from '@/lib/api/reference-data';
 import { formatPrice, getListingTypeLabel, getPropertyTypeLabel } from '@/lib/property/labels';
 import { PropertyGallery } from '@/components/properties/property-gallery';
-import { getThemeComponents } from '@/components/themes/registry';
+import { resolveTheme } from '@/components/themes/registry';
+import { LavenderPropertyDetail } from '@/components/themes/lavender/property-detail';
 import { renderThemedSection } from '@/lib/website/render-section';
 import { buildLocalizedAlternates, localizedPath, getPublicOrigin } from '@/lib/routing/public-url';
 
@@ -85,7 +86,9 @@ export default async function PropertyDetailPage({ params }: PageProps) {
   const title = pickLocalized(locale, property.title_ar, property.title_en);
   const description = pickLocalized(locale, property.description_ar, property.description_en);
   const tenantName = locale === 'ar' ? site.tenant.name_ar : site.tenant.name_en;
-  const theme = getThemeComponents(site.website.theme_key);
+  const resolvedTheme = resolveTheme(site.website.theme_key);
+  const theme = resolvedTheme.components;
+  const isLavender = resolvedTheme.key === 'lavender';
   const themedCtx = {
     locale,
     bannerUrl: site.website.banner_image_url,
@@ -116,7 +119,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
     <div>
       {before.map((s) => renderThemedSection(s, theme, themedCtx))}
 
-      {detailSection && (
+      {detailSection && (isLavender ? <LavenderPropertyDetail locale={locale} property={property} city={city} district={district}/> :
         <div className="mx-auto max-w-6xl px-6 py-8">
           <div className="grid grid-cols-1 gap-8">
             <div className="flex flex-col gap-6">
