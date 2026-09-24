@@ -3,6 +3,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { CallerContext } from '@/lib/auth/get-caller-context';
 import { ApiError, databaseWriteError } from '@/lib/http';
 import { assertPermission } from '@/lib/auth/permissions';
+import { assertAssignedLeadAccess, isAssignedScope } from '@/lib/auth/crm-scope';
 
 export const AI_TOOL_DEFINITIONS = [
   {
@@ -33,6 +34,34 @@ export const AI_TOOL_DEFINITIONS = [
     name: 'search_listings',
     description: 'يبحث في العروض العقارية للمنشأة ويعيد بيانات مختصرة حقيقية. استخدمه عند السؤال عن العقارات أو العروض المتاحة.',
     parameters: { type: 'object', properties: { query: { type: 'string' } }, required: ['query'], additionalProperties: false },
+  },
+  {
+    type: 'function',
+    name: 'add_lead_note',
+    description: 'يضيف ملاحظة إلى عميل محتمل موجود. استخدم search_leads أولًا إذا لم يكن lead_id معروفًا.',
+    parameters: {
+      type: 'object',
+      properties: {
+        lead_id: { type: 'string', description: 'معرف العميل المحتمل UUID' },
+        note_text: { type: 'string', description: 'نص الملاحظة' },
+      },
+      required: ['lead_id', 'note_text'],
+      additionalProperties: false,
+    },
+  },
+  {
+    type: 'function',
+    name: 'set_lead_follow_up',
+    description: 'يحدد أو يلغي موعد متابعة لعميل محتمل. استخدم search_leads أولًا إذا لم يكن lead_id معروفًا.',
+    parameters: {
+      type: 'object',
+      properties: {
+        lead_id: { type: 'string', description: 'معرف العميل المحتمل UUID' },
+        follow_up_at: { type: ['string', 'null'], description: 'موعد ISO 8601 مع المنطقة الزمنية، أو null لإلغاء الموعد' },
+      },
+      required: ['lead_id', 'follow_up_at'],
+      additionalProperties: false,
+    },
   },
   {
     type: 'function',
@@ -111,6 +140,51 @@ export async function executeAiTool(input: {
     const { data, error } = await supabase.from('listings').select('id, listing_number, title_ar, title_en, listing_type, publication_status, commercial_status, asking_price, created_at').eq('tenant_id', caller.tenantId).or(escaped ? `title_ar.ilike.%${escaped}%,title_en.ilike.%${escaped}%,listing_number.ilike.%${escaped}%` : 'id.not.is.null').order('created_at', { ascending: false }).limit(10);
     if (error) throw new Error(`Failed to search listings: ${error.message}`);
     return { listings: data ?? [] };
+  }
+
+  if (name === 'add_lead_note') {
+    const grant = assertPermission(caller.role, 'crm.update');
+    const args = z.object({
+      lead_id: z.string().uuid(),
+      note_text: z.string().trim().min(1).max(4000),
+    }).parse(input.arguments);
+    if (isAssignedScope(grant)) await assertAssignedLeadAccess(supabase, caller.tenantId, caller.userId, args.lead_id);
+    const { data: lead, error: leadError } = await supabase.from('leads').select('id, full_name').eq('id', args.lead_id).eq('tenant_id', caller.tenantId).maybeSingle();
+    if (leadError) throw new Error(`Failed to validate lead: ${leadError.message}`);
+    if (!lead) throw new ApiError(404, 'lead_not_found', 'العميل المحتمل غير موجود');
+    const { data, error } = await supabase.from('lead_notes').insert({
+      lead_id: args.lead_id,
+      user_id: caller.userId,
+      note_text: args.note_text,
+    }).select('id, lead_id, note_text, created_at').single();
+    if (error) throw databaseWriteError(error, 'Failed to add AI lead note');
+    return { lead: { id: lead.id, full_name: lead.full_name }, note: data };
+  }
+
+  if (name === 'set_lead_follow_up') {
+    const grant = assertPermission(caller.role, 'crm.update');
+    const args = z.object({
+      lead_id: z.string().uuid(),
+      follow_up_at: z.string().datetime({ offset: true }).nullable(),
+    }).parse(input.arguments);
+    if (isAssignedScope(grant)) await assertAssignedLeadAccess(supabase, caller.tenantId, caller.userId, args.lead_id);
+    const { data: previous, error: previousError } = await supabase.from('leads').select('id, full_name, follow_up_at').eq('id', args.lead_id).eq('tenant_id', caller.tenantId).maybeSingle();
+    if (previousError) throw new Error(`Failed to load lead: ${previousError.message}`);
+    if (!previous) throw new ApiError(404, 'lead_not_found', 'العميل المحتمل غير موجود');
+    const { data, error } = await supabase.from('leads').update({ follow_up_at: args.follow_up_at }).eq('id', args.lead_id).eq('tenant_id', caller.tenantId).select('id, full_name, follow_up_at').single();
+    if (error) throw databaseWriteError(error, 'Failed to set AI lead follow-up');
+    if (previous.follow_up_at !== args.follow_up_at) {
+      const { error: activityError } = await supabase.from('crm_activities').insert({
+        tenant_id: caller.tenantId,
+        lead_id: args.lead_id,
+        user_id: caller.userId,
+        activity_type: 'follow_up_changed',
+        summary: args.follow_up_at ? 'تم تحديد موعد متابعة للعميل' : 'تم إلغاء موعد متابعة العميل',
+        metadata: { from: previous.follow_up_at ?? null, to: args.follow_up_at },
+      });
+      if (activityError) throw databaseWriteError(activityError, 'Failed to record AI follow-up activity');
+    }
+    return { lead: data };
   }
 
   if (name === 'create_lead') {
