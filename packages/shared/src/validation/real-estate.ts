@@ -55,6 +55,7 @@ export const assetUpdateSchema = assetInputSchema.partial();
 export type AssetUpdateInput = z.infer<typeof assetUpdateSchema>;
 
 export const assetSearchSchema = z.object({
+  scope: z.enum(['all', 'units']).optional(),
   asset_type: z.enum(ASSET_TYPES).optional(),
   physical_status: z.enum(ASSET_PHYSICAL_STATUSES).optional(),
   project_id: z.string().uuid().optional(),
