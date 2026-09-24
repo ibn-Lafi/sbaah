@@ -182,7 +182,7 @@ export async function executeAiTool(input: {
         summary: args.follow_up_at ? 'تم تحديد موعد متابعة للعميل' : 'تم إلغاء موعد متابعة العميل',
         metadata: { from: previous.follow_up_at ?? null, to: args.follow_up_at },
       });
-      if (activityError) throw databaseWriteError(activityError, 'Failed to record AI follow-up activity');
+      if (activityError) console.error('Failed to record AI follow-up activity', activityError);
     }
     return { lead: data };
   }
