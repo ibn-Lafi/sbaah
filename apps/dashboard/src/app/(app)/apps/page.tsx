@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AppShell } from '@/components/layout/app-shell';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { useLocale } from '@/lib/i18n/locale-context';
@@ -25,6 +25,7 @@ export default function AppsPage() {
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
   const [decidingActionId, setDecidingActionId] = useState<string | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -64,6 +65,10 @@ export default function AppsPage() {
     });
     return () => { active = false; };
   }, [accessToken, assistant, ar]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ block: 'end', behavior: 'smooth' });
+  }, [messages, sending]);
 
   async function handleSend(event: React.FormEvent) {
     event.preventDefault();
@@ -140,8 +145,8 @@ export default function AppsPage() {
 
   return (
     <AppShell title={ar ? 'سبعة Ai' : 'Sbaah AI'} orgName={me.tenant.name_ar} accountType={me.tenant.account_type}>
-      <div className="mx-auto w-full max-w-5xl">
-        <div className="bg-surface-subtle mb-6 grid w-full grid-cols-2 rounded-[12px] p-1">
+      <div className="mx-auto flex h-[calc(100dvh-8.5rem)] min-h-0 w-full max-w-5xl flex-col overflow-hidden">
+        <div className="bg-surface-subtle mb-4 grid w-full shrink-0 grid-cols-2 rounded-[12px] p-1 sm:mb-6">
           {([
             ['assistant', ar ? 'مساعد Ai' : 'AI Assistant'],
             ['whatsapp', ar ? 'واتس اب Ai' : 'WhatsApp AI'],
@@ -169,8 +174,8 @@ export default function AppsPage() {
               <div className="bg-surface-subtle mt-3 h-4 w-64 max-w-full animate-pulse rounded" />
             </div>
           ) : assistant ? (
-            <section className="border-border-default bg-surface-card flex min-h-[560px] flex-col overflow-hidden rounded-card border">
-              <header className="border-border-default flex items-center gap-3 border-b px-4 py-4 sm:px-5">
+            <section className="border-border-default bg-surface-card flex min-h-0 flex-1 flex-col overflow-hidden rounded-card border">
+              <header className="border-border-default flex shrink-0 items-center gap-3 border-b px-4 py-4 sm:px-5">
                 <div className="bg-brand-surface text-brand flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold">
                   {assistant.name.trim().slice(0, 1) || 'Ai'}
                 </div>
@@ -184,7 +189,7 @@ export default function AppsPage() {
                 </span>
               </header>
 
-              <div className="flex flex-1 flex-col justify-end overflow-y-auto px-4 py-5 sm:px-5">
+              <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-5 sm:px-5">
                 {messages.length === 0 ? (
                   <div className="m-auto max-w-md text-center">
                     <h2 className="text-text-primary text-lg font-bold">
@@ -221,11 +226,7 @@ export default function AppsPage() {
                         ) : null}
                       </div>
                     ))}
-                  </div>
-                )}
-              </div>
-
-              <form onSubmit={(event) => void handleSend(event)} className="border-border-default border-t p-3 sm:p-4">
+                  </div>\n                )}\n                <div ref={messagesEndRef} />\n              </div>\n\n              <form onSubmit={(event) => void handleSend(event)} className="border-border-default shrink-0 border-t p-3 sm:p-4">
                 <div className="border-border-default bg-surface-subtle flex min-h-12 items-end gap-2 rounded-[12px] border p-2">
                   <textarea
                     value={draft}
