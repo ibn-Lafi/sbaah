@@ -18,7 +18,7 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     Object.fromEntries(request.nextUrl.searchParams),
   );
 
-  let query = supabase.from('projects').select('*', { count: 'exact' }).eq('tenant_id', caller.tenantId);
+  let query = supabase.from('projects').select('*', { count: 'exact' }).eq('tenant_id', caller.tenantId)\n    .neq('status', 'archived');
   if (status) query = query.eq('status', status);
 
   const from = (page - 1) * page_size;
@@ -44,9 +44,12 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 
   const input = projectInputSchema.parse(await request.json());
 
+  // Public project URLs require a non-null, tenant-unique slug. Generate it
+  // server-side so dashboard forms never need to know about URL internals.
+  const baseSlug = `project-${crypto.randomUUID().slice(0, 8)}`;
   const { data, error } = await supabase
     .from('projects')
-    .insert({ ...input, tenant_id: caller.tenantId })
+    .insert({ ...input, tenant_id: caller.tenantId, slug: baseSlug })
     .select()
     .single();
   if (error) {
