@@ -105,7 +105,20 @@ export const POST = withErrorHandling(async (
     .rpc('append_ai_assistant_message', {
       p_conversation_id: conversation.id,
       p_content: generated.text,
-      p_metadata: { provider: 'xai', model: generated.model, response_id: generated.responseId, tools: generated.executedTools.map((tool) => tool.name) },
+      p_metadata: {
+        provider: 'xai',
+        model: generated.model,
+        response_id: generated.responseId,
+        tools: generated.executedTools.map((tool) => tool.name),
+        ...(() => {
+          const pending = generated.executedTools.find((tool) => {
+            const result = tool.result as { requires_confirmation?: boolean } | null;
+            return result?.requires_confirmation === true;
+          });
+          const result = pending?.result as { action_id?: string; tool_name?: string } | undefined;
+          return result?.action_id ? { pending_action_id: result.action_id, pending_action_tool: result.tool_name, pending_action_status: 'awaiting_confirmation' } : {};
+        })(),
+      },
     })
     .single();
   if (assistantMessageError || !assistantMessage) {
