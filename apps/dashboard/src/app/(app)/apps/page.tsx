@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { AppShell } from '@/components/layout/app-shell';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { useLocale } from '@/lib/i18n/locale-context';
-import { createAiConversation, getAiAssistant, getAiConversation, listAiConversations, saveAiAssistant, sendAiMessage, type AiAssistant, type AiConversation, type AiMessage } from '@/lib/api/ai';
+import { createAiConversation, decideAiAction, getAiAssistant, getAiConversation, listAiConversations, saveAiAssistant, sendAiMessage, type AiAssistant, type AiConversation, type AiMessage } from '@/lib/api/ai';
 
 type Section = 'assistant' | 'whatsapp';
 
@@ -24,6 +24,7 @@ export default function AppsPage() {
   const [messages, setMessages] = useState<AiMessage[]>([]);
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
+  const [decidingActionId, setDecidingActionId] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -85,6 +86,23 @@ export default function AppsPage() {
       setError(ar ? 'تعذر إرسال الرسالة.' : 'Could not send the message.');
     } finally {
       setSending(false);
+    }
+  }
+
+  async function handleActionDecision(actionId: string, decision: 'confirm' | 'cancel') {
+    if (decidingActionId) return;
+    setDecidingActionId(actionId);
+    setError('');
+    try {
+      await decideAiAction(accessToken, actionId, decision);
+      setMessages((current) => current.map((message) => {
+        if (message.sender !== 'assistant' || message.metadata?.pending_action_id !== actionId) return message;
+        return { ...message, metadata: { ...message.metadata, pending_action_status: decision === 'confirm' ? 'succeeded' : 'cancelled' } };
+      }));
+    } catch {
+      setError(ar ? 'تعذر تنفيذ قرار الإجراء.' : 'Could not process the action decision.');
+    } finally {
+      setDecidingActionId(null);
     }
   }
 
@@ -168,6 +186,24 @@ export default function AppsPage() {
                         message.sender === 'user' ? 'bg-brand ms-auto text-white' : 'bg-surface-subtle text-text-primary me-auto'
                       }`}>
                         {message.content}
+                        {message.sender === 'assistant' && typeof message.metadata?.pending_action_id === 'string' ? (
+                          <div className="border-border-default mt-3 flex flex-wrap gap-2 border-t pt-3">
+                            {message.metadata?.pending_action_status === 'succeeded' ? (
+                              <span className="text-xs font-semibold text-emerald-700">{ar ? 'تم تنفيذ الإجراء' : 'Action completed'}</span>
+                            ) : message.metadata?.pending_action_status === 'cancelled' ? (
+                              <span className="text-text-secondary text-xs font-semibold">{ar ? 'تم إلغاء الإجراء' : 'Action cancelled'}</span>
+                            ) : (
+                              <>
+                                <button type="button" disabled={decidingActionId === message.metadata.pending_action_id} onClick={() => void handleActionDecision(message.metadata.pending_action_id as string, 'confirm')} className="bg-brand rounded-[8px] px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50">
+                                  {ar ? 'تأكيد التنفيذ' : 'Confirm'}
+                                </button>
+                                <button type="button" disabled={decidingActionId === message.metadata.pending_action_id} onClick={() => void handleActionDecision(message.metadata.pending_action_id as string, 'cancel')} className="border-border-default bg-surface-card text-text-primary rounded-[8px] border px-3 py-1.5 text-xs font-semibold disabled:opacity-50">
+                                  {ar ? 'إلغاء' : 'Cancel'}
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        ) : null}
                       </div>
                     ))}
                   </div>
