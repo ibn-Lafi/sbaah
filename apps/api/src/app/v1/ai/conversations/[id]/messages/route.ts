@@ -4,6 +4,7 @@ import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
 import { generateGrokReply } from '@/lib/ai/grok';
+import { AI_TOOL_DEFINITIONS, executeAiTool } from '@/lib/ai/tools';
 
 const paramsSchema = z.object({ id: z.string().uuid() });
 const messageSchema = z.object({ content: z.string().trim().min(1).max(12000) });
@@ -63,13 +64,44 @@ export const POST = withErrorHandling(async (
     messages: (history ?? [])
       .filter((item) => item.sender === 'user' || item.sender === 'assistant')
       .map((item) => ({ role: item.sender as 'user' | 'assistant', content: item.content })),
+    tools: AI_TOOL_DEFINITIONS,
+    executeTool: async (name, args) => {
+      const startedAt = new Date().toISOString();
+      const { data: log, error: logError } = await supabase
+        .from('ai_action_logs')
+        .insert({
+          tenant_id: caller.tenantId,
+          assistant_id: conversation.assistant_id,
+          conversation_id: conversation.id,
+          requested_by: caller.userId,
+          tool_name: name,
+          risk_level: name === 'create_lead' ? 'write' : 'read',
+          status: 'running',
+          input: args,
+          executed_at: startedAt,
+        })
+        .select('id')
+        .single();
+      if (logError || !log) throw new Error(`Failed to create AI action log: ${logError?.message}`);
+      try {
+        const result = await executeAiTool({ supabase, caller, name, arguments: args });
+        await supabase.from('ai_action_logs').update({ status: 'succeeded', output: result }).eq('id', log.id).eq('tenant_id', caller.tenantId);
+        return result;
+      } catch (error) {
+        await supabase.from('ai_action_logs').update({
+          status: 'failed',
+          error_message: error instanceof Error ? error.message.slice(0, 1000) : 'Unknown tool error',
+        }).eq('id', log.id).eq('tenant_id', caller.tenantId);
+        throw error;
+      }
+    },
   });
 
   const { data: assistantMessage, error: assistantMessageError } = await supabase
     .rpc('append_ai_assistant_message', {
       p_conversation_id: conversation.id,
       p_content: generated.text,
-      p_metadata: { provider: 'xai', model: generated.model, response_id: generated.responseId },
+      p_metadata: { provider: 'xai', model: generated.model, response_id: generated.responseId, tools: generated.executedTools.map((tool) => tool.name) },
     })
     .single();
   if (assistantMessageError || !assistantMessage) {
