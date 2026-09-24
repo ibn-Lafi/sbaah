@@ -1,6 +1,7 @@
 import type { ThemeSectionComponents } from './types';
 import type { WebsiteSectionType } from '@sbaah/shared';
-import { classicTheme } from './classic';\nimport { lavenderTheme } from './lavender';
+import { classicTheme } from './classic';
+import { lavenderTheme } from './lavender';
 
 /**
  * Theme registry.
@@ -15,7 +16,8 @@ export const DEFAULT_THEME_KEY = 'classic' as const;
 const CLASSIC_SUPPORTED_SECTIONS = new Set<WebsiteSectionType>(['hero','property_grid','featured_properties','latest_properties','projects_showcase','properties_by_city','stats','services','faq','cta','promo_banner','free_content','gallery','video','about','why_us','map']);
 
 const THEME_REGISTRY = {
-  [DEFAULT_THEME_KEY]: { components: classicTheme, supportedSections: CLASSIC_SUPPORTED_SECTIONS },\n  lavender: { components: lavenderTheme, supportedSections: CLASSIC_SUPPORTED_SECTIONS },
+  [DEFAULT_THEME_KEY]: { components: classicTheme, supportedSections: CLASSIC_SUPPORTED_SECTIONS },
+  lavender: { components: lavenderTheme, supportedSections: CLASSIC_SUPPORTED_SECTIONS },
 } satisfies Record<string, {components:ThemeSectionComponents;supportedSections:ReadonlySet<WebsiteSectionType>}>;
 
 export interface ResolvedTheme {
