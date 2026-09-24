@@ -9,6 +9,7 @@ import { LEAD_STATUSES } from '../types/enums';
  */
 export const publicLeadInputSchema = z.object({
   tenant_id: z.string().uuid(),
+  project_id: z.string().uuid().optional().nullable(),
   asset_id: z.string().uuid().optional().nullable(),
   listing_id: z.string().uuid().optional().nullable(),
   full_name: z.string().min(2, 'الاسم مطلوب'),
