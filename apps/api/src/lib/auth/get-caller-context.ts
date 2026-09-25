@@ -7,6 +7,7 @@ export interface CallerContext {
   userId: string;
   tenantId: string;
   role: UserRole;
+  fullName: string;
 }
 
 export function accountDisabledError(): ApiError {
@@ -29,7 +30,7 @@ export async function getCallerContext(supabase: SupabaseClient): Promise<Caller
 
   const { data: userRow, error: userError } = await supabase
     .from('users')
-    .select('id, tenant_id, role, status')
+    .select('id, tenant_id, role, status, full_name')
     .eq('auth_user_id', authData.user.id)
     .maybeSingle();
   if (userError) {
@@ -52,5 +53,5 @@ export async function getCallerContext(supabase: SupabaseClient): Promise<Caller
     throw new ApiError(403, 'no_tenant_membership', 'الحساب غير مرتبط بأي حساب على المنصة');
   }
 
-  return { authUserId: authData.user.id, userId: userRow.id, tenantId: userRow.tenant_id, role: userRow.role };
+  return { authUserId: authData.user.id, userId: userRow.id, tenantId: userRow.tenant_id, role: userRow.role, fullName: userRow.full_name };
 }
