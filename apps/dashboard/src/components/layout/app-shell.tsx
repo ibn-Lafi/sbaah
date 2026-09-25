@@ -14,6 +14,7 @@ interface AppShellProps {
   orgName: string;
   accountType: AccountType;
   children: React.ReactNode;
+  mobileImmersive?: boolean;
 }
 
 /** Whole days left until `iso` — 0 on its final calendar day, never negative (callers check expiry separately). */
@@ -31,7 +32,7 @@ function daysRemaining(iso: string): number {
  * enforced server-side (RLS, migration 0019), this just tells the user why
  * their next edit will fail before they attempt it.
  */
-export function AppShell({ title, orgName, accountType, children }: AppShellProps) {
+export function AppShell({ title, orgName, accountType, children, mobileImmersive = false }: AppShellProps) {
   const { me } = useCurrentUser();
   const { t } = useLocale();
   const status = me.tenant.status;
@@ -62,11 +63,15 @@ export function AppShell({ title, orgName, accountType, children }: AppShellProp
     // `dvh` (not `vh`) so mobile Safari's collapsing address bar doesn't
     // leave a gap or clip content at the bottom.
     <div className="flex h-dvh overflow-hidden">
-      <Sidebar orgName={orgName} accountType={accountType} />
+      <div className={mobileImmersive ? 'hidden md:contents' : 'contents'}>
+        <Sidebar orgName={orgName} accountType={accountType} />
+      </div>
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-        <Topbar title={title} siteUrl={siteUrl} />
+        <div className={mobileImmersive ? 'hidden md:block' : undefined}>
+          <Topbar title={title} siteUrl={siteUrl} />
+        </div>
         {/* Mobile: the page content is a rounded-top sheet that overlaps UP into the purple header by -mt-5 (founder's Zid reference, red-circled) — the header stays a plain square rectangle behind it; the curve itself, and the small light notches it cuts into the header's own bottom corners, come entirely from this card's corner radius sitting on top. Desktop is untouched (no radius, no overlap, transparent). */}
-        <div className="bg-surface-page relative z-10 -mt-5 flex min-h-0 flex-1 flex-col rounded-t-[28px] md:mt-0 md:rounded-none md:bg-transparent">
+        <div className={`bg-surface-page relative z-10 flex min-h-0 flex-1 flex-col md:mt-0 md:rounded-none md:bg-transparent ${mobileImmersive ? 'mt-0 rounded-none' : '-mt-5 rounded-t-[28px]'}`}>
           {status !== 'active' && (
             <div className="bg-warning-surface text-warning px-4 py-3 text-sm font-medium md:px-7">
               {status === 'suspended' ? t.appShell.suspended : t.appShell.cancelled}
@@ -88,10 +93,12 @@ export function AppShell({ title, orgName, accountType, children }: AppShellProp
               </Link>
             </div>
           )}
-          <div className="flex-1 overflow-auto overscroll-contain p-3.5 pb-24 md:p-7 md:pb-7">{children}</div>
+          <div className={`flex-1 overflow-auto overscroll-contain md:p-7 md:pb-7 ${mobileImmersive ? 'p-0 pb-0' : 'p-3.5 pb-24'}`}>{children}</div>
         </div>
       </div>
-      <MobileNav orgName={orgName} accountType={accountType} />
+      <div className={mobileImmersive ? 'hidden md:block' : undefined}>
+        <MobileNav orgName={orgName} accountType={accountType} />
+      </div>
     </div>
   );
 }
