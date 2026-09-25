@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import { X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { AppShell } from '@/components/layout/app-shell';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
@@ -233,7 +232,7 @@ export default function AppsPage() {
       <div className="mx-auto flex h-dvh min-h-0 w-full max-w-5xl flex-col overflow-hidden md:h-[calc(100dvh-8.5rem)]">
         <div className="flex shrink-0 items-center justify-between px-4 pb-3 pt-[max(1rem,env(safe-area-inset-top))] md:hidden">
           <Link href="/" aria-label={ar ? 'الخروج إلى الرئيسية' : 'Exit to home'} className="text-text-primary bg-surface-subtle flex h-11 w-11 items-center justify-center rounded-full transition active:scale-95">
-            <X className="h-6 w-6" aria-hidden="true" />
+            <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
           </Link>
           <span className="text-text-primary text-sm font-semibold">{ar ? 'سبعة Ai' : 'Sbaah AI'}</span>
           <span className="h-11 w-11" aria-hidden="true" />
