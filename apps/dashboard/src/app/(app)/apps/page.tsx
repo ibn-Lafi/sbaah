@@ -83,7 +83,7 @@ export default function AppsPage() {
       sender: 'user',
       content,
       metadata: {},
-      created_by: me.id,
+      created_by: null,
       created_at: new Date().toISOString(),
     };
     setMessages((current) => [...current, optimisticMessage]);
@@ -226,7 +226,12 @@ export default function AppsPage() {
                         ) : null}
                       </div>
                     ))}
-                  </div>\n                )}\n                <div ref={messagesEndRef} />\n              </div>\n\n              <form onSubmit={(event) => void handleSend(event)} className="border-border-default shrink-0 border-t p-3 sm:p-4">
+                  </div>
+                )}
+                <div ref={messagesEndRef} />
+              </div>
+
+              <form onSubmit={(event) => void handleSend(event)} className="border-border-default shrink-0 border-t p-3 sm:p-4">
                 <div className="border-border-default bg-surface-subtle flex min-h-12 items-end gap-2 rounded-[12px] border p-2">
                   <textarea
                     value={draft}
