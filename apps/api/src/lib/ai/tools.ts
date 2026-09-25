@@ -35,6 +35,23 @@ export const AI_TOOL_DEFINITIONS = [
   },
   {
     type: 'function',
+    name: 'add_lead_interest',
+    description: 'يربط عميلًا موجودًا باهتمام عقاري حقيقي داخل CRM. استخدم search_leads وsearch_projects أو search_listings أولًا للحصول على المعرفات الصحيحة.',
+    parameters: {
+      type: 'object',
+      properties: {
+        lead_id: { type: 'string', description: 'معرف العميل UUID' },
+        project_id: { type: ['string', 'null'], description: 'معرف المشروع عند الاهتمام بمشروع' },
+        listing_id: { type: ['string', 'null'], description: 'معرف العرض العقاري عند الاهتمام بعرض' },
+        asset_id: { type: ['string', 'null'], description: 'معرف العقار عند الاهتمام بعقار' },
+        notes: { type: ['string', 'null'], description: 'ملاحظة اختيارية عن الاهتمام' },
+      },
+      required: ['lead_id'],
+      additionalProperties: false,
+    },
+  },
+  {
+    type: 'function',
     name: 'add_lead_note',
     description: 'يضيف ملاحظة إلى عميل محتمل موجود. استخدم search_leads أولًا إذا لم يكن lead_id معروفًا.',
     parameters: {
@@ -150,6 +167,55 @@ export async function executeAiTool(input: {
     const { data, error } = await supabase.from('listings').select('id, listing_number, title_ar, title_en, listing_type, publication_status, commercial_status, asking_price, created_at').eq('tenant_id', caller.tenantId).or(escaped ? `title_ar.ilike.%${escaped}%,title_en.ilike.%${escaped}%,listing_number.ilike.%${escaped}%` : 'id.not.is.null').order('created_at', { ascending: false }).limit(10);
     if (error) throw new Error(`Failed to search listings: ${error.message}`);
     return { listings: data ?? [] };
+  }
+
+  if (name === 'add_lead_interest') {
+    const args = z.object({
+      lead_id: z.string().uuid(),
+      project_id: z.string().uuid().nullable().optional(),
+      listing_id: z.string().uuid().nullable().optional(),
+      asset_id: z.string().uuid().nullable().optional(),
+      notes: z.string().trim().max(1000).nullable().optional(),
+    }).superRefine((value, ctx) => {
+      const targets = [value.project_id, value.listing_id, value.asset_id].filter(Boolean);
+      if (targets.length !== 1) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'يجب تحديد مشروع أو عقار أو عرض واحد فقط' });
+    }).parse(input.arguments);
+
+    const { data: lead, error: leadError } = await supabase.from('leads').select('id, full_name').eq('id', args.lead_id).eq('tenant_id', caller.tenantId).maybeSingle();
+    if (leadError) throw new Error(`Failed to validate lead: ${leadError.message}`);
+    if (!lead) throw new ApiError(404, 'lead_not_found', 'العميل المحتمل غير موجود');
+
+    const target = args.project_id
+      ? { table: 'projects', id: args.project_id, field: 'project_id' as const }
+      : args.listing_id
+        ? { table: 'listings', id: args.listing_id, field: 'listing_id' as const }
+        : { table: 'assets', id: args.asset_id as string, field: 'asset_id' as const };
+    const { data: targetRow, error: targetError } = await supabase.from(target.table).select('id').eq('id', target.id).eq('tenant_id', caller.tenantId).maybeSingle();
+    if (targetError) throw new Error(`Failed to validate interest target: ${targetError.message}`);
+    if (!targetRow) throw new ApiError(404, 'interest_target_not_found', 'هدف الاهتمام العقاري غير موجود');
+
+    const payload = {
+      tenant_id: caller.tenantId,
+      lead_id: args.lead_id,
+      project_id: null as string | null,
+      listing_id: null as string | null,
+      asset_id: null as string | null,
+      notes: args.notes ?? null,
+    };
+    payload[target.field] = target.id;
+    const { data: interest, error } = await supabase.from('lead_interests').insert(payload).select('id, lead_id, project_id, listing_id, asset_id, notes, created_at').single();
+    if (error) throw databaseWriteError(error, 'Failed to add AI lead interest');
+
+    const { error: activityError } = await supabase.from('crm_activities').insert({
+      tenant_id: caller.tenantId,
+      lead_id: args.lead_id,
+      user_id: caller.userId,
+      activity_type: 'interest_added',
+      summary: 'تم تسجيل اهتمام عقاري للعميل',
+      metadata: { interest_id: interest.id, target_type: target.field, target_id: target.id },
+    });
+    if (activityError) console.error('Failed to record AI interest activity', activityError);
+    return { lead, interest };
   }
 
   if (name === 'add_lead_note') {
