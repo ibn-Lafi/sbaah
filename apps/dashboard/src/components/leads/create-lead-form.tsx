@@ -84,13 +84,6 @@ export function CreateLeadForm({ accessToken, onCreated }: CreateLeadFormProps) 
             {asset.name_ar}
           </option>
         ))}
-      </Select><Select value={assignedAgentId} onChange={(e) => setAssignedAgentId(e.target.value)}>
-        <option value="">{t.createForm.noAgentSelected}</option>
-        {team.map((member) => (
-          <option key={member.id} value={member.id}>
-            {member.full_name}
-          </option>
-        ))}
       </Select></div>}
       {step === 2 && <dl className="grid gap-4 rounded-xl border border-border-default p-4 text-sm sm:grid-cols-2"><div><dt className="text-text-secondary">التصنيف</dt><dd className="font-medium">عميل محتمل</dd></div><div><dt className="text-text-secondary">الاسم</dt><dd className="font-medium">{fullName}</dd></div><div><dt className="text-text-secondary">الجوال</dt><dd dir="ltr">{phone}</dd></div><div><dt className="text-text-secondary">العقار</dt><dd>{assets.find((item) => item.id === assetId)?.name_ar ?? 'غير محدد'}</dd></div></dl>}
 
