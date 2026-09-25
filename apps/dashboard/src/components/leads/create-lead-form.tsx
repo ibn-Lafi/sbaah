@@ -8,7 +8,6 @@ import { Select } from '@/components/ui/select';
 import { FormError } from '@/components/ui/form-error';
 import { createLead } from '@/lib/api/leads';
 import { listAssets } from '@/lib/api/real-estate';
-import { listTeam, type TeamMember } from '@/lib/api/team';
 import { ApiRequestError } from '@/lib/api/client';
 import { useLocale } from '@/lib/i18n/locale-context';
 import { FormWizard, WizardActions } from '@/components/forms/form-wizard';
@@ -19,24 +18,20 @@ interface CreateLeadFormProps {
   initialKind?: 'customer' | 'prospect';
 }
 
-/** RLS (leads_owner_admin_manage) has no insert policy for Agent — matches POST /v1/leads' explicit 403 for that role. Same reasoning is why the agent-assignment select below fetches GET /v1/team unconditionally: only Owner/Admin ever render this form. */
 export function CreateLeadForm({ accessToken, onCreated }: CreateLeadFormProps) {
   const { pages } = useLocale();
   const t = pages.leads;
   const [assets, setAssets] = useState<Asset[]>([]);
-  const [team, setTeam] = useState<TeamMember[]>([]);
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [assetId, setAssetId] = useState('');
-  const [assignedAgentId, setAssignedAgentId] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(0);
 
   useEffect(() => {
     void listAssets(accessToken).then((result) => setAssets(result.assets));
-    void listTeam(accessToken).then((result) => setTeam(result.members));
   }, [accessToken]);
 
   async function handleSubmit(event: FormEvent) {
@@ -49,7 +44,6 @@ export function CreateLeadForm({ accessToken, onCreated }: CreateLeadFormProps) 
       email: email || null,
       asset_id: assetId || null,
       listing_id: null,
-      assigned_agent_id: assignedAgentId || null,
     };
 
     const result = manualLeadInputSchema.safeParse(candidate);
@@ -98,7 +92,7 @@ export function CreateLeadForm({ accessToken, onCreated }: CreateLeadFormProps) 
           </option>
         ))}
       </Select></div>}
-      {step === 2 && <dl className="grid gap-4 rounded-xl border border-border-default p-4 text-sm sm:grid-cols-2"><div><dt className="text-text-secondary">التصنيف</dt><dd className="font-medium">عميل محتمل</dd></div><div><dt className="text-text-secondary">الاسم</dt><dd className="font-medium">{fullName}</dd></div><div><dt className="text-text-secondary">الجوال</dt><dd dir="ltr">{phone}</dd></div><div><dt className="text-text-secondary">العقار</dt><dd>{assets.find((item) => item.id === assetId)?.name_ar ?? 'غير محدد'}</dd></div><div><dt className="text-text-secondary">المسؤول</dt><dd>{team.find((item) => item.id === assignedAgentId)?.full_name ?? 'غير محدد'}</dd></div></dl>}
+      {step === 2 && <dl className="grid gap-4 rounded-xl border border-border-default p-4 text-sm sm:grid-cols-2"><div><dt className="text-text-secondary">التصنيف</dt><dd className="font-medium">عميل محتمل</dd></div><div><dt className="text-text-secondary">الاسم</dt><dd className="font-medium">{fullName}</dd></div><div><dt className="text-text-secondary">الجوال</dt><dd dir="ltr">{phone}</dd></div><div><dt className="text-text-secondary">العقار</dt><dd>{assets.find((item) => item.id === assetId)?.name_ar ?? 'غير محدد'}</dd></div></dl>}
 
       <FormError message={error} />
       <WizardActions step={step} total={3} loading={loading} submitLabel={t.createForm.submit} onBack={() => setStep((current) => Math.max(0, current - 1))} onNext={nextStep} />
