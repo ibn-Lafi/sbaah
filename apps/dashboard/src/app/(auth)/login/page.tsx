@@ -11,13 +11,7 @@ import { PhoneInput } from '@/components/ui/phone-input';
 import { OtpInput } from '@/components/ui/otp-input';
 import { FormError } from '@/components/ui/form-error';
 import { SegmentedToggle } from '@/components/ui/segmented-toggle';
-import {
-  loginWithPasswordByEmail,
-  sendOtp,
-  sendOtpByEmail,
-  verifyLoginOtp,
-  type OtpIdentifier,
-} from '@/lib/api/auth';
+import { loginWithPasswordByEmail, sendOtp, verifyLoginOtp } from '@/lib/api/auth';
 import { ApiRequestError } from '@/lib/api/client';
 import { adoptSession } from '@/lib/auth/session';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
@@ -28,16 +22,15 @@ type LoginMode = 'password' | 'otp';
 type Channel = 'sms' | 'email';
 
 /**
- * `channel` (جوال/بريد) is one shared toggle for the whole page, applying
- * to whichever mode (password/OTP) is active — matches the identifier
- * choice, not the login method. Two independent methods either way, per
- * docs/OTP_FLOW.md sections 5b/5c/10: phone+password logs in directly
- * against Supabase from the browser; email+password goes through `api`
- * (POST /v1/auth/login) since Supabase Auth has no real notion of the
- * user's own email (its `auth.users.email` is a synthetic, never-emailed
- * address — OTP_FLOW.md section 4) and the email → phone lookup has to
- * happen server-side. OTP login (either channel) goes through `api`'s
- * otp/send + otp/verify and adopts the session it mints.
+ * `channel` (جوال/بريد) applies to password mode only — password login
+ * supports both phone and email, per docs/OTP_FLOW.md sections 5b/5c:
+ * phone+password logs in directly against Supabase from the browser;
+ * email+password goes through `api` (POST /v1/auth/login) since Supabase
+ * Auth has no real notion of the user's own email (its `auth.users.email`
+ * is a synthetic, never-emailed address — OTP_FLOW.md section 4) and the
+ * email → phone lookup has to happen server-side. OTP login is phone-only
+ * and goes through `api`'s otp/send + otp/verify and adopts the session
+ * it mints.
  */
 export default function LoginPage() {
   const router = useRouter();
@@ -132,35 +125,17 @@ export default function LoginPage() {
     }
   }
 
-  function currentIdentifier(): OtpIdentifier | null {
-    if (channel === 'sms') {
-      const check = saudiPhoneSchema.safeParse(phone);
-      if (!check.success) {
-        setError(check.error.issues[0]?.message ?? t.shared.invalidPhoneFallback);
-        return null;
-      }
-      return { phone };
-    }
-    const check = emailSchema.safeParse(email);
-    if (!check.success) {
-      setError(check.error.issues[0]?.message ?? t.shared.invalidEmailFallback);
-      return null;
-    }
-    return { email: check.data };
-  }
-
   async function sendLoginOtp() {
     setError(null);
-    const identifier = currentIdentifier();
-    if (!identifier) return;
+    const phoneCheck = saudiPhoneSchema.safeParse(phone);
+    if (!phoneCheck.success) {
+      setError(phoneCheck.error.issues[0]?.message ?? t.shared.invalidPhoneFallback);
+      return;
+    }
 
     setLoading(true);
     try {
-      if ('phone' in identifier) {
-        await sendOtp(identifier.phone, 'login');
-      } else {
-        await sendOtpByEmail(identifier.email, 'login');
-      }
+      await sendOtp(phone, 'login');
       setOtpSent(true);
       resend.start();
     } catch (err) {
@@ -184,11 +159,10 @@ export default function LoginPage() {
       setError(codeCheck.error.issues[0]?.message ?? t.shared.invalidOtpCodeFallback);
       return;
     }
-    const identifier = channel === 'sms' ? { phone } : { email };
 
     setLoading(true);
     try {
-      const { access_token, refresh_token } = await verifyLoginOtp(identifier, code);
+      const { access_token, refresh_token } = await verifyLoginOtp({ phone }, code);
       await adoptSession(access_token, refresh_token);
       router.push('/');
     } catch (err) {
@@ -238,7 +212,7 @@ export default function LoginPage() {
         </button>
       </div>
 
-      {!(mode === 'otp' && otpSent) && (
+      {mode === 'password' && (
         <SegmentedToggle
           className="mb-6"
           value={channel}
@@ -280,17 +254,7 @@ export default function LoginPage() {
 
       {mode === 'otp' && !otpSent && (
         <form onSubmit={handleSendOtp} className="flex flex-col gap-4">
-          {channel === 'sms' ? (
-            <PhoneInput placeholder="5xxxxxxxx" value={phone} onChange={setPhone} />
-          ) : (
-            <Input
-              type="email"
-              placeholder="name@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              dir="ltr"
-            />
-          )}
+          <PhoneInput placeholder="5xxxxxxxx" value={phone} onChange={setPhone} />
           <FormError message={error} />
           <Button type="submit" loading={loading}>
             {loading ? t.shared.sendingOtp : t.shared.sendOtp}
@@ -300,7 +264,7 @@ export default function LoginPage() {
 
       {mode === 'otp' && otpSent && (
         <form onSubmit={handleVerifyOtp} className="flex flex-col gap-4">
-          <p className="text-sm text-text-secondary">{t.shared.otpSentTo(channel === 'sms' ? phone : email)}</p>
+          <p className="text-sm text-text-secondary">{t.shared.otpSentTo(phone)}</p>
           <OtpInput value={code} onChange={setCode} disabled={loading} />
           <FormError message={error} />
           <Button type="submit" loading={loading}>
