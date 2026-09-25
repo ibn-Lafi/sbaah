@@ -336,17 +336,18 @@ export default function AppsPage() {
                 <div ref={messagesEndRef} />
               </div>
 
-              <form onSubmit={(event) => void handleSend(event)} className="border-border-default shrink-0 border-t p-3 sm:p-4">
-                <div className="border-border-default bg-surface-subtle flex min-h-12 items-end gap-2 rounded-[12px] border p-2">
+              <form onSubmit={(event) => void handleSend(event)} className="shrink-0 px-3 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-2 sm:p-4 md:border-t md:border-border-default">
+                <div className="border-border-default bg-surface-subtle flex min-h-[58px] items-end gap-2 rounded-[29px] border p-1.5 shadow-sm md:min-h-12 md:rounded-[12px] md:p-2">
                   <textarea
                     value={draft}
                     onChange={(event) => setDraft(event.target.value)}
                     rows={1}
                     placeholder={ar ? `اكتب رسالة إلى ${assistant.name}...` : `Message ${assistant.name}...`}
-                    className="text-text-primary placeholder:text-text-placeholder max-h-32 min-h-9 flex-1 resize-none bg-transparent px-2 py-2 text-sm outline-none"
+                    className="text-text-primary placeholder:text-text-placeholder max-h-32 min-h-[44px] flex-1 resize-none bg-transparent px-3 py-3 text-sm outline-none md:min-h-9 md:px-2 md:py-2"
                   />
-                  <button type="submit" disabled={!draft.trim() || sending} className="bg-brand rounded-[9px] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">
-                    {ar ? 'إرسال' : 'Send'}
+                  <button type="submit" disabled={!draft.trim() || sending} aria-label={ar ? 'إرسال' : 'Send'} className="bg-brand flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-white transition active:scale-95 disabled:opacity-40 md:h-auto md:w-auto md:rounded-[9px] md:px-4 md:py-2">
+                    <svg viewBox="0 0 24 24" className="h-6 w-6 md:hidden" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 19V5M6.5 10.5 12 5l5.5 5.5" /></svg>
+                    <span className="hidden text-sm font-semibold md:inline">{ar ? 'إرسال' : 'Send'}</span>
                   </button>
                 </div>
               </form>
