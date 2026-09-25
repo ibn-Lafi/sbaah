@@ -26,6 +26,7 @@ import { formatDate } from '@/lib/format/date';
 
 type StatusFilter = LeadStatus | 'all';
 type CustomerKind = 'customer' | 'prospect';
+const relationshipLabels:Record<string,string>={purchase:'مشترٍ',tenant:'مستأجر',owner:'مالك',former:'عميل سابق'};
 
 /**
  * جدول موحّد واحد (لا تبويب "لوحة المتابعة/جميع العملاء" — كانا نفس
@@ -158,7 +159,7 @@ export default function LeadsPage() {
                           <LeadStatusPillSelect value={lead.status} onChange={(status) => void handleStatusChange(lead.id, status)} />
                         ) : (
                           <span className="inline-flex rounded-full bg-surface-subtle px-2.5 py-1 text-xs font-medium text-text-secondary">
-                            {((lead as Lead & { customer_relationships?: Array<'purchase' | 'tenant'> }).customer_relationships ?? []).map((relationship) => relationship === 'tenant' ? 'مستأجر' : 'مشتري').join(' · ') || 'عميل'}
+                            {((lead as Lead & { customer_relationships?: string[] }).customer_relationships ?? []).map((relationship) => relationshipLabels[relationship]??relationship).join(' · ') || 'عميل'}
                           </span>
                         )}
                       </td>

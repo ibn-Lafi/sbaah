@@ -23,16 +23,15 @@ const statusLabels: Record<AssetPhysicalStatus, string> = {
   inactive: 'غير نشط',
 };
 
-type PropertyView = 'all' | 'rent' | 'units';
+type PropertyView = 'all' | 'rent';
 
 const viewTabs: Array<{ value: PropertyView; label: string }> = [
-  { value: 'all', label: 'الكل' },
+  { value: 'all', label: 'العقارات المستقلة' },
   { value: 'rent', label: 'التأجير' },
-  { value: 'units', label: 'الوحدات' },
 ];
 
 function isPropertyView(value: string | null): value is PropertyView {
-  return value === 'all' || value === 'rent' || value === 'units';
+  return value === 'all' || value === 'rent';
 }
 
 export default function PropertiesPage() {
@@ -62,7 +61,7 @@ export default function PropertiesPage() {
     let active = true;
     setAssets(null);
     void listAssets(accessToken, {
-      scope: view === 'units' ? 'units' : 'all',
+      scope: 'top_level',
       physical_status: status || undefined,
       asset_type: type || undefined,
       page,
@@ -232,7 +231,7 @@ export default function PropertiesPage() {
               <TableSkeleton columns={3} />
             ) : assets.length === 0 ? (
               <p className="text-text-secondary p-8 text-center">
-                {view === 'units' ? 'لا توجد وحدات مطابقة' : 'لا توجد عقارات مطابقة'}
+                لا توجد عقارات مستقلة مطابقة
               </p>
             ) : (
               <table className="w-full table-fixed text-xs sm:text-sm">

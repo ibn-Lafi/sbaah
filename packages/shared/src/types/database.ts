@@ -299,6 +299,7 @@ export interface Lead {
   status: LeadStatus;
   assigned_agent_id: string | null;
   follow_up_at: string | null;
+  customer_relationship?: 'purchase' | 'tenant' | 'owner' | 'former' | null;
   created_at: string;
 }
 

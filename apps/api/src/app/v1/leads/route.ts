@@ -74,9 +74,10 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
 
   const classified = leadRows.map((lead) => {
     const customerRelationships = [
+      ...(lead.customer_relationship ? [lead.customer_relationship as 'purchase' | 'tenant' | 'owner' | 'former'] : []),
       ...(purchaseLeadIds.has(lead.id) ? ['purchase' as const] : []),
       ...(tenantLeadIds.has(lead.id) ? ['tenant' as const] : []),
-    ];
+    ].filter((value, index, values) => values.indexOf(value) === index);
     return {
       ...lead,
       customer_kind: customerRelationships.length > 0 ? 'customer' as const : 'prospect' as const,
@@ -102,11 +103,11 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 
   const input = manualLeadInputSchema.parse(await request.json());
 
-  const { asset_id, listing_id, ...lead } = input;
-  if (asset_id && listing_id) {
-    throw new ApiError(400, 'single_interest_target_required', 'اختر عقارًا أو عرضًا عقاريًا واحدًا فقط');
-  }
-  const interest = asset_id ? { asset_id } : listing_id ? { listing_id } : null;
+  const { project_id, unit_type_id, asset_id, listing_id, ...lead } = input;
+  const { data: existing, error: duplicateError } = await supabase.from('leads').select('id,full_name,phone').eq('tenant_id', caller.tenantId).eq('phone', lead.phone).maybeSingle();
+  if (duplicateError) throw new Error(`Failed to check duplicate lead: ${duplicateError.message}`);
+  if (existing) throw new ApiError(409, 'lead_phone_exists', `رقم الجوال مسجل لدى ${existing.full_name}`);
+  const interest = project_id ? { project_id } : unit_type_id ? { unit_type_id } : asset_id ? { asset_id } : listing_id ? { listing_id } : null;
 
   const { data, error } = await supabase
     .rpc('create_lead_with_interest', {

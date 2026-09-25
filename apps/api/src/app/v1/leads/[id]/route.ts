@@ -81,9 +81,10 @@ export const GET = withErrorHandling<RouteContext>(async (request, { params }) =
     hasRentalContract = (count ?? 0) > 0;
   }
   const customerRelationships = [
+    ...(data.customer_relationship ? [data.customer_relationship as 'purchase' | 'tenant' | 'owner' | 'former'] : []),
     ...(hasWonPurchase ? ['purchase' as const] : []),
     ...(hasRentalContract ? ['tenant' as const] : []),
-  ];
+  ].filter((value, index, values) => values.indexOf(value) === index);
   const customerKind = customerRelationships.length > 0 ? 'customer' : 'prospect';
 
   const purchasedAssets = Array.from(

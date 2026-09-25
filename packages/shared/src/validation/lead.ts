@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { saudiPhoneSchema } from './auth';
-import { LEAD_STATUSES } from '../types/enums';
+import { LEAD_SOURCES, LEAD_STATUSES } from '../types/enums';
 
 /**
  * Public inquiry form (PRODUCT_SPEC section 10) — submitted anonymously
@@ -21,12 +21,21 @@ export type PublicLeadInput = z.infer<typeof publicLeadInputSchema>;
 
 /** POST /v1/leads (authenticated, Owner/Admin only) — staff manually entering a lead, e.g. a walk-in. Always source='manual'. */
 export const manualLeadInputSchema = z.object({
+  project_id: z.string().uuid().optional().nullable(),
+  unit_type_id: z.string().uuid().optional().nullable(),
   asset_id: z.string().uuid().optional().nullable(),
   listing_id: z.string().uuid().optional().nullable(),
   full_name: z.string().min(2, 'الاسم مطلوب'),
   phone: saudiPhoneSchema,
   email: z.string().email().optional().nullable(),
   assigned_agent_id: z.string().uuid().optional().nullable(),
+  source: z.enum(LEAD_SOURCES).default('manual'),
+  customer_relationship: z.enum(['purchase', 'tenant', 'owner', 'former']).optional().nullable(),
+  follow_up_at: z.string().datetime({ offset: true }).optional().nullable(),
+  notes: z.string().trim().max(4000).optional().nullable(),
+}).superRefine((value, ctx) => {
+  const targets = [value.project_id, value.unit_type_id, value.asset_id, value.listing_id].filter(Boolean);
+  if (targets.length > 1) ctx.addIssue({ code: 'custom', message: 'اختر هدف اهتمام عقاري واحدًا فقط' });
 });
 export type ManualLeadInput = z.infer<typeof manualLeadInputSchema>;
 

@@ -95,15 +95,21 @@ export const AI_TOOL_DEFINITIONS = [
   {
     type: 'function',
     name: 'create_lead',
-    description: 'ينشئ عميلًا محتملًا يدويًا داخل CRM في سبعة. لا تستخدمه إلا عندما يطلب المستخدم إنشاء/إضافة العميل.',
+    description: 'يجهز مسودة عميل للمراجعة. لا يحفظ شيئًا حتى يضغط المستخدم إضافة العميل.',
     parameters: {
       type: 'object',
       properties: {
         full_name: { type: 'string' },
         phone: { type: 'string', description: 'رقم جوال سعودي' },
         email: { type: ['string', 'null'] },
+        source: { type: 'string', enum: ['manual', 'website_form', 'whatsapp_click'] },
+        customer_relationship: { type: ['string', 'null'], enum: ['purchase', 'tenant', 'owner', 'former', null] },
+        project_id: { type: ['string', 'null'] },
+        unit_type_id: { type: ['string', 'null'] },
         asset_id: { type: ['string', 'null'] },
         listing_id: { type: ['string', 'null'] },
+        follow_up_at: { type: ['string', 'null'] },
+        notes: { type: ['string', 'null'] },
       },
       required: ['full_name', 'phone'],
       additionalProperties: false,
@@ -115,9 +121,15 @@ const createLeadSchema = z.object({
   full_name: z.string().trim().min(2),
   phone: z.string().trim().regex(/^(?:\+966|00966|966|0)?5\d{8}$/),
   email: z.string().email().nullable().optional(),
+  source: z.enum(['manual', 'website_form', 'whatsapp_click']).default('manual'),
+  customer_relationship: z.enum(['purchase', 'tenant', 'owner', 'former']).nullable().optional(),
+  project_id: z.string().uuid().nullable().optional(),
+  unit_type_id: z.string().uuid().nullable().optional(),
   asset_id: z.string().uuid().nullable().optional(),
   listing_id: z.string().uuid().nullable().optional(),
-}).refine((value) => !(value.asset_id && value.listing_id), 'اختر عقارًا أو عرضًا واحدًا فقط');
+  follow_up_at: z.string().datetime({ offset: true }).nullable().optional(),
+  notes: z.string().trim().max(4000).nullable().optional(),
+}).superRefine((value,ctx)=>{if([value.project_id,value.unit_type_id,value.asset_id,value.listing_id].filter(Boolean).length>1)ctx.addIssue({code:z.ZodIssueCode.custom,message:'اختر هدف اهتمام واحدًا فقط'});});
 
 export async function executeAiTool(input: {
   supabase: SupabaseClient;
@@ -285,8 +297,11 @@ export async function executeAiTool(input: {
 
   if (name === 'create_lead') {
     const args = createLeadSchema.parse(input.arguments);
-    const interest = args.asset_id ? { asset_id: args.asset_id } : args.listing_id ? { listing_id: args.listing_id } : null;
-    const { asset_id: _assetId, listing_id: _listingId, ...lead } = args;
+    const { data: existing, error: duplicateError } = await supabase.from('leads').select('id,full_name,phone,email,status').eq('tenant_id', caller.tenantId).eq('phone', args.phone).maybeSingle();
+    if (duplicateError) throw new Error(`Failed to check duplicate lead: ${duplicateError.message}`);
+    if (existing) throw new ApiError(409, 'lead_phone_exists', `رقم الجوال مسجل لدى ${existing.full_name}`);
+    const interest = args.project_id ? { project_id: args.project_id } : args.unit_type_id ? { unit_type_id: args.unit_type_id } : args.asset_id ? { asset_id: args.asset_id } : args.listing_id ? { listing_id: args.listing_id } : null;
+    const { project_id: _projectId, unit_type_id: _unitTypeId, asset_id: _assetId, listing_id: _listingId, ...lead } = args;
     const { data, error } = await supabase.rpc('create_lead_with_interest', {
       p_lead: { ...lead, source: 'manual' },
       p_interest: interest,

@@ -2,7 +2,7 @@ import type { Lead, LeadNote, LeadSource, LeadStatus, LeadUpdateInput, ManualLea
 import { apiDelete, apiGet, apiPatch, apiPost } from './client';
 
 export interface LeadListResponse {
-  leads: Array<Lead & { customer_kind?: 'customer' | 'prospect'; customer_relationships?: Array<'purchase' | 'tenant'> }>;
+  leads: Array<Lead & { customer_kind?: 'customer' | 'prospect'; customer_relationships?: Array<'purchase' | 'tenant' | 'owner' | 'former'> }>;
   page: number;
   page_size: number;
   total: number;
@@ -37,7 +37,7 @@ export interface JourneyAssetLink { asset_id:string; assets?:JourneyAsset|null; 
 
 export interface Customer360Snapshot {
   customer_kind: 'customer' | 'prospect';
-  customer_relationships: Array<'purchase' | 'tenant'>;
+  customer_relationships: Array<'purchase' | 'tenant' | 'owner' | 'former'>;
   purchased_assets: JourneyAsset[];
   rented_assets: JourneyAsset[];
   interests: LeadInterest[];

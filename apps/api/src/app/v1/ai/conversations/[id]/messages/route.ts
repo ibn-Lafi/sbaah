@@ -72,7 +72,13 @@ export const POST = withErrorHandling(async (
       .map((item) => ({ role: item.sender as 'user' | 'assistant', content: item.content })),
     tools: AI_TOOL_DEFINITIONS,
     executeTool: async (name, args) => {
-      const sensitive = name === 'update_lead_status';
+      if(name==='create_lead'&&args&&typeof args==='object'&&typeof (args as {phone?:unknown}).phone==='string'){
+        const phone=(args as {phone:string}).phone;
+        const{data:existing,error:duplicateError}=await supabase.from('leads').select('id,full_name,phone,email,status').eq('tenant_id',caller.tenantId).eq('phone',phone).maybeSingle();
+        if(duplicateError)throw new Error(`Failed to check duplicate lead: ${duplicateError.message}`);
+        if(existing){return{duplicate_phone:true,existing_lead:existing};}
+      }
+      const sensitive = name === 'update_lead_status' || name === 'create_lead';
       const startedAt = new Date().toISOString();
       const { data: log, error: logError } = await systemSupabase
         .from('ai_action_logs')
@@ -82,7 +88,7 @@ export const POST = withErrorHandling(async (
           conversation_id: conversation.id,
           requested_by: caller.userId,
           tool_name: name,
-          risk_level: sensitive ? 'sensitive' : ['create_lead', 'add_lead_interest', 'add_lead_note', 'set_lead_follow_up'].includes(name) ? 'write' : 'read',
+          risk_level: sensitive ? 'sensitive' : ['add_lead_interest', 'add_lead_note', 'set_lead_follow_up'].includes(name) ? 'write' : 'read',
           status: sensitive ? 'awaiting_confirmation' : 'running',
           input: args,
           executed_at: startedAt,
@@ -118,7 +124,7 @@ export const POST = withErrorHandling(async (
       response_id: generated.responseId,
       tools: generated.executedTools.map((tool) => tool.name),
       tool_results: generated.executedTools
-        .filter((tool) => ['get_portfolio_summary', 'search_leads', 'search_projects', 'search_listings'].includes(tool.name))
+        .filter((tool) => ['get_portfolio_summary', 'search_leads', 'search_projects', 'search_listings', 'create_lead'].includes(tool.name))
         .map((tool) => ({ name: tool.name, result: tool.result })),
       ...(() => {
         const pending = generated.executedTools.find((tool) => {
@@ -126,7 +132,7 @@ export const POST = withErrorHandling(async (
           return result?.requires_confirmation === true;
         });
         const result = pending?.result as { action_id?: string; tool_name?: string } | undefined;
-        return result?.action_id ? { pending_action_id: result.action_id, pending_action_tool: result.tool_name, pending_action_status: 'awaiting_confirmation' } : {};
+        return result?.action_id ? { pending_action_id: result.action_id, pending_action_tool: result.tool_name, pending_action_input: (pending?.result as { input?: unknown } | undefined)?.input, pending_action_status: 'awaiting_confirmation' } : {};
       })(),
     },
     created_by: null,

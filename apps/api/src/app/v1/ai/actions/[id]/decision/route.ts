@@ -7,7 +7,7 @@ import { getCallerContext } from '@/lib/auth/get-caller-context';
 import { executeAiTool } from '@/lib/ai/tools';
 
 const paramsSchema = z.object({ id: z.string().uuid() });
-const bodySchema = z.object({ decision: z.enum(['confirm', 'cancel']) });
+const bodySchema = z.object({ decision: z.enum(['confirm', 'cancel']), input: z.record(z.string(), z.unknown()).optional() });
 
 export const POST = withErrorHandling(async (
   request: NextRequest,
@@ -17,7 +17,7 @@ export const POST = withErrorHandling(async (
   const caller = await getCallerContext(supabase);
   const systemSupabase = createServiceRoleClient();
   const { id } = paramsSchema.parse(await context.params);
-  const { decision } = bodySchema.parse(await request.json());
+  const { decision, input } = bodySchema.parse(await request.json());
 
   const { data: action, error } = await systemSupabase
     .from('ai_action_logs')
@@ -52,7 +52,8 @@ export const POST = withErrorHandling(async (
   if (!claimed) throw new ApiError(409, 'ai_action_already_handled', 'تم التعامل مع هذا الإجراء مسبقًا');
 
   try {
-    const result = await executeAiTool({ supabase, caller, name: action.tool_name, arguments: action.input });
+    const executionInput = action.tool_name === 'create_lead' && input ? input : action.input;
+    const result = await executeAiTool({ supabase, caller, name: action.tool_name, arguments: executionInput });
     await systemSupabase.from('ai_action_logs').update({ status: 'succeeded', output: result }).eq('id', action.id);
     return okResponse({ action_id: action.id, status: 'succeeded', result });
   } catch (executionError) {

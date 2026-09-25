@@ -21,6 +21,10 @@ function RichToolResults({ metadata, ar }: { metadata: Record<string, unknown>; 
     <div className="mt-3 flex flex-col gap-2">
       {results.map((tool, index) => {
         const result = tool.result ?? {};
+        if(tool.name==='create_lead'&&result.duplicate_phone===true&&result.existing_lead&&typeof result.existing_lead==='object'){
+          const lead=result.existing_lead as Record<string,unknown>;
+          return <Link key={`duplicate-${index}`} href={`/leads/${String(lead.id)}`} className="block rounded-[12px] border border-warning bg-warning-surface p-3"><p className="text-xs font-semibold text-warning">{ar?'رقم الجوال مسجل مسبقًا':'Phone already exists'}</p><p className="mt-1 font-bold text-text-primary">{String(lead.full_name??'')}</p><p className="mt-1 text-xs text-text-secondary" dir="ltr">{String(lead.phone??'')}</p></Link>;
+        }
         if (tool.name === 'get_portfolio_summary') {
           const stats = [
             [ar ? 'العملاء' : 'Leads', result.leads, '/leads'],
@@ -90,6 +94,16 @@ function RichToolResults({ metadata, ar }: { metadata: Record<string, unknown>; 
       })}
     </div>
   );
+}
+
+function LeadDraftCard({metadata,ar,busy,onDecision}:{metadata:Record<string,unknown>;ar:boolean;busy:boolean;onDecision:(decision:'confirm'|'cancel',input?:Record<string,unknown>)=>void}){
+  const initial=(metadata.pending_action_input&&typeof metadata.pending_action_input==='object'?metadata.pending_action_input:{}) as Record<string,unknown>;
+  const[form,setForm]=useState<Record<string,unknown>>(initial);
+  const status=metadata.pending_action_status;
+  const set=(key:string,value:string)=>setForm(current=>({...current,[key]:value||null}));
+  if(status==='succeeded'){const leadId=typeof metadata.created_lead_id==='string'?metadata.created_lead_id:null;return <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-emerald-800"><p className="font-semibold">{ar?'تمت إضافة العميل بنجاح':'Customer added successfully'}</p>{leadId&&<Link href={`/leads/${leadId}`} className="mt-2 inline-block text-xs font-semibold underline">{ar?'فتح ملف العميل':'Open customer'}</Link>}</div>}
+  if(status==='cancelled')return <p className="mt-3 border-t border-border-default pt-3 text-xs font-semibold text-text-secondary">{ar?'تم إلغاء المسودة':'Draft cancelled'}</p>;
+  return <div className="mt-3 rounded-xl border border-border-default bg-surface-card p-3 text-text-primary"><div className="mb-3"><p className="font-bold">{ar?'مراجعة بيانات العميل':'Review customer'}</p><p className="mt-1 text-xs text-text-secondary">{ar?'يمكنك تعديل أي حقل قبل الحفظ.':'Edit any field before saving.'}</p></div><div className="grid gap-2 sm:grid-cols-2"><input value={String(form.full_name??'')} onChange={e=>set('full_name',e.target.value)} placeholder={ar?'الاسم':'Name'} className="rounded-lg border border-border-default px-3 py-2 text-sm"/><input value={String(form.phone??'')} onChange={e=>set('phone',e.target.value)} placeholder={ar?'الجوال':'Phone'} dir="ltr" className="rounded-lg border border-border-default px-3 py-2 text-sm"/><input value={String(form.email??'')} onChange={e=>set('email',e.target.value)} placeholder={ar?'البريد الإلكتروني':'Email'} dir="ltr" className="rounded-lg border border-border-default px-3 py-2 text-sm"/><select value={String(form.customer_relationship??'')} onChange={e=>set('customer_relationship',e.target.value)} className="rounded-lg border border-border-default px-3 py-2 text-sm"><option value="">{ar?'عميل محتمل':'Prospect'}</option><option value="purchase">{ar?'مشترٍ':'Buyer'}</option><option value="tenant">{ar?'مستأجر':'Tenant'}</option><option value="owner">{ar?'مالك':'Owner'}</option><option value="former">{ar?'عميل سابق':'Former customer'}</option></select><input value={String(form.follow_up_at??'')} onChange={e=>set('follow_up_at',e.target.value)} placeholder={ar?'موعد المتابعة ISO':'Follow-up ISO'} className="rounded-lg border border-border-default px-3 py-2 text-sm sm:col-span-2"/><textarea value={String(form.notes??'')} onChange={e=>set('notes',e.target.value)} placeholder={ar?'ملاحظات':'Notes'} rows={2} className="rounded-lg border border-border-default px-3 py-2 text-sm sm:col-span-2"/></div><div className="mt-3 flex gap-2 border-t border-border-default pt-3"><button type="button" disabled={busy||!String(form.full_name??'').trim()||!String(form.phone??'').trim()} onClick={()=>onDecision('confirm',form)} className="rounded-lg bg-brand px-3 py-2 text-xs font-semibold text-white disabled:opacity-50">{ar?'إضافة العميل':'Add customer'}</button><button type="button" disabled={busy} onClick={()=>onDecision('cancel')} className="rounded-lg border border-border-default px-3 py-2 text-xs font-semibold disabled:opacity-50">{ar?'إلغاء':'Cancel'}</button></div></div>;
 }
 
 export default function AppsPage() {
@@ -237,15 +251,16 @@ export default function AppsPage() {
     }
   }
 
-  async function handleActionDecision(actionId: string, decision: 'confirm' | 'cancel') {
+  async function handleActionDecision(actionId: string, decision: 'confirm' | 'cancel', input?:Record<string,unknown>) {
     if (decidingActionId) return;
     setDecidingActionId(actionId);
     setError('');
     try {
-      await decideAiAction(accessToken, actionId, decision);
+      const response=await decideAiAction(accessToken, actionId, decision, input);
       setMessages((current) => current.map((message) => {
         if (message.sender !== 'assistant' || message.metadata?.pending_action_id !== actionId) return message;
-        return { ...message, metadata: { ...message.metadata, pending_action_status: decision === 'confirm' ? 'succeeded' : 'cancelled' } };
+        const result=response.result&&typeof response.result==='object'?response.result as Record<string,unknown>:{};const lead=result.lead&&typeof result.lead==='object'?result.lead as Record<string,unknown>:{};
+        return { ...message, metadata: { ...message.metadata, pending_action_status: decision === 'confirm' ? 'succeeded' : 'cancelled',created_lead_id:typeof lead.id==='string'?lead.id:undefined } };
       }));
     } catch {
       setError(ar ? 'تعذر تنفيذ قرار الإجراء.' : 'Could not process the action decision.');
@@ -358,7 +373,7 @@ export default function AppsPage() {
                         <span className="whitespace-pre-wrap">{message.content}</span>
                         {message.sender === 'assistant' ? <RichToolResults metadata={message.metadata} ar={ar} /> : null}
                         {message.sender === 'assistant' && typeof message.metadata?.pending_action_id === 'string' ? (
-                          <div className="border-border-default mt-3 flex flex-wrap gap-2 border-t pt-3">
+                          message.metadata.pending_action_tool==='create_lead'?<LeadDraftCard metadata={message.metadata} ar={ar} busy={decidingActionId===message.metadata.pending_action_id} onDecision={(decision,input)=>void handleActionDecision(message.metadata.pending_action_id as string,decision,input)}/>:<div className="border-border-default mt-3 flex flex-wrap gap-2 border-t pt-3">
                             {message.metadata?.pending_action_status === 'succeeded' ? (
                               <span className="text-xs font-semibold text-emerald-700">{ar ? 'تم تنفيذ الإجراء' : 'Action completed'}</span>
                             ) : message.metadata?.pending_action_status === 'cancelled' ? (

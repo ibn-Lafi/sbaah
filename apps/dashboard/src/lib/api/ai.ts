@@ -57,10 +57,10 @@ export function sendAiMessage(accessToken: string, conversationId: string, conte
 }
 
 
-export function decideAiAction(accessToken: string, actionId: string, decision: 'confirm' | 'cancel') {
+export function decideAiAction(accessToken: string, actionId: string, decision: 'confirm' | 'cancel', input?:Record<string,unknown>) {
   return apiPost<{ action_id: string; status: 'cancelled' | 'succeeded'; result?: unknown }>(
     `/ai/actions/${actionId}/decision`,
-    { decision },
+    input ? { decision, input } : { decision },
     accessToken,
   );
 }
