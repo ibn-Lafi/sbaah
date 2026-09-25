@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { AppShell } from '@/components/layout/app-shell';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
@@ -22,17 +23,17 @@ function RichToolResults({ metadata, ar }: { metadata: Record<string, unknown>; 
         const result = tool.result ?? {};
         if (tool.name === 'get_portfolio_summary') {
           const stats = [
-            [ar ? 'العملاء' : 'Leads', result.leads],
-            [ar ? 'المشاريع' : 'Projects', result.projects],
-            [ar ? 'العقارات' : 'Properties', result.listings],
+            [ar ? 'العملاء' : 'Leads', result.leads, '/leads'],
+            [ar ? 'المشاريع' : 'Projects', result.projects, '/projects'],
+            [ar ? 'العقارات' : 'Properties', result.listings, '/listings'],
           ];
           return (
             <div key={`summary-${index}`} className="grid grid-cols-3 gap-2">
-              {stats.map(([label, value]) => (
-                <div key={String(label)} className="border-border-default bg-surface-card rounded-[12px] border p-3 text-center">
+              {stats.map(([label, value, href]) => (
+                <Link key={String(label)} href={String(href)} className="border-border-default bg-surface-card hover:border-brand/40 hover:bg-brand-surface rounded-[12px] border p-3 text-center transition">
                   <div className="text-brand text-lg font-bold">{typeof value === 'number' ? value : 0}</div>
                   <div className="text-text-secondary mt-0.5 text-[11px] font-medium">{String(label)}</div>
-                </div>
+                </Link>
               ))}
             </div>
           );
@@ -58,10 +59,29 @@ function RichToolResults({ metadata, ar }: { metadata: Record<string, unknown>; 
                 : tool.name === 'search_projects'
                   ? [item.reference_number, item.status].filter(Boolean).join(' · ')
                   : [item.listing_number, item.listing_type, item.commercial_status].filter(Boolean).join(' · ');
-              return (
-                <div key={String(item.id ?? rowIndex)} className="border-border-default bg-surface-card rounded-[12px] border px-3.5 py-3">
+              const entityId = typeof item.id === 'string' ? item.id : null;
+              const href = entityId
+                ? tool.name === 'search_leads'
+                  ? `/leads/${entityId}`
+                  : tool.name === 'search_projects'
+                    ? `/projects/${entityId}`
+                    : tool.name === 'search_listings'
+                      ? `/listings/${entityId}`
+                      : null
+                : null;
+              const card = (
+                <>
                   <div className="text-text-primary truncate text-sm font-bold">{title}</div>
                   {subtitle ? <div className="text-text-secondary mt-1 truncate text-xs" dir={tool.name === 'search_leads' ? 'ltr' : undefined}>{subtitle}</div> : null}
+                </>
+              );
+              return href ? (
+                <Link key={entityId} href={href} className="border-border-default bg-surface-card hover:border-brand/40 hover:bg-brand-surface block rounded-[12px] border px-3.5 py-3 transition">
+                  {card}
+                </Link>
+              ) : (
+                <div key={String(item.id ?? rowIndex)} className="border-border-default bg-surface-card rounded-[12px] border px-3.5 py-3">
+                  {card}
                 </div>
               );
             })}
