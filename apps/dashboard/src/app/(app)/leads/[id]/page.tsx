@@ -15,7 +15,6 @@ import { FormError } from '@/components/ui/form-error';
 import { FormPageSkeleton } from '@/components/ui/form-page-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { deleteLead, getLead, updateLead, type Customer360Snapshot, type LeadWithNotes } from '@/lib/api/leads';
-import { listTeam, type TeamMember } from '@/lib/api/team';
 import { ApiRequestError, isNotFoundError } from '@/lib/api/client';
 import { datetimeLocalToIso, isoToDatetimeLocal } from '@/lib/lead/datetime';
 import { useLocale } from '@/lib/i18n/locale-context';
@@ -37,7 +36,6 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
   const t = pages.leads;
   const [lead, setLead] = useState<LeadWithNotes | null>(null);
   const [customer360, setCustomer360] = useState<Customer360Snapshot | null>(null);
-  const [team, setTeam] = useState<TeamMember[]>([]);
   const [notFound, setNotFound] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [retryKey, setRetryKey] = useState(0);
@@ -69,20 +67,8 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
 
   useEffect(() => {
     if (canManage) {
-      void listTeam(accessToken).then((result) => setTeam(result.members));
     }
   }, [accessToken, canManage]);
-
-  async function saveAssignedAgent(assignedAgentId: string) {
-    setError(null);
-    try {
-      const { lead: updated } = await updateLead(accessToken, id, { assigned_agent_id: assignedAgentId || null });
-      setLead((current) => (current ? { ...current, ...updated } : current));
-    } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : t.detail.errors.saveAgent);
-    }
-  }
-
   async function saveStatus(status: string) {
     setError(null);
     try {
@@ -192,7 +178,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
               <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                 {isProspect ? <div className="flex flex-col gap-1"><label className="text-xs text-text-secondary">{t.detail.statusLabel}</label><Select value={lead.status} onChange={(e) => void saveStatus(e.target.value)}>{LEAD_STATUSES.map((status) => <option key={status} value={status}>{t.statusLabels[status]}</option>)}</Select></div> : <div className="flex flex-col gap-1"><label className="text-xs text-text-secondary">نوع العميل</label><p className="rounded-input border border-border-default px-3 py-3 text-sm font-medium text-text-primary">{customer360?.customer_relationships.map((relationship) => relationship === 'tenant' ? 'مستأجر' : 'مشتري').join(' · ') || 'عميل'}</p></div>}
                 <div className="flex flex-col gap-1"><label className="text-xs text-text-secondary">{t.detail.followUpLabel}</label><DateTimePicker value={isoToDatetimeLocal(lead.follow_up_at)} onChange={(value) => void saveFollowUp(value)} /></div>
-                {canManage && <div className="flex flex-col gap-1"><label className="text-xs text-text-secondary">{t.detail.assignedAgentLabel}</label><Select value={lead.assigned_agent_id ?? ''} onChange={(e) => void saveAssignedAgent(e.target.value)}><option value="">{t.detail.noAgent}</option>{team.map((member) => <option key={member.id} value={member.id}>{member.full_name}</option>)}</Select></div>}
+                
                 <div className="flex flex-col gap-1"><label className="text-xs text-text-secondary">مصدر العميل</label><p className="rounded-input border border-border-default px-3 py-3 text-sm text-text-primary">{t.sourceLabels[lead.source]}</p></div>
               </div>
             </details>
