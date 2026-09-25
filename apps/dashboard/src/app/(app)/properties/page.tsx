@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Modal } from '@/components/ui/modal';
 import { Select } from '@/components/ui/select';
+import { SegmentedToggle } from '@/components/ui/segmented-toggle';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { listAssets } from '@/lib/api/real-estate';
@@ -102,21 +103,7 @@ export default function PropertiesPage() {
   return (
     <AppShell title="جميع العقارات" orgName={me.tenant.name_ar} accountType={me.tenant.account_type}>
       <div className="mb-5 flex flex-col gap-4">
-        <div className="border-border-subtle flex w-full gap-1 overflow-x-auto border-b">
-          {viewTabs.map((tab) => (
-            <button
-              key={tab.value}
-              type="button"
-              onClick={() => changeView(tab.value)}
-              className={`relative min-w-fit px-4 py-2.5 text-sm font-medium transition-colors ${
-                view === tab.value ? 'text-brand' : 'text-text-secondary hover:text-text-primary'
-              }`}
-            >
-              {tab.label}
-              {view === tab.value && <span className="bg-brand absolute inset-x-2 -bottom-px h-0.5 rounded-full" />}
-            </button>
-          ))}
-        </div>
+        <SegmentedToggle value={view} onChange={changeView} options={viewTabs} className="customer-list-tabs" />
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           {canManage &&
