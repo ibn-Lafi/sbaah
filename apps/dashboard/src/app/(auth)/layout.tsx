@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { AuthPanel } from '@/components/auth/auth-panel';
 import { Card } from '@/components/ui/card';
 import { LanguageToggle } from '@/components/layout/language-toggle';
@@ -25,17 +24,15 @@ import { getAccessToken } from '@/lib/auth/session';
  * on its own without moving the surrounding viewport.
  */
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
-
   useEffect(() => {
     let cancelled = false;
     void getAccessToken().then((token) => {
-      if (token && !cancelled) router.replace('/');
+      if (token && !cancelled) window.location.replace('/');
     });
     return () => {
       cancelled = true;
     };
-  }, [router]);
+  }, []);
 
   return (
     <div className="flex h-dvh overflow-hidden">

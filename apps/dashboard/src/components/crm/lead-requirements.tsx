@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { createRequirement, getMatches, listRequirements, type LeadRequirement } from '@/lib/api/crm';
@@ -60,7 +59,7 @@ export function LeadRequirements({leadId,accessToken,embedded=false,onSaved}:{le
       </div>
     </div>}
 
-    {matches.length>0&&<div className="mt-5"><h3 className="mb-3 text-sm font-semibold text-text-primary">عقارات مقترحة</h3><div className="grid gap-2 sm:grid-cols-2">{matches.slice(0,4).map(m=><Link key={m.id} href={`/properties/${m.id}`} className="rounded-input border border-border-default p-3 transition-colors hover:border-brand"><p className="truncate font-medium text-text-primary">{m.title_ar}</p><p className="mt-1 text-xs text-text-secondary">{m.area_sqm} م² · {money(m.price)}</p></Link>)}</div></div>}
+    {matches.length>0&&<div className="mt-5"><h3 className="mb-3 text-sm font-semibold text-text-primary">عقارات مقترحة</h3><div className="grid gap-2 sm:grid-cols-2">{matches.slice(0,4).map(m=><a key={m.id} href={`/properties/${m.id}`} className="rounded-input border border-border-default p-3 transition-colors hover:border-brand"><p className="truncate font-medium text-text-primary">{m.title_ar}</p><p className="mt-1 text-xs text-text-secondary">{m.area_sqm} م² · {money(m.price)}</p></a>)}</div></div>}
   </>;
   return embedded?content:<div className="rounded-card border border-border-subtle bg-surface-card p-4 md:p-6">{content}</div>;
 }

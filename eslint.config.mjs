@@ -26,4 +26,14 @@ export default tseslint.config(
       ],
     },
   },
+  {
+    // dashboard and public-site intentionally use plain <a>/window.location
+    // instead of next/link's client-side transitions (every navigation does
+    // a full page reload by design here), so the rule pushing back toward
+    // <Link> doesn't apply to them.
+    files: ['apps/dashboard/**/*.{ts,tsx}', 'apps/public-site/**/*.{ts,tsx}'],
+    rules: {
+      '@next/next/no-html-link-for-pages': 'off',
+    },
+  },
 );

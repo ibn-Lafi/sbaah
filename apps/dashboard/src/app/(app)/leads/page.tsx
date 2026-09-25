@@ -1,8 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import {
   LEAD_STATUSES,
   type Lead,
@@ -34,7 +32,6 @@ const relationshipLabels:Record<string,string>={purchase:'مشترٍ',tenant:'م
  * نفسها. عمود الحالة قائمة منسدلة ملوّنة تُحدَّث فورًا دون فتح التفاصيل.
  */
 export default function LeadsPage() {
-  const router = useRouter();
   const { me, accessToken } = useCurrentUser();
   const { pages } = useLocale();
   const t = pages.leads;
@@ -103,7 +100,7 @@ export default function LeadsPage() {
           <CreateLeadForm
             accessToken={accessToken}
             initialKind={customerKind}
-            onCreated={(lead) => router.push(`/leads/${lead.id}`)}
+            onCreated={(lead) => { window.location.href = `/leads/${lead.id}`; }}
           />
         </Modal>
       )}
@@ -131,20 +128,20 @@ export default function LeadsPage() {
                   return (
                     <tr
                       key={lead.id}
-                      onClick={() => router.push(`/leads/${lead.id}`)}
+                      onClick={() => { window.location.href = `/leads/${lead.id}`; }}
                       className="border-border-subtle hover:bg-surface-subtle cursor-pointer border-t"
                     >
                       <td className="px-2 py-3 text-right sm:px-3 md:px-4">
                         <div className="flex items-center gap-2 sm:gap-3">
                           <PersonAvatar name={lead.full_name} size={32} />
                           <div className="min-w-0">
-                            <Link
+                            <a
                               href={`/leads/${lead.id}`}
                               onClick={(event) => event.stopPropagation()}
                               className="text-text-primary hover:text-brand block truncate font-medium"
                             >
                               {lead.full_name}
-                            </Link>
+                            </a>
                           </div>
                         </div>
                       </td>

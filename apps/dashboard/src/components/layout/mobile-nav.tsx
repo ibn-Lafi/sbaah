@@ -1,8 +1,7 @@
 'use client';
 
 import { useEffect, useState, type MouseEvent } from 'react';
-import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import type { AccountType } from '@sbaah/shared';
 import { AccountAvatar } from '@/components/ui/account-avatar';
 import { BrandMark } from '@/components/ui/brand-mark';
@@ -70,7 +69,6 @@ function getPinnedItems(items: NavEntry[]): PinnedNavItem[] {
  */
 export function MobileNav({ orgName, accountType }: MobileNavProps) {
   const pathname = usePathname();
-  const router = useRouter();
   const { me, business, capabilities } = useCurrentUser();
   const { t } = useLocale();
   const roleLabel = t.roleLabels[me.user.role];
@@ -102,11 +100,11 @@ export function MobileNav({ orgName, accountType }: MobileNavProps) {
     setSheetOpen(false);
   }, [pathname]);
 
-  /** Closes the sheet first, then navigates once its slide-out transition has actually played — a plain <Link> would unmount everything instantly and the closing motion would never be seen. */
+  /** Closes the sheet first, then navigates once its slide-out transition has actually played — a plain <a> would unmount everything instantly and the closing motion would never be seen. */
   function handleNavigate(event: MouseEvent, href: string) {
     event.preventDefault();
     setSheetOpen(false);
-    window.setTimeout(() => router.push(href), 200);
+    window.setTimeout(() => { window.location.href = href; }, 200);
   }
 
   return (
@@ -129,7 +127,7 @@ export function MobileNav({ orgName, accountType }: MobileNavProps) {
           {pinnedItems.map(({ key, href, label, icon: ItemIcon, activeHrefs }) => {
             const active = activeHrefs.includes(pathname);
             return (
-              <Link
+              <a
                 key={key}
                 href={href}
                 className={`flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-full px-2 text-[9px] leading-none transition-colors ${
@@ -138,12 +136,12 @@ export function MobileNav({ orgName, accountType }: MobileNavProps) {
               >
                 <ItemIcon className="h-[18px] w-[18px]" />
                 <span className="max-w-full truncate">{label}</span>
-              </Link>
+              </a>
             );
           })}
         </nav>
 
-        <Link
+        <a
           href="/settings"
           aria-label={t.settingsNavLabel}
           title={t.settingsNavLabel}
@@ -152,7 +150,7 @@ export function MobileNav({ orgName, accountType }: MobileNavProps) {
           }`}
         >
           <SettingsIcon className="h-[20px] w-[20px]" />
-        </Link>
+        </a>
       </div>
 
       {/* Backdrop + partial-width slide-in drawer (founder's Zid reference: the sheet never covers the whole screen — a strip of the page stays visible, dimmed, behind it). Both stay mounted so the close transition actually plays instead of an instant unmount. */}
@@ -221,7 +219,7 @@ export function MobileNav({ orgName, accountType }: MobileNavProps) {
                           const active = pathname === child.href;
                           const ChildIcon = child.icon;
                           return (
-                            <Link
+                            <a
                               key={child.href}
                               href={child.href}
                               onClick={(e) => handleNavigate(e, child.href)}
@@ -233,7 +231,7 @@ export function MobileNav({ orgName, accountType }: MobileNavProps) {
                             >
                               <ChildIcon className="h-[17px] w-[17px] flex-none" />
                               {child.label}
-                            </Link>
+                            </a>
                           );
                         })}
                       </div>
@@ -245,7 +243,7 @@ export function MobileNav({ orgName, accountType }: MobileNavProps) {
               const active = pathname === item.href;
               const ItemIcon = item.icon;
               return (
-                <Link
+                <a
                   key={item.href}
                   href={item.href}
                   onClick={(e) => handleNavigate(e, item.href)}
@@ -257,7 +255,7 @@ export function MobileNav({ orgName, accountType }: MobileNavProps) {
                 >
                   <ItemIcon className="h-[17px] w-[17px] flex-none" />
                   {item.label}
-                </Link>
+                </a>
               );
             })}
           </nav>

@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import type { Theme } from '@sbaah/shared';
 import { useLocale } from '@/lib/i18n/locale-context';
 import { ThemePreview } from './theme-preview';
@@ -106,13 +105,13 @@ export function ThemeGallery({
                   >
                     <EyeIcon className="h-4 w-4" />
                   </a>
-                  <Link
+                  <a
                     href="/website/editor"
                     className="text-brand flex h-8 flex-1 items-center justify-center gap-1.5 rounded-full bg-white text-xs font-semibold hover:bg-white/90 sm:h-9 sm:text-sm"
                   >
                     <PaletteIcon className="h-3.5 w-3.5 flex-none" />
                     <span className="truncate">{t.themeStore.customizeTheme}</span>
-                  </Link>
+                  </a>
                 </div>
               ) : (
                 <button

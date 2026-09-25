@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState, type FormEvent } from 'react';
-import Link from 'next/link';
 import {
   emailSchema,
   otpCodeSchema,
@@ -49,9 +48,9 @@ function RegistrationClosedNotice({ t }: { t: PageDictionaries['auth'] }) {
       <h1 className="text-text-primary mb-2 text-2xl font-bold">{t.register.closedNotice.title}</h1>
       <p className="text-text-secondary text-sm">
         {t.register.closedNotice.body}{' '}
-        <Link href="/login" className="text-brand font-semibold hover:underline">
+        <a href="/login" className="text-brand font-semibold hover:underline">
           {t.shared.signIn}
-        </Link>
+        </a>
         .
       </p>
     </>
@@ -406,9 +405,9 @@ export default function RegisterPage() {
 
       <p className="text-text-secondary mt-6 text-center text-sm">
         {t.register.haveAccountPrompt}{' '}
-        <Link href="/login" className="text-brand font-semibold hover:underline">
+        <a href="/login" className="text-brand font-semibold hover:underline">
           {t.shared.signIn}
-        </Link>
+        </a>
       </p>
     </>
   );

@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import type { HeaderProps } from '../types';
 
 /** px past the top before the header switches from fully transparent to its solid brand-color look. */
@@ -52,20 +51,20 @@ export function Header({ locale, dict, website, tenantName }: HeaderProps) {
             scrolled ? 'bg-tenant-primary shadow-lg ring-1 ring-tenant-secondary/25 backdrop-blur-md' : 'bg-black/20 shadow-sm backdrop-blur-[2px]'
           }`}
         >
-          <Link href={locale === 'ar' ? '/' : '/en'} className="flex min-w-0 items-center gap-2 text-lg font-semibold">
+          <a href={locale === 'ar' ? '/' : '/en'} className="flex min-w-0 items-center gap-2 text-lg font-semibold">
             {website.logo_url ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={website.logo_url} alt={tenantName} className="max-h-9 max-w-[180px] w-auto object-contain sm:max-w-[220px]" />
             ) : (
               tenantName
             )}
-          </Link>
+          </a>
 
           <nav className="hidden items-center gap-6 text-sm font-medium sm:flex">
             {navLinks.map(({ href, label }) => (
-              <Link key={href} href={href} className="transition-opacity hover:opacity-80">
+              <a key={href} href={href} className="transition-opacity hover:opacity-80">
                 {label}
-              </Link>
+              </a>
             ))}
           </nav>
 
@@ -85,9 +84,9 @@ export function Header({ locale, dict, website, tenantName }: HeaderProps) {
         {menuOpen && (
           <div className="mx-auto mt-2 flex max-w-6xl flex-col gap-1 rounded-2xl border border-black/5 bg-white p-2 text-sm font-medium text-black/80 shadow-xl sm:hidden">
             {navLinks.map(({ href, label }) => (
-              <Link key={href} href={href} onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-2.5 hover:bg-black/5">
+              <a key={href} href={href} onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-2.5 hover:bg-black/5">
                 {label}
-              </Link>
+              </a>
             ))}
           </div>
         )}
