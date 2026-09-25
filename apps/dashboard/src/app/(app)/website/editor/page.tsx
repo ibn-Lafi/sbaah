@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import {
   SUPPORTED_WEBSITE_FONTS,
   WEBSITE_PAGE_KEYS,
@@ -335,9 +334,9 @@ export default function WebsiteEditorPage() {
                 </button>
               </div>
 
-              <Link href="/website" className="text-brand mt-1 block px-4 text-sm font-semibold hover:underline">
+              <a href="/website" className="text-brand mt-1 block px-4 text-sm font-semibold hover:underline">
                 {t.editor.changeTheme}
-              </Link>
+              </a>
 
               <div className="px-4 pt-2">
                 <FormError message={error} />

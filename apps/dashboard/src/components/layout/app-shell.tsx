@@ -1,6 +1,4 @@
 'use client';
-
-import Link from 'next/link';
 import type { AccountType } from '@sbaah/shared';
 import { Sidebar } from './sidebar';
 import { Topbar } from './topbar';
@@ -80,17 +78,17 @@ export function AppShell({ title, orgName, accountType, children, mobileImmersiv
           {status === 'active' && trialExpired && (
             <div className="bg-warning-surface text-warning flex flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm font-medium md:px-7">
               <span>{t.appShell.trialExpired}</span>
-              <Link href="/billing" className="font-semibold whitespace-nowrap underline">
+              <a href="/billing" className="font-semibold whitespace-nowrap underline">
                 {t.appShell.subscribeNow}
-              </Link>
+              </a>
             </div>
           )}
           {status === 'active' && !trialExpired && trialEndsAt && (
             <div className="bg-brand-surface text-brand flex flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm font-medium md:px-7">
               <span>{t.appShell.trialDaysRemaining(daysRemaining(trialEndsAt))}</span>
-              <Link href="/billing" className="font-semibold whitespace-nowrap underline">
+              <a href="/billing" className="font-semibold whitespace-nowrap underline">
                 {t.appShell.subscribeNow}
-              </Link>
+              </a>
             </div>
           )}
           <div className={`flex-1 overflow-auto overscroll-contain md:p-7 md:pb-7 ${mobileImmersive ? 'p-0 pb-0' : 'p-3.5 pb-24'}`}>{children}</div>

@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { AppShell } from '@/components/layout/app-shell';
 import { Badge } from '@/components/ui/badge';
 import { DashboardHomeSkeleton } from '@/components/dashboard/dashboard-home-skeleton';
@@ -70,13 +69,13 @@ export default function DashboardHomePage() {
               </div>
               <div className="flex flex-col gap-2">
                 {setupTasks.map((task, index) => (
-                  <Link key={task.label} href={task.href} className="flex min-h-14 items-center justify-between rounded-2xl border border-border-subtle px-4 py-3 transition-colors hover:border-brand/40 hover:bg-brand/[.04]">
+                  <a key={task.label} href={task.href} className="flex min-h-14 items-center justify-between rounded-2xl border border-border-subtle px-4 py-3 transition-colors hover:border-brand/40 hover:bg-brand/[.04]">
                     <div className="flex items-center gap-3">
                       <span className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${task.done ? 'bg-brand text-white' : 'bg-brand/[.09] text-brand'}`}>{task.done ? '✓' : index + 1}</span>
                       <span className={`text-sm font-semibold ${task.done ? 'text-text-secondary line-through' : 'text-text-primary'}`}>{task.label}</span>
                     </div>
                     <span className="text-lg text-brand" aria-hidden="true">←</span>
-                  </Link>
+                  </a>
                 ))}
               </div>
             </section>
@@ -151,16 +150,16 @@ export default function DashboardHomePage() {
             <div className="flex flex-col gap-3 rounded-[18px] bg-surface-card p-[22px] shadow-[0_2px_12px_rgba(31,29,34,.06)]">
               <div className="flex items-center justify-between">
                 <h2 className="text-base font-semibold text-text-primary">{t.latestLeads.title}</h2>
-                <Link href="/leads" className="text-xs font-semibold text-brand">
+                <a href="/leads" className="text-xs font-semibold text-brand">
                   {t.latestLeads.viewAll}
-                </Link>
+                </a>
               </div>
               {summary.latest_leads.length === 0 ? (
                 <p className="text-sm text-text-secondary">{t.latestLeads.emptyState}</p>
               ) : (
                 <div className="flex flex-col">
                   {summary.latest_leads.map((lead) => (
-                    <Link
+                    <a
                       key={lead.id}
                       href={`/leads/${lead.id}`}
                       className="flex items-center gap-[11px] border-b border-surface-subtle py-2.5 last:border-0"
@@ -173,7 +172,7 @@ export default function DashboardHomePage() {
                         <span className="text-[11px] text-text-secondary">{pages.leads.sourceLabels[lead.source]}</span>
                       </div>
                       <Badge status={lead.status} label={pages.leads.statusLabels[lead.status]} />
-                    </Link>
+                    </a>
                   ))}
                 </div>
               )}

@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import type { City } from '@sbaah/shared';
 import type { Locale } from '@/lib/i18n/locales';
 import type { PublicProject } from '@/lib/api/public-projects';
@@ -12,7 +11,7 @@ export function ProjectCard({ project, city, locale }: { project: PublicProject;
   const thumbnail = project.media?.find((media) => media.media_type === 'image');
 
   return (
-    <Link
+    <a
       href={localizedPath(locale, `/projects/${project.slug}`)}
       className="group flex min-h-48 flex-col overflow-hidden rounded-2xl border border-black/10 bg-white transition duration-200 hover:-translate-y-0.5 hover:border-tenant-secondary/60 hover:shadow-md"
     >
@@ -29,6 +28,6 @@ export function ProjectCard({ project, city, locale }: { project: PublicProject;
           {locale === 'ar' ? 'عرض المشروع' : 'View project'}
         </span>
       </div>
-    </Link>
+    </a>
   );
 }

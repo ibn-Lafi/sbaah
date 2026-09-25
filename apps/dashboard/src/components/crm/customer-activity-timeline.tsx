@@ -1,7 +1,6 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import type { Customer360Snapshot, LeadWithNotes } from '@/lib/api/leads';
@@ -35,7 +34,7 @@ export function CustomerActivityTimeline({lead,data}:{lead:LeadWithNotes;data:Cu
 
   return <Card className="p-3 md:p-5">
     <div className="mb-3 flex items-center justify-between gap-2 md:mb-4"><div><h2 className="font-semibold text-text-primary">سجل العميل</h2><p className="mt-0.5 text-[11px] text-text-secondary md:mt-1 md:text-xs">رحلة العميل الفعلية من أحدث حدث إلى البداية.</p></div><span className="text-xs text-text-secondary">{items.length} حدث</span></div>
-    {shown.length===0?<p className="text-sm text-text-secondary">لا توجد أحداث مسجلة لهذا العميل بعد.</p>:<div className="flex flex-col">{shown.map((item,index)=><div key={item.id} className="relative flex gap-2.5 pb-4 last:pb-0 md:gap-3 md:pb-5"><div className="flex w-3 flex-col items-center"><span className="mt-1.5 h-2 w-2 rounded-full bg-brand ring-4 ring-brand/[.08] md:h-2.5 md:w-2.5"/>{index<shown.length-1&&<span className="mt-1 w-px flex-1 bg-border-subtle"/>}</div><div className="min-w-0"><p className="text-xs text-text-secondary">{item.label}</p><p className="mt-0.5 text-[13px] font-medium leading-5 text-text-primary md:text-sm">{item.title}</p>{item.assetName&&(item.assetId?<Link href={`/properties/${item.assetId}`} className="mt-1 block text-xs font-medium text-brand hover:underline">{item.assetName}</Link>:<p className="mt-1 text-xs font-medium text-text-secondary">{item.assetName}</p>)}<p className="mt-1 text-xs text-text-secondary">{formatRelativeTime(item.at)}</p></div></div>)}</div>}
+    {shown.length===0?<p className="text-sm text-text-secondary">لا توجد أحداث مسجلة لهذا العميل بعد.</p>:<div className="flex flex-col">{shown.map((item,index)=><div key={item.id} className="relative flex gap-2.5 pb-4 last:pb-0 md:gap-3 md:pb-5"><div className="flex w-3 flex-col items-center"><span className="mt-1.5 h-2 w-2 rounded-full bg-brand ring-4 ring-brand/[.08] md:h-2.5 md:w-2.5"/>{index<shown.length-1&&<span className="mt-1 w-px flex-1 bg-border-subtle"/>}</div><div className="min-w-0"><p className="text-xs text-text-secondary">{item.label}</p><p className="mt-0.5 text-[13px] font-medium leading-5 text-text-primary md:text-sm">{item.title}</p>{item.assetName&&(item.assetId?<a href={`/properties/${item.assetId}`} className="mt-1 block text-xs font-medium text-brand hover:underline">{item.assetName}</a>:<p className="mt-1 text-xs font-medium text-text-secondary">{item.assetName}</p>)}<p className="mt-1 text-xs text-text-secondary">{formatRelativeTime(item.at)}</p></div></div>)}</div>}
     {items.length>8&&<Button variant="secondary" className="mt-4 w-full" onClick={()=>setExpanded(v=>!v)}>{expanded?'عرض أحدث 8 أحداث':`عرض السجل الكامل (${items.length})`}</Button>}
   </Card>;
 }

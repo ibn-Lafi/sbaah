@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import type { AssetType, ListingType } from '@sbaah/shared';
 import { isLocale, DEFAULT_LOCALE } from '@/lib/i18n/locales';
 import { listPublicProperties } from '@/lib/api/public-properties';
@@ -120,11 +119,11 @@ export default async function PropertiesPage({ params, searchParams }: PageProps
 
           {totalPages > 1 && (
             <nav className="mt-8 flex items-center justify-center gap-4 text-sm">
-              {page > 1 && <Link href={pageHref(page - 1)}>{t.prev}</Link>}
+              {page > 1 && <a href={pageHref(page - 1)}>{t.prev}</a>}
               <span className="text-black/60">
                 {t.page} {page} / {totalPages}
               </span>
-              {page < totalPages && <Link href={pageHref(page + 1)}>{t.next}</Link>}
+              {page < totalPages && <a href={pageHref(page + 1)}>{t.next}</a>}
             </nav>
           )}
           </div>

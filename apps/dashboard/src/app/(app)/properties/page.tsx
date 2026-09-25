@@ -169,7 +169,7 @@ export default function PropertiesPage() {
             accessToken={accessToken}
             onCreated={(id) => {
               setShowCreateAsset(false);
-              router.push(`/properties/${id}`);
+              window.location.href = `/properties/${id}`;
             }}
           />
         </Modal>
@@ -208,7 +208,7 @@ export default function PropertiesPage() {
                     <td className="px-2 py-3 text-right sm:px-4">
                       <button
                         type="button"
-                        onClick={() => router.push(`/properties/${row.asset_id}`)}
+                        onClick={() => { window.location.href = `/properties/${row.asset_id}`; }}
                         className="font-medium hover:text-brand"
                       >
                         {row.assets?.name_ar ?? '—'}
@@ -248,7 +248,7 @@ export default function PropertiesPage() {
                       <td className="px-2 py-3 text-right sm:px-4">
                         <button
                           type="button"
-                          onClick={() => router.push(`/properties/${asset.id}`)}
+                          onClick={() => { window.location.href = `/properties/${asset.id}`; }}
                           className="font-medium hover:text-brand"
                         >
                           {asset.name_ar}

@@ -1,8 +1,6 @@
 'use client';
 
 import { useEffect, useState, type FormEvent } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { emailSchema, otpCodeSchema, passwordSchema, saudiPhoneSchema } from '@sbaah/shared';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,7 +31,6 @@ type Channel = 'sms' | 'email';
  * it mints.
  */
 export default function LoginPage() {
-  const router = useRouter();
   const { pages } = useLocale();
   const t = pages.auth;
   const [mode, setMode] = useState<LoginMode>('password');
@@ -71,14 +68,14 @@ export default function LoginPage() {
       );
       return;
     }
-    router.push('/');
+    window.location.href = '/';
   }
 
   async function handlePasswordLoginByEmail() {
     try {
       const { access_token, refresh_token } = await loginWithPasswordByEmail(email, password);
       await adoptSession(access_token, refresh_token);
-      router.push('/');
+      window.location.href = '/';
     } catch (err) {
       setError(err instanceof ApiRequestError ? err.message : t.login.loginFailedFallback);
     }
@@ -164,7 +161,7 @@ export default function LoginPage() {
     try {
       const { access_token, refresh_token } = await verifyLoginOtp({ phone }, code);
       await adoptSession(access_token, refresh_token);
-      router.push('/');
+      window.location.href = '/';
     } catch (err) {
       setError(err instanceof ApiRequestError ? err.message : t.shared.otpVerifyFailedFallback);
     } finally {
@@ -246,9 +243,9 @@ export default function LoginPage() {
           <Button type="submit" loading={loading}>
             {loading ? t.login.signingIn : t.login.signInButton}
           </Button>
-          <Link href="/forgot-password" className="text-center text-sm text-brand hover:underline">
+          <a href="/forgot-password" className="text-center text-sm text-brand hover:underline">
             {t.login.forgotPasswordLink}
-          </Link>
+          </a>
         </form>
       )}
 
@@ -283,9 +280,9 @@ export default function LoginPage() {
 
       <p className="mt-6 text-center text-sm text-text-secondary">
         {t.login.noAccountPrompt}{' '}
-        <Link href="/register" className="font-semibold text-brand hover:underline">
+        <a href="/register" className="font-semibold text-brand hover:underline">
           {t.login.createAccountLink}
-        </Link>
+        </a>
       </p>
     </>
   );

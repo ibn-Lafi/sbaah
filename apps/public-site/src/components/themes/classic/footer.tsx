@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { SiteBadge } from '@/components/site-badge';
 import {
   CallIcon,
@@ -150,13 +149,13 @@ export function Footer({ locale, dict, tenant, website, customPages }: FooterPro
           <div className="flex min-w-[160px] flex-col items-start gap-3">
             <h3 className="text-base font-semibold text-white">{dict.otherPages}</h3>
             {customPages.map((page) => (
-              <Link
+              <a
                 key={page.id}
                 href={locale === 'ar' ? `/pages/${page.slug}` : `/en/pages/${page.slug}`}
                 className="text-white/60 hover:text-tenant-primary"
               >
                 {page.title}
-              </Link>
+              </a>
             ))}
           </div>
         )}

@@ -1,6 +1,4 @@
 'use client';
-
-import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -60,8 +58,8 @@ export function LeadRealEstateInterests({leadId,accessToken,interests,onSaved}:{
       const mainLabel=asset?.name_ar??unitType?.name_ar??item.projects?.name_ar??item.listings?.title_ar??'اهتمام عقاري';
       const href=asset?'/properties/'+asset.id:item.project_id?'/projects/'+item.project_id:projectId?'/projects/'+projectId:null;
       return <Card key={item.id} className="p-4">
-        <div className="flex items-start justify-between gap-3"><div><p className="text-xs text-text-secondary">{asset?'عقار مستهدف':unitType?'نموذج مستهدف':item.project_id?'مشروع مستهدف':'عرض مستهدف'}</p>{href?<Link href={href} className="mt-1 block font-semibold text-brand hover:underline">{mainLabel}</Link>:<p className="mt-1 font-semibold">{mainLabel}</p>}</div></div>
-        {(projectLabel||unitLabel||asset?.unit_number)&&<div className="mt-3 flex flex-wrap items-center gap-1 text-xs text-text-secondary">{projectLabel&&<>{projectId?<Link href={'/projects/'+projectId} className="hover:text-brand hover:underline">{projectLabel}</Link>:<span>{projectLabel}</span>}</>}{unitLabel&&<><span>‹</span><span>{unitLabel}</span></>}{asset?.unit_number&&<><span>‹</span><span>وحدة {asset.unit_number}</span></>}</div>}
+        <div className="flex items-start justify-between gap-3"><div><p className="text-xs text-text-secondary">{asset?'عقار مستهدف':unitType?'نموذج مستهدف':item.project_id?'مشروع مستهدف':'عرض مستهدف'}</p>{href?<a href={href} className="mt-1 block font-semibold text-brand hover:underline">{mainLabel}</a>:<p className="mt-1 font-semibold">{mainLabel}</p>}</div></div>
+        {(projectLabel||unitLabel||asset?.unit_number)&&<div className="mt-3 flex flex-wrap items-center gap-1 text-xs text-text-secondary">{projectLabel&&<>{projectId?<a href={'/projects/'+projectId} className="hover:text-brand hover:underline">{projectLabel}</a>:<span>{projectLabel}</span>}</>}{unitLabel&&<><span>‹</span><span>{unitLabel}</span></>}{asset?.unit_number&&<><span>‹</span><span>وحدة {asset.unit_number}</span></>}</div>}
         {item.notes&&<p className="mt-3 border-t border-border-subtle pt-3 text-sm text-text-secondary">{item.notes}</p>}
       </Card>;
     })}</div>}

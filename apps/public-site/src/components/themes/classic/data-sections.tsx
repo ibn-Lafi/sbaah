@@ -1,6 +1,5 @@
 import type { FeaturedPropertiesSectionConfig, LatestPropertiesSectionConfig, ProjectsShowcaseSectionConfig, PropertiesByCitySectionConfig } from '@sbaah/shared';
 import type { Locale } from '@/lib/i18n/locales';
-import Link from 'next/link';
 import { listPublicProperties } from '@/lib/api/public-properties';
 import { listPublicProjects } from '@/lib/api/public-projects';
 import { listCities } from '@/lib/api/reference-data';
@@ -36,7 +35,7 @@ const copy = {
 } as const;
 
 function SectionLink({ href, children }: { href: string; children: string }) {
-  return <Link href={href} className="shrink-0 text-sm font-semibold text-tenant-primary transition-opacity hover:opacity-70">{children}</Link>;
+  return <a href={href} className="shrink-0 text-sm font-semibold text-tenant-primary transition-opacity hover:opacity-70">{children}</a>;
 }
 
 export async function FeaturedPropertiesSection({ locale, config }: { locale: Locale; config: FeaturedPropertiesSectionConfig }) {
@@ -91,13 +90,13 @@ export async function PropertiesByCitySection({ locale, config }: { locale: Loca
       {selected.length ? (
         <div className={`grid grid-cols-2 gap-3 ${classicColumnsClass(config.columns ?? 4)}`}>
           {selected.map((city) => (
-            <Link
+            <a
               key={city.id}
               href={`${localizedPath(locale, '/properties')}?city_id=${city.id}`}
               className="group flex min-h-28 items-end rounded-2xl border border-black/10 bg-white p-5 transition hover:-translate-y-0.5 hover:border-tenant-secondary hover:shadow-sm"
             >
               <span className="font-semibold text-black transition-colors group-hover:text-tenant-primary">{pickLocalized(locale, city.name_ar, city.name_en)}</span>
-            </Link>
+            </a>
           ))}
         </div>
       ) : <ClassicEmptyState>{copy[locale].citiesEmpty}</ClassicEmptyState>}

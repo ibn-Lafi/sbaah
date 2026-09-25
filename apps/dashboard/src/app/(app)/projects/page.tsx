@@ -1,8 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import type { Project, ProjectInput } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
 import { ProjectForm } from '@/components/hierarchy/project-form';
@@ -20,7 +18,6 @@ export default function ProjectsPage() {
   const { me, accessToken } = useCurrentUser();
   const { pages } = useLocale();
   const t = pages.projects;
-  const router = useRouter();
   const [projects, setProjects] = useState<Project[] | null>(null);
   const [showCreate, setShowCreate] = useState(false);
   const [page,setPage]=useState(1);
@@ -55,7 +52,7 @@ export default function ProjectsPage() {
             submitLabel={t.list.createSubmitLabel}
             onSubmit={async (input) => {
               const { project } = await createProject(accessToken, input as ProjectInput);
-              router.push(`/projects/${project.id}`);
+              window.location.href = `/projects/${project.id}`;
             }}
           />
         </Modal>
@@ -78,12 +75,12 @@ export default function ProjectsPage() {
                 {projects.map((project) => (
                   <tr key={project.id} className="border-border-subtle border-t">
                     <td className="px-3 py-3 md:px-4">
-                      <Link
+                      <a
                         href={`/projects/${project.id}`}
                         className="text-text-primary hover:text-brand font-medium"
                       >
                         {project.name_ar}
-                      </Link>
+                      </a>
                     </td>
                     <td className="px-3 py-3 md:px-4">
                       <Badge

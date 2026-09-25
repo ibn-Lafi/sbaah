@@ -1,6 +1,4 @@
 'use client';
-
-import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { AppShell } from '@/components/layout/app-shell';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
@@ -23,7 +21,7 @@ function RichToolResults({ metadata, ar }: { metadata: Record<string, unknown>; 
         const result = tool.result ?? {};
         if(tool.name==='create_lead'&&result.duplicate_phone===true&&result.existing_lead&&typeof result.existing_lead==='object'){
           const lead=result.existing_lead as Record<string,unknown>;
-          return <Link key={`duplicate-${index}`} href={`/leads/${String(lead.id)}`} className="block rounded-[12px] border border-warning bg-warning-surface p-3"><p className="text-xs font-semibold text-warning">{ar?'رقم الجوال مسجل مسبقًا':'Phone already exists'}</p><p className="mt-1 font-bold text-text-primary">{String(lead.full_name??'')}</p><p className="mt-1 text-xs text-text-secondary" dir="ltr">{String(lead.phone??'')}</p></Link>;
+          return <a key={`duplicate-${index}`} href={`/leads/${String(lead.id)}`} className="block rounded-[12px] border border-warning bg-warning-surface p-3"><p className="text-xs font-semibold text-warning">{ar?'رقم الجوال مسجل مسبقًا':'Phone already exists'}</p><p className="mt-1 font-bold text-text-primary">{String(lead.full_name??'')}</p><p className="mt-1 text-xs text-text-secondary" dir="ltr">{String(lead.phone??'')}</p></a>;
         }
         if (tool.name === 'get_portfolio_summary') {
           const stats = [
@@ -34,10 +32,10 @@ function RichToolResults({ metadata, ar }: { metadata: Record<string, unknown>; 
           return (
             <div key={`summary-${index}`} className="grid grid-cols-3 gap-2">
               {stats.map(([label, value, href]) => (
-                <Link key={String(label)} href={String(href)} className="border-border-default bg-surface-card hover:border-brand/40 hover:bg-brand-surface rounded-[12px] border p-3 text-center transition">
+                <a key={String(label)} href={String(href)} className="border-border-default bg-surface-card hover:border-brand/40 hover:bg-brand-surface rounded-[12px] border p-3 text-center transition">
                   <div className="text-brand text-lg font-bold">{typeof value === 'number' ? value : 0}</div>
                   <div className="text-text-secondary mt-0.5 text-[11px] font-medium">{String(label)}</div>
-                </Link>
+                </a>
               ))}
             </div>
           );
@@ -80,9 +78,9 @@ function RichToolResults({ metadata, ar }: { metadata: Record<string, unknown>; 
                 </>
               );
               return href ? (
-                <Link key={entityId} href={href} className="border-border-default bg-surface-card hover:border-brand/40 hover:bg-brand-surface block rounded-[12px] border px-3.5 py-3 transition">
+                <a key={entityId} href={href} className="border-border-default bg-surface-card hover:border-brand/40 hover:bg-brand-surface block rounded-[12px] border px-3.5 py-3 transition">
                   {card}
-                </Link>
+                </a>
               ) : (
                 <div key={String(item.id ?? rowIndex)} className="border-border-default bg-surface-card rounded-[12px] border px-3.5 py-3">
                   {card}
@@ -101,7 +99,7 @@ function LeadDraftCard({metadata,ar,busy,onDecision}:{metadata:Record<string,unk
   const[form,setForm]=useState<Record<string,unknown>>(initial);
   const status=metadata.pending_action_status;
   const set=(key:string,value:string)=>setForm(current=>({...current,[key]:value||null}));
-  if(status==='succeeded'){const leadId=typeof metadata.created_lead_id==='string'?metadata.created_lead_id:null;return <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-emerald-800"><p className="font-semibold">{ar?'تمت إضافة العميل بنجاح':'Customer added successfully'}</p>{leadId&&<Link href={`/leads/${leadId}`} className="mt-2 inline-block text-xs font-semibold underline">{ar?'فتح ملف العميل':'Open customer'}</Link>}</div>}
+  if(status==='succeeded'){const leadId=typeof metadata.created_lead_id==='string'?metadata.created_lead_id:null;return <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-emerald-800"><p className="font-semibold">{ar?'تمت إضافة العميل بنجاح':'Customer added successfully'}</p>{leadId&&<a href={`/leads/${leadId}`} className="mt-2 inline-block text-xs font-semibold underline">{ar?'فتح ملف العميل':'Open customer'}</a>}</div>}
   if(status==='cancelled')return <p className="mt-3 border-t border-border-default pt-3 text-xs font-semibold text-text-secondary">{ar?'تم إلغاء المسودة':'Draft cancelled'}</p>;
   return <div className="mt-3 rounded-xl border border-border-default bg-surface-card p-3 text-text-primary"><div className="mb-3"><p className="font-bold">{ar?'مراجعة بيانات العميل':'Review customer'}</p><p className="mt-1 text-xs text-text-secondary">{ar?'يمكنك تعديل أي حقل قبل الحفظ.':'Edit any field before saving.'}</p></div><div className="grid gap-2 sm:grid-cols-2"><input value={String(form.full_name??'')} onChange={e=>set('full_name',e.target.value)} placeholder={ar?'الاسم':'Name'} className="rounded-lg border border-border-default px-3 py-2 text-sm"/><input value={String(form.phone??'')} onChange={e=>set('phone',e.target.value)} placeholder={ar?'الجوال':'Phone'} dir="ltr" className="rounded-lg border border-border-default px-3 py-2 text-sm"/><input value={String(form.email??'')} onChange={e=>set('email',e.target.value)} placeholder={ar?'البريد الإلكتروني':'Email'} dir="ltr" className="rounded-lg border border-border-default px-3 py-2 text-sm"/><select value={String(form.customer_relationship??'')} onChange={e=>set('customer_relationship',e.target.value)} className="rounded-lg border border-border-default px-3 py-2 text-sm"><option value="">{ar?'عميل محتمل':'Prospect'}</option><option value="purchase">{ar?'مشترٍ':'Buyer'}</option><option value="tenant">{ar?'مستأجر':'Tenant'}</option><option value="owner">{ar?'مالك':'Owner'}</option><option value="former">{ar?'عميل سابق':'Former customer'}</option></select><input value={String(form.follow_up_at??'')} onChange={e=>set('follow_up_at',e.target.value)} placeholder={ar?'موعد المتابعة ISO':'Follow-up ISO'} className="rounded-lg border border-border-default px-3 py-2 text-sm sm:col-span-2"/><textarea value={String(form.notes??'')} onChange={e=>set('notes',e.target.value)} placeholder={ar?'ملاحظات':'Notes'} rows={2} className="rounded-lg border border-border-default px-3 py-2 text-sm sm:col-span-2"/></div><div className="mt-3 flex gap-2 border-t border-border-default pt-3"><button type="button" disabled={busy||!String(form.full_name??'').trim()||!String(form.phone??'').trim()} onClick={()=>onDecision('confirm',form)} className="rounded-lg bg-brand px-3 py-2 text-xs font-semibold text-white disabled:opacity-50">{ar?'إضافة العميل':'Add customer'}</button><button type="button" disabled={busy} onClick={()=>onDecision('cancel')} className="rounded-lg border border-border-default px-3 py-2 text-xs font-semibold disabled:opacity-50">{ar?'إلغاء':'Cancel'}</button></div></div>;
 }

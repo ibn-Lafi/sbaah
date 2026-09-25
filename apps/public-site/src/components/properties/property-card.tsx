@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import type { City } from '@sbaah/shared';
 import type { Locale } from '@/lib/i18n/locales';
 import type { PublicProperty } from '@/lib/api/public-properties';
@@ -14,7 +13,7 @@ export function PropertyCard({ property, city, locale }: { property: PublicPrope
   const href = locale === 'ar' ? `/properties/${property.slug}` : `/en/properties/${property.slug}`;
 
   return (
-    <Link href={href} className="block overflow-hidden rounded-xl border border-black/10 transition-shadow hover:border-tenant-secondary/35 hover:shadow-md">
+    <a href={href} className="block overflow-hidden rounded-xl border border-black/10 transition-shadow hover:border-tenant-secondary/35 hover:shadow-md">
       <div className="aspect-[4/3] bg-black/5">
         {thumbnail ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -35,6 +34,6 @@ export function PropertyCard({ property, city, locale }: { property: PublicPrope
         </p>
         <p className="mt-1 font-semibold text-tenant-secondary">{formatPrice(locale, property.price)}</p>
       </div>
-    </Link>
+    </a>
   );
 }

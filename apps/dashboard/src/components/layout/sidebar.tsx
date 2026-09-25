@@ -1,8 +1,7 @@
 'use client';
 
 import { useEffect, useState, type CSSProperties } from 'react';
-import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { BrandMark } from '@/components/ui/brand-mark';
 import { AccountAvatar } from '@/components/ui/account-avatar';
 import { SidebarToggleIcon } from './nav-icons';
@@ -57,7 +56,6 @@ function flyoutStyle(rect: DOMRect, dir: 'rtl' | 'ltr', top: number): CSSPropert
 
 export function Sidebar({ orgName, accountType }: SidebarProps) {
   const pathname = usePathname();
-  const router = useRouter();
   const { me, business, capabilities } = useCurrentUser();
   const { t, pages, locale } = useLocale();
   const dir = dirFor(locale);
@@ -98,7 +96,7 @@ export function Sidebar({ orgName, accountType }: SidebarProps) {
   }
 
   function handleSignOut() {
-    void signOut().then(() => router.replace('/login'));
+    void signOut().then(() => window.location.replace('/login'));
   }
 
   function handleRowEnter(key: string, event: React.MouseEvent<HTMLElement>) {
@@ -172,7 +170,7 @@ export function Sidebar({ orgName, accountType }: SidebarProps) {
                       const active = pathname === child.href || pathname.startsWith(`${child.href}/`);
                       const ChildIcon = child.icon;
                       return (
-                        <Link
+                        <a
                           key={child.href}
                           href={child.href}
                           className={`flex items-center gap-2.5 rounded-[10px] px-[14px] py-[11px] text-[13px] font-medium ${
@@ -181,7 +179,7 @@ export function Sidebar({ orgName, accountType }: SidebarProps) {
                         >
                           <ChildIcon className="h-[15px] w-[15px] flex-none" />
                           {child.label}
-                        </Link>
+                        </a>
                       );
                     })}
                   </div>
@@ -193,7 +191,7 @@ export function Sidebar({ orgName, accountType }: SidebarProps) {
                     const active = pathname === child.href || pathname.startsWith(`${child.href}/`);
                     const ChildIcon = child.icon;
                     return (
-                      <Link
+                      <a
                         key={child.href}
                         href={child.href}
                         className={`flex h-[38px] flex-none items-center gap-2 rounded-[9px] pe-[10px] ps-[26px] text-[15px] ${
@@ -202,7 +200,7 @@ export function Sidebar({ orgName, accountType }: SidebarProps) {
                       >
                         <ChildIcon className="h-[16px] w-[16px] flex-none" />
                         <span className="min-w-0 flex-1 truncate">{child.label}</span>
-                      </Link>
+                      </a>
                     );
                   })}
               </div>
@@ -219,7 +217,7 @@ export function Sidebar({ orgName, accountType }: SidebarProps) {
               onMouseEnter={(e) => handleRowEnter(item.href, e)}
               onMouseLeave={handleRowLeave}
             >
-              <Link
+              <a
                 href={item.href}
                 className={`flex h-[38px] flex-none items-center gap-2 rounded-[9px] px-[10px] text-[15px] ${
                   collapsed ? 'justify-center' : ''
@@ -227,7 +225,7 @@ export function Sidebar({ orgName, accountType }: SidebarProps) {
               >
                 <ItemIcon className="h-[16px] w-[16px] flex-none" />
                 {!collapsed && <span className="min-w-0 flex-1 truncate">{item.label}</span>}
-              </Link>
+              </a>
               {tooltipOpen && (
                 <div
                   style={flyoutStyle(hoveredRect, dir, hoveredRect.top + hoveredRect.height / 2 - 16)}
@@ -262,13 +260,13 @@ export function Sidebar({ orgName, accountType }: SidebarProps) {
               collapsed ? 'start-full bottom-0 ms-2 w-[200px]' : 'inset-x-2 bottom-full mb-2'
             }`}
           >
-            <Link
+            <a
               href="/settings"
               onClick={() => setAccountMenuOpen(false)}
               className="text-text-primary hover:bg-surface-subtle rounded-[10px] px-[14px] py-[11px] text-[13px] font-medium"
             >
               {t.settingsNavLabel}
-            </Link>
+            </a>
             <div className="bg-surface-subtle my-0.5 h-px" />
             <button
               type="button"

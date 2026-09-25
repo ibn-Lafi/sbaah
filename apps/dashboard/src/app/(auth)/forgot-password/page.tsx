@@ -1,8 +1,6 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { emailSchema, otpCodeSchema, passwordSchema, saudiPhoneSchema } from '@sbaah/shared';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,7 +24,6 @@ type OtpChannel = 'sms' | 'email';
  * channel here alongside the original phone one.
  */
 export default function ForgotPasswordPage() {
-  const router = useRouter();
   const { pages } = useLocale();
   const t = pages.auth;
   const [step, setStep] = useState<Step>('identify');
@@ -119,7 +116,7 @@ export default function ForgotPasswordPage() {
     setLoading(true);
     try {
       await resetPassword({ reset_token: resetToken, new_password: newPassword });
-      router.push('/login');
+      window.location.href = '/login';
     } catch (err) {
       setError(err instanceof ApiRequestError ? err.message : t.forgotPassword.updateFailedFallback);
     } finally {
@@ -214,9 +211,9 @@ export default function ForgotPasswordPage() {
 
       <p className="mt-6 text-center text-sm text-text-secondary">
         {t.forgotPassword.rememberedPasswordPrompt}{' '}
-        <Link href="/login" className="font-semibold text-brand hover:underline">
+        <a href="/login" className="font-semibold text-brand hover:underline">
           {t.shared.signIn}
-        </Link>
+        </a>
       </p>
     </>
   );

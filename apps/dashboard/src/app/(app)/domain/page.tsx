@@ -1,6 +1,4 @@
 'use client';
-
-import Link from 'next/link';
 import { useEffect, useState, type FormEvent } from 'react';
 import { customDomainInputSchema, subdomainInputSchema } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
@@ -300,12 +298,12 @@ function SubdomainCard({
             {loading ? t.subdomain.saving : t.subdomain.saveChanges}
           </Button>
           {showUpsell && (
-            <Link
+            <a
               href="/billing"
               className="rounded-input bg-brand-surface text-brand px-4 py-3 text-sm hover:underline"
             >
               {t.subdomain.upsell}
-            </Link>
+            </a>
           )}
         </form>
       ) : (

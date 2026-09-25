@@ -1,7 +1,6 @@
 'use client';
 
 import { use, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { LEAD_STATUSES } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
 import { BackButton } from '@/components/ui/back-button';
@@ -30,7 +29,6 @@ const ACTION_LINK_CLASSES =
 
 export default function LeadDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const router = useRouter();
   const { me, accessToken } = useCurrentUser();
   const { pages } = useLocale();
   const t = pages.leads;
@@ -94,7 +92,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
   async function handleDelete() {
     try {
       await deleteLead(accessToken, id);
-      router.push('/leads');
+      window.location.href = '/leads';
     } catch (err) {
       throw new Error(err instanceof ApiRequestError ? err.message : t.detail.errors.delete);
     }

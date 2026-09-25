@@ -1,7 +1,6 @@
 'use client';
 
 import { use, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import type { Project } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
 import { BackButton } from '@/components/ui/back-button';
@@ -28,7 +27,6 @@ const projectStatusLabels: Record<Project['status'], string> = {
 
 export default function EditProjectPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const router = useRouter();
   const { me, accessToken } = useCurrentUser();
   const { pages } = useLocale();
   const t = pages.projects;
@@ -68,7 +66,7 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
   async function handleDelete() {
     try {
       await deleteProject(accessToken, id);
-      router.push('/projects');
+      window.location.href = '/projects';
     } catch (err) {
       throw new Error(err instanceof ApiRequestError ? err.message : t.detail.deleteFallbackError);
     }

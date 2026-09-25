@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import type { Locale } from '@/lib/i18n/locales';
 import { listPublicProperties } from '@/lib/api/public-properties';
 import { listCities } from '@/lib/api/reference-data';
@@ -26,9 +25,9 @@ export async function PropertyGridSection({ locale, config }: PropertyGridSectio
       <ClassicSectionHeading
         title={title}
         action={
-          <Link href={propertiesHref} className="shrink-0 text-sm font-semibold text-tenant-primary hover:underline">
+          <a href={propertiesHref} className="shrink-0 text-sm font-semibold text-tenant-primary hover:underline">
             {SEE_ALL_LABEL[locale]}
-          </Link>
+          </a>
         }
       />
 

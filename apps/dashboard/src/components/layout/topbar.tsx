@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { BrandIcon } from '@/components/ui/brand-mark';
 import { LanguageToggle } from './language-toggle';
 import { ThemeToggle } from './theme-toggle';
@@ -16,7 +15,6 @@ function SearchIcon({ className }: { className?: string }) {
 }
 
 export function Topbar({ title, siteUrl }: TopbarProps) {
-  const router = useRouter();
   const { t, locale } = useLocale();
   const { me, business, capabilities } = useCurrentUser();
   const [searchOpen, setSearchOpen] = useState(false);
@@ -49,7 +47,7 @@ export function Topbar({ title, siteUrl }: TopbarProps) {
   function navigate(href: string) {
     setSearchOpen(false);
     setQuery('');
-    router.push(href);
+    window.location.href = href;
   }
 
   return (
