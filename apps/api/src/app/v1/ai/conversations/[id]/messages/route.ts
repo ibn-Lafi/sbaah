@@ -22,7 +22,7 @@ export const POST = withErrorHandling(async (
 
   const { data: conversation, error: conversationError } = await supabase
     .from('ai_conversations')
-    .select('id, assistant_id')
+    .select('id, assistant_id, title')
     .eq('id', id)
     .eq('tenant_id', caller.tenantId)
     .eq('created_by', caller.userId)
@@ -44,9 +44,12 @@ export const POST = withErrorHandling(async (
     .single();
   if (messageError || !message) throw new Error(`Failed to save AI message: ${messageError?.message}`);
 
+  const autoTitle = conversation.title?.trim()
+    ? conversation.title
+    : input.content.replace(/\s+/g, ' ').trim().slice(0, 72);
   const { error: touchError } = await supabase
     .from('ai_conversations')
-    .update({ last_message_at: now, updated_at: now })
+    .update({ title: autoTitle || null, last_message_at: now, updated_at: now })
     .eq('id', conversation.id)
     .eq('tenant_id', caller.tenantId);
   if (touchError) throw new Error(`Failed to update AI conversation: ${touchError.message}`);
