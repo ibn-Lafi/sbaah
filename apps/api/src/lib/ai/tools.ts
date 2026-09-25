@@ -113,9 +113,13 @@ export async function executeAiTool(input: {
   const { supabase, caller, name } = input;
 
   if (name === 'get_portfolio_summary') {
-    assertPermission(caller.role, 'crm.read');
+    const crmGrant = assertPermission(caller.role, 'crm.read');
+    assertPermission(caller.role, 'projects.read');
+    assertPermission(caller.role, 'properties.read');
+    let leadsQuery = supabase.from('leads').select('id', { count: 'exact', head: true }).eq('tenant_id', caller.tenantId);
+    if (isAssignedScope(crmGrant)) leadsQuery = leadsQuery.eq('assigned_agent_id', caller.userId);
     const [leads, projects, listings] = await Promise.all([
-      supabase.from('leads').select('id', { count: 'exact', head: true }).eq('tenant_id', caller.tenantId),
+      leadsQuery,
       supabase.from('projects').select('id', { count: 'exact', head: true }).eq('tenant_id', caller.tenantId),
       supabase.from('listings').select('id', { count: 'exact', head: true }).eq('tenant_id', caller.tenantId),
     ]);
@@ -124,13 +128,15 @@ export async function executeAiTool(input: {
   }
 
   if (name === 'search_leads') {
-    assertPermission(caller.role, 'crm.read');
+    const grant = assertPermission(caller.role, 'crm.read');
     const args = z.object({ query: z.string().trim().max(100).default('') }).parse(input.arguments);
     const escaped = args.query.replace(/[%,]/g, '');
-    const { data, error } = await supabase
+    let query = supabase
       .from('leads')
       .select('id, full_name, phone, email, status, source, follow_up_at, created_at')
-      .eq('tenant_id', caller.tenantId)
+      .eq('tenant_id', caller.tenantId);
+    if (isAssignedScope(grant)) query = query.eq('assigned_agent_id', caller.userId);
+    const { data, error } = await query
       .or(escaped ? `full_name.ilike.%${escaped}%,phone.ilike.%${escaped}%` : 'id.not.is.null')
       .order('created_at', { ascending: false })
       .limit(10);
