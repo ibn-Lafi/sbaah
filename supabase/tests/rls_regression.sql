@@ -162,6 +162,12 @@ do $$ begin
     'owner B sees nothing of tenant A');
 end $$;
 select regression.expect_rejected(format($q$insert into leads (tenant_id, full_name, source, status) values (%L, 'x', 'manual', 'new')$q$, :'tenant_a'), '42501', 'owner B cannot write into tenant A');
+select regression.expect_rejected(
+  $q$insert into lead_notes (lead_id, user_id, note_text)
+      values ('00000000-0000-0000-0000-00000000e001', auth_app_user_id(), 'foreign note')$q$,
+  '42501',
+  'owner B cannot add a note to tenant A lead'
+);
 select regression.expect_rejected(format($q$select * from get_asset_commercial_availability(%L, '00000000-0000-0000-0000-0000000aa002')$q$, :'tenant_a'), '42501', 'availability engine refuses a foreign tenant id');
 with updated as (update tenants set name_ar = 'x' where id = :'tenant_a' returning 1)
 select regression.check(count(*) = 0, 'owner B cannot update tenant A') from updated;
