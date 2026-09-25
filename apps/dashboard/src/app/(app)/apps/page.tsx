@@ -226,6 +226,19 @@ export default function AppsPage() {
                         ) : null}
                       </div>
                     ))}
+                    {sending ? (
+                      <div role="status" aria-live="polite" aria-label={ar ? 'المساعد يفكر' : 'Assistant is thinking'} className="me-auto flex min-h-10 items-center gap-2.5 rounded-[14px] bg-surface-subtle px-4 py-3">
+                        <span className="relative flex h-5 w-5 items-center justify-center">
+                          <span className="absolute h-5 w-5 animate-ping rounded-full bg-brand/15" />
+                          <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-brand" />
+                        </span>
+                        <span className="flex items-center gap-1" aria-hidden="true">
+                          <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-brand/90 [animation-delay:-0.24s]" />
+                          <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-brand/70 [animation-delay:-0.12s]" />
+                          <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-brand/50" />
+                        </span>
+                      </div>
+                    ) : null}
                   </div>
                 )}
                 <div ref={messagesEndRef} />
@@ -241,7 +254,7 @@ export default function AppsPage() {
                     className="text-text-primary placeholder:text-text-placeholder max-h-32 min-h-9 flex-1 resize-none bg-transparent px-2 py-2 text-sm outline-none"
                   />
                   <button type="submit" disabled={!draft.trim() || sending} className="bg-brand rounded-[9px] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">
-                    {sending ? (ar ? 'يفكر...' : 'Thinking...') : ar ? 'إرسال' : 'Send'}
+                    {ar ? 'إرسال' : 'Send'}
                   </button>
                 </div>
               </form>
