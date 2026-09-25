@@ -12,6 +12,7 @@ import { ProjectInventory } from '@/components/hierarchy/project-inventory';
 import { ProjectMediaManager } from '@/components/hierarchy/project-media-manager';
 import { ProjectPublishingPanel } from '@/components/hierarchy/project-publishing-panel';
 import { FormPageSkeleton } from '@/components/ui/form-page-skeleton';
+import { SegmentedToggle } from '@/components/ui/segmented-toggle';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { deleteProject, getProject } from '@/lib/api/hierarchy';
 import { ApiRequestError, isNotFoundError } from '@/lib/api/client';
@@ -57,11 +58,11 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
   }, [accessToken, id, retryKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const canManage = me.user.role !== 'agent';
-  const sections: Array<{ id: ProjectSection; label: string }> = [
-    { id: 'overview', label: 'نظرة عامة' },
-    { id: 'media', label: 'الوسائط' },
-    { id: 'inventory', label: 'العقارات والوحدات' },
-    ...(canManage ? [{ id: 'publishing' as const, label: 'البيانات والنشر' }] : []),
+  const sections: Array<{ value: ProjectSection; label: string }> = [
+    { value: 'overview', label: 'نظرة عامة' },
+    { value: 'media', label: 'الوسائط' },
+    { value: 'inventory', label: 'العقارات والوحدات' },
+    ...(canManage ? [{ value: 'publishing' as const, label: 'البيانات والنشر' }] : []),
   ];
 
   async function handleDelete() {
@@ -105,25 +106,7 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
           <BackButton href="/projects" label="رجوع" className="self-start" />
 
-          <nav aria-label="أقسام المشروع" className="border-border-subtle flex w-full gap-1 overflow-x-auto border-b">
-            {sections.map((section) => {
-              const isActive = activeSection === section.id;
-              return (
-                <button
-                  key={section.id}
-                  type="button"
-                  aria-current={isActive ? 'page' : undefined}
-                  onClick={() => setActiveSection(section.id)}
-                  className={`relative min-w-fit px-4 py-3 text-sm font-medium transition-colors ${
-                    isActive ? 'text-brand' : 'text-text-secondary hover:text-text-primary'
-                  }`}
-                >
-                  {section.label}
-                  {isActive && <span className="absolute inset-x-2 bottom-0 h-0.5 rounded-full bg-brand" />}
-                </button>
-              );
-            })}
-          </nav>
+          <SegmentedToggle value={activeSection} onChange={setActiveSection} options={sections} className="settings-tabs" />
 
           {activeSection === 'overview' && (
             <div className="flex flex-col gap-5">
