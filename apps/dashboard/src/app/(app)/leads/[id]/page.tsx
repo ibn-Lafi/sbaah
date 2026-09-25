@@ -65,10 +65,6 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
   const canManage = me.user.role !== 'agent';
   const isProspect = customer360?.customer_kind === 'prospect';
 
-  useEffect(() => {
-    if (canManage) {
-    }
-  }, [accessToken, canManage]);
   async function saveStatus(status: string) {
     setError(null);
     try {
