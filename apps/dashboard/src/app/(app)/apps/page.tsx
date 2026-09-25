@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { AppShell } from '@/components/layout/app-shell';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
@@ -228,8 +229,15 @@ export default function AppsPage() {
   }
 
   return (
-    <AppShell title={ar ? 'سبعة Ai' : 'Sbaah AI'} orgName={me.tenant.name_ar} accountType={me.tenant.account_type}>
-      <div className="mx-auto flex h-[calc(100dvh-8.5rem)] min-h-0 w-full max-w-5xl flex-col overflow-hidden">
+    <AppShell title={ar ? 'سبعة Ai' : 'Sbaah AI'} orgName={me.tenant.name_ar} accountType={me.tenant.account_type} mobileImmersive>
+      <div className="mx-auto flex h-dvh min-h-0 w-full max-w-5xl flex-col overflow-hidden md:h-[calc(100dvh-8.5rem)]">
+        <div className="flex shrink-0 items-center justify-between px-4 pb-3 pt-[max(1rem,env(safe-area-inset-top))] md:hidden">
+          <Link href="/" aria-label={ar ? 'الخروج إلى الرئيسية' : 'Exit to home'} className="text-text-primary bg-surface-subtle flex h-11 w-11 items-center justify-center rounded-full transition active:scale-95">
+            <X className="h-6 w-6" aria-hidden="true" />
+          </Link>
+          <span className="text-text-primary text-sm font-semibold">{ar ? 'سبعة Ai' : 'Sbaah AI'}</span>
+          <span className="h-11 w-11" aria-hidden="true" />
+        </div>
         <div className="bg-surface-subtle mb-4 grid w-full shrink-0 grid-cols-2 rounded-[12px] p-1 sm:mb-6">
           {([
             ['assistant', ar ? 'مساعد Ai' : 'AI Assistant'],
