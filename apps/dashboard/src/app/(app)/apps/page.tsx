@@ -272,17 +272,8 @@ export default function AppsPage() {
   }
 
   return (
-    <AppShell title={ar ? 'سبعة Ai' : 'Sbaah AI'} orgName={me.tenant.name_ar} accountType={me.tenant.account_type} mobileImmersive>
-      <div className="mx-auto flex h-dvh min-h-0 w-full max-w-5xl flex-col overflow-hidden md:h-[calc(100dvh-8.5rem)]">
-        <div className="flex shrink-0 items-center justify-between px-4 pb-3 pt-[max(1rem,env(safe-area-inset-top))] md:hidden">
-          <Link href="/" aria-label={ar ? 'الخروج إلى الرئيسية' : 'Exit to home'} className="text-text-primary bg-surface-subtle flex h-11 w-11 items-center justify-center rounded-full transition active:scale-95">
-            <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
-          </Link>
-          <span className="text-text-primary text-sm font-semibold">{ar ? 'سبعة Ai' : 'Sbaah AI'}</span>
-          <button type="button" onClick={() => setHistoryOpen(true)} aria-label={ar ? 'سجل المحادثات' : 'Conversation history'} className="text-text-primary bg-surface-subtle flex h-11 w-11 items-center justify-center rounded-full transition active:scale-95">
-            <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 4v16M13 9h4M13 13h4"/></svg>
-          </button>
-        </div>
+    <AppShell title={ar ? 'سبعة Ai' : 'Sbaah AI'} orgName={me.tenant.name_ar} accountType={me.tenant.account_type}>
+      <div className="mx-auto flex h-[calc(100dvh-8.5rem)] min-h-0 w-full max-w-5xl flex-col overflow-hidden">
         <div className="bg-surface-subtle mb-4 grid w-full shrink-0 grid-cols-2 rounded-[12px] p-1 sm:mb-6">
           {([
             ['assistant', ar ? 'مساعد Ai' : 'AI Assistant'],
@@ -328,7 +319,7 @@ export default function AppsPage() {
                   ))}
                 </div>
               </aside>
-              <section className="border-border-default bg-surface-card flex min-h-0 flex-1 flex-col overflow-hidden rounded-card border">
+              <section className="border-border-default bg-surface-card relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-card border">
               <header className="border-border-default flex shrink-0 items-center gap-3 border-b px-4 py-4 sm:px-5">
                 <div className="bg-brand-surface text-brand flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold">
                   {assistant.name.trim().slice(0, 1) || 'Ai'}
@@ -337,10 +328,15 @@ export default function AppsPage() {
                   <h1 className="text-text-primary truncate text-base font-bold">{assistant.name}</h1>
                   <p className="text-text-secondary text-xs">{ar ? 'مساعدك في سبعة' : 'Your Sbaah assistant'}</p>
                 </div>
-                <span className="ms-auto flex items-center gap-1.5 text-xs font-medium text-emerald-700">
-                  <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                  {ar ? 'نشط' : 'Active'}
-                </span>
+                <div className="ms-auto flex items-center gap-2">
+                  <span className="hidden items-center gap-1.5 text-xs font-medium text-emerald-700 sm:flex">
+                    <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                    {ar ? 'نشط' : 'Active'}
+                  </span>
+                  <button type="button" onClick={() => setHistoryOpen(true)} aria-label={ar ? 'سجل المحادثات' : 'Conversation history'} className="text-text-primary bg-surface-subtle flex h-10 w-10 items-center justify-center rounded-full transition active:scale-95">
+                    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 4v16M13 9h4M13 13h4"/></svg>
+                  </button>
+                </div>
               </header>
 
               <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-5 sm:px-5">
@@ -482,22 +478,24 @@ export default function AppsPage() {
 
         {error && assistant ? <p className="mt-3 text-sm text-red-600">{error}</p> : null}
       </div>
-      {historyOpen ? (
-        <div className="fixed inset-0 z-[80] md:hidden">
-          <button type="button" aria-label={ar ? 'إغلاق سجل المحادثات' : 'Close conversation history'} className="absolute inset-0 bg-black/35" onClick={() => setHistoryOpen(false)} />
-          <aside className={`bg-surface-page absolute inset-y-0 w-[84%] max-w-sm shadow-2xl ${ar ? 'right-0' : 'left-0'} flex flex-col pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))]`}>
-            <div className="flex items-center justify-between px-4 pb-4">
-              <h2 className="text-text-primary text-base font-bold">{ar ? 'المحادثات' : 'Conversations'}</h2>
-              <button type="button" onClick={() => setHistoryOpen(false)} className="bg-surface-subtle flex h-10 w-10 items-center justify-center rounded-full" aria-label={ar ? 'إغلاق' : 'Close'}>
-                <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
-              </button>
+      {historyOpen && section === 'assistant' && assistant ? (
+        <div className="absolute inset-0 z-40">
+          <button type="button" aria-label={ar ? 'إغلاق سجل المحادثات' : 'Close conversation history'} className="absolute inset-0 bg-black/20" onClick={() => setHistoryOpen(false)} />
+          <aside className={`bg-surface-page absolute inset-y-0 w-[86%] max-w-sm shadow-xl ${ar ? 'left-0' : 'right-0'} flex flex-col`}>
+            <div className="border-border-default flex items-center justify-between border-b px-4 py-3">
+              <h2 className="text-text-primary text-sm font-bold">{ar ? 'سجل المحادثات' : 'Conversation history'}</h2>
+              <div className="flex items-center gap-2">
+                <button type="button" onClick={handleNewConversation} aria-label={ar ? 'محادثة جديدة' : 'New conversation'} className="bg-brand flex h-10 w-10 items-center justify-center rounded-full text-white transition active:scale-95">
+                  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg>
+                </button>
+                <button type="button" onClick={() => setHistoryOpen(false)} className="bg-surface-subtle flex h-10 w-10 items-center justify-center rounded-full" aria-label={ar ? 'إغلاق' : 'Close'}>
+                  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                </button>
+              </div>
             </div>
-            <div className="px-4 pb-3">
-              <button type="button" onClick={handleNewConversation} className="bg-brand w-full rounded-[12px] px-4 py-3 text-sm font-semibold text-white">{ar ? '+ محادثة جديدة' : '+ New conversation'}</button>
-            </div>
-            <div className="min-h-0 flex-1 overflow-y-auto px-3">
+            <div className="min-h-0 flex-1 overflow-y-auto p-3">
               {conversations.length === 0 ? <p className="text-text-secondary px-2 py-6 text-sm">{ar ? 'لا توجد محادثات بعد.' : 'No conversations yet.'}</p> : conversations.map((conversation) => (
-                <button key={conversation.id} type="button" onClick={() => void handleOpenConversation(conversation.id)} disabled={openingConversationId === conversation.id} className={`mb-1 w-full rounded-[12px] px-3 py-3 text-start transition disabled:opacity-50 ${conversationId === conversation.id ? 'bg-brand-surface text-brand' : 'text-text-primary active:bg-surface-subtle'}`}>
+                <button key={conversation.id} type="button" onClick={() => void handleOpenConversation(conversation.id)} disabled={openingConversationId === conversation.id} className={`mb-1 w-full rounded-[12px] px-3 py-3 text-start transition disabled:opacity-50 ${conversationId === conversation.id ? 'bg-brand-surface text-brand' : 'text-text-primary hover:bg-surface-subtle'}`}>
                   <span className="block truncate text-sm font-semibold">{conversation.title || (ar ? 'محادثة جديدة' : 'New conversation')}</span>
                   <span className="text-text-secondary mt-1 block text-[11px]">{new Date(conversation.last_message_at).toLocaleDateString(ar ? 'ar-SA' : 'en-US')}</span>
                 </button>
