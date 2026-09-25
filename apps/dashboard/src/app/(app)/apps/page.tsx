@@ -108,6 +108,7 @@ export default function AppsPage() {
   const [messages, setMessages] = useState<AiMessage[]>([]);
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
+  const [thinkingStage, setThinkingStage] = useState(0);
   const [decidingActionId, setDecidingActionId] = useState<string | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [openingConversationId, setOpeningConversationId] = useState<string | null>(null);
@@ -155,6 +156,20 @@ export default function AppsPage() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ block: 'end', behavior: 'smooth' });
   }, [messages, sending]);
+
+  useEffect(() => {
+    if (!sending) {
+      setThinkingStage(0);
+      return;
+    }
+    setThinkingStage(0);
+    const timers = [
+      window.setTimeout(() => setThinkingStage(1), 2200),
+      window.setTimeout(() => setThinkingStage(2), 5200),
+    ];
+    return () => timers.forEach(window.clearTimeout);
+  }, [sending]);
+
 
   async function handleSend(event: React.FormEvent) {
     event.preventDefault();
@@ -367,10 +382,17 @@ export default function AppsPage() {
                       </div>
                     ))}
                     {sending ? (
-                      <div role="status" aria-live="polite" aria-label={ar ? 'المساعد يفكر' : 'Assistant is thinking'} className="me-auto flex min-h-10 items-center gap-2.5 rounded-[14px] bg-surface-subtle px-4 py-3">
-                        <span className="relative flex h-5 w-5 items-center justify-center">
+                      <div role="status" aria-live="polite" aria-label={ar ? 'المساعد يعمل على الرد' : 'Assistant is working on the response'} className="me-auto flex min-h-11 items-center gap-3 rounded-[16px] bg-surface-subtle px-4 py-3">
+                        <span className="relative flex h-5 w-5 shrink-0 items-center justify-center" aria-hidden="true">
                           <span className="absolute h-5 w-5 animate-ping rounded-full bg-brand/15" />
                           <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-brand" />
+                        </span>
+                        <span className="text-text-secondary text-sm font-medium">
+                          {thinkingStage === 0
+                            ? (ar ? 'جاري التفكير' : 'Thinking')
+                            : thinkingStage === 1
+                              ? (ar ? 'أراجع طلبك' : 'Reviewing your request')
+                              : (ar ? 'أرتب النتيجة' : 'Preparing the result')}
                         </span>
                         <span className="flex items-center gap-1" aria-hidden="true">
                           <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-brand/90 [animation-delay:-0.24s]" />
@@ -384,18 +406,17 @@ export default function AppsPage() {
                 <div ref={messagesEndRef} />
               </div>
 
-              <form onSubmit={(event) => void handleSend(event)} className="shrink-0 px-3 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-2 sm:p-4 md:border-t md:border-border-default">
-                <div className="border-border-default bg-surface-subtle flex min-h-[58px] items-end gap-2 rounded-[29px] border p-1.5 shadow-sm md:min-h-12 md:rounded-[12px] md:p-2">
+              <form onSubmit={(event) => void handleSend(event)} className="shrink-0 px-3 pb-[max(1.15rem,env(safe-area-inset-bottom))] pt-2 md:px-5 md:pb-5 md:pt-3">
+                <div className="bg-surface-subtle flex min-h-[54px] w-full items-end gap-2 rounded-[999px] px-2 py-1.5 shadow-sm ring-1 ring-border-default md:min-h-[58px] md:px-2.5 md:py-2">
                   <textarea
                     value={draft}
                     onChange={(event) => setDraft(event.target.value)}
                     rows={1}
                     placeholder={ar ? `اكتب رسالة إلى ${assistant.name}...` : `Message ${assistant.name}...`}
-                    className="text-text-primary placeholder:text-text-placeholder max-h-32 min-h-[44px] flex-1 resize-none bg-transparent px-3 py-3 text-sm outline-none md:min-h-9 md:px-2 md:py-2"
+                    className="text-text-primary placeholder:text-text-placeholder max-h-32 min-h-[42px] flex-1 resize-none bg-transparent px-3 py-[11px] text-[15px] leading-5 outline-none md:min-h-[42px] md:text-sm"
                   />
-                  <button type="submit" disabled={!draft.trim() || sending} aria-label={ar ? 'إرسال' : 'Send'} className="bg-brand flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-white transition active:scale-95 disabled:opacity-40 md:h-auto md:w-auto md:rounded-[9px] md:px-4 md:py-2">
-                    <svg viewBox="0 0 24 24" className="h-6 w-6 md:hidden" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 19V5M6.5 10.5 12 5l5.5 5.5" /></svg>
-                    <span className="hidden text-sm font-semibold md:inline">{ar ? 'إرسال' : 'Send'}</span>
+                  <button type="submit" disabled={!draft.trim() || sending} aria-label={ar ? 'إرسال' : 'Send'} className="bg-brand flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-full text-white shadow-sm transition active:scale-95 disabled:opacity-40 md:h-[42px] md:w-[42px]">
+                    <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 19V5M6.5 10.5 12 5l5.5 5.5" /></svg>
                   </button>
                 </div>
               </form>
