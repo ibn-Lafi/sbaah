@@ -61,6 +61,7 @@ export const POST = withErrorHandling(async (
 
   const generated = await generateGrokReply({
     assistantName: assistant.name,
+    userName: caller.fullName,
     personality: assistant.personality,
     conversationId: conversation.id,
     messages: (history ?? [])
