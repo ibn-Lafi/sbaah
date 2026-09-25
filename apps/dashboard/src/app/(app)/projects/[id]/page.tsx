@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import type { Project } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
 import { BackButton } from '@/components/ui/back-button';
+import { Card } from '@/components/ui/card';
 import { DeleteButton } from '@/components/ui/delete-button';
 import { DetailLoadError } from '@/components/ui/detail-load-error';
 import { ProjectInventory } from '@/components/hierarchy/project-inventory';
@@ -16,6 +17,14 @@ import { deleteProject, getProject } from '@/lib/api/hierarchy';
 import { ApiRequestError, isNotFoundError } from '@/lib/api/client';
 import { useLocale } from '@/lib/i18n/locale-context';
 
+type ProjectSection = 'overview' | 'media' | 'inventory' | 'publishing';
+
+const projectStatusLabels: Record<Project['status'], string> = {
+  draft: 'مسودة',
+  published: 'منشور',
+  archived: 'مؤرشف',
+};
+
 export default function EditProjectPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
@@ -26,6 +35,7 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
   const [notFound, setNotFound] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [retryKey, setRetryKey] = useState(0);
+  const [activeSection, setActiveSection] = useState<ProjectSection>('overview');
 
   useEffect(() => {
     let cancelled = false;
@@ -47,6 +57,12 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
   }, [accessToken, id, retryKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const canManage = me.user.role !== 'agent';
+  const sections: Array<{ id: ProjectSection; label: string }> = [
+    { id: 'overview', label: 'نظرة عامة' },
+    { id: 'media', label: 'الوسائط' },
+    { id: 'inventory', label: 'العقارات والوحدات' },
+    ...(canManage ? [{ id: 'publishing' as const, label: 'البيانات والنشر' }] : []),
+  ];
 
   async function handleDelete() {
     try {
@@ -86,18 +102,100 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
       {!project ? (
         <FormPageSkeleton fields={4} />
       ) : (
-        <div className="mx-auto flex max-w-[720px] flex-col gap-6">
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
           <BackButton href="/projects" label="رجوع" className="self-start" />
-          {canManage && <ProjectPublishingPanel project={project} accessToken={accessToken} onChange={setProject} />}
-          <ProjectMediaManager projectId={id} tenantId={me.tenant.id} accessToken={accessToken} canManage={canManage} />\n          <ProjectInventory projectId={id} accessToken={accessToken} canManage={canManage} />
 
-          {canManage && (
-            <DeleteButton
-              label={t.detail.deleteLabel}
-              confirmTitle={t.detail.deleteConfirmTitle}
-              confirmMessage={t.detail.deleteConfirmMessage}
-              onConfirm={handleDelete}
-            />
+          <nav aria-label="أقسام المشروع" className="border-border-subtle flex w-full gap-1 overflow-x-auto border-b">
+            {sections.map((section) => {
+              const isActive = activeSection === section.id;
+              return (
+                <button
+                  key={section.id}
+                  type="button"
+                  aria-current={isActive ? 'page' : undefined}
+                  onClick={() => setActiveSection(section.id)}
+                  className={`relative min-w-fit px-4 py-3 text-sm font-medium transition-colors ${
+                    isActive ? 'text-brand' : 'text-text-secondary hover:text-text-primary'
+                  }`}
+                >
+                  {section.label}
+                  {isActive && <span className="absolute inset-x-2 bottom-0 h-0.5 rounded-full bg-brand" />}
+                </button>
+              );
+            })}
+          </nav>
+
+          {activeSection === 'overview' && (
+            <div className="flex flex-col gap-5">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <Card className="p-5">
+                  <p className="text-sm text-text-secondary">حالة المشروع</p>
+                  <p className="mt-2 font-semibold">{projectStatusLabels[project.status]}</p>
+                </Card>
+                <Card className="p-5">
+                  <p className="text-sm text-text-secondary">نسبة الإنجاز</p>
+                  <p className="mt-2 font-semibold">{project.completion_percentage ?? 0}%</p>
+                </Card>
+                <Card className="p-5">
+                  <p className="text-sm text-text-secondary">الوحدات المخطط لها</p>
+                  <p className="mt-2 font-semibold">{project.planned_units_count?.toLocaleString('ar-SA') ?? '—'}</p>
+                </Card>
+                <Card className="p-5">
+                  <p className="text-sm text-text-secondary">الرقم المرجعي</p>
+                  <p className="mt-2 font-semibold">{project.reference_number ?? '—'}</p>
+                </Card>
+              </div>
+
+              <Card className="p-6">
+                <h2 className="font-semibold text-text-primary">بيانات المشروع</h2>
+                <dl className="mt-5 grid gap-5 text-sm sm:grid-cols-2 lg:grid-cols-3">
+                  <div>
+                    <dt className="text-text-secondary">اسم المشروع بالعربية</dt>
+                    <dd className="mt-1 font-medium">{project.name_ar}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-text-secondary">اسم المشروع بالإنجليزية</dt>
+                    <dd className="mt-1 font-medium" dir="ltr">{project.name_en ?? '—'}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-text-secondary">تاريخ الإنجاز المتوقع</dt>
+                    <dd className="mt-1 font-medium">
+                      {project.expected_completion_date
+                        ? new Intl.DateTimeFormat('ar-SA', { dateStyle: 'medium' }).format(new Date(project.expected_completion_date))
+                        : '—'}
+                    </dd>
+                  </div>
+                </dl>
+                {project.description_ar && (
+                  <div className="mt-5 border-t border-border-subtle pt-5">
+                    <p className="text-sm text-text-secondary">وصف المشروع</p>
+                    <p className="mt-2 whitespace-pre-line text-sm leading-7 text-text-primary">{project.description_ar}</p>
+                  </div>
+                )}
+              </Card>
+            </div>
+          )}
+
+          {activeSection === 'media' && (
+            <ProjectMediaManager projectId={id} tenantId={me.tenant.id} accessToken={accessToken} canManage={canManage} />
+          )}
+
+          {activeSection === 'inventory' && (
+            <ProjectInventory projectId={id} accessToken={accessToken} canManage={canManage} />
+          )}
+
+          {activeSection === 'publishing' && canManage && (
+            <div className="flex flex-col gap-6">
+              <ProjectPublishingPanel project={project} accessToken={accessToken} onChange={setProject} />
+              <div className="flex justify-end">
+                <DeleteButton
+                  label={t.detail.deleteLabel}
+                  confirmTitle={t.detail.deleteConfirmTitle}
+                  confirmMessage={t.detail.deleteConfirmMessage}
+                  onConfirm={handleDelete}
+                />
+              </div>
+            </div>
           )}
         </div>
       )}
