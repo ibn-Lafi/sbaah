@@ -468,11 +468,33 @@ export default function AppsPage() {
             </section>
           )
         ) : (
-          <section className="border-border-default bg-surface-card rounded-card border p-6 sm:p-8">
-            <h2 className="text-text-primary text-lg font-bold">{ar ? 'واتس اب Ai' : 'WhatsApp AI'}</h2>
-            <p className="text-text-secondary mt-2 text-sm leading-6">
-              {ar ? 'سيتم بناء واتس اب Ai كقسم مستقل بعد اكتمال مساعد Ai.' : 'WhatsApp AI will remain a separate section and will be built after the AI Assistant.'}
-            </p>
+          <section className="border-border-default bg-surface-card relative flex min-h-[360px] flex-1 overflow-hidden rounded-card border sm:min-h-[460px]">
+            <div className="bg-brand/5 absolute -end-20 -top-20 h-64 w-64 rounded-full blur-3xl" aria-hidden="true" />
+            <div className="bg-brand/5 absolute -bottom-24 -start-24 h-72 w-72 rounded-full blur-3xl" aria-hidden="true" />
+            <div className="relative flex w-full items-center justify-center p-6 sm:justify-end sm:p-10">
+              <div className="w-full max-w-sm text-center sm:text-start">
+                <div className="relative mx-auto mb-7 h-32 w-32 sm:mx-0">
+                  <span className="bg-brand/10 absolute inset-0 animate-pulse rounded-[34px]" />
+                  <span className="border-brand/15 absolute -inset-3 animate-[spin_10s_linear_infinite] rounded-full border border-dashed" />
+                  <div className="border-brand/15 bg-surface-card text-brand relative flex h-32 w-32 items-center justify-center rounded-[34px] border shadow-sm">
+                    <svg viewBox="0 0 64 64" className="h-16 w-16" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M12 50h40M17 50V30l15-12 15 12v20M25 50V37h14v13" />
+                      <path d="M9 25h14M12 20l-3 5 3 5M55 20H41M52 15l3 5-3 5" />
+                    </svg>
+                    <span className="bg-brand absolute -end-2 -top-2 h-4 w-4 animate-bounce rounded-full shadow-sm" />
+                    <span className="bg-brand/40 absolute -bottom-1 -start-1 h-3 w-3 animate-ping rounded-full" />
+                  </div>
+                </div>
+                <div className="text-brand mb-2 inline-flex items-center gap-2 rounded-full bg-brand/10 px-3 py-1 text-xs font-bold">
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-brand" />
+                  {ar ? 'قيد البناء' : 'In development'}
+                </div>
+                <h2 className="text-text-primary text-3xl font-bold tracking-tight sm:text-4xl">{ar ? 'قريبًا' : 'Coming soon'}</h2>
+                <p className="text-text-secondary mt-3 text-sm leading-7">
+                  {ar ? 'واتس اب Ai قيد البناء ليعمل كمساعد ذكي متصل بمحادثات عملائك داخل سبعة.' : 'WhatsApp AI is being built as an intelligent assistant connected to your customer conversations in Sbaah.'}
+                </p>
+              </div>
+            </div>
           </section>
         )}
 
