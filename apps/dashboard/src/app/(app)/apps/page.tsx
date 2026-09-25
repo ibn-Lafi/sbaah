@@ -109,6 +109,8 @@ export default function AppsPage() {
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
   const [decidingActionId, setDecidingActionId] = useState<string | null>(null);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [openingConversationId, setOpeningConversationId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -193,6 +195,33 @@ export default function AppsPage() {
     }
   }
 
+  function handleNewConversation() {
+    setConversationId(null);
+    setMessages([]);
+    setDraft('');
+    setError('');
+    setHistoryOpen(false);
+  }
+
+  async function handleOpenConversation(id: string) {
+    if (id === conversationId) {
+      setHistoryOpen(false);
+      return;
+    }
+    setOpeningConversationId(id);
+    setError('');
+    try {
+      const detail = await getAiConversation(accessToken, id);
+      setConversationId(id);
+      setMessages(detail.messages);
+      setHistoryOpen(false);
+    } catch {
+      setError(ar ? 'تعذر فتح المحادثة.' : 'Could not open the conversation.');
+    } finally {
+      setOpeningConversationId(null);
+    }
+  }
+
   async function handleActionDecision(actionId: string, decision: 'confirm' | 'cancel') {
     if (decidingActionId) return;
     setDecidingActionId(actionId);
@@ -235,7 +264,9 @@ export default function AppsPage() {
             <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
           </Link>
           <span className="text-text-primary text-sm font-semibold">{ar ? 'سبعة Ai' : 'Sbaah AI'}</span>
-          <span className="h-11 w-11" aria-hidden="true" />
+          <button type="button" onClick={() => setHistoryOpen(true)} aria-label={ar ? 'سجل المحادثات' : 'Conversation history'} className="text-text-primary bg-surface-subtle flex h-11 w-11 items-center justify-center rounded-full transition active:scale-95">
+            <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 4v16M13 9h4M13 13h4"/></svg>
+          </button>
         </div>
         <div className="bg-surface-subtle mb-4 grid w-full shrink-0 grid-cols-2 rounded-[12px] p-1 sm:mb-6">
           {([
@@ -265,7 +296,24 @@ export default function AppsPage() {
               <div className="bg-surface-subtle mt-3 h-4 w-64 max-w-full animate-pulse rounded" />
             </div>
           ) : assistant ? (
-            <section className="border-border-default bg-surface-card flex min-h-0 flex-1 flex-col overflow-hidden rounded-card border">
+            <div className="flex min-h-0 flex-1 gap-3">
+              <aside className="border-border-default bg-surface-card hidden w-64 shrink-0 flex-col overflow-hidden rounded-card border md:flex">
+                <div className="border-border-default border-b p-3">
+                  <button type="button" onClick={handleNewConversation} className="bg-brand w-full rounded-[10px] px-3 py-2.5 text-sm font-semibold text-white">
+                    {ar ? '+ محادثة جديدة' : '+ New conversation'}
+                  </button>
+                </div>
+                <div className="min-h-0 flex-1 overflow-y-auto p-2">
+                  <p className="text-text-secondary px-2 pb-2 text-xs font-semibold">{ar ? 'سجل المحادثات' : 'Conversation history'}</p>
+                  {conversations.length === 0 ? <p className="text-text-secondary px-2 py-4 text-xs">{ar ? 'لا توجد محادثات بعد.' : 'No conversations yet.'}</p> : conversations.map((conversation) => (
+                    <button key={conversation.id} type="button" onClick={() => void handleOpenConversation(conversation.id)} disabled={openingConversationId === conversation.id} className={`mb-1 w-full rounded-[9px] px-3 py-2.5 text-start text-sm transition disabled:opacity-50 ${conversationId === conversation.id ? 'bg-brand-surface text-brand font-semibold' : 'text-text-primary hover:bg-surface-subtle'}`}>
+                      <span className="block truncate">{conversation.title || (ar ? 'محادثة جديدة' : 'New conversation')}</span>
+                      <span className="text-text-secondary mt-1 block text-[10px]">{new Date(conversation.last_message_at).toLocaleDateString(ar ? 'ar-SA' : 'en-US')}</span>
+                    </button>
+                  ))}
+                </div>
+              </aside>
+              <section className="border-border-default bg-surface-card flex min-h-0 flex-1 flex-col overflow-hidden rounded-card border">
               <header className="border-border-default flex shrink-0 items-center gap-3 border-b px-4 py-4 sm:px-5">
                 <div className="bg-brand-surface text-brand flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold">
                   {assistant.name.trim().slice(0, 1) || 'Ai'}
@@ -352,6 +400,7 @@ export default function AppsPage() {
                 </div>
               </form>
             </section>
+            </div>
           ) : (
             <section className="mx-auto max-w-2xl">
               <div className="mb-6">
@@ -412,6 +461,30 @@ export default function AppsPage() {
 
         {error && assistant ? <p className="mt-3 text-sm text-red-600">{error}</p> : null}
       </div>
+      {historyOpen ? (
+        <div className="fixed inset-0 z-[80] md:hidden">
+          <button type="button" aria-label={ar ? 'إغلاق سجل المحادثات' : 'Close conversation history'} className="absolute inset-0 bg-black/35" onClick={() => setHistoryOpen(false)} />
+          <aside className={`bg-surface-page absolute inset-y-0 w-[84%] max-w-sm shadow-2xl ${ar ? 'right-0' : 'left-0'} flex flex-col pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))]`}>
+            <div className="flex items-center justify-between px-4 pb-4">
+              <h2 className="text-text-primary text-base font-bold">{ar ? 'المحادثات' : 'Conversations'}</h2>
+              <button type="button" onClick={() => setHistoryOpen(false)} className="bg-surface-subtle flex h-10 w-10 items-center justify-center rounded-full" aria-label={ar ? 'إغلاق' : 'Close'}>
+                <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+              </button>
+            </div>
+            <div className="px-4 pb-3">
+              <button type="button" onClick={handleNewConversation} className="bg-brand w-full rounded-[12px] px-4 py-3 text-sm font-semibold text-white">{ar ? '+ محادثة جديدة' : '+ New conversation'}</button>
+            </div>
+            <div className="min-h-0 flex-1 overflow-y-auto px-3">
+              {conversations.length === 0 ? <p className="text-text-secondary px-2 py-6 text-sm">{ar ? 'لا توجد محادثات بعد.' : 'No conversations yet.'}</p> : conversations.map((conversation) => (
+                <button key={conversation.id} type="button" onClick={() => void handleOpenConversation(conversation.id)} disabled={openingConversationId === conversation.id} className={`mb-1 w-full rounded-[12px] px-3 py-3 text-start transition disabled:opacity-50 ${conversationId === conversation.id ? 'bg-brand-surface text-brand' : 'text-text-primary active:bg-surface-subtle'}`}>
+                  <span className="block truncate text-sm font-semibold">{conversation.title || (ar ? 'محادثة جديدة' : 'New conversation')}</span>
+                  <span className="text-text-secondary mt-1 block text-[11px]">{new Date(conversation.last_message_at).toLocaleDateString(ar ? 'ar-SA' : 'en-US')}</span>
+                </button>
+              ))}
+            </div>
+          </aside>
+        </div>
+      ) : null}
     </AppShell>
   );
 }
