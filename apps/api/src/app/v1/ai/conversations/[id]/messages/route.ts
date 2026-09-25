@@ -114,6 +114,9 @@ export const POST = withErrorHandling(async (
       model: generated.model,
       response_id: generated.responseId,
       tools: generated.executedTools.map((tool) => tool.name),
+      tool_results: generated.executedTools
+        .filter((tool) => ['get_portfolio_summary', 'search_leads', 'search_projects', 'search_listings'].includes(tool.name))
+        .map((tool) => ({ name: tool.name, result: tool.result })),
       ...(() => {
         const pending = generated.executedTools.find((tool) => {
           const result = tool.result as { requires_confirmation?: boolean } | null;
