@@ -82,7 +82,7 @@ export const POST = withErrorHandling(async (
           conversation_id: conversation.id,
           requested_by: caller.userId,
           tool_name: name,
-          risk_level: sensitive ? 'sensitive' : ['create_lead', 'add_lead_note', 'set_lead_follow_up'].includes(name) ? 'write' : 'read',
+          risk_level: sensitive ? 'sensitive' : ['create_lead', 'add_lead_interest', 'add_lead_note', 'set_lead_follow_up'].includes(name) ? 'write' : 'read',
           status: sensitive ? 'awaiting_confirmation' : 'running',
           input: args,
           executed_at: startedAt,
