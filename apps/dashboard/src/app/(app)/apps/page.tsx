@@ -8,6 +8,70 @@ import { createAiConversation, decideAiAction, getAiAssistant, getAiConversation
 
 type Section = 'assistant' | 'whatsapp';
 
+type AiToolResult = { name?: string; result?: Record<string, unknown> };
+
+function RichToolResults({ metadata, ar }: { metadata: Record<string, unknown>; ar: boolean }) {
+  const raw = Array.isArray(metadata.tool_results) ? metadata.tool_results : [];
+  const results = raw.filter((item): item is AiToolResult => Boolean(item && typeof item === 'object'));
+
+  if (results.length === 0) return null;
+
+  return (
+    <div className="mt-3 flex flex-col gap-2">
+      {results.map((tool, index) => {
+        const result = tool.result ?? {};
+        if (tool.name === 'get_portfolio_summary') {
+          const stats = [
+            [ar ? 'العملاء' : 'Leads', result.leads],
+            [ar ? 'المشاريع' : 'Projects', result.projects],
+            [ar ? 'العقارات' : 'Properties', result.listings],
+          ];
+          return (
+            <div key={`summary-${index}`} className="grid grid-cols-3 gap-2">
+              {stats.map(([label, value]) => (
+                <div key={String(label)} className="border-border-default bg-surface-card rounded-[12px] border p-3 text-center">
+                  <div className="text-brand text-lg font-bold">{typeof value === 'number' ? value : 0}</div>
+                  <div className="text-text-secondary mt-0.5 text-[11px] font-medium">{String(label)}</div>
+                </div>
+              ))}
+            </div>
+          );
+        }
+
+        const rows = tool.name === 'search_leads'
+          ? result.leads
+          : tool.name === 'search_projects'
+            ? result.projects
+            : tool.name === 'search_listings'
+              ? result.listings
+              : null;
+        if (!Array.isArray(rows) || rows.length === 0) return null;
+
+        return (
+          <div key={`${tool.name}-${index}`} className="flex flex-col gap-2">
+            {rows.slice(0, 5).map((row, rowIndex) => {
+              if (!row || typeof row !== 'object') return null;
+              const item = row as Record<string, unknown>;
+              const title = String(item.full_name ?? item.name_ar ?? item.name_en ?? item.title_ar ?? item.title_en ?? item.listing_number ?? (ar ? 'نتيجة' : 'Result'));
+              const subtitle = tool.name === 'search_leads'
+                ? [item.phone, item.status].filter(Boolean).join(' · ')
+                : tool.name === 'search_projects'
+                  ? [item.reference_number, item.status].filter(Boolean).join(' · ')
+                  : [item.listing_number, item.listing_type, item.commercial_status].filter(Boolean).join(' · ');
+              return (
+                <div key={String(item.id ?? rowIndex)} className="border-border-default bg-surface-card rounded-[12px] border px-3.5 py-3">
+                  <div className="text-text-primary truncate text-sm font-bold">{title}</div>
+                  {subtitle ? <div className="text-text-secondary mt-1 truncate text-xs" dir={tool.name === 'search_leads' ? 'ltr' : undefined}>{subtitle}</div> : null}
+                </div>
+              );
+            })}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function AppsPage() {
   const { me, accessToken } = useCurrentUser();
   const { locale } = useLocale();
@@ -205,7 +269,8 @@ export default function AppsPage() {
                       <div key={message.id} className={`max-w-[85%] rounded-[14px] px-4 py-3 text-sm leading-6 ${
                         message.sender === 'user' ? 'bg-brand ms-auto text-white' : 'bg-surface-subtle text-text-primary me-auto'
                       }`}>
-                        {message.content}
+                        <span className="whitespace-pre-wrap">{message.content}</span>
+                        {message.sender === 'assistant' ? <RichToolResults metadata={message.metadata} ar={ar} /> : null}
                         {message.sender === 'assistant' && typeof message.metadata?.pending_action_id === 'string' ? (
                           <div className="border-border-default mt-3 flex flex-wrap gap-2 border-t pt-3">
                             {message.metadata?.pending_action_status === 'succeeded' ? (
