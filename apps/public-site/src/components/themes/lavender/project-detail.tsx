@@ -100,7 +100,7 @@ export function LavenderProjectDetail({
   ] as string[][];
   return (
     <main className="bg-[#f4f1ea] text-[#171713]">
-      <section className="relative min-h-[68svh] overflow-hidden bg-[#171713] text-white sm:min-h-[78vh]">
+      <section className="relative h-[100svh] min-h-[620px] overflow-hidden bg-[#171713] text-white">
         {primary && (
           <img
             src={primary.url}
@@ -110,7 +110,7 @@ export function LavenderProjectDetail({
           />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/30" />
-        <div className="relative mx-auto flex min-h-[68svh] max-w-7xl items-end px-5 pb-9 pt-28 sm:min-h-[78vh] sm:px-6 sm:pb-14">
+        <div className="relative mx-auto flex h-[100svh] min-h-[620px] max-w-7xl items-end px-5 pb-10 pt-24 sm:px-6 sm:pb-14">
           <div className="w-full max-w-4xl border-t border-white/40 pt-6">
             <p className="mb-4 text-xs font-semibold tracking-[.14em] text-white/80">
               {locale === 'ar' ? 'مشروع عقاري' : 'REAL ESTATE PROJECT'}
