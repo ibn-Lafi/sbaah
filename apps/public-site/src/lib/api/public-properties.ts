@@ -10,7 +10,7 @@ export interface PublicProperty {
   property_type:AssetType; listing_type:ListingType|null; price:number|null;
   area_sqm:number|null; bedrooms:number|null; bathrooms:number|null;
   city_id:string|null; district_id:string|null; lat:number|null; lng:number|null;
-  status:'published'; listing_number:string|null; pricing_period:string|null;
+  status:'published'; listing_id:string|null; listing_number:string|null; pricing_period:string|null;
   commercial_status:string|null; property_media:PublicPropertyMedia[];
 }
 export type PublicPropertyDetail = PublicProperty;
