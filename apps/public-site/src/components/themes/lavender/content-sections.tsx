@@ -76,7 +76,7 @@ export function LavenderServices({
 }) {
   const items = (config.items ?? []).filter((i) => i.title);
   return (
-    <LavenderSection className={soft(config.tone)}>
+    <LavenderSection className="bg-transparent">
       <LavenderHeading
         eyebrow={locale === 'ar' ? 'خبرات متكاملة' : 'Integrated expertise'}
         title={config.title_ar || copy[locale].services}
