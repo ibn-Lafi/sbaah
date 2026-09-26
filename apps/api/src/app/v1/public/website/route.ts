@@ -56,6 +56,10 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     cr_number: chrome.cr_number,
     tax_number: chrome.tax_number,
     fal_license_number: chrome.fal_license_number,
+    freelance_document_number:
+      chrome.account_type === 'individual' ? chrome.freelance_document_number : null,
+    wafi_license_number:
+      chrome.account_type === 'individual' ? null : chrome.wafi_license_number,
     social_instagram: chrome.social_instagram,
     social_tiktok: chrome.social_tiktok,
     social_whatsapp: chrome.social_whatsapp,
