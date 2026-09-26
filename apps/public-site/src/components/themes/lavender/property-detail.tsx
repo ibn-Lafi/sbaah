@@ -42,7 +42,7 @@ export function LavenderPropertyDetail({
     [locale === 'ar' ? 'الرقم المرجعي' : 'Reference', property.listing_number || '—'],
   ];
   return (
-    <article className="bg-[#f4f1ea] text-[#171713]">
+    <article className="bg-[var(--tenant-background)] text-[#171713]">
       <header className="px-5 pb-10 pt-12 sm:px-6 sm:pb-16 sm:pt-16">
         <div className="mx-auto max-w-7xl">
           <div className="grid gap-8 pt-6 lg:grid-cols-[1fr_auto] lg:items-end">
