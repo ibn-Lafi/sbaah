@@ -25,14 +25,17 @@ const publicWebsiteQuerySchema = z.object({
  * active tenants.
  */
 export const GET = withErrorHandling(async (request: NextRequest) => {
-  const { domain, page: pageKey } = publicWebsiteQuerySchema.parse(Object.fromEntries(request.nextUrl.searchParams));
+  const { domain, page: pageKey } = publicWebsiteQuerySchema.parse(
+    Object.fromEntries(request.nextUrl.searchParams),
+  );
 
   const supabase = createAnonClient();
   const chrome = await resolvePublicTenantChrome(domain, supabase);
   if (!chrome) {
     throw new ApiError(404, 'site_not_found', 'الموقع غير موجود');
   }
-  const trialExpired = chrome.trial_ends_at !== null && new Date(chrome.trial_ends_at) <= new Date();
+  const trialExpired =
+    chrome.trial_ends_at !== null && new Date(chrome.trial_ends_at) <= new Date();
   if (chrome.status !== 'active' || trialExpired) {
     throw new ApiError(403, 'tenant_suspended', 'الحساب غير متاح حاليًا');
   }
@@ -43,7 +46,8 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
   // صراحة، لعرض رسالة مختلفة عن "الحساب موقوف".
   const profileComplete =
     chrome.fal_license_number !== null &&
-    (chrome.account_type === 'individual' || (chrome.cr_number !== null && chrome.tax_number !== null));
+    (chrome.account_type === 'individual' ||
+      (chrome.cr_number !== null && chrome.tax_number !== null));
   if (!profileComplete) {
     throw new ApiError(403, 'profile_incomplete', 'الموقع غير منشور بعد');
   }
@@ -56,6 +60,9 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     cr_number: chrome.cr_number,
     tax_number: chrome.tax_number,
     fal_license_number: chrome.fal_license_number,
+    freelance_document_number:
+      chrome.account_type === 'individual' ? chrome.freelance_document_number : null,
+    wafi_license_number: chrome.account_type === 'individual' ? null : chrome.wafi_license_number,
     social_instagram: chrome.social_instagram,
     social_tiktok: chrome.social_tiktok,
     social_whatsapp: chrome.social_whatsapp,
@@ -89,7 +96,11 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
   // Resolves the theme's stable code-reference `key` (e.g. 'classic') from
   // its uuid — public-site's theme registry (apps/public-site/src/components/themes)
   // looks components up by `key`, never by the row's `id`.
-  const { data: theme, error: themeError } = await supabase.from('themes').select('key').eq('id', website.theme_id).single();
+  const { data: theme, error: themeError } = await supabase
+    .from('themes')
+    .select('key')
+    .eq('id', website.theme_id)
+    .single();
   if (themeError || !theme) {
     throw new Error(`Failed to load website theme: ${themeError?.message}`);
   }
@@ -99,7 +110,11 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
   // sections — re-stated explicitly per PRODUCT_SPEC section 10
   // ("فلترة صريحة داخل api قبل أي استعلام"), same as every other public
   // endpoint, not relied on as the only guard.
-  const { id: websiteId, theme_id: _themeId, ...websiteConfig } = { ...website, theme_key: theme.key };
+  const {
+    id: websiteId,
+    theme_id: _themeId,
+    ...websiteConfig
+  } = { ...website, theme_key: theme.key };
 
   const { data: page, error: pageError } = await supabase
     .from('website_pages')
@@ -149,5 +164,11 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     throw new Error(`Failed to load custom pages: ${customPagesError.message}`);
   }
 
-  return okResponse({ tenant, website: websiteConfig, sections, whatsapp_phone: owner.phone, custom_pages: customPages });
+  return okResponse({
+    tenant,
+    website: websiteConfig,
+    sections,
+    whatsapp_phone: owner.phone,
+    custom_pages: customPages,
+  });
 });
