@@ -195,13 +195,13 @@ export default function PropertiesPage() {
                     <td className="px-2 py-3 text-right sm:px-4">
                       <button
                         type="button"
-                        onClick={() => { window.location.href = `/properties/${row.asset_id}`; }}
+                        onClick={() => { window.location.href = row.asset_id ? `/properties/${row.asset_id}` : `/projects/${row.project_id}`; }}
                         className="font-medium hover:text-brand"
                       >
-                        {row.assets?.name_ar ?? '—'}
+                        {row.assets?.name_ar ?? row.projects?.name_ar ?? '—'}
                       </button>
                     </td>
-                    <td className="px-2 py-3 text-right sm:px-4">{row.assets?.reference_number ?? '—'}</td>
+                    <td className="px-2 py-3 text-right sm:px-4">{row.assets?.reference_number ?? row.projects?.reference_number ?? '—'}</td>
                     <td className="px-2 py-3 text-right sm:px-4">
                       {row.status === 'active' ? 'نشط' : row.status === 'paused' ? 'متوقف مؤقتًا' : 'منتهي'}
                     </td>
