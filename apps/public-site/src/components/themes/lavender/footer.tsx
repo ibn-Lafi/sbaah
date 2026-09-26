@@ -61,14 +61,29 @@ export function Footer({ locale, dict, tenant, website, customPages }: FooterPro
     (entry): entry is { key: string; label: string; href: string; Icon: typeof InstagramIcon } =>
       Boolean(entry),
   );
+  const isOrganization = tenant.account_type === 'institution' || tenant.account_type === 'company';
   const registrations = [
-    tenant.cr_number && { key: 'cr', label: dict.crNumber, value: tenant.cr_number },
-    tenant.tax_number && { key: 'tax', label: dict.taxNumber, value: tenant.tax_number },
+    isOrganization &&
+      tenant.cr_number && { key: 'cr', label: dict.crNumber, value: tenant.cr_number },
+    isOrganization &&
+      tenant.tax_number && { key: 'tax', label: dict.taxNumber, value: tenant.tax_number },
     tenant.fal_license_number && {
       key: 'fal',
       label: dict.falLicense,
       value: tenant.fal_license_number,
     },
+    isOrganization &&
+      tenant.wafi_license_number && {
+        key: 'wafi',
+        label: dict.wafiLicense,
+        value: tenant.wafi_license_number,
+      },
+    !isOrganization &&
+      tenant.freelance_document_number && {
+        key: 'freelance',
+        label: dict.freelanceDocument,
+        value: tenant.freelance_document_number,
+      },
   ].filter((entry): entry is { key: string; label: string; value: string } => Boolean(entry));
   return (
     <footer id="contact" className="bg-tenant-primary text-white">
