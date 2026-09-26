@@ -3,17 +3,20 @@ import type { PublicPropertyDetail } from '@/lib/api/public-properties';
 import type { City, District } from '@sbaah/shared';
 import { pickLocalized } from '@/lib/i18n/localized-field';
 import { formatPrice, getListingTypeLabel, getPropertyTypeLabel } from '@/lib/property/labels';
+import { InquiryForm } from '@/components/properties/inquiry-form';
 
 export function LavenderPropertyDetail({
   locale,
   property,
   city,
   district,
+  tenantId,
 }: {
   locale: Locale;
   property: PublicPropertyDetail;
   city?: City;
   district?: District;
+  tenantId: string;
 }) {
   const title = pickLocalized(locale, property.title_ar, property.title_en);
   const desc = pickLocalized(locale, property.description_ar, property.description_en);
@@ -119,6 +122,17 @@ export function LavenderPropertyDetail({
                 {locale === 'ar' ? '←' : '→'}
               </span>
             </a>
+          </div>
+        </div>
+      </section>
+      <section id="inquiry" className="px-5 py-14 sm:px-6 sm:py-20">
+        <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[.7fr_1.3fr] lg:gap-14">
+          <div>
+            <p className="text-tenant-primary mb-3 text-xs font-semibold">{locale === 'ar' ? 'مهتم بالعقار؟' : 'INTERESTED?'}</p>
+            <h2 className="text-3xl font-semibold sm:text-5xl">{locale === 'ar' ? 'سجل اهتمامك' : 'Register your interest'}</h2>
+          </div>
+          <div className="rounded-2xl bg-white/50 p-1">
+            <InquiryForm locale={locale} tenantId={tenantId} listingId={property.id} variant="lavender" />
           </div>
         </div>
       </section>
