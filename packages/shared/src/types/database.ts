@@ -210,6 +210,8 @@ export interface Website {
   footer_description: string | null;
   /** العنوان — سطر عنوان يظهر في تذييل الموقع العام (migration 0048)، منفصل عن footer_description. */
   address: string | null;
+  /** Footer copyright line. Editable only for Gold subscriptions. */
+  copyright_text: string;
 }
 
 /** الصفحات — صفحة يكتبها المالك/المسؤول (عنوان + محتوى)، تُعرض عبر رابط في تذييل الموقع (مثل سياسة الخصوصية). */
