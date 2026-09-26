@@ -7,10 +7,10 @@ drop function if exists resolve_public_tenant_chrome(text, text);
 create function resolve_public_tenant_chrome(p_subdomain text, p_custom_domain text)
 returns table(
   id uuid,
-  status tenant_status,
+  status public.tenant_status,
   name_ar text,
   name_en text,
-  account_type account_type,
+  account_type public.account_type,
   cr_number text,
   tax_number text,
   fal_license_number text,
@@ -26,12 +26,12 @@ returns table(
   social_telegram text,
   trial_ends_at timestamptz,
   custom_domain text,
-  custom_domain_status custom_domain_status
+  custom_domain_status public.custom_domain_status
 )
 language sql
 stable
 security definer
-set search_path = public
+set search_path = ''
 as $$
   select
     id, status, name_ar, name_en, account_type,
@@ -40,11 +40,12 @@ as $$
     social_instagram, social_tiktok, social_whatsapp, social_snapchat, social_phone,
     social_facebook, social_x, social_telegram,
     trial_ends_at, custom_domain, custom_domain_status
-  from tenants
+  from public.tenants
   where
     (p_subdomain is not null and subdomain = p_subdomain)
     or (p_custom_domain is not null and custom_domain = p_custom_domain and custom_domain_status = 'verified')
   limit 1;
 $$;
 
-grant execute on function resolve_public_tenant_chrome(text, text) to anon, authenticated;
+revoke execute on function public.resolve_public_tenant_chrome(text, text) from public;
+grant execute on function public.resolve_public_tenant_chrome(text, text) to anon, authenticated;
