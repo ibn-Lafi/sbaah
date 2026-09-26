@@ -164,14 +164,16 @@ export async function LavenderProjects({
         </div>
         <More locale={locale} href="/projects" dark />
       </div>
-      <div className={`grid gap-5 ${cols(config.columns)}`}>
-        {details.map((p, i) => (
+      <div
+        className="-mx-5 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:-mx-8 sm:gap-5 sm:px-8 lg:-mx-12 lg:px-12"
+        aria-label={locale === 'ar' ? 'المشاريع العقارية' : 'Real estate projects'}
+      >
+        {details.map((p) => (
           <LavenderProject
             key={p.id}
             project={p}
             city={city.get(p.city_id)}
             locale={locale}
-            featured={i === 0 && config.columns !== 4}
           />
         ))}
       </div>
