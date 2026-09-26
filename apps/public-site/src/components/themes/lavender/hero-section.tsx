@@ -19,7 +19,7 @@ export async function HeroSection({
   const useImage = (variant === 'image' || variant === 'image_search') && Boolean(bannerUrl);
   const cities = showSearch ? await listCities() : [];
   return (
-    <section className="relative -mt-20 h-[100svh] min-h-[100svh] w-full overflow-hidden bg-[#171a17] text-white">
+    <section className="relative -mt-20 h-[calc(100svh+5rem)] min-h-[calc(100svh+5rem)] w-full overflow-hidden bg-[#171a17] text-white">
       {useVideo && (
         <video
           src={bannerVideoUrl ?? undefined}
