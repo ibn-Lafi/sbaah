@@ -17,6 +17,7 @@ import { FormPageSkeleton } from '@/components/ui/form-page-skeleton';
 import { SegmentedToggle } from '@/components/ui/segmented-toggle';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { deleteProject, getProject, updateProject } from '@/lib/api/hierarchy';
+import { getProjectSalesCenter, type ProjectSalesCenter } from '@/lib/api/developer-inventory';
 import { ApiRequestError, isNotFoundError } from '@/lib/api/client';
 import { useLocale } from '@/lib/i18n/locale-context';
 
@@ -39,9 +40,11 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
   const [retryKey, setRetryKey] = useState(0);
   const [activeSection, setActiveSection] = useState<ProjectSection>('overview');
   const [showEdit, setShowEdit] = useState(false);
+  const [sales, setSales] = useState<ProjectSalesCenter | null>(null);
 
   useEffect(() => {
     let cancelled = false;
+    void getProjectSalesCenter(accessToken, id).then((value) => { if (!cancelled) setSales(value); }).catch(() => { if (!cancelled) setSales(null); });
     getProject(accessToken, id)
       .then(({ project: loaded }) => {
         if (cancelled) return;
@@ -63,7 +66,7 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
   const sections: Array<{ value: ProjectSection; label: string }> = [
     { value: 'overview', label: 'نظرة عامة' },
     { value: 'media', label: 'الوسائط' },
-    { value: 'inventory', label: 'العقارات والوحدات' },
+    { value: 'inventory', label: 'العقارات' },
     ...(canManage ? [{ value: 'publishing' as const, label: 'البيانات والنشر' }] : []),
   ];
 
@@ -108,7 +111,7 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
           <BackButton href="/projects" label="رجوع" className="self-start" />
 
-          <SegmentedToggle value={activeSection} onChange={setActiveSection} options={sections} className="settings-tabs" />
+          <SegmentedToggle value={activeSection} onChange={setActiveSection} options={sections} className="project-tabs mx-auto max-w-3xl" />
 
           {activeSection === 'overview' && (
             <div className="flex flex-col gap-5">
@@ -130,6 +133,26 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
                   <p className="mt-2 font-semibold">{project.reference_number ?? '—'}</p>
                 </Card>
               </div>
+
+              {sales && (
+                <Card className="p-5">
+                  <div className="mb-4 flex items-center justify-between gap-3">
+                    <div>
+                      <h2 className="font-semibold text-text-primary">المبيعات</h2>
+                      <p className="mt-1 text-xs text-text-secondary">ملخص سريع لأداء المشروع.</p>
+                    </div>
+                    <span className="text-sm font-semibold text-brand">
+                      {sales.summary.total ? Math.round((sales.summary.sold / sales.summary.total) * 100) : 0}% مبيع
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    <div className="rounded-xl bg-surface-subtle-3 p-3"><p className="text-xs text-text-secondary">المتاح</p><p className="mt-1 font-semibold">{sales.summary.available}</p></div>
+                    <div className="rounded-xl bg-surface-subtle-3 p-3"><p className="text-xs text-text-secondary">المحجوز</p><p className="mt-1 font-semibold">{sales.summary.reserved}</p></div>
+                    <div className="rounded-xl bg-surface-subtle-3 p-3"><p className="text-xs text-text-secondary">المباع</p><p className="mt-1 font-semibold">{sales.summary.sold}</p></div>
+                    <div className="rounded-xl bg-surface-subtle-3 p-3"><p className="text-xs text-text-secondary">تحويل الاهتمام للبيع</p><p className="mt-1 font-semibold">{Math.round(sales.funnel.overall_conversion * 100)}%</p></div>
+                  </div>
+                </Card>
+              )}
 
               <Card className="p-6">
                 <div className="flex items-center justify-between gap-3">
