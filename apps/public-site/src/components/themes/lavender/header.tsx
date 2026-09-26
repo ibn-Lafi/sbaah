@@ -43,8 +43,10 @@ export function Header({
   return (
     <>
       <header
-        className={`fixed inset-x-0 top-0 z-50 bg-[#f7f5ef] text-[#171a17] transition-shadow duration-300 ${
-          scrolled ? 'shadow-[0_8px_28px_rgba(17,24,17,.10)]' : 'shadow-none'
+        className={`fixed inset-x-0 top-0 z-50 text-[#171a17] transition-[background-color,box-shadow,backdrop-filter] duration-300 ${
+          scrolled
+            ? 'bg-[#f7f5ef]/95 shadow-[0_8px_28px_rgba(17,24,17,.10)] backdrop-blur-xl'
+            : 'bg-transparent shadow-none'
         }`}
       >
 
