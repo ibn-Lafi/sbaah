@@ -49,6 +49,7 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
   }
   const tenantId = chrome.id;
   const tenant = {
+    id: tenantId,
     name_ar: chrome.name_ar,
     name_en: chrome.name_en,
     account_type: chrome.account_type,
