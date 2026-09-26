@@ -30,8 +30,8 @@ function ThemePreviewImageCell({ theme, onUploaded }: { theme: Theme; onUploaded
   }
 
   return (
-    <div className="flex items-center gap-2">
-      {theme.preview_image_url ? (
+    <div className="flex min-w-[230px] flex-col gap-1.5">
+      <p className="text-[11px] text-text-muted">1200 × 900 px · JPG, PNG, WEBP</p><div className="flex items-center gap-2">{theme.preview_image_url ? (
         // eslint-disable-next-line @next/next/no-img-element -- Supabase Storage public URL, not a local/optimizable asset
         <img src={theme.preview_image_url} alt="" className="h-10 w-16 rounded border border-border-default object-cover" />
       ) : (
@@ -39,15 +39,15 @@ function ThemePreviewImageCell({ theme, onUploaded }: { theme: Theme; onUploaded
           بلا صورة
         </div>
       )}
-      <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => void handleFileSelected(e)} />
+      <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={(e) => void handleFileSelected(e)} />
       <button
         type="button"
         disabled={uploading}
         onClick={() => fileInputRef.current?.click()}
-        className="text-xs font-semibold text-brand hover:underline disabled:opacity-50"
+        className="inline-flex h-9 min-w-24 items-center justify-center rounded border border-border-default px-3 text-xs font-semibold text-brand hover:bg-surface-header disabled:opacity-50"
       >
         {uploading ? 'جارٍ الرفع...' : theme.preview_image_url ? 'استبدال' : 'رفع صورة'}
-      </button>
+      </button></div>
     </div>
   );
 }
