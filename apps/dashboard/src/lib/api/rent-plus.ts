@@ -1,5 +1,5 @@
 import { apiGet, apiPost, apiPatch } from './client';
-export interface ManagedPropertyRow { id:string; asset_id:string; status:string; starts_at:string; ends_at:string|null; management_fee_type:string|null; management_fee_value:number|null; assets?:{id:string;name_ar:string;reference_number:string|null;asset_type:string}|null; }
+export interface ManagedPropertyRow { id:string; asset_id:string|null; project_id:string|null; status:string; starts_at:string; ends_at:string|null; management_fee_type:string|null; management_fee_value:number|null; assets?:{id:string;name_ar:string;reference_number:string|null;asset_type:string;parent_asset_id?:string|null;project_id?:string|null}|null; projects?:{id:string;name_ar:string;reference_number:string|null}|null; }
 export interface LeaseContractRow { id:string; contract_number:string; source:string; start_date:string; end_date:string; total_value:number; status:string; signed_at?:string|null; termination_reason?:string|null; lease_contract_assets?:Array<{asset_id:string}>; lease_contract_parties?:Array<{party_id:string;role:string}>; }
 export interface EjarPartyRow { id:string; name:string; party_type:string; phone:string|null; email:string|null; lead_id?:string|null; }
 export interface MaintenanceRow { id:string; request_number:string; title:string; priority:string; status:string; opened_at:string; assets?:{name_ar:string;reference_number:string|null}|null; }
@@ -15,9 +15,9 @@ export const createMaintenance=(token:string,input:unknown)=>apiPost<{maintenanc
 export const listLeasePayments=(token:string)=>apiGet<{payments:LeasePaymentRow[]}>('/v1/rent-plus/payments',token);
 export const recordLeasePayment=(token:string,input:unknown)=>apiPost<{payment:LeasePaymentRow}>('/v1/rent-plus/payments',input,token);
 
-export interface AssetOption { id:string; name_ar:string; reference_number:string|null; asset_type:string; }
+export interface AssetOption { id:string; name_ar:string; reference_number:string|null; asset_type:string; parent_asset_id?:string|null; project_id?:string|null; }
 export interface InstallmentRow { id:string; contract_id:string; installment_number:number; due_date:string; amount:number; paid_amount:number; remaining_amount:number; status:string; }
-export const listAssetOptions=(token:string)=>apiGet<{assets:AssetOption[]}>('/v1/assets?page_size=50',token);
+export const listAssetOptions=(token:string,params='page_size=50')=>apiGet<{assets:AssetOption[]}>(`/v1/assets?${params}`,token);
 export const listInstallments=(token:string,contractId?:string)=>apiGet<{installments:InstallmentRow[]}>(`/v1/rent-plus/installments${contractId?`?contract_id=${encodeURIComponent(contractId)}`:''}`,token);
 export const createInstallment=(token:string,input:unknown)=>apiPost<{installment:InstallmentRow}>('/v1/rent-plus/installments',input,token);
 export const getLeaseContract=(token:string,id:string)=>apiGet<{contract:LeaseContractRow & Record<string,unknown>}>(`/v1/rent-plus/contracts/${id}`,token);
