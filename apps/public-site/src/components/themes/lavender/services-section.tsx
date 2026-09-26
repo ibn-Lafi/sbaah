@@ -20,8 +20,8 @@ export function LavenderServices({ locale, config }: { locale: Locale; config: S
           {locale === 'ar' ? 'خدماتنا' : 'Services'}
         </p>
 
-        <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-16">
-          <div className="min-w-0" aria-live="polite">
+        <div className="grid items-start gap-10 lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-16">
+          <div className="min-w-0 lg:col-start-2 lg:row-start-1" aria-live="polite">
             <h3 className="text-3xl font-semibold leading-tight sm:text-4xl lg:text-5xl">
               {current.title}
             </h3>
@@ -33,7 +33,7 @@ export function LavenderServices({ locale, config }: { locale: Locale; config: S
           </div>
 
           <div
-            className={locale === 'ar' ? 'border-r-2 border-[#173d34]/10 pr-4 sm:pr-5' : 'border-l-2 border-[#173d34]/10 pl-4 sm:pl-5'}
+            className={`lg:col-start-1 lg:row-start-1 ${locale === 'ar' ? 'border-r-2 border-[#173d34]/10 pr-4 sm:pr-5' : 'border-l-2 border-[#173d34]/10 pl-4 sm:pl-5'}`}
             role="tablist"
             aria-label={locale === 'ar' ? 'الخدمات' : 'Services'}
           >
