@@ -90,7 +90,7 @@ export function Footer({ locale, dict, tenant, website, customPages }: FooterPro
         </div>
         {registrations.length>0&&<div className="mt-10 flex flex-wrap gap-x-8 gap-y-3 border-t border-white/15 pt-6">{registrations.map(entry=><div key={entry.key} className="text-sm"><span className="text-white/55">{entry.label}: </span><strong dir="ltr" className="font-medium text-white/85">{entry.value}</strong></div>)}</div>}
         <div className="mt-10 flex flex-col gap-5 border-t border-white/15 pt-6 text-sm text-white/55 sm:flex-row sm:items-center sm:justify-between">
-          <span>© {new Date().getFullYear()} {locale==='ar'?'جميع الحقوق محفوظة':'All rights reserved'} — {name}</span>
+          <span>© {new Date().getFullYear()} {website.copyright_text || 'جميع الحقوق محفوظة @سبعة'}</span>
           <div className="flex items-center gap-5"><a href={locale==='ar'?'/en':'/'} className="font-semibold text-white">{locale==='ar'?'English':'العربية'}</a><SiteBadge accountType={tenant.account_type} locale={locale}/></div>
         </div>
       </div>
