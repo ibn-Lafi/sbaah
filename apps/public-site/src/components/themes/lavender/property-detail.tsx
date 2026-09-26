@@ -42,7 +42,7 @@ export function LavenderPropertyDetail({
     <article className="bg-[#f4f1ea] text-[#171713]">
       <header className="px-5 pb-10 pt-12 sm:px-6 sm:pb-16 sm:pt-16">
         <div className="mx-auto max-w-7xl">
-          <div className="grid gap-8 border-t border-black/25 pt-6 lg:grid-cols-[1fr_auto] lg:items-end">
+          <div className="grid gap-8 pt-6 lg:grid-cols-[1fr_auto] lg:items-end">
             <div>
               <p className="text-tenant-primary mb-4 text-xs font-semibold tracking-[.12em]">
                 {getListingTypeLabel(locale, property.listing_type)}
