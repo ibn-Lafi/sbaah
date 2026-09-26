@@ -78,7 +78,7 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
   const { data: website, error: websiteError } = await supabase
     .from('websites')
     .select(
-      'id, theme_id, primary_color, secondary_color, font_family, logo_url, banner_image_url, banner_video_url, announcement_bar_text, footer_description, address',
+      'id, theme_id, primary_color, secondary_color, background_color, font_family, logo_url, favicon_url, banner_image_url, banner_video_url, announcement_bar_text, footer_description, address',
     )
     .eq('tenant_id', tenantId)
     .single();
