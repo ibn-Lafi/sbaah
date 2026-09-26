@@ -57,6 +57,8 @@ export interface PublicTenantChrome {
   cr_number: string | null;
   tax_number: string | null;
   fal_license_number: string | null;
+  freelance_document_number: string | null;
+  wafi_license_number: string | null;
   /** Set only for a trial-plan signup (migration 0047) — past this, the caller treats the tenant like suspended. */
   trial_ends_at: string | null;
   social_instagram: string | null;
