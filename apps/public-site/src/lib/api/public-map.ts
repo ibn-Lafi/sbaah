@@ -7,12 +7,12 @@ export interface MapPropertyPin {
   title_ar: string;
   title_en: string | null;
   property_type: AssetType;
-  listing_type: ListingType;
-  price: number;
-  area_sqm: number;
+  listing_type: ListingType | null;
+  price: number | null;
+  area_sqm: number | null;
   bedrooms: number | null;
   bathrooms: number | null;
-  city_id: string;
+  city_id: string | null;
   district_id: string | null;
   lat: number;
   lng: number;
