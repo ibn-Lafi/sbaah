@@ -13,7 +13,7 @@ import { apiDelete, apiGet, apiPatch, apiPost, apiUpload } from './client';
 export type WebsitePageWithSections = WebsitePage & { website_sections: WebsiteSection[] };
 
 export function getWebsite(accessToken: string): Promise<{ website: Website; pages: WebsitePageWithSections[]; capabilities: { can_customize_copyright: boolean } }> {
-  return apiGet<{ website: Website; pages: WebsitePageWithSections[] }>('/website', accessToken);
+  return apiGet<{ website: Website; pages: WebsitePageWithSections[]; capabilities: { can_customize_copyright: boolean } }>('/website', accessToken);
 }
 
 export function updateWebsite(accessToken: string, input: WebsiteUpdateInput): Promise<{ website: Website }> {
