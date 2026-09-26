@@ -88,7 +88,6 @@ export function LavenderProject({
   project,
   city,
   locale,
-  featured = false,
 }: {
   project: PublicProject;
   city?: City;
@@ -96,75 +95,59 @@ export function LavenderProject({
   featured?: boolean;
 }) {
   const title = pickLocalized(locale, project.name_ar, project.name_en);
-  const description = pickLocalized(
-    locale,
-    project.description_ar ?? '',
-    project.description_en ?? null,
-  );
   const image =
     project.media?.find((media) => media.is_primary && media.media_type === 'image')?.url ??
     project.media?.find((media) => media.media_type === 'image')?.url;
+  const completion =
+    typeof project.completion_percentage === 'number'
+      ? Math.min(100, Math.max(0, project.completion_percentage))
+      : null;
+
   return (
     <a
       href={localizedPath(locale, `/projects/${project.slug ?? project.id}`)}
-      className={`focus-visible:ring-tenant-primary group block bg-[#272720] text-white outline-none focus-visible:ring-2 focus-visible:ring-offset-4 ${featured ? 'lg:col-span-2' : ''}`}
+      className="focus-visible:ring-tenant-primary group block w-[78vw] max-w-[430px] shrink-0 snap-center outline-none focus-visible:ring-2 focus-visible:ring-offset-4 sm:w-[420px] lg:w-[480px] lg:max-w-[480px]"
     >
-      <div
-        className={`relative overflow-hidden ${featured ? 'aspect-[16/9] lg:aspect-[16/8]' : 'aspect-[4/3]'}`}
-      >
+      <div className="relative aspect-[4/5] overflow-hidden bg-[#272720] sm:aspect-[3/4]">
         {image ? (
           <img
             src={image}
             alt={title}
-            loading={featured ? 'eager' : 'lazy'}
-            className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.02] motion-reduce:transition-none"
+            loading="lazy"
+            className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.025] motion-reduce:transition-none"
           />
         ) : (
           <div className="h-full bg-gradient-to-br from-[#46453e] to-[#1d1d19]" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/10" />
-        <div className="absolute inset-x-0 bottom-0 p-5 sm:p-7 lg:p-8">
-          <div className="mb-3 flex items-center justify-between gap-4 text-xs font-medium text-white/80">
-            <span>
-              {city
-                ? pickLocalized(locale, city.name_ar, city.name_en)
-                : locale === 'ar'
-                  ? 'مشروع عقاري'
-                  : 'Real estate project'}
-            </span>
-            <span
-              aria-hidden="true"
-              className="text-xl transition-transform group-hover:-translate-x-1 motion-reduce:transition-none rtl:group-hover:translate-x-1"
-            >
-              {arrow(locale)}
-            </span>
-          </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/5 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 p-5 text-white sm:p-6">
           <h3 className="text-2xl font-semibold leading-tight sm:text-3xl">{title}</h3>
-          {description && (
-            <p className="mt-3 line-clamp-2 max-w-2xl text-sm leading-6 text-white/80">
-              {description}
+          {city && (
+            <p className="mt-2 text-sm text-white/85">
+              {pickLocalized(locale, city.name_ar, city.name_en)}
             </p>
           )}
-          <dl className="mt-5 flex flex-wrap gap-x-6 gap-y-3 border-t border-white/30 pt-4 text-xs text-white/80">
-            {project.completion_percentage != null && (
-              <div>
-                <dt className="inline">{locale === 'ar' ? 'الإنجاز' : 'Progress'} </dt>
-                <dd className="inline font-bold text-white">{project.completion_percentage}%</dd>
+          {completion != null && (
+            <div className="mt-5">
+              <div className="mb-2 flex items-center justify-between gap-4 text-sm text-white">
+                <span>{locale === 'ar' ? 'مكتمل' : 'Completed'}</span>
+                <span className="font-semibold tabular-nums">{completion}%</span>
               </div>
-            )}
-            {project.models_count != null && (
-              <div>
-                <dt className="inline">{locale === 'ar' ? 'النماذج' : 'Models'} </dt>
-                <dd className="inline font-bold text-white">{project.models_count}</dd>
+              <div
+                className="h-2 w-full overflow-hidden rounded-full bg-white/30"
+                role="progressbar"
+                aria-label={locale === 'ar' ? 'نسبة اكتمال المشروع' : 'Project completion'}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={completion}
+              >
+                <div
+                  className="bg-tenant-primary h-full rounded-full transition-[width] duration-500"
+                  style={{ width: `${completion}%` }}
+                />
               </div>
-            )}
-            {project.planned_units_count != null && (
-              <div>
-                <dt className="inline">{locale === 'ar' ? 'الوحدات' : 'Units'} </dt>
-                <dd className="inline font-bold text-white">{project.planned_units_count}</dd>
-              </div>
-            )}
-          </dl>
+            </div>
+          )}
         </div>
       </div>
     </a>
