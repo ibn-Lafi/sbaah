@@ -55,7 +55,10 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
     if (unitType.project_id && unitType.project_id !== effectiveProjectId) throw new ApiError(400, 'unit_type_project_mismatch', 'نوع الوحدة لا يتبع المشروع المحدد');
     if (unitType.asset_type && unitType.asset_type !== input.asset_type) throw new ApiError(400, 'unit_type_asset_mismatch', 'نوع العقار لا يطابق نوع الوحدة المحدد');
   }
-  const { data, error } = await supabase.from('assets').insert({ ...input, project_id:effectiveProjectId, tenant_id: caller.tenantId }).select().single();
+  const createPayload = { ...input, project_id: effectiveProjectId, tenant_id: caller.tenantId };
+  if (input.parent_asset_id || effectiveProjectId) Object.assign(createPayload, { city_id: null, district_id: null, lat: null, lng: null });
+  if (input.parent_asset_id) Object.assign(createPayload, { street_width: null });
+  const { data, error } = await supabase.from('assets').insert(createPayload).select().single();
   if (error) throw new Error(`Failed to create asset: ${error.message}`);
   return okResponse({ asset: data }, 201);
 });
