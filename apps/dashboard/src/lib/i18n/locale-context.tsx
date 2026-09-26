@@ -37,8 +37,25 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
     }
   }, [locale]);
 
-  const setLocale = useCallback((next: Locale) => setLocaleState(next), []);
-  const toggleLocale = useCallback(() => setLocaleState((current) => (current === 'ar' ? 'en' : 'ar')), []);
+  const applyLocaleAndReload = useCallback((next: Locale) => {
+    try {
+      window.localStorage.setItem(LOCALE_STORAGE_KEY, next);
+    } catch {
+      // Storage may be unavailable; the current document is still updated before reload.
+    }
+    document.documentElement.lang = next;
+    document.documentElement.dir = dirFor(next);
+    window.location.reload();
+  }, []);
+
+  const setLocale = useCallback((next: Locale) => {
+    if (next === locale) return;
+    applyLocaleAndReload(next);
+  }, [applyLocaleAndReload, locale]);
+
+  const toggleLocale = useCallback(() => {
+    applyLocaleAndReload(locale === 'ar' ? 'en' : 'ar');
+  }, [applyLocaleAndReload, locale]);
 
   const value = useMemo<LocaleContextValue>(
     () => ({ locale, t: dictionaries[locale], pages: pageDictionaries[locale], setLocale, toggleLocale }),
