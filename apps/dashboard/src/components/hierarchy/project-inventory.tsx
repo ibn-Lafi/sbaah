@@ -6,9 +6,7 @@ import { Input } from '@/components/ui/input';
 import {
   createPhase,
   createUnitType,
-  createProjectAsset,
-  removeUnitType,
-  archiveProjectAsset,
+  createProjectAsset ,
   getProjectSalesCenter,
   listPhases,
   listProjectAssets,
@@ -79,8 +77,6 @@ export function ProjectInventory({
   const [batchStart, setBatchStart] = useState('1');
   const [batchBusy, setBatchBusy] = useState(false);
   const [batchError, setBatchError] = useState('');
-  const [deleteError, setDeleteError] = useState('');
-  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [showAssetForm, setShowAssetForm] = useState(false);
   const [search, setSearch] = useState('');
   const [phaseFilter, setPhaseFilter] = useState('all');
@@ -571,39 +567,6 @@ export function ProjectInventory({
             <p className="text-text-secondary mb-3 text-xs">
               أنشئ النموذج مرة واحدة ثم استخدمه لتوليد أي عدد من الوحدات المتطابقة.
             </p>
-            {types.length > 0 && (
-              <div className="mb-4 flex flex-wrap gap-2">
-                {types.map((model) => (
-                  <div key={model.id} className="border-border-default bg-surface-card flex items-center gap-2 rounded-xl border px-3 py-2 text-sm">
-                    <span className="font-medium">{model.name_ar}</span>
-                    {canManage && (
-                      <button
-                        type="button"
-                        className="text-danger hover:underline disabled:opacity-50"
-                        disabled={deletingId === model.id}
-                        onClick={async () => {
-                          if (!window.confirm(`حذف النموذج «${model.name_ar}»؟ لا يمكن التراجع عن هذا الإجراء.`)) return;
-                          setDeleteError('');
-                          setDeletingId(model.id);
-                          try {
-                            await removeUnitType(accessToken, model.id);
-                            if (batchTypeId === model.id) setBatchTypeId('');
-                            await load();
-                          } catch (error) {
-                            setDeleteError(error instanceof Error ? error.message : 'تعذر حذف النموذج');
-                          } finally {
-                            setDeletingId(null);
-                          }
-                        }}
-                      >
-                        {deletingId === model.id ? 'جاري الحذف...' : 'حذف'}
-                      </button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-            {deleteError && <p className="text-danger mb-3 text-sm">{deleteError}</p>}
             {canManage && (
               <div className="space-y-3">
                 <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
@@ -963,7 +926,6 @@ export function ProjectInventory({
                     <th className="p-3 text-start">الحالة التجارية</th>
                     <th className="p-3 text-start">سعر العرض</th>
                     <th className="p-3 text-start">سعر البيع</th>
-                    {canManage && <th className="p-3 text-start">الإجراءات</th>}
                   </tr>
                 </thead>
                 <tbody>
@@ -1028,31 +990,6 @@ export function ProjectInventory({
                         <td className="p-3">
                           {item.won_sale?.value != null ? money(Number(item.won_sale.value)) : '—'}
                         </td>
-                        {canManage && (
-                          <td className="p-3">
-                            <button
-                              type="button"
-                              className="text-danger text-xs font-medium hover:underline disabled:opacity-50"
-                              disabled={deletingId === item.id}
-                              onClick={async () => {
-                                const label = parentAsset ? 'الوحدة' : 'العقار';
-                                if (!window.confirm(`حذف ${label} «${item.name_ar}»؟ سيتم إخفاؤه من المشروع والموقع.`)) return;
-                                setDeleteError('');
-                                setDeletingId(item.id);
-                                try {
-                                  await archiveProjectAsset(accessToken, item.id);
-                                  await load();
-                                } catch (error) {
-                                  setDeleteError(error instanceof Error ? error.message : `تعذر حذف ${label}`);
-                                } finally {
-                                  setDeletingId(null);
-                                }
-                              }}
-                            >
-                              {deletingId === item.id ? 'جاري الحذف...' : 'حذف'}
-                            </button>
-                          </td>
-                        )}
                       </tr>
                     );
                   })}
