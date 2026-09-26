@@ -52,6 +52,12 @@ export const PATCH = withErrorHandling(async (request: NextRequest) => {
   assertNotAgent(caller.role);
 
   const input = websiteUpdateSchema.parse(await request.json());
+  if (input.copyright_text !== undefined) {
+    const { data: tenantPlan, error: planError } = await supabase.from('tenants').select('plans(name_en)').eq('id', caller.tenantId).maybeSingle();
+    if (planError) throw new Error(`Failed to validate subscription plan: ${planError.message}`);
+    const plan = Array.isArray(tenantPlan?.plans) ? tenantPlan?.plans[0] : tenantPlan?.plans;
+    if (!plan || plan.name_en !== 'Gold') throw new ApiError(403, 'gold_plan_required', 'تخصيص حقوق الموقع متاح في باقة Gold فقط');
+  }
   if(input.theme_id){
     const {data:theme,error:themeError}=await supabase.from('themes').select('id,key,is_active').eq('id',input.theme_id).maybeSingle();
     if(themeError)throw new Error(`Failed to validate theme: ${themeError.message}`);
