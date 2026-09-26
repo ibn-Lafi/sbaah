@@ -106,9 +106,9 @@ export function LavenderProject({
   return (
     <a
       href={localizedPath(locale, `/projects/${project.slug ?? project.id}`)}
-      className="focus-visible:ring-tenant-primary group block w-[78vw] max-w-[430px] shrink-0 snap-center outline-none focus-visible:ring-2 focus-visible:ring-offset-4 sm:w-[420px] lg:w-[480px] lg:max-w-[480px]"
+      className="focus-visible:ring-tenant-primary group block w-[68vw] max-w-[285px] shrink-0 snap-center outline-none focus-visible:ring-2 focus-visible:ring-offset-4 sm:w-[300px] sm:max-w-[300px] lg:w-[320px] lg:max-w-[320px]"
     >
-      <div className="relative aspect-[4/5] overflow-hidden bg-[#272720] sm:aspect-[3/4]">
+      <div className="relative aspect-[4/5] overflow-hidden bg-[#272720]">
         {image ? (
           <img
             src={image}
@@ -120,21 +120,21 @@ export function LavenderProject({
           <div className="h-full bg-gradient-to-br from-[#46453e] to-[#1d1d19]" />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/5 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 p-5 text-white sm:p-6">
-          <h3 className="text-2xl font-semibold leading-tight sm:text-3xl">{title}</h3>
+        <div className="absolute inset-x-0 bottom-0 p-4 text-white sm:p-5">
+          <h3 className="text-lg font-semibold leading-tight sm:text-xl">{title}</h3>
           {city && (
-            <p className="mt-2 text-sm text-white/85">
+            <p className="mt-1.5 text-xs text-white/85 sm:text-sm">
               {pickLocalized(locale, city.name_ar, city.name_en)}
             </p>
           )}
           {completion != null && (
-            <div className="mt-5">
-              <div className="mb-2 flex items-center justify-between gap-4 text-sm text-white">
+            <div className="mt-3 sm:mt-4">
+              <div className="mb-1.5 flex items-center justify-between gap-3 text-xs text-white sm:text-sm">
                 <span>{locale === 'ar' ? 'مكتمل' : 'Completed'}</span>
                 <span className="font-semibold tabular-nums">{completion}%</span>
               </div>
               <div
-                className="h-2 w-full overflow-hidden rounded-full bg-white/30"
+                className="h-1.5 w-full overflow-hidden rounded-full bg-white/30"
                 role="progressbar"
                 aria-label={locale === 'ar' ? 'نسبة اكتمال المشروع' : 'Project completion'}
                 aria-valuemin={0}
