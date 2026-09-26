@@ -202,10 +202,11 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
         {
           '--tenant-primary': site.website.primary_color,
           '--tenant-secondary': site.website.secondary_color,
+          '--tenant-background': site.website.background_color ?? '#F4F1EA',
         } as React.CSSProperties
       }
     >
-      <body className={font.className}>
+      <body className={font.className} style={{ backgroundColor: 'var(--tenant-background)' }}>
         <Header
           locale={locale}
           dict={dict}
