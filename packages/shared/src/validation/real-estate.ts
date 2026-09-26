@@ -49,6 +49,7 @@ export const assetInputSchema = z.object({
   property_age: z.number().int().nonnegative().optional().nullable(),
   physical_status: z.enum(ASSET_PHYSICAL_STATUSES).optional(),
   specifications: z.record(z.string(), z.unknown()).optional(),
+  is_public: z.boolean().optional(),
 });
 export type AssetInput = z.infer<typeof assetInputSchema>;
 export const assetUpdateSchema = assetInputSchema.partial();
