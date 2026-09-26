@@ -44,7 +44,9 @@ export const GET = withErrorHandling<RouteContext>(async (request, { params }) =
     if(!listing)continue;
     const current=offersByAsset.get(assetId) as {publication_status?:string;created_at?:string}|undefined;
     const candidate=listing as {publication_status?:string;created_at?:string};
-    if(!current||candidate.publication_status==='published'&&current.publication_status!=='published'||String(candidate.created_at??'')>String(current.created_at??''))offersByAsset.set(assetId,candidate);
+    const candidatePriority=candidate.publication_status==='published'?1:0;
+    const currentPriority=current?.publication_status==='published'?1:0;
+    if(!current||candidatePriority>currentPriority||(candidatePriority===currentPriority&&String(candidate.created_at??'')>String(current.created_at??'')))offersByAsset.set(assetId,candidate);
   }
   const children=(childrenResult.data??[]).map(child=>({...child,current_offer:offersByAsset.get(child.id)??null}));
   const parent=parentResult.data;
