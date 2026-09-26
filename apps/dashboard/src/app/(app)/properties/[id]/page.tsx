@@ -13,7 +13,7 @@ import { FormPageSkeleton } from '@/components/ui/form-page-skeleton';
 import { Modal } from '@/components/ui/modal';
 import { SegmentedToggle } from '@/components/ui/segmented-toggle';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
-import { archiveAsset, getAsset, getAssetRelationships, listListings, updateAsset, type AssetRelationships, type AssetWithMedia, type ListingWithAssets } from '@/lib/api/real-estate';
+import { archiveAsset, getAsset, getAssetRelationships, listListings, updateAsset, type AssetDetailResponse, type AssetRelationships, type AssetWithMedia, type ListingWithAssets } from '@/lib/api/real-estate';
 
 type AssetSection = 'overview' | 'media' | 'units' | 'offers' | 'activity' | 'operations';
 
@@ -54,7 +54,7 @@ export default function AssetDetail({ params }: { params: Promise<{ id: string }
   const isProjectAsset = Boolean(asset?.project_id);
   const sections: Array<{ value: AssetSection; label: string }> = [
     { value: 'overview', label: 'نظرة عامة' },
-    ...(!isProjectAsset ? [{ value: 'media' as const, label: 'الوسائط' }] : []),
+    { value: 'media', label: 'الوسائط' },
     { value: 'units', label: parent ? 'الوحدة' : 'الوحدات' },
     { value: 'offers', label: 'العروض' },
     { value: 'activity', label: 'العملاء والنشاط' },
