@@ -45,14 +45,14 @@ export function LavenderProperty({
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
           <span className="absolute start-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-[#171713] backdrop-blur">
-            {property.listing_type ? getListingTypeLabel(locale, property.listing_type) : (locale === 'ar' ? 'عقار' : 'Property')}
+            {property.listing_type ? getListingTypeLabel(locale, property.listing_type) : getPropertyTypeLabel(locale, property.property_type)}
           </span>
           <div className="absolute inset-x-0 bottom-0 p-4 text-white sm:p-5">
             <h3 className="text-lg font-semibold leading-tight sm:text-xl">{title}</h3>
             {city && <p className="mt-1.5 text-xs text-white/80 sm:text-sm">{pickLocalized(locale, city.name_ar, city.name_en)}</p>}
             <div className="mt-3 flex items-end justify-between gap-3 border-t border-white/25 pt-3 text-xs">
               <span className="text-white/80">{getPropertyTypeLabel(locale, property.property_type)}{property.area_sqm ? ` · ${property.area_sqm} م²` : ''}</span>
-              <span className="whitespace-nowrap font-semibold">{property.price != null ? formatPrice(locale, property.price) : (locale === 'ar' ? 'السعر عند الطلب' : 'Price on request')}</span>
+              <span className="whitespace-nowrap font-semibold">{property.price != null ? formatPrice(locale, property.price) : null}</span>
             </div>
           </div>
         </div>
@@ -80,7 +80,7 @@ export function LavenderProperty({
           </div>
         )}
         <span className="absolute start-4 top-4 bg-white/95 px-3 py-1.5 text-xs font-semibold text-[#171713] shadow-sm backdrop-blur">
-          {property.listing_type ? getListingTypeLabel(locale, property.listing_type) : (locale === 'ar' ? 'عقار' : 'Property')}
+          {property.listing_type ? getListingTypeLabel(locale, property.listing_type) : getPropertyTypeLabel(locale, property.property_type)}
         </span>
       </div>
       <div className="border-b border-black/20 py-5">
@@ -108,7 +108,7 @@ export function LavenderProperty({
             {property.area_sqm ? ` · ${property.area_sqm} م²` : ''}
           </p>
           <p className="whitespace-nowrap font-bold text-[#171713]">
-            {property.price != null ? formatPrice(locale, property.price) : (locale === 'ar' ? 'السعر عند الطلب' : 'Price on request')}
+            {property.price != null ? formatPrice(locale, property.price) : null}
           </p>
         </div>
       </div>
