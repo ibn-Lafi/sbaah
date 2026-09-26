@@ -62,7 +62,9 @@ const fetchTenantSiteResult = cache(async (pageKey: WebsitePageKey): Promise<Ten
   }
 
   try {
-    const site = await apiGet<TenantSite>(`/public/website?domain=${encodeURIComponent(host)}&page=${pageKey}`);
+    const site = await apiGet<TenantSite>(
+      `/public/website?domain=${encodeURIComponent(host)}&page=${pageKey}`,
+    );
     return { status: 'active', site };
   } catch (error) {
     if (error instanceof ApiRequestError && error.code === 'site_not_found') {
@@ -103,7 +105,9 @@ export async function getTenantSitePage(pageKey: WebsitePageKey): Promise<Tenant
 }
 
 /** الصفحات — one owner-authored page's full content, by slug (footer links, `/pages/[slug]`). `null` if the domain or the slug don't resolve. */
-export async function getTenantCustomPage(slug: string): Promise<{ title: string; content: string } | null> {
+export async function getTenantCustomPage(
+  slug: string,
+): Promise<{ title: string; content: string } | null> {
   const host = await getHost();
   if (!host) return null;
 
@@ -113,7 +117,10 @@ export async function getTenantCustomPage(slug: string): Promise<{ title: string
     );
     return page;
   } catch (error) {
-    if (error instanceof ApiRequestError && (error.code === 'site_not_found' || error.code === 'page_not_found')) {
+    if (
+      error instanceof ApiRequestError &&
+      (error.code === 'site_not_found' || error.code === 'page_not_found')
+    ) {
       return null;
     }
     throw error;
