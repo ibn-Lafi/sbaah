@@ -17,7 +17,7 @@ const copy = {
   ar: {
     featured: 'العقارات المميزة',
     latest: 'أحدث العقارات',
-    projects: 'المشاريع العقارية',
+    projects: 'المشاريع',
     cities: 'اكتشف حسب المدينة',
     all: 'عرض الكل',
   },
@@ -150,23 +150,18 @@ export async function LavenderProjects({
     }),
   );
   return (
-    <LavenderSection className="bg-[#171713] text-white">
+    <LavenderSection className="bg-transparent">
       <div
-        className={`mb-10 flex items-end justify-between gap-6 border-b border-white/25 pb-5 sm:mb-14 ${align(config.heading_align)}`}
+        className={`mb-8 flex items-end justify-between gap-6 sm:mb-12 ${align(config.heading_align)}`}
       >
-        <div>
-          <p className="mb-3 text-xs font-semibold tracking-[.12em] text-white/70">
-            {locale === 'ar' ? 'محفظة المشاريع' : 'PROJECT PORTFOLIO'}
-          </p>
-          <h2 className="text-3xl font-semibold sm:text-5xl">
-            {config.title_ar || copy[locale].projects}
-          </h2>
-        </div>
-        <More locale={locale} href="/projects" dark />
+        <h2 className="text-3xl font-semibold text-[#171713] sm:text-5xl">
+          {config.title_ar || copy[locale].projects}
+        </h2>
+        <More locale={locale} href="/projects" />
       </div>
       <div
         className="-mx-5 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:-mx-8 sm:gap-5 sm:px-8 lg:-mx-12 lg:px-12"
-        aria-label={locale === 'ar' ? 'المشاريع العقارية' : 'Real estate projects'}
+        aria-label={locale === 'ar' ? 'المشاريع' : 'Projects'}
       >
         {details.map((p) => (
           <LavenderProject
