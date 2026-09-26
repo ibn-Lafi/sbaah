@@ -22,15 +22,15 @@ export function listProjects(
   if (params.page) query.set('page', String(params.page));
   if (params.page_size) query.set('page_size', String(params.page_size));
   const qs = query.toString();
-  return apiGet<ProjectListResponse>(`/projects${qs ? `?${qs}` : ''}`, accessToken);
+  return apiGet<ProjectListResponse>(`/v1/projects${qs ? `?${qs}` : ''}`, accessToken);
 }
 
 export function getProject(accessToken: string, id: string): Promise<{ project: Project }> {
-  return apiGet<{ project: Project }>(`/projects/${id}`, accessToken);
+  return apiGet<{ project: Project }>(`/v1/projects/${id}`, accessToken);
 }
 
 export function createProject(accessToken: string, input: ProjectInput): Promise<{ project: Project }> {
-  return apiPost<{ project: Project }>('/projects', input, accessToken);
+  return apiPost<{ project: Project }>('/v1/projects', input, accessToken);
 }
 
 export function updateProject(
@@ -38,7 +38,7 @@ export function updateProject(
   id: string,
   input: ProjectUpdateInput,
 ): Promise<{ project: Project }> {
-  return apiPatch<{ project: Project }>(`/projects/${id}`, input, accessToken);
+  return apiPatch<{ project: Project }>(`/v1/projects/${id}`, input, accessToken);
 }
 
 export function deleteProject(accessToken: string, id: string): Promise<{ status: string }> {
