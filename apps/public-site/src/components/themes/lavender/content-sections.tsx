@@ -48,27 +48,32 @@ const cols = (value?: 2 | 3 | 4) =>
 const soft = (value?: 'default' | 'soft') => (value === 'soft' ? 'bg-[#f4f1ea]' : 'bg-white');
 
 export function LavenderStats({ locale, config }: { locale: Locale; config: StatsSectionConfig }) {
-  const configured = (config.items ?? []).filter((i) => i.value || i.label).slice(0, 3);
+  const configured = (config.items ?? []).slice(0, 3);
   const items = Array.from({ length: 3 }, (_, index) => configured[index] ?? { value: '—', label: '' });
   return (
     <LavenderSection className="bg-[#f4f1ea] text-[#171713]">
-      <div className="mx-auto max-w-7xl">
-        <div className={"mb-7 sm:mb-12 " + (config.heading_align === 'center' ? 'text-center' : '')}>
-          <p className="text-tenant-primary mb-2 text-[10px] font-semibold sm:text-xs">{locale === 'ar' ? 'أثرنا بالأرقام' : 'OUR IMPACT'}</p>
-          <h2 className="text-2xl font-semibold sm:text-4xl lg:text-5xl">{config.title_ar || copy[locale].stats}</h2>
-        </div>
-        <div className="rounded-[1.25rem] bg-tenant-primary px-3 py-8 text-white sm:rounded-[1.75rem] sm:px-8 sm:py-12 lg:px-14 lg:py-16">
-          <h3 className="mb-7 text-center text-xl font-semibold sm:mb-12 sm:text-3xl lg:text-5xl">{locale === 'ar' ? 'نصنع أثرًا بالأرقام' : 'Excellence Through Innovation'}</h3>
-          <dl className="grid grid-cols-3 items-stretch gap-2 sm:gap-5 lg:gap-8">
-            {items.map((i, n) => (
-              <div
-                key={n}
-                className={"relative flex min-h-[105px] min-w-0 flex-col items-center justify-center bg-white/[.13] px-2 py-4 text-center sm:min-h-[175px] sm:px-5 sm:py-7 lg:min-h-[220px] " +
-                  (n === 0 ? 'rounded-[1.15rem] sm:rounded-[1.7rem]' : n === 1 ? 'rounded-[1.15rem_1.15rem_2rem_1.15rem] sm:rounded-[1.7rem_1.7rem_3rem_1.7rem]' : 'rounded-[1.15rem_2rem_1.15rem_1.15rem] sm:rounded-[1.7rem_3rem_1.7rem_1.7rem]')}
-              >
-                {n > 0 && <span aria-hidden="true" className="absolute -start-2 -top-2 size-5 rounded-full bg-white/[.12] sm:-start-3 sm:-top-3 sm:size-8" />}
-                <dd className="max-w-full truncate text-2xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">{i.value}</dd>
-                <dt className="mt-2 line-clamp-2 text-[9px] leading-3 text-white/85 sm:mt-4 sm:text-sm sm:leading-5 lg:text-base">{i.label}</dt>
+      <div className="mx-auto max-w-[1440px]">
+        <div className="rounded-[18px] bg-tenant-primary px-3 py-10 text-white sm:rounded-[24px] sm:px-8 sm:py-16 lg:px-20 lg:py-24">
+          <h2 className="mb-9 text-center text-[1.65rem] font-semibold leading-tight sm:mb-14 sm:text-4xl lg:mb-20 lg:text-6xl">
+            {config.title_ar || copy[locale].stats}
+          </h2>
+          <dl className="mx-auto grid max-w-[1180px] grid-cols-3 gap-[10px] sm:gap-6 lg:gap-10">
+            {items.map((item, index) => (
+              <div key={index} className="relative min-w-0">
+                <div className="flex aspect-[1.04/1] min-h-[106px] flex-col items-center justify-center rounded-[18px] bg-white/[.14] px-1.5 text-center sm:min-h-[190px] sm:rounded-[28px] sm:px-5 lg:min-h-[250px]">
+                  <dd className="max-w-full truncate text-[1.65rem] font-semibold leading-none tracking-tight sm:text-5xl lg:text-6xl">{item.value || '—'}</dd>
+                  <dt className="mt-3 line-clamp-2 text-[9px] leading-[1.25] text-white/90 sm:mt-5 sm:text-base lg:text-lg">{item.label}</dt>
+                </div>
+                {index < 2 && (
+                  <span aria-hidden="true" className="absolute -end-[7px] -top-[7px] z-10 grid size-[24px] place-items-center rounded-full bg-tenant-primary text-[9px] text-white/70 sm:-end-[15px] sm:-top-[15px] sm:size-[42px] sm:text-sm lg:-end-[20px] lg:-top-[20px] lg:size-[54px]">
+                    ↘
+                  </span>
+                )}
+                {index === 1 && (
+                  <span aria-hidden="true" className="absolute -bottom-[7px] -end-[7px] z-10 grid size-[24px] place-items-center rounded-full bg-tenant-primary text-[9px] text-white/70 sm:-bottom-[15px] sm:-end-[15px] sm:size-[42px] sm:text-sm lg:-bottom-[20px] lg:-end-[20px] lg:size-[54px]">
+                    ↑
+                  </span>
+                )}
               </div>
             ))}
           </dl>
