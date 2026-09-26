@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import {
   SUPPORTED_WEBSITE_FONTS,
-  WEBSITE_PAGE_KEYS,
   HERO_VARIANTS,
   type HeroVariant,
   type Website,
@@ -49,6 +48,13 @@ import { ApiRequestError } from '@/lib/api/client';
 type PanelView = 'sections' | 'settings';
 type ZoneKey = 'top' | 'content' | 'bottom';
 
+const EDITOR_PAGE_KEYS: WebsitePageKey[] = ['home', 'properties', 'projects'];
+const LAVENDER_ALLOWED_SECTIONS: Partial<Record<WebsitePageKey, WebsiteSection['type'][]>> = {
+  home: ['hero', 'why_us', 'featured_properties', 'latest_properties', 'projects_showcase', 'stats', 'services', 'property_request'],
+  properties: ['property_grid'],
+  projects: ['project_grid'],
+};
+
 /**
  * تخصيص الثيم — شاشة كاملة (بدون AppShell، الرجوع عبر سهم) مطابقة لأداة
  * المرجع: شريط أدوات (رجوع ← تبديل جهاز ← اختيار صفحة ← إعدادات) ولوحة
@@ -90,8 +96,9 @@ export default function WebsiteEditorPage() {
   const contentSections =
     activePage?.website_sections.filter((s) => {
       if (s.type === 'footer' || s.type === 'broker_marketer_form') return false;
-      if (s.type === 'contact' && (activePageKey === 'home' || activePageKey === 'property_detail'))
-        return false;
+      if (website?.theme_key === 'lavender') {
+        return (LAVENDER_ALLOWED_SECTIONS[activePageKey] ?? []).includes(s.type);
+      }
       return true;
     }) ?? [];
   // محرر الجوال: الأقسام المُفعَّلة تُعرض في "محتوى الصفحة"، والمخفية
@@ -267,7 +274,7 @@ export default function WebsiteEditorPage() {
             }}
             className="bg-surface-subtle-3 !h-9 flex-1 !rounded-full border-0 px-4 text-sm"
           >
-            {WEBSITE_PAGE_KEYS.map((key) => (
+            {(website.theme_key === 'lavender' ? EDITOR_PAGE_KEYS : ['home', 'properties', 'property_detail', 'projects', 'project_detail'] as WebsitePageKey[]).map((key) => (
               <option key={key} value={key}>
                 {t.pageTabLabels[key]}
               </option>
@@ -780,7 +787,7 @@ export default function WebsiteEditorPage() {
                 }}
                 className="bg-surface-subtle-3 !h-10 w-[170px] !rounded-full border-0 px-4 text-sm"
               >
-                {WEBSITE_PAGE_KEYS.map((key) => (
+                {(website.theme_key === 'lavender' ? EDITOR_PAGE_KEYS : ['home', 'properties', 'property_detail', 'projects', 'project_detail'] as WebsitePageKey[]).map((key) => (
                   <option key={key} value={key}>
                     {t.pageTabLabels[key]}
                   </option>
