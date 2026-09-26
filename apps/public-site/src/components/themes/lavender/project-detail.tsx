@@ -53,7 +53,7 @@ export function LavenderProjectDetail({
 
   return (
     <main className="bg-[#f4f1ea] text-[#171713]">
-      <section className="relative -mt-20 h-[100svh] min-h-[100svh] w-full overflow-hidden bg-[#171713] text-white">
+      <section className="relative -mt-20 h-[calc(100svh+5rem)] min-h-[calc(100svh+5rem)] w-full overflow-hidden bg-[#171713] text-white">
         {primary && <img src={primary.url} alt={title} loading="eager" className="absolute inset-0 h-full w-full object-cover" />}
         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/20" />
         <div className="relative flex h-full w-full items-end px-5 pb-10 pt-24 sm:px-8 sm:pb-14 lg:px-12 lg:pb-16">
