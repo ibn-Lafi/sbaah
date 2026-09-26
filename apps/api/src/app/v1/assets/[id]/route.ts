@@ -28,7 +28,26 @@ export const GET = withErrorHandling<RouteContext>(async (request, { params }) =
   if (projectResult.error) throw new Error(`Failed to load asset project: ${projectResult.error.message}`);
   if (phaseResult.error) throw new Error(`Failed to load asset phase: ${phaseResult.error.message}`);
   if (unitTypeResult.error) throw new Error(`Failed to load asset unit type: ${unitTypeResult.error.message}`);
-  return okResponse({ asset: data, parent: parentResult.data, children: childrenResult.data ?? [], availability: availabilityResult.data, project:projectResult.data, phase:phaseResult.data, unit_type:unitTypeResult.data });
+  const childIds=(childrenResult.data??[]).map((child)=>child.id);
+  let childOffers: Array<Record<string, unknown>>=[];
+  if(childIds.length){
+    const {data:rows,error:childOffersError}=await supabase.from('listing_assets')
+      .select('asset_id,listings(id,listing_number,listing_type,asking_price,pricing_period,publication_status,commercial_status,created_at)')
+      .eq('tenant_id',caller.tenantId).in('asset_id',childIds);
+    if(childOffersError)throw new Error(`Failed to load child offers: ${childOffersError.message}`);
+    childOffers=(rows??[]) as Array<Record<string, unknown>>;
+  }
+  const offersByAsset=new Map<string,unknown>();
+  for(const row of childOffers){
+    const assetId=String(row.asset_id);
+    const listing=Array.isArray(row.listings)?row.listings[0]:row.listings;
+    if(!listing)continue;
+    const current=offersByAsset.get(assetId) as {publication_status?:string;created_at?:string}|undefined;
+    const candidate=listing as {publication_status?:string;created_at?:string};
+    if(!current||candidate.publication_status==='published'&&current.publication_status!=='published'||String(candidate.created_at??'')>String(current.created_at??''))offersByAsset.set(assetId,candidate);
+  }
+  const children=(childrenResult.data??[]).map(child=>({...child,current_offer:offersByAsset.get(child.id)??null}));
+  return okResponse({ asset: data, parent: parentResult.data, children, availability: availabilityResult.data, project:projectResult.data, phase:phaseResult.data, unit_type:unitTypeResult.data });
 });
 
 export const PATCH = withErrorHandling<RouteContext>(async (request, { params }) => {
