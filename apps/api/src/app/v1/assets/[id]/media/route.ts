@@ -21,9 +21,6 @@ export const GET = withErrorHandling<RouteContext>(async (request, { params }) =
   const { supabase } = getAuthenticatedClient(request);
   const caller = await getCallerContext(supabase);
   await assertTenantOwnedRow({ supabase, table: 'assets', id, tenantId: caller.tenantId, label: 'العقار' });
-  const { data: asset, error: assetError } = await supabase.from('assets').select('project_id').eq('id', id).eq('tenant_id', caller.tenantId).maybeSingle();
-  if (assetError) throw new Error(assetError.message);
-  if (asset?.project_id) return okResponse({ media: [] });
   const { data, error } = await supabase.from('asset_media').select('*').eq('tenant_id', caller.tenantId).eq('asset_id', id).order('order_index');
   if (error) throw new Error(error.message);
   return okResponse({ media: data ?? [] });
@@ -35,9 +32,6 @@ export const POST = withErrorHandling<RouteContext>(async (request, { params }) 
   const caller = await getCallerContext(supabase);
   if (caller.role === 'agent') throw new ApiError(403, 'forbidden', 'لا يملك الوسيط صلاحية إدارة وسائط العقار');
   await assertTenantOwnedRow({ supabase, table: 'assets', id, tenantId: caller.tenantId, label: 'العقار' });
-  const { data: asset, error: assetError } = await supabase.from('assets').select('project_id').eq('id', id).eq('tenant_id', caller.tenantId).maybeSingle();
-  if (assetError) throw new Error(assetError.message);
-  if (asset?.project_id) throw new ApiError(409, 'project_asset_media_disabled', 'وسائط عقارات المشروع تُدار من معرض المشروع فقط');
   const input = createMediaSchema.parse(await request.json());
 
   if (input.is_primary) {
