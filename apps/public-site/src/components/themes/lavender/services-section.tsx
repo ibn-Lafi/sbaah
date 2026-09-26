@@ -9,7 +9,7 @@ export function LavenderServices({ locale, config }: { locale: Locale; config: S
   const items = (config.items ?? []).filter((item) => item.title);
   const [active, setActive] = useState(0);
   if (!items.length) return null;
-  const current = items[Math.min(active, items.length - 1)];
+  const current = items[Math.min(active, items.length - 1)]!;
 
   return (
     <LavenderSection
