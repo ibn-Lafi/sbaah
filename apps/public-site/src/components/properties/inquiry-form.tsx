@@ -45,9 +45,11 @@ interface InquiryFormProps {
   assetId?: string;
   projectId?: string;
   variant?: 'default' | 'lavender';
+  eyebrow?: string;
+  description?: string;
 }
 
-export function InquiryForm({ locale, tenantId, listingId, assetId, projectId, variant = 'default' }: InquiryFormProps) {
+export function InquiryForm({ locale, tenantId, listingId, assetId, projectId, variant = 'default', eyebrow, description }: InquiryFormProps) {
   const t = LABELS[locale];
   const widgetRef = useRef<HTMLDivElement>(null);
   const widgetId = useRef<string | null>(null);
@@ -108,9 +110,13 @@ export function InquiryForm({ locale, tenantId, listingId, assetId, projectId, v
   }
 
   return (
-    <form onSubmit={handleSubmit} className={variant === 'lavender' ? 'flex flex-col gap-6 bg-white px-6 py-10 sm:px-10 sm:py-12' : 'flex flex-col gap-3 rounded-xl border border-black/10 p-5'}>
+    <form onSubmit={handleSubmit} className={variant === 'lavender' ? 'mx-auto flex w-full max-w-xl flex-col gap-3.5 rounded-2xl border border-black/10 bg-white p-5 shadow-[0_10px_35px_rgba(23,23,19,.06)] sm:gap-4 sm:p-7' : 'flex flex-col gap-3 rounded-xl border border-black/10 p-5'}>
       <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer onLoad={renderWidget} />
-      <h3 className="font-semibold">{t.title}</h3>
+      <div className="mb-1">
+        {eyebrow && <p className="text-tenant-primary mb-1.5 text-[11px] font-semibold">{eyebrow}</p>}
+        <h3 className={variant === 'lavender' ? 'text-xl font-semibold sm:text-2xl' : 'font-semibold'}>{t.title}</h3>
+        {description && <p className="mt-2 text-xs leading-6 text-black/55 sm:text-sm">{description}</p>}
+      </div>
       <label className="text-sm font-medium" htmlFor="inquiry-name">{t.name}</label>
       <input
         id="inquiry-name"
@@ -121,10 +127,10 @@ export function InquiryForm({ locale, tenantId, listingId, assetId, projectId, v
         placeholder={t.name}
         value={fullName}
         onChange={(e) => setFullName(e.target.value)}
-        className="rounded-lg border border-black/15 p-2 text-sm"
+        className="h-11 rounded-xl border border-black/15 px-3 text-sm outline-none transition focus:border-tenant-primary"
       />
       <label className="text-sm font-medium" htmlFor="inquiry-phone">{t.phone}</label>
-      <div dir="ltr" className="flex items-center rounded-lg border border-black/15 p-2 text-sm">
+      <div dir="ltr" className="flex h-11 items-center rounded-xl border border-black/15 px-3 text-sm transition focus-within:border-tenant-primary">
         <span className="flex items-center gap-1 border-r border-black/15 pr-2 text-black/60">
           <span aria-hidden="true">🇸🇦</span>
           <span>+966</span>
@@ -156,14 +162,14 @@ export function InquiryForm({ locale, tenantId, listingId, assetId, projectId, v
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         dir="ltr"
-        className="rounded-lg border border-black/15 p-2 text-sm"
+        className="h-11 rounded-xl border border-black/15 px-3 text-sm outline-none transition focus:border-tenant-primary"
       />
       <div ref={widgetRef} />
       {error && <p role="alert" className="text-sm text-danger">{error}</p>}
       <button
         type="submit"
         disabled={loading}
-        className={variant === 'lavender' ? 'h-14 bg-tenant-primary text-sm font-semibold text-white disabled:opacity-50' : 'h-11 rounded-lg bg-tenant-primary text-sm font-semibold text-white disabled:opacity-50'}
+        className={variant === 'lavender' ? 'mt-1 h-11 rounded-xl bg-tenant-primary text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50' : 'h-11 rounded-lg bg-tenant-primary text-sm font-semibold text-white disabled:opacity-50'}
       >
         {loading ? t.sending : t.submit}
       </button>
