@@ -48,7 +48,7 @@ export function LavenderPropertyDetail({
           <div className="grid gap-8 pt-6 lg:grid-cols-[1fr_auto] lg:items-end">
             <div>
               <p className="text-tenant-primary mb-4 text-xs font-semibold tracking-[.12em]">
-                {getListingTypeLabel(locale, property.listing_type)}
+                {property.listing_type ? getListingTypeLabel(locale, property.listing_type) : (locale === 'ar' ? 'عقار' : 'Property')}
                 {location ? ` · ${location}` : ''}
               </p>
               <h1 className="max-w-4xl text-4xl font-semibold leading-[1.1] sm:text-6xl">
@@ -60,7 +60,7 @@ export function LavenderPropertyDetail({
                 {locale === 'ar' ? 'السعر' : 'Price'}
               </p>
               <p className="mt-2 text-2xl font-bold sm:text-3xl">
-                {formatPrice(locale, property.price)}
+                {property.price != null ? formatPrice(locale, property.price) : (locale === 'ar' ? 'السعر عند الطلب' : 'Price on request')}
               </p>
             </div>
           </div>
