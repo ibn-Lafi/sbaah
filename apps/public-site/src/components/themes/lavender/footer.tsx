@@ -4,6 +4,7 @@ import {
   SnapchatIcon,
   TelegramIcon,
   TiktokIcon,
+  WhatsappIcon,
   XIcon,
 } from '@/components/footer-icons';
 import { safeExternalUrl } from '@/lib/security/public-values';
@@ -24,6 +25,12 @@ export function Footer({ locale, dict, tenant, website, customPages }: FooterPro
     })),
   ];
   const socialLinks = [
+    tenant.social_whatsapp && {
+      key: 'whatsapp',
+      label: 'WhatsApp',
+      href: `https://wa.me/${digitsOnly(tenant.social_whatsapp)}`,
+      Icon: WhatsappIcon,
+    },
     safeExternalUrl(tenant.social_instagram) && {
       key: 'instagram',
       label: 'Instagram',

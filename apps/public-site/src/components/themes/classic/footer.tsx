@@ -29,6 +29,12 @@ export function Footer({ locale, dict, tenant, website, customPages }: FooterPro
   // "تواصل معنا" (الاتصال/واتساب) لهما سطر خاص بهما بالعمود الأوسط —
   // هذه القائمة فقط حسابات التواصل الاجتماعي البحتة (عمود يمين، صف أيقونات).
   const socialLinks = [
+    tenant.social_whatsapp && {
+      key: 'whatsapp',
+      label: 'WhatsApp',
+      href: `https://wa.me/${digitsOnly(tenant.social_whatsapp)}`,
+      Icon: WhatsappIcon,
+    },
     safeExternalUrl(tenant.social_instagram) && {
       key: 'instagram',
       label: 'Instagram',
