@@ -42,13 +42,13 @@ export function updateProject(
 }
 
 export function deleteProject(accessToken: string, id: string): Promise<{ status: string }> {
-  return apiDelete<{ status: string }>(`/projects/${id}`, accessToken);
+  return apiDelete<{ status: string }>(`/v1/projects/${id}`, accessToken);
 }
 
 
 export type ProjectMediaCategory='general'|'exterior'|'master_plan'|'unit_plans'|'interior'|'amenities'|'location'|'construction'|'other';
 export interface ProjectMedia {id:string;tenant_id:string;project_id:string;media_type:'image'|'video';category:ProjectMediaCategory;url:string;alt_ar:string|null;alt_en:string|null;order_index:number;is_primary:boolean;created_at:string}
-export const listProjectMedia=(token:string,id:string)=>apiGet<{media:ProjectMedia[]}>(`/projects/${id}/media`,token);
-export const createProjectMedia=(token:string,id:string,input:Omit<ProjectMedia,'id'|'tenant_id'|'project_id'|'created_at'>)=>apiPost<{media:ProjectMedia}>(`/projects/${id}/media`,input,token);
-export const updateProjectMedia=(token:string,id:string,mediaId:string,input:Partial<Pick<ProjectMedia,'category'|'alt_ar'|'alt_en'|'order_index'|'is_primary'>>)=>apiPatch<{media:ProjectMedia}>(`/projects/${id}/media/${mediaId}`,input,token);
-export const deleteProjectMedia=(token:string,id:string,mediaId:string)=>apiDelete<{status:string}>(`/projects/${id}/media/${mediaId}`,token);
+export const listProjectMedia=(token:string,id:string)=>apiGet<{media:ProjectMedia[]}>(`/v1/projects/${id}/media`,token);
+export const createProjectMedia=(token:string,id:string,input:Omit<ProjectMedia,'id'|'tenant_id'|'project_id'|'created_at'>)=>apiPost<{media:ProjectMedia}>(`/v1/projects/${id}/media`,input,token);
+export const updateProjectMedia=(token:string,id:string,mediaId:string,input:Partial<Pick<ProjectMedia,'category'|'alt_ar'|'alt_en'|'order_index'|'is_primary'>>)=>apiPatch<{media:ProjectMedia}>(`/v1/projects/${id}/media/${mediaId}`,input,token);
+export const deleteProjectMedia=(token:string,id:string,mediaId:string)=>apiDelete<{status:string}>(`/v1/projects/${id}/media/${mediaId}`,token);
