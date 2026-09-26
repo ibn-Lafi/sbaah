@@ -25,25 +25,7 @@ const DEFAULT_CENTER: [number, number] = [46.6753, 24.7136];
  * Google Maps; unlike raw OSM tile servers it's explicitly built for
  * production traffic, not just low-volume personal use).
  */
-const MAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
-
-/**
- * Without this, maplibre-gl draws Arabic place labels with each glyph in
- * the correct position but the letters themselves unshaped/unconnected
- * (reads as mirrored/broken Arabic) — this is maplibre's own documented
- * fix (see the `setRTLTextPlugin` doc comment in its .d.ts), not
- * something specific to this map style. Guarded because calling it twice
- * throws, and both `LocationPicker` and the public-site map mount it.
- */
-let rtlPluginRequested = false;
-function ensureRtlTextPlugin() {
-  if (rtlPluginRequested) return;
-  rtlPluginRequested = true;
-  void maplibregl.setRTLTextPlugin(
-    'https://unpkg.com/@mapbox/mapbox-gl-rtl-text@0.2.3/mapbox-gl-rtl-text.js',
-    true,
-  );
-}
+const MAP_STYLE = 'https://tiles.openfreemap.org/styles/bright';
 
 /** Click/drag to set a lat/lng — used by property/project/building forms (all optional fields). */
 export function LocationPicker({ value, onChange, focusPoint }: LocationPickerProps) {
@@ -57,16 +39,28 @@ export function LocationPicker({ value, onChange, focusPoint }: LocationPickerPr
 
   useEffect(() => {
     if (!containerRef.current) return;
-    ensureRtlTextPlugin();
+    const container = containerRef.current;
 
     const map = new maplibregl.Map({
-      container: containerRef.current,
+      container,
       style: MAP_STYLE,
       center: value ? [value.lng, value.lat] : DEFAULT_CENTER,
       zoom: value ? 14 : 5,
+      maxZoom: 19,
     });
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-left');
     mapRef.current = map;
+
+    // The picker is commonly mounted inside a wizard step in a scrollable
+    // modal. Its width can settle after MapLibre's first measurement, leaving
+    // blank or blurry tiles unless the canvas is resized afterwards.
+    let resizeFrame = requestAnimationFrame(() => map.resize());
+    const resizeObserver = new ResizeObserver(() => {
+      cancelAnimationFrame(resizeFrame);
+      resizeFrame = requestAnimationFrame(() => map.resize());
+    });
+    resizeObserver.observe(container);
+    map.once('load', () => map.resize());
 
     function placeMarker(lngLat: maplibregl.LngLat) {
       if (markerRef.current) {
@@ -90,6 +84,8 @@ export function LocationPicker({ value, onChange, focusPoint }: LocationPickerPr
     });
 
     return () => {
+      cancelAnimationFrame(resizeFrame);
+      resizeObserver.disconnect();
       map.remove();
       mapRef.current = null;
       markerRef.current = null;
@@ -99,13 +95,14 @@ export function LocationPicker({ value, onChange, focusPoint }: LocationPickerPr
 
   useEffect(() => {
     if (!mapRef.current || !focusPoint) return;
+    mapRef.current.resize();
     mapRef.current.flyTo({ center: [focusPoint.lng, focusPoint.lat], zoom: 12, duration: 800 });
   }, [focusPoint]);
 
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-text-primary">{t.locationOnMap}</span>
+        <span className="text-text-primary text-sm font-medium">{t.locationOnMap}</span>
         {value && (
           <button
             type="button"
@@ -114,17 +111,24 @@ export function LocationPicker({ value, onChange, focusPoint }: LocationPickerPr
               markerRef.current = null;
               onChangeRef.current(null);
             }}
-            className="text-xs font-semibold text-danger hover:underline"
+            className="text-danger text-xs font-semibold hover:underline"
           >
             {t.removeLocation}
           </button>
         )}
       </div>
-      <div
-        ref={containerRef}
-        className="h-[220px] w-full min-w-0 overflow-hidden rounded-input border border-border-default sm:h-[280px]"
-      />
-      <p className="text-xs text-text-secondary">{t.mapInstructions}</p>
+      <div className="rounded-input border-border-default relative h-[260px] w-full min-w-0 overflow-hidden border bg-[#e9eef2] sm:h-[320px]">
+        <div ref={containerRef} className="absolute inset-0" />
+        {value && (
+          <div
+            dir="ltr"
+            className="pointer-events-none absolute bottom-2 left-1/2 z-[2] -translate-x-1/2 rounded-full border border-black/10 bg-white/95 px-3 py-1 text-[11px] font-semibold text-black/70 shadow-sm"
+          >
+            {value.lat.toFixed(5)}, {value.lng.toFixed(5)}
+          </div>
+        )}
+      </div>
+      <p className="text-text-secondary text-xs">{t.mapInstructions}</p>
     </div>
   );
 }
