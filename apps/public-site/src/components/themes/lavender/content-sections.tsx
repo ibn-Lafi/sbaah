@@ -48,27 +48,25 @@ const cols = (value?: 2 | 3 | 4) =>
 const soft = (value?: 'default' | 'soft') => (value === 'soft' ? 'bg-[#f4f1ea]' : 'bg-white');
 
 export function LavenderStats({ locale, config }: { locale: Locale; config: StatsSectionConfig }) {
-  const items = (config.items ?? []).filter((i) => i.value || i.label);
+  const items = (config.items ?? []).filter((i) => i.value || i.label).slice(0, 4);
   return (
-    <LavenderSection className="bg-[#171713] text-white">
-      <div
-        className={`mb-12 border-b border-white/25 pb-5 ${config.heading_align === 'center' ? 'text-center' : ''}`}
-      >
-        <p className="mb-3 text-xs font-semibold text-white/70">
-          {locale === 'ar' ? 'أثرنا بالأرقام' : 'OUR IMPACT'}
-        </p>
-        <h2 className="text-3xl font-semibold sm:text-5xl">
-          {config.title_ar || copy[locale].stats}
-        </h2>
+    <LavenderSection className="bg-[#f4f1ea] text-[#171713]">
+      <div className="mx-auto max-w-7xl">
+        <div className={"mb-6 sm:mb-10 " + (config.heading_align === 'center' ? 'text-center' : '')}>
+          <p className="text-tenant-primary mb-2 text-[10px] font-semibold sm:text-xs">{locale === 'ar' ? 'أثرنا بالأرقام' : 'OUR IMPACT'}</p>
+          <h2 className="text-2xl font-semibold sm:text-4xl lg:text-5xl">{config.title_ar || copy[locale].stats}</h2>
+        </div>
+        <div className="rounded-[1.4rem] bg-tenant-primary p-3 text-white shadow-[0_18px_50px_rgba(0,0,0,.08)] sm:rounded-[2rem] sm:p-8 lg:p-12">
+          <dl className="grid grid-cols-4 gap-1.5 sm:gap-3 lg:gap-5">
+            {items.map((i, n) => (
+              <div key={n} className="flex min-h-[92px] min-w-0 flex-col items-center justify-center rounded-[.9rem] bg-white/10 px-1.5 py-3 text-center sm:min-h-[150px] sm:rounded-[1.4rem] sm:px-4 sm:py-6 lg:min-h-[190px]">
+                <dd className="block max-w-full truncate text-xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">{i.value}</dd>
+                <dt className="mt-2 line-clamp-2 text-[9px] leading-3 text-white/80 sm:mt-4 sm:text-sm sm:leading-5 lg:text-base">{i.label}</dt>
+              </div>
+            ))}
+          </dl>
+        </div>
       </div>
-      <dl className={`grid border-t border-white/25 sm:grid-cols-2 ${cols(config.columns)}`}>
-        {items.map((i, n) => (
-          <div key={n} className="border-b border-white/25 py-7 sm:border-e sm:px-6 sm:first:ps-0">
-            <dd className="block text-5xl font-light tracking-tight sm:text-6xl">{i.value}</dd>
-            <dt className="mt-4 block text-sm text-white/75">{i.label}</dt>
-          </div>
-        ))}
-      </dl>
     </LavenderSection>
   );
 }
