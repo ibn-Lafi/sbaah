@@ -18,7 +18,7 @@ export const GET = withErrorHandling<RouteContext>(async (request, { params }) =
       : Promise.resolve({ data: null, error: null }),
     supabase.from('assets').select('*').eq('parent_asset_id', id).eq('tenant_id', caller.tenantId).is('archived_at', null).order('created_at'),
     supabase.rpc('get_asset_commercial_availability', { p_tenant_id: caller.tenantId, p_asset_id: id }).maybeSingle(),
-    data.project_id ? supabase.from('projects').select('id,name_ar').eq('id',data.project_id).eq('tenant_id',caller.tenantId).maybeSingle() : Promise.resolve({data:null,error:null}),
+    data.project_id ? supabase.from('projects').select('id,name_ar,city_id,district_id,lat,lng').eq('id',data.project_id).eq('tenant_id',caller.tenantId).maybeSingle() : Promise.resolve({data:null,error:null}),
     data.phase_id ? supabase.from('project_phases').select('id,name_ar').eq('id',data.phase_id).eq('tenant_id',caller.tenantId).maybeSingle() : Promise.resolve({data:null,error:null}),
     data.unit_type_id ? supabase.from('unit_types').select('id,name_ar').eq('id',data.unit_type_id).eq('tenant_id',caller.tenantId).maybeSingle() : Promise.resolve({data:null,error:null}),
   ]);
@@ -47,7 +47,10 @@ export const GET = withErrorHandling<RouteContext>(async (request, { params }) =
     if(!current||candidate.publication_status==='published'&&current.publication_status!=='published'||String(candidate.created_at??'')>String(current.created_at??''))offersByAsset.set(assetId,candidate);
   }
   const children=(childrenResult.data??[]).map(child=>({...child,current_offer:offersByAsset.get(child.id)??null}));
-  return okResponse({ asset: data, parent: parentResult.data, children, availability: availabilityResult.data, project:projectResult.data, phase:phaseResult.data, unit_type:unitTypeResult.data });
+  const parent=parentResult.data;
+  const project=projectResult.data;
+  const effective_location={city_id:data.city_id??parent?.city_id??project?.city_id??null,district_id:data.district_id??parent?.district_id??project?.district_id??null,lat:data.lat??parent?.lat??project?.lat??null,lng:data.lng??parent?.lng??project?.lng??null,source:data.city_id||data.district_id||data.lat!=null||data.lng!=null?'asset':parent&&(parent.city_id||parent.district_id||parent.lat!=null||parent.lng!=null)?'parent':project?'project':null};
+  return okResponse({ asset: data, parent, children, availability: availabilityResult.data, project, phase:phaseResult.data, unit_type:unitTypeResult.data, effective_location });
 });
 
 export const PATCH = withErrorHandling<RouteContext>(async (request, { params }) => {
