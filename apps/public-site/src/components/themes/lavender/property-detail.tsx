@@ -48,21 +48,17 @@ export function LavenderPropertyDetail({
           <div className="grid gap-8 pt-6 lg:grid-cols-[1fr_auto] lg:items-end">
             <div>
               <p className="text-tenant-primary mb-4 text-xs font-semibold tracking-[.12em]">
-                {property.listing_type ? getListingTypeLabel(locale, property.listing_type) : (locale === 'ar' ? 'عقار' : 'Property')}
+                {property.listing_type ? getListingTypeLabel(locale, property.listing_type) : getPropertyTypeLabel(locale, property.property_type)}
                 {location ? ` · ${location}` : ''}
               </p>
               <h1 className="max-w-4xl text-4xl font-semibold leading-[1.1] sm:text-6xl">
                 {title}
               </h1>
             </div>
-            <div className="lg:text-end">
-              <p className="text-xs font-medium text-black/60">
-                {locale === 'ar' ? 'السعر' : 'Price'}
-              </p>
-              <p className="mt-2 text-2xl font-bold sm:text-3xl">
-                {property.price != null ? formatPrice(locale, property.price) : (locale === 'ar' ? 'السعر عند الطلب' : 'Price on request')}
-              </p>
-            </div>
+            {property.price != null && <div className="lg:text-end">
+              <p className="text-xs font-medium text-black/60">{locale === 'ar' ? 'السعر' : 'Price'}</p>
+              <p className="mt-2 text-2xl font-bold sm:text-3xl">{formatPrice(locale, property.price)}</p>
+            </div>}
           </div>
         </div>
       </header>
@@ -130,7 +126,7 @@ export function LavenderPropertyDetail({
           <InquiryForm
             locale={locale}
             tenantId={tenantId}
-            listingId={property.id}
+            assetId={property.asset_id ?? property.id}
             variant="lavender"
             eyebrow={locale === 'ar' ? 'مهتم بالعقار؟' : 'INTERESTED IN THIS PROPERTY?'}
             description={locale === 'ar' ? 'اترك بياناتك وسيتواصل معك الفريق بخصوص العقار.' : 'Leave your details and the team will contact you about this property.'}
