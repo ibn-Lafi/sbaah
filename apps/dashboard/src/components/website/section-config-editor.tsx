@@ -102,11 +102,11 @@ export function SectionConfigEditor({
     question?: string;
     answer?: string;
   };
-  const [items, setItems] = useState<EditorItem[]>(
-    () =>
-      ((section.config as StatsSectionConfig & ServicesSectionConfig & FaqSectionConfig).items ??
-        []) as EditorItem[],
-  );
+  const [items, setItems] = useState<EditorItem[]>(() => {
+    const configured = (((section.config as StatsSectionConfig & ServicesSectionConfig & FaqSectionConfig).items ?? []) as EditorItem[]);
+    if (section.type !== 'stats') return configured;
+    return Array.from({ length: 3 }, (_, index) => configured[index] ?? { value: '', label: '' });
+  });
   const [buttonLabel, setButtonLabel] = useState(String(section.config.button_label ?? ''));
   const [buttonUrl, setButtonUrl] = useState(String(section.config.button_url ?? ''));
   const [mediaUrl, setMediaUrl] = useState(
@@ -167,7 +167,7 @@ export function SectionConfigEditor({
     try {
       const nextConfig: Record<string, unknown> = {};
       if (titleAr) nextConfig.title_ar = titleAr;
-      if (hasItems) nextConfig.items = items;
+      if (hasItems) nextConfig.items = section.type === 'stats' ? items.slice(0, 3) : items;
       if (hasButton && buttonLabel) nextConfig.button_label = buttonLabel;
       if (hasButton && buttonUrl) nextConfig.button_url = buttonUrl;
       if (hasImageUrl && mediaUrl) nextConfig.image_url = mediaUrl;
@@ -292,33 +292,37 @@ export function SectionConfigEditor({
                   </>
                 )}
               </div>
-              <button
-                type="button"
-                onClick={() => setItems((v) => v.filter((_, i) => i !== index))}
-                className="mt-2 text-xs text-red-600 hover:underline"
-              >
-                حذف
-              </button>
+              {section.type !== 'stats' && (
+                <button
+                  type="button"
+                  onClick={() => setItems((v) => v.filter((_, i) => i !== index))}
+                  className="mt-2 text-xs text-red-600 hover:underline"
+                >
+                  حذف
+                </button>
+              )}
             </div>
           ))}
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={() =>
-              setItems((v) => [
-                ...v,
-                section.type === 'stats'
-                  ? { value: '', label: '' }
-                  : section.type === 'services'
+          {section.type !== 'stats' && (
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() =>
+                setItems((v) => [
+                  ...v,
+                  section.type === 'services'
                     ? { title: '', description: '' }
                     : { question: '', answer: '' },
-              ])
-            }
-            className="w-fit"
-          >
-            + إضافة{' '}
-            {section.type === 'stats' ? 'رقم' : section.type === 'services' ? 'خدمة' : 'سؤال'}
-          </Button>
+                ])
+              }
+              className="w-fit"
+            >
+              + إضافة {section.type === 'services' ? 'خدمة' : 'سؤال'}
+            </Button>
+          )}
+          {section.type === 'stats' && (
+            <p className="text-text-secondary text-xs">قسم أرقامنا ثابت على 3 أرقام.</p>
+          )}
         </div>
       )}
       {hasButton && (
