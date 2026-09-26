@@ -32,8 +32,7 @@ export function WebsiteBrandingCard({ accessToken }: { accessToken: string }) {
       setWebsite(result.website);
       setColorDraft({ primary: result.website.primary_color, secondary: result.website.secondary_color, background: result.website.background_color ?? '#F4F1EA' });
       setCopyrightDraft(result.website.copyright_text || 'جميع الحقوق محفوظة @سبعة');
-      // The API remains the source of truth for Gold entitlement; unlock is attempted only when editing.
-      setCopyrightLocked(false);
+      setCopyrightLocked(!result.capabilities.can_customize_copyright);
     });
   }, [accessToken]);
 
