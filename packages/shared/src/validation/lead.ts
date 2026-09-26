@@ -8,14 +8,14 @@ import { LEAD_SOURCES, LEAD_STATUSES } from '../types/enums';
  * against a published property before insert; this schema only checks shape.
  */
 export const publicLeadInputSchema = z.object({
-  tenant_id: z.string().uuid(),
+  tenant_id: z.string({ required_error: 'تعذر تحديد الموقع العقاري، أعد تحميل الصفحة' }).uuid('تعذر تحديد الموقع العقاري'),
   project_id: z.string().uuid().optional().nullable(),
   asset_id: z.string().uuid().optional().nullable(),
   listing_id: z.string().uuid().optional().nullable(),
-  full_name: z.string().min(2, 'الاسم مطلوب'),
+  full_name: z.string({ required_error: 'الاسم مطلوب' }).trim().min(2, 'الاسم مطلوب'),
   phone: saudiPhoneSchema,
   email: z.string().email().optional().nullable(),
-  captcha_token: z.string().min(1, 'التحقق الأمني مطلوب'),
+  captcha_token: z.string({ required_error: 'التحقق الأمني مطلوب' }).min(1, 'أكمل التحقق الأمني ثم أرسل النموذج'),
 });
 export type PublicLeadInput = z.infer<typeof publicLeadInputSchema>;
 
