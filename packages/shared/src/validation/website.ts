@@ -21,6 +21,7 @@ export const websiteUpdateSchema = z.object({
   announcement_bar_text: z.string().max(200).optional().nullable(),
   footer_description: z.string().max(2000).optional().nullable(),
   address: z.string().max(500).optional().nullable(),
+  copyright_text: z.string().trim().min(1).max(200).optional(),
 });
 export type WebsiteUpdateInput = z.infer<typeof websiteUpdateSchema>;
 
