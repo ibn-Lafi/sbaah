@@ -49,13 +49,6 @@ export function Header({
             : 'border-white/20 bg-[#111510]/45 text-white backdrop-blur-[3px]'
         }`}
       >
-        {website.announcement_bar_text && (
-          <div
-            className={`border-b px-5 py-2 text-center text-[11px] font-medium tracking-wide ${scrolled ? 'border-black/10' : 'border-white/15'}`}
-          >
-            {website.announcement_bar_text}
-          </div>
-        )}
 
         <div className="mx-auto flex h-20 w-full max-w-7xl items-center justify-between gap-6 px-5 sm:px-6">
           <a href={homeHref} className="flex min-w-0 shrink-0 items-center" aria-label={tenantName}>
