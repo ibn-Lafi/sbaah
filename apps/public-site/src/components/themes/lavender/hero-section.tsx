@@ -19,7 +19,7 @@ export async function HeroSection({
   const useImage = (variant === 'image' || variant === 'image_search') && Boolean(bannerUrl);
   const cities = showSearch ? await listCities() : [];
   return (
-    <section className="relative -mt-20 min-h-[82svh] overflow-hidden bg-[#171a17] text-white sm:min-h-[88svh]">
+    <section className="relative -mt-20 min-h-[100svh] overflow-hidden bg-[#171a17] text-white">
       {useVideo && (
         <video
           src={bannerVideoUrl ?? undefined}
@@ -27,7 +27,7 @@ export async function HeroSection({
           muted
           loop
           playsInline
-          className="absolute inset-0 h-full w-full object-cover"
+          className="absolute inset-0 h-full w-full object-cover object-center"
           aria-hidden="true"
         />
       )}
@@ -37,28 +37,23 @@ export async function HeroSection({
           style={{ backgroundImage: `url(${bannerUrl})` }}
         />
       )}
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,15,11,.48)_0%,rgba(10,15,11,.12)_42%,rgba(10,15,11,.86)_100%)]" />
-      <div className="bg-gradient-to-e absolute inset-y-0 start-0 w-2/3 from-transparent to-black/20" />
-      <div className="relative mx-auto flex min-h-[82svh] w-full max-w-7xl flex-col justify-end px-5 pb-8 pt-36 sm:min-h-[88svh] sm:px-6 sm:pb-12 lg:pb-14">
-        <div className="grid items-end gap-8 border-t border-white/35 pt-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(18rem,.65fr)] lg:gap-16">
-          <div>
-            <p className="mb-4 text-[11px] font-semibold uppercase tracking-[.24em] text-white/65">
-              {locale === 'ar'
-                ? 'تطوير · تسويق · وساطة عقارية'
-                : 'Development · Marketing · Brokerage'}
-            </p>
-            <h1 className="max-w-5xl text-balance text-4xl font-medium leading-[1.08] tracking-[-.025em] sm:text-6xl lg:text-7xl xl:text-[5.25rem]">
-              {title}
-            </h1>
-          </div>
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(6,10,9,.54)_0%,rgba(7,10,9,.35)_32%,rgba(7,9,8,.48)_64%,rgba(5,7,6,.76)_100%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_8%,rgba(0,0,0,.18)_100%)]" />
+      <div
+        className={`relative mx-auto flex min-h-[100svh] w-full max-w-[90rem] flex-col items-center justify-center px-5 pb-10 pt-28 text-center sm:px-8 sm:pb-14 sm:pt-32 lg:px-12 ${showSearch ? 'lg:pb-12 lg:pt-36' : 'lg:pb-20 lg:pt-40'}`}
+      >
+        <div className="mx-auto flex w-full max-w-5xl flex-col items-center">
+          <h1 className="max-w-[22rem] text-balance text-[clamp(2.35rem,10.5vw,3.25rem)] font-medium leading-[1.3] tracking-[-.035em] text-white drop-shadow-[0_2px_22px_rgba(0,0,0,.28)] sm:max-w-3xl sm:text-6xl sm:leading-[1.2] lg:max-w-5xl lg:text-7xl lg:leading-[1.16] xl:text-[5.25rem]">
+            {title}
+          </h1>
           {subtitle && (
-            <p className="max-w-xl text-sm leading-7 text-white/75 sm:text-base sm:leading-8 lg:pb-1">
+            <p className="mt-6 max-w-[22rem] text-balance text-base font-normal leading-8 text-white/75 drop-shadow-[0_1px_14px_rgba(0,0,0,.3)] sm:mt-7 sm:max-w-2xl sm:text-lg sm:leading-9 lg:max-w-3xl lg:text-xl lg:leading-10">
               {subtitle}
             </p>
           )}
         </div>
         {showSearch && (
-          <div className="mt-8 w-full lg:mt-10">
+          <div className="mt-8 w-full max-w-6xl sm:mt-10 lg:mt-12">
             <LavenderHeroSearch locale={locale} cities={cities} mode={searchMode} />
           </div>
         )}
