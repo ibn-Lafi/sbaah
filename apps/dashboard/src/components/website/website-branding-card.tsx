@@ -22,17 +22,17 @@ export function WebsiteBrandingCard({ accessToken }: { accessToken: string }) {
   const { pages } = useLocale();
   const t = pages.website.editor;
   const [website, setWebsite] = useState<Website | null>(null);
-  const [colorDraft, setColorDraft] = useState({ primary: '', secondary: '' });
+  const [colorDraft, setColorDraft] = useState({ primary: '', secondary: '', background: '' });
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     void getWebsite(accessToken).then((result) => {
       setWebsite(result.website);
-      setColorDraft({ primary: result.website.primary_color, secondary: result.website.secondary_color });
+      setColorDraft({ primary: result.website.primary_color, secondary: result.website.secondary_color, background: result.website.background_color ?? '#F4F1EA' });
     });
   }, [accessToken]);
 
-  async function saveColor(field: 'primary_color' | 'secondary_color', value: string) {
+  async function saveColor(field: 'primary_color' | 'secondary_color' | 'background_color', value: string) {
     if (!HEX_PATTERN.test(value)) return;
     setError(null);
     try {
@@ -88,6 +88,29 @@ export function WebsiteBrandingCard({ accessToken }: { accessToken: string }) {
               className="h-10 min-w-0 flex-1"
             />
           </div>
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="text-xs text-text-secondary">لون الخلفية</label>
+          <p className="text-xs text-text-tertiary">خلفية الصفحات والأقسام الأساسية للموقع.</p>
+          <div className="flex items-center gap-2">
+            <input
+              type="color"
+              value={colorDraft.background}
+              onChange={(e) => setColorDraft((draft) => ({ ...draft, background: e.target.value }))}
+              onBlur={() => void saveColor('background_color', colorDraft.background)}
+              className="h-10 w-10 shrink-0 cursor-pointer rounded-input border border-border-default"
+            />
+            <Input
+              value={colorDraft.background}
+              onChange={(e) => setColorDraft((draft) => ({ ...draft, background: e.target.value }))}
+              onBlur={() => void saveColor('background_color', colorDraft.background)}
+              dir="ltr"
+              className="h-10 min-w-0 flex-1"
+            />
+          </div>
+        </div>
+        <div className="rounded-xl border border-border-subtle bg-surface-subtle p-3 text-xs leading-6 text-text-secondary">
+          <strong className="text-text-primary">نظام الألوان:</strong> الأساسي للأزرار وروابط الإجراء والعناصر النشطة، الثانوي للتفاصيل الداعمة واللمسات البصرية، والخلفية لسطح الصفحات والأقسام. النصوص تبقى بألوان عالية التباين لضمان القراءة.
         </div>
         <FormError message={error} />
         <AssetUploader
