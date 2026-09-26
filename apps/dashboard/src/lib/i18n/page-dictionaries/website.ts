@@ -1,4 +1,9 @@
-import type { HeroVariant, WebsitePageKey, WebsiteSectionType } from '@sbaah/shared';
+import type {
+  HeroSearchMode,
+  HeroVariant,
+  WebsitePageKey,
+  WebsiteSectionType,
+} from '@sbaah/shared';
 
 export const websiteAr = {
   themeStore: {
@@ -48,7 +53,8 @@ export const websiteAr = {
     desktopView: 'عرض كمبيوتر',
     mobileView: 'عرض جوال',
     sitePreviewTitle: 'معاينة الموقع',
-    noPublishedPropertyForPreview: 'لا يوجد عقار منشور بعد لعرض معاينة صفحة تفاصيل العقار — انشر عقارًا أولًا من صفحة العقارات',
+    noPublishedPropertyForPreview:
+      'لا يوجد عقار منشور بعد لعرض معاينة صفحة تفاصيل العقار — انشر عقارًا أولًا من صفحة العقارات',
     errors: {
       saveColor: 'تعذّر حفظ اللون',
       saveFont: 'تعذّر حفظ الخط',
@@ -80,6 +86,13 @@ export const websiteAr = {
       video: 'فيديو فقط',
       video_search: 'فيديو مع فلتر بحث العقارات',
     } satisfies Record<HeroVariant, string>,
+    heroSearchModeLabel: 'محتوى البحث في الهيرو',
+    heroSearchModes: {
+      none: 'بدون بحث',
+      projects: 'المشاريع فقط',
+      properties: 'العقارات فقط',
+      both: 'المشاريع والعقارات',
+    } satisfies Record<HeroSearchMode, string>,
     heroImageLabel: 'صورة الخلفية',
     heroVideoLabel: 'فيديو الخلفية',
   },
@@ -117,13 +130,14 @@ export const websiteAr = {
   pageTabLabels: {
     home: 'الرئيسية',
     properties: 'العقارات',
-    property_detail: 'تفاصيل العقار',
+    property_detail: 'العقار',
     projects: 'المشاريع',
-    project_detail: 'تفاصيل المشروع',
+    project_detail: 'المشروع',
   } satisfies Record<WebsitePageKey, string>,
   customPages: {
     pageTitle: 'الصفحات',
-    description: 'صفحات إضافية (مثل سياسة الخصوصية) تظهر روابطها تلقائيًا في تذييل موقعك الإلكتروني.',
+    description:
+      'صفحات إضافية (مثل سياسة الخصوصية) تظهر روابطها تلقائيًا في تذييل موقعك الإلكتروني.',
     form: {
       titleLabel: 'عنوان الصفحة',
       titlePlaceholder: 'مثال: سياسة الخصوصية',
@@ -173,7 +187,8 @@ export const websiteEn: typeof websiteAr = {
     headerLabel: 'Header',
     pageContent: 'Page Content',
     bottomOfPage: 'Bottom of Page',
-    sectionsCount: (n: number) => (n === 0 ? 'No sections' : n === 1 ? '1 section' : `${n} sections`),
+    sectionsCount: (n: number) =>
+      n === 0 ? 'No sections' : n === 1 ? '1 section' : `${n} sections`,
     addSection: '+ Add Section',
     addSectionTitle: 'Add New Section',
     searchSectionPlaceholder: 'Search by section name',
@@ -188,7 +203,8 @@ export const websiteEn: typeof websiteAr = {
     announcementBarLabel: 'Announcement bar (banner text at the top of the page)',
     announcementBarPlaceholder: 'e.g. Weekend offers are now live',
     footerLabel: 'Footer',
-    footerLogoNote: 'The same logo shown at the top of the page (250×100) also appears in the footer.',
+    footerLogoNote:
+      'The same logo shown at the top of the page (250×100) also appears in the footer.',
     footerDescriptionLabel: 'Description shown in the footer',
     footerDescriptionPlaceholder: 'A short blurb about your business shown in the website footer',
     colorsAndIdentity: 'Colors & Identity',
@@ -198,7 +214,8 @@ export const websiteEn: typeof websiteAr = {
     desktopView: 'Desktop view',
     mobileView: 'Mobile view',
     sitePreviewTitle: 'Website preview',
-    noPublishedPropertyForPreview: 'No published property yet to preview the property detail page — publish a property first from the Properties page',
+    noPublishedPropertyForPreview:
+      'No published property yet to preview the property detail page — publish a property first from the Properties page',
     errors: {
       saveColor: 'Failed to save the color',
       saveFont: 'Failed to save the font',
@@ -229,6 +246,13 @@ export const websiteEn: typeof websiteAr = {
       image_search: 'Image with property search filter',
       video: 'Video only',
       video_search: 'Video with property search filter',
+    },
+    heroSearchModeLabel: 'Hero search content',
+    heroSearchModes: {
+      none: 'No search',
+      projects: 'Projects only',
+      properties: 'Properties only',
+      both: 'Projects and properties',
     },
     heroImageLabel: 'Background image',
     heroVideoLabel: 'Background video',
@@ -273,7 +297,8 @@ export const websiteEn: typeof websiteAr = {
   },
   customPages: {
     pageTitle: 'Pages',
-    description: 'Additional pages (such as a privacy policy) whose links automatically appear in your website footer.',
+    description:
+      'Additional pages (such as a privacy policy) whose links automatically appear in your website footer.',
     form: {
       titleLabel: 'Page Title',
       titlePlaceholder: 'e.g. Privacy Policy',

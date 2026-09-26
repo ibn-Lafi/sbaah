@@ -17,7 +17,11 @@ import { ServiceWorkerRegister } from '@/components/pwa/service-worker-register'
 import { getThemeComponents } from '@/components/themes/registry';
 import { ThemeProvider } from '@/lib/theme/theme-context';
 import { THEME_STORAGE_KEY } from '@/lib/theme/theme';
-import { buildLocalizedAlternates, canonicalTenantOrigin, getPublicOrigin } from '@/lib/routing/public-url';
+import {
+  buildLocalizedAlternates,
+  canonicalTenantOrigin,
+  getPublicOrigin,
+} from '@/lib/routing/public-url';
 import { safeGoogleAnalyticsId } from '@/lib/security/public-values';
 
 interface LocaleLayoutProps {
@@ -28,13 +32,20 @@ interface LocaleLayoutProps {
 export const viewport = { themeColor: '#68458A' };
 
 /** سبعة's own brand font for the marketing homepage — fixed, unlike `resolveWebsiteFont()` which picks per-tenant. */
-const marketingFont = IBM_Plex_Sans_Arabic({ subsets: ['arabic'], weight: ['400', '500', '600', '700'] });
+const marketingFont = IBM_Plex_Sans_Arabic({
+  subsets: ['arabic'],
+  weight: ['400', '500', '600', '700'],
+});
 
 /** Runs before hydration so a returning visitor's saved dark-mode choice is already on screen at first paint instead of flashing from light — same script/mechanism as apps/dashboard's root layout.tsx. */
 const themeInitScript = `(function(){try{var t=localStorage.getItem('${THEME_STORAGE_KEY}');var d=t==='dark'||((!t||t==='system')&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.setAttribute('data-theme',d?'dark':'light');document.documentElement.style.colorScheme=d?'dark':'light';}catch(e){}})();`;
 
 /** Reads the Host header once per request (via getTenantSiteResult's cache()) so the browser tab title matches the visited tenant, not a generic "سبعة". */
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
   const { locale: rawLocale } = await params;
   const locale = isLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
   const pathname = ((await headers()).get('x-pathname') ?? '/').split('?')[0] || '/';
@@ -45,7 +56,9 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       title: MARKETING_CONTENT[locale].brand,
       icons: { icon: '/icon.svg', shortcut: '/icon.svg', apple: '/icon.svg' },
       appleWebApp: { title: 'سبعة', statusBarStyle: 'default' },
-      alternates: requestOrigin ? await buildLocalizedAlternates(locale, pathname, requestOrigin) : undefined,
+      alternates: requestOrigin
+        ? await buildLocalizedAlternates(locale, pathname, requestOrigin)
+        : undefined,
     };
   }
 
@@ -83,7 +96,9 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   // platform root domain never goes through tenant resolution or
   // renders tenant chrome at all. See components/marketing-chrome.tsx.
   if (await isMarketingHost()) {
-    const marketingAnalyticsId = safeGoogleAnalyticsId(process.env.NEXT_PUBLIC_MARKETING_GA_MEASUREMENT_ID);
+    const marketingAnalyticsId = safeGoogleAnalyticsId(
+      process.env.NEXT_PUBLIC_MARKETING_GA_MEASUREMENT_ID,
+    );
     return (
       <html lang={locale} dir={dir}>
         <head>
@@ -92,7 +107,10 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
         <body className={`${marketingFont.className} ${thmanyahSerifDisplay.variable}`}>
           {marketingAnalyticsId && (
             <>
-              <Script src={`https://www.googletagmanager.com/gtag/js?id=${marketingAnalyticsId}`} strategy="afterInteractive" />
+              <Script
+                src={`https://www.googletagmanager.com/gtag/js?id=${marketingAnalyticsId}`}
+                strategy="afterInteractive"
+              />
               <Script id="sbaah-marketing-google-analytics" strategy="afterInteractive">
                 {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config',${JSON.stringify(marketingAnalyticsId)});`}
               </Script>
@@ -149,7 +167,10 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   // locale-stripped path (+ query) as a header since Server Components
   // have no usePathname() equivalent.
   const pathWithoutLocale = (await headers()).get('x-pathname') ?? '/';
-  const otherLocaleHref = locale === 'ar' ? `/en${pathWithoutLocale === '/' ? '' : pathWithoutLocale}` : pathWithoutLocale;
+  const otherLocaleHref =
+    locale === 'ar'
+      ? `/en${pathWithoutLocale === '/' ? '' : pathWithoutLocale}`
+      : pathWithoutLocale;
 
   // Standard SaaS custom-domain practice (Shopify, Webflow, WordPress.com,
   // etc.): once a custom domain is verified, it becomes the tenant's
@@ -164,7 +185,10 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   // message on the subdomain either way.
   const currentHost = (await getHost())?.replace(/:\d+$/, '').toLowerCase();
   if (site.tenant.custom_domain && currentHost !== site.tenant.custom_domain.toLowerCase()) {
-    const currentFullPath = locale === 'ar' ? pathWithoutLocale : `/en${pathWithoutLocale === '/' ? '' : pathWithoutLocale}`;
+    const currentFullPath =
+      locale === 'ar'
+        ? pathWithoutLocale
+        : `/en${pathWithoutLocale === '/' ? '' : pathWithoutLocale}`;
     // Permanent (308) — this is the tenant's canonical URL going forward,
     // not a temporary detour, so search engines update their index too.
     permanentRedirect(`https://${site.tenant.custom_domain}${currentFullPath}`);
@@ -182,11 +206,24 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
       }
     >
       <body className={font.className}>
-        <Header locale={locale} dict={dict} website={site.website} tenantName={tenantName} otherLocaleHref={otherLocaleHref} />
+        <Header
+          locale={locale}
+          dict={dict}
+          website={site.website}
+          tenantName={tenantName}
+          otherLocaleHref={otherLocaleHref}
+          customPages={site.custom_pages}
+        />
 
         <main>{children}</main>
 
-        <Footer locale={locale} dict={dict} tenant={site.tenant} website={site.website} customPages={site.custom_pages} />
+        <Footer
+          locale={locale}
+          dict={dict}
+          tenant={site.tenant}
+          website={site.website}
+          customPages={site.custom_pages}
+        />
         <ServiceWorkerRegister />
       </body>
     </html>

@@ -6,6 +6,7 @@ import { MapViewClient } from './map-view-client';
 
 interface MapSectionProps {
   locale: Locale;
+  variant?: 'default' | 'lavender';
 }
 
 /**
@@ -25,7 +26,7 @@ interface MapSectionProps {
  * `is_visible: false`), so most home pages must never ship that bundle
  * just because the section type exists in the enum.
  */
-export async function MapSection({ locale }: MapSectionProps) {
+export async function MapSection({ locale, variant = 'default' }: MapSectionProps) {
   const [pins, cities] = await Promise.all([listMapPins(), listCities()]);
 
   if (pins.properties.length === 0 && pins.projects.length === 0 && pins.buildings.length === 0) {
@@ -34,11 +35,37 @@ export async function MapSection({ locale }: MapSectionProps) {
 
   const title = DEFAULT_SECTION_TITLE.map[locale];
 
+  const lavender = variant === 'lavender';
   return (
-    <section className="mx-auto max-w-6xl px-6 py-12">
-      <h2 className="mb-6 text-2xl font-bold">{title}</h2>
-      <div className="overflow-hidden rounded-2xl border border-black/10">
-        <MapViewClient locale={locale} cities={cities} pins={pins} />
+    <section
+      className={
+        lavender ? 'bg-[#f4f1ea] px-5 py-16 sm:px-6 sm:py-24' : 'mx-auto max-w-6xl px-6 py-12'
+      }
+    >
+      <div className={lavender ? 'mx-auto max-w-7xl' : ''}>
+        {lavender && (
+          <p className="text-tenant-primary mb-3 text-xs font-semibold">
+            {locale === 'ar' ? 'مواقعنا' : 'OUR LOCATIONS'}
+          </p>
+        )}
+        <h2
+          className={
+            lavender
+              ? 'mb-8 border-b border-black/20 pb-5 text-3xl font-semibold sm:text-5xl'
+              : 'mb-6 text-2xl font-bold'
+          }
+        >
+          {title}
+        </h2>
+        <div
+          className={
+            lavender
+              ? 'overflow-hidden border border-black/20 bg-white'
+              : 'overflow-hidden rounded-2xl border border-black/10'
+          }
+        >
+          <MapViewClient locale={locale} cities={cities} pins={pins} />
+        </div>
       </div>
     </section>
   );

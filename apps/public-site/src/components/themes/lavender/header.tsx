@@ -1,4 +1,163 @@
 'use client';
-import {useEffect,useState} from 'react';
-import type {HeaderProps} from '../types';
-export function Header({locale,dict,website,tenantName}:HeaderProps){const[scrolled,setScrolled]=useState(false);const[open,setOpen]=useState(false);useEffect(()=>{const fn=()=>setScrolled(window.scrollY>36);fn();window.addEventListener('scroll',fn,{passive:true});return()=>window.removeEventListener('scroll',fn)},[]);const links=[{href:locale==='ar'?'/properties':'/en/properties',label:dict.properties},{href:locale==='ar'?'/projects':'/en/projects',label:dict.projects}];return <><header className="fixed inset-x-0 top-0 z-50 px-4 pt-4"><div className={`mx-auto flex min-h-16 max-w-7xl items-center justify-between border-b px-1 pb-3 text-white transition-all ${scrolled?'rounded-2xl border-transparent bg-[#171713]/95 px-5 shadow-xl backdrop-blur':'border-white/35 bg-transparent'}`}><a href={locale==='ar'?'/':'/en'}>{website.logo_url?<img src={website.logo_url} alt={tenantName} className="max-h-10 max-w-[190px] object-contain"/>:<span className="text-xl font-semibold">{tenantName}</span>}</a><nav className="hidden items-center gap-8 text-sm sm:flex">{links.map(l=><a key={l.href} href={l.href} className="hover:text-white/65">{l.label}</a>)}</nav><button type="button" onClick={()=>setOpen(v=>!v)} aria-label={dict.menu} className="flex h-10 w-10 items-center justify-center rounded-full border border-white/35 sm:hidden">☰</button></div>{open&&<nav className="mx-auto mt-2 flex max-w-7xl flex-col rounded-2xl bg-[#171713] p-3 text-sm text-white shadow-2xl sm:hidden">{links.map(l=><a key={l.href} href={l.href} onClick={()=>setOpen(false)} className="border-b border-white/10 px-3 py-3 last:border-0">{l.label}</a>)}</nav>}</header><div className="h-24"/></>}
+
+import { useEffect, useState } from 'react';
+import type { HeaderProps } from '../types';
+
+const SCROLL_THRESHOLD = 28;
+
+export function Header({
+  locale,
+  dict,
+  website,
+  tenantName,
+  otherLocaleHref,
+  customPages,
+}: HeaderProps) {
+  const [scrolled, setScrolled] = useState(false);
+  const [open, setOpen] = useState(false);
+  const homeHref = locale === 'ar' ? '/' : '/en';
+  const links = [
+    { href: homeHref, label: locale === 'ar' ? 'الرئيسية' : 'Home' },
+    { href: locale === 'ar' ? '/projects' : '/en/projects', label: dict.projects },
+    { href: locale === 'ar' ? '/properties' : '/en/properties', label: dict.properties },
+    ...customPages.slice(0, 2).map((page) => ({
+      href: locale === 'ar' ? `/pages/${page.slug}` : `/en/pages/${page.slug}`,
+      label: page.title,
+    })),
+  ];
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > SCROLL_THRESHOLD);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  useEffect(() => {
+    document.body.style.overflow = open ? 'hidden' : '';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [open]);
+
+  return (
+    <>
+      <header
+        className={`fixed inset-x-0 top-0 z-50 border-b transition-all duration-300 ${
+          scrolled
+            ? 'border-black/10 bg-[#f7f5ef]/95 text-[#171a17] shadow-[0_8px_30px_rgba(17,24,17,.06)] backdrop-blur-xl'
+            : 'border-white/20 bg-[#111510]/45 text-white backdrop-blur-[3px]'
+        }`}
+      >
+        {website.announcement_bar_text && (
+          <div
+            className={`border-b px-5 py-2 text-center text-[11px] font-medium tracking-wide ${scrolled ? 'border-black/10' : 'border-white/15'}`}
+          >
+            {website.announcement_bar_text}
+          </div>
+        )}
+
+        <div className="mx-auto flex h-20 w-full max-w-7xl items-center justify-between gap-6 px-5 sm:px-6">
+          <a href={homeHref} className="flex min-w-0 shrink-0 items-center" aria-label={tenantName}>
+            {website.logo_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={website.logo_url}
+                alt={tenantName}
+                className="max-h-11 w-auto max-w-[180px] object-contain sm:max-w-[220px]"
+              />
+            ) : (
+              <span className="text-xl font-semibold tracking-tight sm:text-2xl">{tenantName}</span>
+            )}
+          </a>
+
+          <nav
+            className="hidden items-center gap-7 text-sm font-medium lg:flex"
+            aria-label={dict.menu}
+          >
+            {links.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                className="relative py-2 transition-opacity after:absolute after:inset-x-0 after:bottom-0 after:h-px after:origin-right after:scale-x-0 after:bg-current after:transition-transform hover:after:scale-x-100"
+              >
+                {link.label}
+              </a>
+            ))}
+          </nav>
+
+          <div className="hidden items-center gap-4 lg:flex">
+            <a
+              href={otherLocaleHref}
+              className="text-xs font-semibold transition-opacity hover:opacity-65"
+            >
+              {dict.languageSwitch}
+            </a>
+            <a
+              href={`${homeHref}#contact`}
+              className={`inline-flex min-h-11 items-center justify-center border px-5 text-sm font-semibold transition-colors ${
+                scrolled
+                  ? 'border-[#171a17] hover:bg-[#171a17] hover:text-white'
+                  : 'border-white/55 hover:bg-white hover:text-[#171a17]'
+              }`}
+            >
+              {dict.contact}
+            </a>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setOpen((value) => !value)}
+            aria-label={dict.menu}
+            aria-expanded={open}
+            className="border-current/30 flex h-11 w-11 items-center justify-center border lg:hidden"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              className="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.7"
+              strokeLinecap="round"
+            >
+              {open ? <path d="M5 5l14 14M19 5L5 19" /> : <path d="M3 7h18M3 12h18M3 17h18" />}
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      {open && (
+        <div className="fixed inset-0 z-40 flex flex-col bg-[#171a17] px-5 pb-8 pt-28 text-white lg:hidden">
+          <nav
+            className="mx-auto flex w-full max-w-7xl flex-1 flex-col border-t border-white/20"
+            aria-label={dict.menu}
+          >
+            {links.map((link, index) => (
+              <a
+                key={link.href}
+                href={link.href}
+                onClick={() => setOpen(false)}
+                className="group flex items-center justify-between border-b border-white/15 py-5 text-2xl font-medium"
+              >
+                <span>{link.label}</span>
+                <span className="text-sm text-white/35">0{index + 1}</span>
+              </a>
+            ))}
+          </nav>
+          <div className="mx-auto flex w-full max-w-7xl items-center justify-between border-t border-white/20 pt-6 text-sm">
+            <a href={otherLocaleHref}>{dict.languageSwitch}</a>
+            <a
+              href={`${homeHref}#contact`}
+              onClick={() => setOpen(false)}
+              className="border-b border-white/60 pb-1"
+            >
+              {dict.contact}
+            </a>
+          </div>
+        </div>
+      )}
+
+      <div className="h-20" />
+    </>
+  );
+}

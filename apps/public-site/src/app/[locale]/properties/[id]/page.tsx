@@ -30,7 +30,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const title = pickLocalized(locale, property.title_ar, property.title_en);
-  const description = pickLocalized(locale, property.description_ar, property.description_en) || undefined;
+  const description =
+    pickLocalized(locale, property.description_ar, property.description_en) || undefined;
   const pathname = `/properties/${property.slug ?? property.id}`;
   const [alternates, origin] = await Promise.all([
     buildLocalizedAlternates(locale, pathname),
@@ -71,7 +72,10 @@ export default async function PropertyDetailPage({ params }: PageProps) {
   const locale = isLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
   const t = LABELS[locale];
 
-  const [property, site] = await Promise.all([getPublicProperty(id), getTenantSitePage('property_detail')]);
+  const [property, site] = await Promise.all([
+    getPublicProperty(id),
+    getTenantSitePage('property_detail'),
+  ]);
   if (!property || !site) {
     notFound();
   }
@@ -79,7 +83,10 @@ export default async function PropertyDetailPage({ params }: PageProps) {
     permanentRedirect(localizedPath(locale, `/properties/${property.slug}`));
   }
 
-  const [cities, districts] = await Promise.all([listCities(), listDistricts(property.city_id ?? undefined)]);
+  const [cities, districts] = await Promise.all([
+    listCities(),
+    listDistricts(property.city_id ?? undefined),
+  ]);
   const city = cities.find((c) => c.id === property.city_id);
   const district = districts.find((d) => d.id === property.district_id);
 
@@ -99,6 +106,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
     assetId: property.asset_id,
     listingId: property.id,
     cities,
+    themeKey: resolvedTheme.key,
   };
 
   // 'contact' excluded outright (founder's explicit call, matching the home
@@ -109,58 +117,79 @@ export default async function PropertyDetailPage({ params }: PageProps) {
   // sections; it's intentionally never rendered regardless of visibility.
   const detailSection = site.sections.find((s) => s.type === 'property_detail');
   const before = site.sections.filter(
-    (s) => s.type !== 'property_detail' && s.type !== 'contact' && (!detailSection || s.order_index < detailSection.order_index),
+    (s) =>
+      s.type !== 'property_detail' &&
+      s.type !== 'contact' &&
+      (!detailSection || s.order_index < detailSection.order_index),
   );
   const after = site.sections.filter(
-    (s) => s.type !== 'property_detail' && s.type !== 'contact' && detailSection && s.order_index > detailSection.order_index,
+    (s) =>
+      s.type !== 'property_detail' &&
+      s.type !== 'contact' &&
+      detailSection &&
+      s.order_index > detailSection.order_index,
   );
 
   return (
     <div>
       {before.map((s) => renderThemedSection(s, theme, themedCtx))}
 
-      {detailSection && (isLavender ? <LavenderPropertyDetail locale={locale} property={property} city={city} district={district}/> :
-        <div className="mx-auto max-w-6xl px-6 py-8">
-          <div className="grid grid-cols-1 gap-8">
-            <div className="flex flex-col gap-6">
-              <PropertyGallery media={property.property_media} title={title} />
+      {detailSection &&
+        (isLavender ? (
+          <LavenderPropertyDetail
+            locale={locale}
+            property={property}
+            city={city}
+            district={district}
+          />
+        ) : (
+          <div className="mx-auto max-w-6xl px-6 py-8">
+            <div className="grid grid-cols-1 gap-8">
+              <div className="flex flex-col gap-6">
+                <PropertyGallery media={property.property_media} title={title} />
 
-              <div>
-                <span className="text-sm font-medium text-tenant-primary">{getListingTypeLabel(locale, property.listing_type)}</span>
-                <h1 className="mt-1 text-2xl font-bold">{title}</h1>
-                <p className="mt-1 text-black/60">
-                  {getPropertyTypeLabel(locale, property.property_type)}
-                  {city ? ` · ${pickLocalized(locale, city.name_ar, city.name_en)}` : ''}
-                  {district ? ` · ${pickLocalized(locale, district.name_ar, district.name_en)}` : ''}
-                </p>
-                <p className="mt-3 text-2xl font-bold text-tenant-primary">{formatPrice(locale, property.price)}</p>
+                <div>
+                  <span className="text-tenant-primary text-sm font-medium">
+                    {getListingTypeLabel(locale, property.listing_type)}
+                  </span>
+                  <h1 className="mt-1 text-2xl font-bold">{title}</h1>
+                  <p className="mt-1 text-black/60">
+                    {getPropertyTypeLabel(locale, property.property_type)}
+                    {city ? ` · ${pickLocalized(locale, city.name_ar, city.name_en)}` : ''}
+                    {district
+                      ? ` · ${pickLocalized(locale, district.name_ar, district.name_en)}`
+                      : ''}
+                  </p>
+                  <p className="text-tenant-primary mt-3 text-2xl font-bold">
+                    {formatPrice(locale, property.price)}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-3 gap-4 rounded-xl border border-black/10 p-4 text-center text-sm">
+                  <div>
+                    <p className="text-black/60">{t.area}</p>
+                    <p className="font-semibold">{property.area_sqm} m²</p>
+                  </div>
+                  <div>
+                    <p className="text-black/60">{t.bedrooms}</p>
+                    <p className="font-semibold">{property.bedrooms ?? '—'}</p>
+                  </div>
+                  <div>
+                    <p className="text-black/60">{t.bathrooms}</p>
+                    <p className="font-semibold">{property.bathrooms ?? '—'}</p>
+                  </div>
+                </div>
+
+                {description && (
+                  <div>
+                    <h2 className="mb-2 font-semibold">{t.description}</h2>
+                    <p className="whitespace-pre-line text-black/80">{description}</p>
+                  </div>
+                )}
               </div>
-
-              <div className="grid grid-cols-3 gap-4 rounded-xl border border-black/10 p-4 text-center text-sm">
-                <div>
-                  <p className="text-black/60">{t.area}</p>
-                  <p className="font-semibold">{property.area_sqm} m²</p>
-                </div>
-                <div>
-                  <p className="text-black/60">{t.bedrooms}</p>
-                  <p className="font-semibold">{property.bedrooms ?? '—'}</p>
-                </div>
-                <div>
-                  <p className="text-black/60">{t.bathrooms}</p>
-                  <p className="font-semibold">{property.bathrooms ?? '—'}</p>
-                </div>
-              </div>
-
-              {description && (
-                <div>
-                  <h2 className="mb-2 font-semibold">{t.description}</h2>
-                  <p className="whitespace-pre-line text-black/80">{description}</p>
-                </div>
-              )}
             </div>
           </div>
-        </div>
-      )}
+        ))}
 
       {after.map((s) => renderThemedSection(s, theme, themedCtx))}
     </div>

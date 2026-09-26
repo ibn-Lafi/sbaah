@@ -1,5 +1,10 @@
 import type { ComponentType, ReactNode } from 'react';
-import type { AboutSectionConfig, ContactSectionConfig, HeroSectionConfig, PropertyGridSectionConfig } from '@sbaah/shared';
+import type {
+  AboutSectionConfig,
+  ContactSectionConfig,
+  HeroSectionConfig,
+  PropertyGridSectionConfig,
+} from '@sbaah/shared';
 import type { Locale } from '@/lib/i18n/locales';
 import type { getDictionary } from '@/lib/i18n/dictionary';
 import type { TenantSite } from '@/lib/tenant/get-tenant-site';
@@ -59,6 +64,7 @@ export interface HeaderProps {
   website: TenantSite['website'];
   tenantName: string;
   otherLocaleHref: string;
+  customPages: TenantSite['custom_pages'];
 }
 
 export interface FooterProps {

@@ -25,6 +25,9 @@
 export const HERO_VARIANTS = ['image', 'image_search', 'video', 'video_search'] as const;
 export type HeroVariant = (typeof HERO_VARIANTS)[number];
 
+export const HERO_SEARCH_MODES = ['none', 'projects', 'properties', 'both'] as const;
+export type HeroSearchMode = (typeof HERO_SEARCH_MODES)[number];
+
 /**
  * `_ar` فقط، بلا `_en` مقابل — الثيم الأساسي بلغة عربية واحدة فقط، لا
  * محتوى مؤلَّف ثنائي اللغة (طلب المؤسس). المفتاح أبقي بلاحقة `_ar` رغم
@@ -36,6 +39,15 @@ export interface HeroSectionConfig {
   title_ar?: string;
   subtitle_ar?: string;
   variant?: HeroVariant;
+  /** Explicit search target; absent configs retain their legacy variant-based behavior. */
+  search_mode?: HeroSearchMode;
+}
+
+export function resolveHeroSearchMode(
+  config: Pick<HeroSectionConfig, 'search_mode' | 'variant'>,
+): HeroSearchMode {
+  if (config.search_mode) return config.search_mode;
+  return config.variant === 'image_search' || config.variant === 'video_search' ? 'both' : 'none';
 }
 
 export interface PropertyGridSectionConfig {
@@ -71,7 +83,6 @@ export type BrokerMarketerFormSectionConfig = Record<string, never>;
 /** No editable fields — pins are entirely data-driven (every published property/project/building with a location set), same as property_detail/footer. Toggle/reposition only (migration 0044). */
 export type MapSectionConfig = Record<string, never>;
 
-
 export type SectionTone = 'default' | 'soft';
 export type SectionHeadingAlign = 'start' | 'center';
 export type SectionColumns = 2 | 3 | 4;
@@ -82,19 +93,66 @@ export interface SectionPresentationConfig {
   columns?: SectionColumns;
 }
 
-export interface FeaturedPropertiesSectionConfig extends SectionPresentationConfig { title_ar?: string; property_ids?: string[]; }
-export interface LatestPropertiesSectionConfig extends SectionPresentationConfig { title_ar?: string; limit?: number; }
-export interface ProjectsShowcaseSectionConfig extends SectionPresentationConfig { title_ar?: string; limit?: number; }
-export interface PropertiesByCitySectionConfig extends SectionPresentationConfig { title_ar?: string; city_ids?: string[]; }
-export interface StatsSectionConfig extends SectionPresentationConfig { title_ar?: string; items?: Array<{ value: string; label: string }>; }
-export interface ServicesSectionConfig extends SectionPresentationConfig { title_ar?: string; items?: Array<{ title: string; description?: string }>; }
-export interface FaqSectionConfig extends SectionPresentationConfig { title_ar?: string; items?: Array<{ question: string; answer: string }>; }
-export interface CtaSectionConfig { title_ar?: string; body_ar?: string; button_label?: string; button_url?: string; }
-export interface PropertyRequestSectionConfig { title_ar?: string; body_ar?: string; }
-export interface PromoBannerSectionConfig { title_ar?: string; body_ar?: string; button_label?: string; button_url?: string; image_url?: string; }
-export interface FreeContentSectionConfig { title_ar?: string; body_ar?: string; button_label?: string; button_url?: string; image_url?: string; }
-export interface GallerySectionConfig { title_ar?: string; image_urls?: string[]; }
-export interface VideoSectionConfig { title_ar?: string; video_url?: string; }
+export interface FeaturedPropertiesSectionConfig extends SectionPresentationConfig {
+  title_ar?: string;
+  property_ids?: string[];
+}
+export interface LatestPropertiesSectionConfig extends SectionPresentationConfig {
+  title_ar?: string;
+  limit?: number;
+}
+export interface ProjectsShowcaseSectionConfig extends SectionPresentationConfig {
+  title_ar?: string;
+  limit?: number;
+}
+export interface PropertiesByCitySectionConfig extends SectionPresentationConfig {
+  title_ar?: string;
+  city_ids?: string[];
+}
+export interface StatsSectionConfig extends SectionPresentationConfig {
+  title_ar?: string;
+  items?: Array<{ value: string; label: string }>;
+}
+export interface ServicesSectionConfig extends SectionPresentationConfig {
+  title_ar?: string;
+  items?: Array<{ title: string; description?: string }>;
+}
+export interface FaqSectionConfig extends SectionPresentationConfig {
+  title_ar?: string;
+  items?: Array<{ question: string; answer: string }>;
+}
+export interface CtaSectionConfig {
+  title_ar?: string;
+  body_ar?: string;
+  button_label?: string;
+  button_url?: string;
+}
+export interface PropertyRequestSectionConfig {
+  title_ar?: string;
+  body_ar?: string;
+}
+export interface PromoBannerSectionConfig {
+  title_ar?: string;
+  body_ar?: string;
+  button_label?: string;
+  button_url?: string;
+  image_url?: string;
+}
+export interface FreeContentSectionConfig {
+  title_ar?: string;
+  body_ar?: string;
+  button_label?: string;
+  button_url?: string;
+  image_url?: string;
+}
+export interface GallerySectionConfig {
+  title_ar?: string;
+  image_urls?: string[];
+}
+export interface VideoSectionConfig {
+  title_ar?: string;
+  video_url?: string;
+}
 
 export type WebsiteSectionConfigByType = {
   hero: HeroSectionConfig;

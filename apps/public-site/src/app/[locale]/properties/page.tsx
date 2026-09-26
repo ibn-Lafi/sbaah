@@ -3,7 +3,10 @@ import { isLocale, DEFAULT_LOCALE } from '@/lib/i18n/locales';
 import { listPublicProperties } from '@/lib/api/public-properties';
 import { listCities, listDistricts } from '@/lib/api/reference-data';
 import { PropertyCard } from '@/components/properties/property-card';
-import { PropertyFilters, type PropertyFiltersValue } from '@/components/properties/property-filters';
+import {
+  PropertyFilters,
+  type PropertyFiltersValue,
+} from '@/components/properties/property-filters';
 import { getTenantSitePage } from '@/lib/tenant/get-tenant-site';
 import { resolveTheme } from '@/components/themes/registry';
 import { LavenderProperty } from '@/components/themes/lavender/cards';
@@ -11,8 +14,27 @@ import { LavenderPropertyFilters } from '@/components/themes/lavender/property-f
 import { renderThemedSection } from '@/lib/website/render-section';
 
 const PAGE_LABELS = {
-  ar: { title: 'العقارات', noResults: 'لا توجد عقارات مطابقة', prev: 'السابق', next: 'التالي', page: 'صفحة' },
-  en: { title: 'Properties', noResults: 'No matching properties', prev: 'Previous', next: 'Next', page: 'Page' },
+  ar: {
+    eyebrow: 'الفرص العقارية',
+    title: 'العقارات',
+    subtitle: 'ابحث في العقارات المتاحة للبيع والإيجار وصفّ النتائج بحسب احتياجك.',
+    noResults: 'لا توجد عقارات مطابقة',
+    prev: 'السابق',
+    next: 'التالي',
+    page: 'صفحة',
+    count: 'عقار',
+  },
+  en: {
+    eyebrow: 'Property opportunities',
+    title: 'Properties',
+    subtitle:
+      'Browse properties available for sale and rent, then refine the results around your needs.',
+    noResults: 'No matching properties',
+    prev: 'Previous',
+    next: 'Next',
+    page: 'Page',
+    count: 'properties',
+  },
 };
 
 interface PageProps {
@@ -83,9 +105,15 @@ export default async function PropertiesPage({ params, searchParams }: PageProps
     tenantName,
     whatsappPhone: site.whatsapp_phone,
     tenantId: site.tenant.id,
+    themeKey: resolvedTheme.key,
   };
-  const before = site.sections.filter((s) => s.type !== 'property_grid' && (!gridSection || s.order_index < gridSection.order_index));
-  const after = site.sections.filter((s) => s.type !== 'property_grid' && gridSection && s.order_index > gridSection.order_index);
+  const before = site.sections.filter(
+    (s) => s.type !== 'property_grid' && (!gridSection || s.order_index < gridSection.order_index),
+  );
+  const after = site.sections.filter(
+    (s) => s.type !== 'property_grid' && gridSection && s.order_index > gridSection.order_index,
+  );
+  const hasPageHero = before.some((section) => section.type === 'hero');
 
   function pageHref(targetPage: number): string {
     const query = new URLSearchParams();
@@ -100,32 +128,131 @@ export default async function PropertiesPage({ params, searchParams }: PageProps
     <div>
       {before.map((s) => renderThemedSection(s, theme, themedCtx))}
 
-      {gridSection && (
-        <div className={isLavender ? "bg-[#f4f1ea] px-5 py-16 sm:px-6 sm:py-24" : "mx-auto max-w-6xl px-6 py-8"}>
-          <div className={isLavender ? "mx-auto max-w-7xl" : ""}>
-          <h1 className={isLavender ? "mb-10 border-b border-black/20 pb-6 text-4xl font-medium sm:text-6xl" : "mb-6 text-2xl font-bold"}>{t.title}</h1>
-
-          <div className="mb-8">
-            {isLavender ? <LavenderPropertyFilters locale={locale} cities={cities} districts={districts} value={filters} /> : <PropertyFilters locale={locale} cities={cities} districts={districts} value={filters} />}
-          </div>
-
-          {listResult.properties.length === 0 ? (
-            <p className="text-black/60">{t.noResults}</p>
-          ) : (
-            <div className={isLavender ? "grid gap-x-5 gap-y-10 sm:grid-cols-2 lg:grid-cols-3" : "grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"}>
-              {listResult.properties.map((property) => isLavender ? <LavenderProperty key={property.id} property={property} city={property.city_id ? citiesById.get(property.city_id) : undefined} locale={locale}/> : <PropertyCard key={property.id} property={property} city={property.city_id ? citiesById.get(property.city_id) : undefined} locale={locale} />)}
+      {isLavender && !hasPageHero && (
+        <section
+          className={`bg-[#171713] px-5 pb-14 pt-16 text-white sm:px-6 sm:pb-20 sm:pt-24 ${before.length === 0 ? '-mt-24 pt-36 sm:pt-40' : ''}`}
+        >
+          <div className="mx-auto max-w-7xl border-t border-white/25 pt-6">
+            <p className="text-[11px] font-semibold uppercase tracking-[.2em] text-white/50">
+              {t.eyebrow}
+            </p>
+            <div className="mt-5 grid gap-6 lg:grid-cols-[1.3fr_.7fr] lg:items-end">
+              <h1 className="max-w-4xl text-4xl font-medium leading-[1.08] tracking-tight sm:text-6xl lg:text-7xl">
+                {t.title}
+              </h1>
+              <p className="max-w-xl text-sm leading-7 text-white/60 sm:text-base">{t.subtitle}</p>
             </div>
-          )}
+          </div>
+        </section>
+      )}
 
-          {totalPages > 1 && (
-            <nav className="mt-8 flex items-center justify-center gap-4 text-sm">
-              {page > 1 && <a href={pageHref(page - 1)}>{t.prev}</a>}
-              <span className="text-black/60">
-                {t.page} {page} / {totalPages}
-              </span>
-              {page < totalPages && <a href={pageHref(page + 1)}>{t.next}</a>}
-            </nav>
-          )}
+      {gridSection && (
+        <div
+          className={
+            isLavender ? 'bg-[#f4f1ea] px-5 py-14 sm:px-6 sm:py-20' : 'mx-auto max-w-6xl px-6 py-8'
+          }
+        >
+          <div className={isLavender ? 'mx-auto max-w-7xl' : ''}>
+            {isLavender ? (
+              <div className="mb-8 flex items-end justify-between gap-5 border-b border-black/15 pb-5">
+                <h2 className="text-2xl font-medium sm:text-4xl">{t.title}</h2>
+                <span className="whitespace-nowrap text-xs text-black/45">
+                  {listResult.total} {t.count}
+                </span>
+              </div>
+            ) : (
+              <h1 className="mb-6 text-2xl font-bold">{t.title}</h1>
+            )}
+
+            <div className="mb-8">
+              {isLavender ? (
+                <LavenderPropertyFilters
+                  locale={locale}
+                  cities={cities}
+                  districts={districts}
+                  value={filters}
+                />
+              ) : (
+                <PropertyFilters
+                  locale={locale}
+                  cities={cities}
+                  districts={districts}
+                  value={filters}
+                />
+              )}
+            </div>
+
+            {listResult.properties.length === 0 ? (
+              <div
+                className={
+                  isLavender
+                    ? 'border-y border-black/15 py-16 text-center text-sm text-black/55'
+                    : 'text-black/60'
+                }
+              >
+                {t.noResults}
+              </div>
+            ) : (
+              <div
+                className={
+                  isLavender
+                    ? 'grid gap-x-5 gap-y-10 sm:grid-cols-2 lg:grid-cols-3'
+                    : 'grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3'
+                }
+              >
+                {listResult.properties.map((property) =>
+                  isLavender ? (
+                    <LavenderProperty
+                      key={property.id}
+                      property={property}
+                      city={property.city_id ? citiesById.get(property.city_id) : undefined}
+                      locale={locale}
+                    />
+                  ) : (
+                    <PropertyCard
+                      key={property.id}
+                      property={property}
+                      city={property.city_id ? citiesById.get(property.city_id) : undefined}
+                      locale={locale}
+                    />
+                  ),
+                )}
+              </div>
+            )}
+
+            {totalPages > 1 && (
+              <nav
+                className={
+                  isLavender
+                    ? 'mt-12 flex items-center justify-between border-t border-black/15 pt-5 text-sm'
+                    : 'mt-8 flex items-center justify-center gap-4 text-sm'
+                }
+              >
+                <span>
+                  {page > 1 && (
+                    <a
+                      className={isLavender ? 'border-b border-black/40 pb-1' : ''}
+                      href={pageHref(page - 1)}
+                    >
+                      {t.prev}
+                    </a>
+                  )}
+                </span>
+                <span className="text-black/60">
+                  {t.page} {page} / {totalPages}
+                </span>
+                <span>
+                  {page < totalPages && (
+                    <a
+                      className={isLavender ? 'border-b border-black/40 pb-1' : ''}
+                      href={pageHref(page + 1)}
+                    >
+                      {t.next}
+                    </a>
+                  )}
+                </span>
+              </nav>
+            )}
           </div>
         </div>
       )}
