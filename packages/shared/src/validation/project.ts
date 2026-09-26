@@ -9,6 +9,7 @@ export const projectInputSchema = z.object({
   developer_party_id: z.string().uuid().optional().nullable(), completion_percentage: z.number().min(0).max(100).optional().nullable(),
   expected_completion_date: z.string().date().optional().nullable(), planned_units_count: z.number().int().nonnegative().optional().nullable(),
   reference_number: z.string().max(100).optional().nullable(),
+  is_public: z.boolean().optional(),
 });
 export type ProjectInput = z.infer<typeof projectInputSchema>;
 export const projectUpdateSchema = projectInputSchema.partial().extend({ status: z.enum(PROJECT_STATUSES).optional() });
