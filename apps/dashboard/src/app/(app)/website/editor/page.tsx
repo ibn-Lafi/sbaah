@@ -62,7 +62,7 @@ export default function WebsiteEditorPage() {
   const t = pageLabels.website;
   const [website, setWebsite] = useState<Website | null>(null);
   const [pages, setPages] = useState<WebsitePageWithSections[]>([]);
-  const [textDraft, setTextDraft] = useState({ announcement: '', footerDescription: '' });
+  const [textDraft, setTextDraft] = useState({ footerDescription: '' });
   const [error, setError] = useState<string | null>(null);
   const [panelView, setPanelView] = useState<PanelView>('sections');
   const [activePageKey, setActivePageKey] = useState<WebsitePageKey>('home');
@@ -115,10 +115,7 @@ export default function WebsiteEditorPage() {
         if (cancelled) return;
         setWebsite(result.website);
         setPages(result.pages);
-        setTextDraft({
-          announcement: result.website.announcement_bar_text ?? '',
-          footerDescription: result.website.footer_description ?? '',
-        });
+        setTextDraft({ footerDescription: result.website.footer_description ?? '' });
       } catch (err) {
         if (!cancelled) setLoadError(err instanceof ApiRequestError ? err.message : 'تعذر تحميل تخصيص الموقع.');
       }
@@ -139,19 +136,6 @@ export default function WebsiteEditorPage() {
       setPreviewRevision((value) => value + 1);
     } catch (err) {
       setError(err instanceof ApiRequestError ? err.message : t.editor.errors.saveFont);
-    }
-  }
-
-  async function saveAnnouncementBar(value: string) {
-    setError(null);
-    try {
-      const { website: updated } = await updateWebsite(accessToken, {
-        announcement_bar_text: value || null,
-      });
-      setWebsite((current) => (current ? { ...current, ...updated } : current));
-      setPreviewRevision((value) => value + 1);
-    } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : t.editor.errors.saveAnnouncement);
     }
   }
 
@@ -361,14 +345,6 @@ export default function WebsiteEditorPage() {
                       <PencilIcon className="text-text-secondary h-[16px] w-[16px] flex-none" />
                       <span className="text-sm font-medium text-text-primary">{t.editor.headerLabel}</span>
                     </div>
-                    <label className="text-text-secondary px-1 text-xs">{t.editor.announcementBarLabel}</label>
-                    <Input
-                      value={textDraft.announcement}
-                      onChange={(e) => setTextDraft((c) => ({ ...c, announcement: e.target.value }))}
-                      onBlur={() => void saveAnnouncementBar(textDraft.announcement)}
-                      placeholder={t.editor.announcementBarPlaceholder}
-                      className="h-10"
-                    />
                   </div>
                 )}
               </div>
@@ -661,20 +637,6 @@ export default function WebsiteEditorPage() {
                     {openZones.top && (
                       <div className="mt-4 flex flex-col gap-4">
                         <p className="text-text-primary text-sm font-semibold">{t.editor.headerLabel}</p>
-                        <div className="flex flex-col gap-2">
-                          <label className="text-text-secondary text-xs">
-                            {t.editor.announcementBarLabel}
-                          </label>
-                          <Input
-                            value={textDraft.announcement}
-                            onChange={(e) =>
-                              setTextDraft((c) => ({ ...c, announcement: e.target.value }))
-                            }
-                            onBlur={() => void saveAnnouncementBar(textDraft.announcement)}
-                            placeholder={t.editor.announcementBarPlaceholder}
-                            className="h-10"
-                          />
-                        </div>
                       </div>
                     )}
                   </div>
