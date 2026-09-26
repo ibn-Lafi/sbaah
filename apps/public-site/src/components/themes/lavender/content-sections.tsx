@@ -75,27 +75,32 @@ export function LavenderServices({
   config: ServicesSectionConfig;
 }) {
   const items = (config.items ?? []).filter((i) => i.title);
+  if (!items.length) return null;
   return (
-    <LavenderSection className="bg-transparent">
-      <LavenderHeading
-        eyebrow={locale === 'ar' ? 'خبرات متكاملة' : 'Integrated expertise'}
-        title={config.title_ar || copy[locale].services}
-      />
-      <div className={`grid border-t border-black/20 ${cols(config.columns)}`}>
-        {items.map((i, n) => (
-          <article
-            key={n}
-            className="border-b border-black/20 px-1 py-7 sm:p-7 sm:first:ps-0 lg:border-e"
-          >
-            <span className="text-tenant-primary text-xs font-semibold">
-              {String(n + 1).padStart(2, '0')}
-            </span>
-            <h3 className="mt-6 text-xl font-semibold sm:text-2xl">{i.title}</h3>
-            {i.description && (
-              <p className="mt-4 max-w-2xl text-sm leading-7 text-black/70">{i.description}</p>
-            )}
-          </article>
-        ))}
+    <LavenderSection className="overflow-hidden bg-[#f5f1ee] py-12 text-[#173d34] sm:py-16 lg:py-24">
+      <div className="mx-auto max-w-6xl">
+        <p className="mb-10 text-end text-4xl font-light leading-none text-[#aa8c62] sm:mb-14 sm:text-6xl">
+          {locale === 'ar' ? 'خدماتنا' : 'Services'}
+        </p>
+        <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-16">
+          <div className="min-w-0">
+            {items.map((item, index) => (
+              <article key={index} className={index === 0 ? 'block' : 'hidden'}>
+                <span className="mb-5 block text-end text-xl text-[#aa8c62]">{index + 1}</span>
+                <h3 className="text-end text-3xl font-semibold leading-tight sm:text-4xl lg:text-5xl">{item.title}</h3>
+                {item.description && <p className="mt-6 text-end text-lg leading-[1.9] text-[#5d5b59] sm:text-xl lg:text-2xl">{item.description}</p>}
+              </article>
+            ))}
+          </div>
+          <ol className="border-e-2 border-[#173d34]/10 pe-4 sm:pe-5">
+            {items.map((item, index) => (
+              <li key={index} className={`relative py-3 text-end text-xl leading-tight sm:text-2xl ${index === 0 ? 'font-medium text-[#173d34]' : 'text-[#173d34]/35'}`}>
+                {index === 0 && <span className="absolute -end-[18px] top-0 h-full w-[3px] bg-[#173d34] sm:-end-[22px]" />}
+                <span className="tabular-nums">{index + 1}.</span> {item.title}
+              </li>
+            ))}
+          </ol>
+        </div>
       </div>
     </LavenderSection>
   );
