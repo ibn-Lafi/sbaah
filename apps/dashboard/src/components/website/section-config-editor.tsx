@@ -437,7 +437,7 @@ export function SectionConfigEditor({
       )}
 
       {isGallery && (
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3"><p className="text-xs text-text-tertiary">1200 × 900 px · JPG, PNG, WEBP</p>
           {galleryUrls.map((url, index) => (
             <div key={url + index} className="flex items-center gap-3">
               <img src={url} alt="" className="rounded-input h-16 w-24 object-cover" />
@@ -456,7 +456,7 @@ export function SectionConfigEditor({
             </span>
             <input
               type="file"
-              accept="image/*"
+              accept="image/jpeg,image/png,image/webp"
               className="hidden"
               onChange={(e) => {
                 const file = e.target.files?.[0];
