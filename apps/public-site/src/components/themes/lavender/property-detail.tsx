@@ -125,15 +125,16 @@ export function LavenderPropertyDetail({
           </div>
         </div>
       </section>
-      <section id="inquiry" className="px-5 py-14 sm:px-6 sm:py-20">
-        <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[.7fr_1.3fr] lg:gap-14">
-          <div>
-            <p className="text-tenant-primary mb-3 text-xs font-semibold">{locale === 'ar' ? 'مهتم بالعقار؟' : 'INTERESTED?'}</p>
-            <h2 className="text-3xl font-semibold sm:text-5xl">{locale === 'ar' ? 'سجل اهتمامك' : 'Register your interest'}</h2>
-          </div>
-          <div className="rounded-2xl bg-white/50 p-1">
-            <InquiryForm locale={locale} tenantId={tenantId} listingId={property.id} variant="lavender" />
-          </div>
+      <section id="inquiry" className="px-5 py-10 sm:px-6 sm:py-14">
+        <div className="mx-auto max-w-xl">
+          <InquiryForm
+            locale={locale}
+            tenantId={tenantId}
+            listingId={property.id}
+            variant="lavender"
+            eyebrow={locale === 'ar' ? 'مهتم بالعقار؟' : 'INTERESTED IN THIS PROPERTY?'}
+            description={locale === 'ar' ? 'اترك بياناتك وسيتواصل معك الفريق بخصوص العقار.' : 'Leave your details and the team will contact you about this property.'}
+          />
         </div>
       </section>
     </article>
