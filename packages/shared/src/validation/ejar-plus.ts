@@ -7,10 +7,10 @@ import {
 } from '../types/enums';
 const uuid=z.string().uuid(); const nullableUuid=uuid.optional().nullable();
 export const managementAssignmentInputSchema=z.object({
- asset_id:uuid,starts_at:z.string().date().optional(),ends_at:z.string().date().optional().nullable(),
+ asset_id:nullableUuid,project_id:nullableUuid,starts_at:z.string().date().optional(),ends_at:z.string().date().optional().nullable(),
  status:z.enum(PROPERTY_MANAGEMENT_STATUSES).optional(),management_fee_type:z.enum(MANAGEMENT_FEE_TYPES).optional().nullable(),
  management_fee_value:z.number().nonnegative().optional().nullable(),notes:z.string().optional().nullable(),
-}).superRefine((v,c)=>{if((v.management_fee_type==null)!=(v.management_fee_value==null))c.addIssue({code:'custom',path:['management_fee_value'],message:'نوع وقيمة رسوم الإدارة يجب إدخالهما معًا'});if(v.management_fee_type==='percentage'&&v.management_fee_value!=null&&v.management_fee_value>100)c.addIssue({code:'custom',path:['management_fee_value'],message:'النسبة لا تتجاوز 100'});});
+}).superRefine((v,c)=>{if((v.asset_id==null)===(v.project_id==null))c.addIssue({code:'custom',path:['asset_id'],message:'اختر مشروعًا كاملًا أو عقارًا/وحدة واحدة للتأجير'});if((v.management_fee_type==null)!=(v.management_fee_value==null))c.addIssue({code:'custom',path:['management_fee_value'],message:'نوع وقيمة رسوم الإدارة يجب إدخالهما معًا'});if(v.management_fee_type==='percentage'&&v.management_fee_value!=null&&v.management_fee_value>100)c.addIssue({code:'custom',path:['management_fee_value'],message:'النسبة لا تتجاوز 100'});});
 export const leaseContractInputSchema=z.object({
  contract_number:z.string().trim().min(1),source:z.enum(LEASE_CONTRACT_SOURCES).optional(),external_contract_number:z.string().optional().nullable(),
  start_date:z.string().date(),end_date:z.string().date(),total_value:z.number().nonnegative(),security_deposit:z.number().nonnegative().optional(),
