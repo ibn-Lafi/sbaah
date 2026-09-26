@@ -141,6 +141,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
             property={property}
             city={city}
             district={district}
+            tenantId={site.tenant.id}
           />
         ) : (
           <div className="mx-auto max-w-6xl px-6 py-8">
