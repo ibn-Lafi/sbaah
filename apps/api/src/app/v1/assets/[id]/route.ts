@@ -62,9 +62,10 @@ export const PATCH = withErrorHandling<RouteContext>(async (request, { params })
   const next={...current,...input};
   if (next.parent_asset_id) {
     if (next.parent_asset_id===id) throw new ApiError(400,'invalid_parent_asset','لا يمكن أن يكون العقار تابعًا لنفسه');
-    const { data: parent, error: parentError } = await supabase.from('assets').select('id,project_id').eq('id', next.parent_asset_id).eq('tenant_id', caller.tenantId).is('archived_at', null).maybeSingle();
+    const { data: parent, error: parentError } = await supabase.from('assets').select('id,project_id,parent_asset_id').eq('id', next.parent_asset_id).eq('tenant_id', caller.tenantId).is('archived_at', null).maybeSingle();
     if (parentError) throw new Error(`Failed to validate parent asset: ${parentError.message}`);
     if (!parent) throw new ApiError(400, 'invalid_parent_asset', 'العقار الرئيسي غير موجود أو مؤرشف');
+    if (parent.parent_asset_id) throw new ApiError(400, 'unit_cannot_have_children', 'لا يمكن جعل الوحدة تابعة لوحدة أخرى');
     if (next.project_id && parent.project_id && next.project_id !== parent.project_id) throw new ApiError(400,'parent_project_mismatch','العقار الرئيسي مرتبط بمشروع مختلف');
   }
   if (next.project_id) {
@@ -74,7 +75,10 @@ export const PATCH = withErrorHandling<RouteContext>(async (request, { params })
   }
   if(next.phase_id){if(!next.project_id)throw new ApiError(400,'phase_requires_project','لا يمكن ربط مرحلة بدون مشروع');const{data:phase,error:phaseError}=await supabase.from('project_phases').select('id,project_id').eq('id',next.phase_id).eq('tenant_id',caller.tenantId).maybeSingle();if(phaseError)throw new Error(`Failed to validate project phase: ${phaseError.message}`);if(!phase||phase.project_id!==next.project_id)throw new ApiError(400,'phase_project_mismatch','المرحلة لا تتبع المشروع المحدد');}
   if(next.unit_type_id){const{data:unitType,error:unitTypeError}=await supabase.from('unit_types').select('id,project_id,asset_type').eq('id',next.unit_type_id).eq('tenant_id',caller.tenantId).maybeSingle();if(unitTypeError)throw new Error(`Failed to validate unit type: ${unitTypeError.message}`);if(!unitType)throw new ApiError(400,'invalid_unit_type','نوع الوحدة غير موجود');if(unitType.project_id&&unitType.project_id!==next.project_id)throw new ApiError(400,'unit_type_project_mismatch','نوع الوحدة لا يتبع المشروع المحدد');if(unitType.asset_type&&unitType.asset_type!==next.asset_type)throw new ApiError(400,'unit_type_asset_mismatch','نوع العقار لا يطابق نوع الوحدة المحدد');}
-  const { data, error } = await supabase.from('assets').update(input).eq('id', id).eq('tenant_id', caller.tenantId).select().maybeSingle();
+  const updatePayload = { ...input };
+  if (next.parent_asset_id || next.project_id) Object.assign(updatePayload, { city_id: null, district_id: null, lat: null, lng: null });
+  if (next.parent_asset_id) Object.assign(updatePayload, { street_width: null });
+  const { data, error } = await supabase.from('assets').update(updatePayload).eq('id', id).eq('tenant_id', caller.tenantId).select().maybeSingle();
   if (error) throw new Error(`Failed to update asset: ${error.message}`);
   if (!data) throw new ApiError(404, 'asset_not_found', 'العقار غير موجود');
   return okResponse({ asset: data });
