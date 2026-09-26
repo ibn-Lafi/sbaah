@@ -12,7 +12,8 @@ export function createListing(accessToken:string,input:ListingInput):Promise<{li
 export type AssetWithMedia=Asset&{asset_media:Array<{id:string;media_type:string;url:string;order_index:number}>};
 export interface AssetAvailability {status:string;reason?:string|null;blocking_entity_type?:string|null;blocking_entity_id?:string|null}
 export interface AssetContextRef {id:string;name_ar:string}
-export interface AssetDetailResponse { asset:AssetWithMedia; parent:Asset|null; children:Asset[]; availability:AssetAvailability|null; project:AssetContextRef|null; phase:AssetContextRef|null; unit_type:AssetContextRef|null; }
+export type AssetChild=Asset&{current_offer?:Pick<Listing,'id'|'listing_number'|'listing_type'|'asking_price'|'pricing_period'|'publication_status'|'commercial_status'>|null};
+export interface AssetDetailResponse { asset:AssetWithMedia; parent:Asset|null; children:AssetChild[]; availability:AssetAvailability|null; project:AssetContextRef|null; phase:AssetContextRef|null; unit_type:AssetContextRef|null; }
 export const getAsset=(token:string,id:string)=>apiGet<AssetDetailResponse>(`/v1/assets/${id}`,token);
 export const updateAsset=(token:string,id:string,input:Partial<AssetInput>)=>apiPatch<{asset:Asset}>(`/v1/assets/${id}`,input,token);
 export const archiveAsset=(token:string,id:string)=>apiDelete<{status:string}>(`/v1/assets/${id}`,token);
