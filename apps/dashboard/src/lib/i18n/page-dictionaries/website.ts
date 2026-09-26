@@ -106,7 +106,7 @@ export const websiteAr = {
     property_grid: 'شبكة العقارات',
     featured_properties: 'العقارات المميزة',
     latest_properties: 'أحدث العقارات',
-    projects_showcase: 'المشاريع العقارية',
+    projects_showcase: 'المشاريع',
     properties_by_city: 'العقارات حسب المدينة',
     stats: 'أرقامنا',
     services: 'الخدمات',
