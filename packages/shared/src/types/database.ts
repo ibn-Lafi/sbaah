@@ -286,6 +286,7 @@ export interface Project {
   completion_percentage: number | null;
   expected_completion_date: string | null;
   reference_number: string | null;
+  is_public: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -348,7 +349,7 @@ export interface Asset {
   built_area: number | null; street_width: number | null; frontage: string | null;
   bedrooms: number | null; bathrooms: number | null; floors_count: number | null;
   parking_count: number | null; elevators_count: number | null; furnishing: string | null;
-  property_age: number | null; physical_status: AssetPhysicalStatus;
+  property_age: number | null; physical_status: AssetPhysicalStatus; is_public: boolean;
   specifications: Record<string, unknown>; archived_at: string | null; created_at: string; updated_at: string;
 }
 export interface Party {
