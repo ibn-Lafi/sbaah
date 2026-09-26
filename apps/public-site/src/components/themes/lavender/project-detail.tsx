@@ -112,16 +112,16 @@ export function LavenderProjectDetail({
         </section>
       )}
 
-      <section id="inquiry" className="bg-white px-5 py-14 sm:px-6 sm:py-20">
-        <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[.7fr_1.3fr] lg:gap-14">
-          <div>
-            <p className="text-tenant-primary mb-3 text-xs font-semibold">{locale === 'ar' ? 'مهتم بالمشروع؟' : 'INTERESTED?'}</p>
-            <h2 className="text-3xl font-semibold sm:text-5xl">{locale === 'ar' ? 'سجل اهتمامك' : 'Register your interest'}</h2>
-            <p className="mt-4 leading-7 text-black/60">{locale === 'ar' ? 'اترك بياناتك وسيتواصل معك الفريق بخصوص المشروع.' : 'Leave your details and the team will contact you about this project.'}</p>
-          </div>
-          <div className="rounded-2xl border border-black/10 bg-[#f4f1ea] p-1 shadow-sm">
-            <InquiryForm locale={locale} tenantId={tenantId} projectId={project.id} variant="lavender" />
-          </div>
+      <section id="inquiry" className="px-5 py-10 sm:px-6 sm:py-14">
+        <div className="mx-auto max-w-xl">
+          <InquiryForm
+            locale={locale}
+            tenantId={tenantId}
+            projectId={project.id}
+            variant="lavender"
+            eyebrow={locale === 'ar' ? 'مهتم بالمشروع؟' : 'INTERESTED IN THIS PROJECT?'}
+            description={locale === 'ar' ? 'اترك بياناتك وسيتواصل معك الفريق بخصوص المشروع.' : 'Leave your details and the team will contact you about this project.'}
+          />
         </div>
       </section>
     </main>
