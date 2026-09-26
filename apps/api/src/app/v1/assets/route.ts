@@ -30,9 +30,10 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   const input = assetInputSchema.parse(await request.json());
   let effectiveProjectId=input.project_id??null;
   if (input.parent_asset_id) {
-    const { data: parent, error: parentError } = await supabase.from('assets').select('id,project_id').eq('id', input.parent_asset_id).eq('tenant_id', caller.tenantId).is('archived_at', null).maybeSingle();
+    const { data: parent, error: parentError } = await supabase.from('assets').select('id,project_id,parent_asset_id').eq('id', input.parent_asset_id).eq('tenant_id', caller.tenantId).is('archived_at', null).maybeSingle();
     if (parentError) throw new Error(`Failed to validate parent asset: ${parentError.message}`);
     if (!parent) throw new ApiError(400, 'invalid_parent_asset', 'العقار الرئيسي غير موجود أو مؤرشف');
+    if (parent.parent_asset_id) throw new ApiError(400, 'unit_cannot_have_children', 'لا يمكن إضافة وحدة تابعة لوحدة أخرى');
     if (input.project_id && parent.project_id && input.project_id !== parent.project_id) throw new ApiError(400, 'parent_project_mismatch', 'العقار الرئيسي مرتبط بمشروع مختلف');
     effectiveProjectId=parent.project_id??effectiveProjectId;
   }
