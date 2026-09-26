@@ -43,7 +43,10 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     (page): page is NonNullable<typeof page> => page !== undefined,
   );
 
-  return okResponse({ website, pages: orderedPages });
+  const { data: tenantPlan, error: planError } = await supabase.from('tenants').select('plans(name_en)').eq('id', caller.tenantId).maybeSingle();
+  if (planError) throw new Error(`Failed to load subscription plan: ${planError.message}`);
+  const plan = Array.isArray(tenantPlan?.plans) ? tenantPlan?.plans[0] : tenantPlan?.plans;
+  return okResponse({ website, pages: orderedPages, capabilities: { can_customize_copyright: plan?.name_en === 'Gold' } });
 });
 
 export const PATCH = withErrorHandling(async (request: NextRequest) => {
