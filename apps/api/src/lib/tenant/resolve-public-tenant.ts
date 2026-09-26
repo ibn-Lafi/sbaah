@@ -18,13 +18,19 @@ function requireRootDomain(): string {
  * it, an external domain that happens to share a label with someone
  * else's subdomain slug could wrongly resolve to that unrelated tenant.
  */
-function toDomainRpcParams(rawDomain: string): { p_subdomain: string | null; p_custom_domain: string | null } {
+function toDomainRpcParams(rawDomain: string): {
+  p_subdomain: string | null;
+  p_custom_domain: string | null;
+} {
   const host = rawDomain.trim().toLowerCase().replace(/:\d+$/, ''); // strip a dev port, e.g. localhost:3000
   const rootDomain = requireRootDomain();
 
   const isPlatformSubdomain = host === rootDomain || host.endsWith(`.${rootDomain}`);
   return isPlatformSubdomain
-    ? { p_subdomain: host.slice(0, host.length - rootDomain.length).replace(/\.$/, ''), p_custom_domain: null }
+    ? {
+        p_subdomain: host.slice(0, host.length - rootDomain.length).replace(/\.$/, ''),
+        p_custom_domain: null,
+      }
     : { p_subdomain: null, p_custom_domain: host };
 }
 
@@ -37,7 +43,10 @@ function toDomainRpcParams(rawDomain: string): { p_subdomain: string | null; p_c
  * (properties, leads validation) only ever needs "the active tenant, or
  * 404", so this is left exactly as it was before task 36/42.
  */
-export async function resolvePublicTenantId(rawDomain: string, supabase: SupabaseClient): Promise<string> {
+export async function resolvePublicTenantId(
+  rawDomain: string,
+  supabase: SupabaseClient,
+): Promise<string> {
   const { data, error } = await supabase.rpc('resolve_public_tenant', toDomainRpcParams(rawDomain));
   if (error) {
     throw new Error(`Failed to resolve tenant for domain: ${error.message}`);
@@ -87,7 +96,10 @@ export async function resolvePublicTenantChrome(
   rawDomain: string,
   supabase: SupabaseClient,
 ): Promise<PublicTenantChrome | null> {
-  const { data, error } = await supabase.rpc('resolve_public_tenant_chrome', toDomainRpcParams(rawDomain));
+  const { data, error } = await supabase.rpc(
+    'resolve_public_tenant_chrome',
+    toDomainRpcParams(rawDomain),
+  );
   if (error) {
     throw new Error(`Failed to resolve tenant chrome for domain: ${error.message}`);
   }
