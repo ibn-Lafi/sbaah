@@ -5,9 +5,11 @@ import { useEffect, useRef, useState } from 'react';
 function splitValue(value: string) {
   const match = value.trim().match(/^([^0-9]*)([0-9][0-9,.]*)(.*)$/);
   if (!match) return null;
-  const number = Number(match[2].replace(/,/g, ''));
+  const rawNumber = match[2];
+  if (!rawNumber) return null;
+  const number = Number(rawNumber.replace(/,/g, ''));
   if (!Number.isFinite(number)) return null;
-  return { prefix: match[1], number, suffix: match[3] };
+  return { prefix: match[1] ?? '', number, suffix: match[3] ?? '' };
 }
 
 export function LavenderStatsCounter({ value }: { value: string }) {
@@ -37,7 +39,7 @@ export function LavenderStatsCounter({ value }: { value: string }) {
       observer.disconnect();
       cancelAnimationFrame(frame);
     };
-  }, [parsed?.number]);
+  }, [parsed]);
 
   if (!parsed) return <span ref={ref}>{value}</span>;
   const decimals = parsed.number % 1 === 0 ? 0 : 1;
