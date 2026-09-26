@@ -57,7 +57,7 @@ export function LavenderProjectDetail({
         {primary && <img src={primary.url} alt={title} loading="eager" className="absolute inset-0 h-full w-full object-cover" />}
         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/20" />
         <div className="relative flex h-full w-full items-end px-5 pb-10 pt-24 sm:px-8 sm:pb-14 lg:px-12 lg:pb-16">
-          <div className="w-full max-w-4xl border-t border-white/40 pt-5">
+          <div className="w-full max-w-4xl pt-5">
             <p className="mb-3 text-xs font-semibold tracking-[.14em] text-white/75">{locale === 'ar' ? 'مشروع عقاري' : 'REAL ESTATE PROJECT'}</p>
             <h1 className="text-4xl font-semibold leading-tight sm:text-6xl lg:text-7xl">{title}</h1>
           </div>
@@ -104,7 +104,7 @@ export function LavenderProjectDetail({
         </section>
       )}
 
-      <section id="inquiry" className="border-t border-black/10 bg-white px-5 py-14 sm:px-6 sm:py-20">
+      <section id="inquiry" className="bg-white px-5 py-14 sm:px-6 sm:py-20">
         <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[.7fr_1.3fr] lg:gap-14">
           <div>
             <p className="text-tenant-primary mb-3 text-xs font-semibold">{locale === 'ar' ? 'مهتم بالمشروع؟' : 'INTERESTED?'}</p>
