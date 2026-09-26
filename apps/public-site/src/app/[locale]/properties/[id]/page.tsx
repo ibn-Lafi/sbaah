@@ -151,7 +151,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
 
                 <div>
                   <span className="text-tenant-primary text-sm font-medium">
-                    {getListingTypeLabel(locale, property.listing_type)}
+                    {property.listing_type ? getListingTypeLabel(locale, property.listing_type) : (locale === 'ar' ? 'عقار' : 'Property')}
                   </span>
                   <h1 className="mt-1 text-2xl font-bold">{title}</h1>
                   <p className="mt-1 text-black/60">
@@ -162,7 +162,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
                       : ''}
                   </p>
                   <p className="text-tenant-primary mt-3 text-2xl font-bold">
-                    {formatPrice(locale, property.price)}
+                    {property.price != null ? formatPrice(locale, property.price) : (locale === 'ar' ? 'السعر عند الطلب' : 'Price on request')}
                   </p>
                 </div>
 
