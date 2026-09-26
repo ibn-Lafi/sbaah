@@ -24,7 +24,7 @@ export function LavenderHeading({
   action?: ReactNode;
 }) {
   return (
-    <div className="mb-10 grid gap-7 border-t border-black/15 pt-5 sm:mb-14 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end lg:mb-16">
+    <div className="mb-10 grid gap-7 sm:mb-14 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end lg:mb-16">
       <div className="grid gap-4 lg:grid-cols-[10rem_minmax(0,1fr)] lg:items-start">
         {eyebrow && (
           <p className="text-tenant-primary pt-1 text-[11px] font-semibold uppercase tracking-[.2em]">
