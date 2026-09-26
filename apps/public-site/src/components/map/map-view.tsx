@@ -42,7 +42,7 @@ function googleMapsHref(lat: number, lng: number): string {
 }
 
 /** District names aren't fetched here (would need a per-city call per pin) — the city alone is enough context for a small map card. */
-function cityLabel(locale: Locale, cities: City[], cityId: string): string {
+function cityLabel(locale: Locale, cities: City[], cityId: string | null): string {
   const city = cities.find((c) => c.id === cityId);
   return city ? pickLocalized(locale, city.name_ar, city.name_en) : '';
 }
@@ -72,7 +72,7 @@ function PropertyCardContent({
       </div>
       <div className="flex flex-col gap-1.5 p-4">
         <span className="text-tenant-primary text-xs font-medium">
-          {getListingTypeLabel(locale, property.listing_type)}
+          {property.listing_type ? getListingTypeLabel(locale, property.listing_type) : getPropertyTypeLabel(locale, property.property_type)}
         </span>
         <h3 className="truncate font-semibold text-black">{title}</h3>
         <p className="text-xs text-black/60">
@@ -80,7 +80,7 @@ function PropertyCardContent({
           {cityLabel(locale, cities, property.city_id)}
         </p>
         <p className="text-xs text-black/60">
-          {property.area_sqm} m²
+          {property.area_sqm != null ? `${property.area_sqm} m²` : ''}
           {property.bedrooms !== null
             ? ` · ${property.bedrooms} ${locale === 'ar' ? 'غرف' : 'bd'}`
             : ''}
@@ -88,7 +88,7 @@ function PropertyCardContent({
             ? ` · ${property.bathrooms} ${locale === 'ar' ? 'حمامات' : 'ba'}`
             : ''}
         </p>
-        <p className="text-tenant-primary font-bold">{formatPrice(locale, property.price)}</p>
+        {property.price != null && <p className="text-tenant-primary font-bold">{formatPrice(locale, property.price)}</p>}
         <div className="mt-2 flex gap-2">
           <a
             href={href}
@@ -234,7 +234,7 @@ export function MapView({ locale, cities, pins }: MapViewProps) {
       el.setAttribute(
         'aria-label',
         pin.kind === 'property'
-          ? formatPrice(locale, pin.data.price)
+          ? (pin.data.price != null ? formatPrice(locale, pin.data.price) : pickLocalized(locale, pin.data.title_ar, pin.data.title_en))
           : pickLocalized(locale, pin.data.name_ar, pin.data.name_en),
       );
       el.className =
@@ -242,7 +242,7 @@ export function MapView({ locale, cities, pins }: MapViewProps) {
           ? 'rounded-full border border-white/90 bg-tenant-primary px-3 py-1.5 text-xs font-bold text-white shadow-[0_4px_16px_rgba(0,0,0,.28)] hover:opacity-90'
           : 'flex h-8 w-8 items-center justify-center rounded-full border-[3px] border-white bg-tenant-primary shadow-[0_4px_16px_rgba(0,0,0,.3)] hover:opacity-90';
       if (pin.kind === 'property') {
-        el.textContent = formatPriceCompact(pin.data.price);
+        el.textContent = pin.data.price != null ? formatPriceCompact(pin.data.price) : '⌂';
       } else {
         const center = document.createElement('span');
         center.className = 'h-2 w-2 rounded-full bg-white';
