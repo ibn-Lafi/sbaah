@@ -1,8 +1,8 @@
 import { apiGet, apiPost, apiPatch } from './client';
 export interface ManagedPropertyRow { id:string; asset_id:string|null; project_id:string|null; status:string; starts_at:string; ends_at:string|null; management_fee_type:string|null; management_fee_value:number|null; assets?:{id:string;name_ar:string;reference_number:string|null;asset_type:string;parent_asset_id?:string|null;project_id?:string|null}|null; projects?:{id:string;name_ar:string;reference_number:string|null}|null; }
-export interface LeaseContractRow { id:string; contract_number:string; source:string; start_date:string; end_date:string; total_value:number; status:string; signed_at?:string|null; termination_reason?:string|null; lease_contract_assets?:Array<{asset_id:string}>; lease_contract_parties?:Array<{party_id:string;role:string}>; }
+export interface LeaseContractRow { id:string; contract_number:string; source:string; start_date:string; end_date:string; total_value:number; status:string; signed_at?:string|null; termination_reason?:string|null; lease_contract_assets?:Array<{asset_id:string|null;project_id?:string|null}>; lease_contract_parties?:Array<{party_id:string;role:string}>; }
 export interface EjarPartyRow { id:string; name:string; party_type:string; phone:string|null; email:string|null; lead_id?:string|null; }
-export interface MaintenanceRow { id:string; request_number:string; title:string; priority:string; status:string; opened_at:string; assets?:{name_ar:string;reference_number:string|null}|null; }
+export interface MaintenanceRow { id:string; request_number:string; title:string; priority:string; status:string; opened_at:string; asset_id?:string|null; project_id?:string|null; assets?:{name_ar:string;reference_number:string|null}|null; projects?:{name_ar:string;reference_number:string|null}|null; }
 export interface LeasePaymentRow { id:string; payment_number:string; contract_id:string; payer_party_id?:string|null; amount:number; paid_at:string; payment_method:string; status:string; lease_contracts?:{contract_number:string}|null; payer?:{id:string;name:string}|null; }
 export const listManagedProperties=(token:string)=>apiGet<{properties:ManagedPropertyRow[]}>('/v1/rent-plus/properties',token);
 export const createManagementAssignment=(token:string,input:unknown)=>apiPost<{property:ManagedPropertyRow}>('/v1/rent-plus/properties',input,token);
@@ -25,5 +25,5 @@ export const updateLeaseContract=(token:string,id:string,input:unknown)=>apiPatc
 
 export const generateInstallments=(token:string,contractId:string)=>apiPost<{installments:InstallmentRow[]}>('/v1/rent-plus/installments/generate',{contract_id:contractId},token);
 
-export interface TenantRentalProfile { tenant:EjarPartyRow; contracts:Array<Omit<LeaseContractRow,'lease_contract_assets'> & { lease_contract_assets?:Array<{asset_id:string;assets?:{name_ar:string;reference_number:string|null}|null}> }>; installments:InstallmentRow[]; payments:LeasePaymentRow[]; maintenance:MaintenanceRow[]; }
+export interface TenantRentalProfile { tenant:EjarPartyRow; contracts:Array<Omit<LeaseContractRow,'lease_contract_assets'> & { lease_contract_assets?:Array<{asset_id:string|null;project_id?:string|null;assets?:{name_ar:string;reference_number:string|null}|null;projects?:{name_ar:string;reference_number:string|null}|null}> }>; installments:InstallmentRow[]; payments:LeasePaymentRow[]; maintenance:MaintenanceRow[]; }
 export const getEjarTenant=(token:string,id:string)=>apiGet<TenantRentalProfile>(`/v1/rent-plus/tenants/${id}`,token);
