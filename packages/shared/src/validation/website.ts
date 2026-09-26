@@ -12,6 +12,7 @@ export const websiteUpdateSchema = z.object({
   theme_id: z.string().uuid().optional(),
   primary_color: hexColorSchema.optional(),
   secondary_color: hexColorSchema.optional(),
+  background_color: hexColorSchema.optional(),
   font_family: z.string().min(1).optional(),
   logo_url: z.string().url().optional().nullable(),
   favicon_url: z.string().url().optional().nullable(),
