@@ -55,51 +55,31 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
   const supabase = createAnonClient();
   const tenantId = await resolvePublicTenantId(q.domain, supabase);
   const offset = (q.page - 1) * q.page_size;
-  // Keep the public website resilient when the newer scoped RPC migration has
-  // not reached an environment yet. The legacy feed has the same published
-  // Listing -> Asset contract; scope/project filtering is applied below.
-  let { data, error } = await supabase.rpc('public_property_feed', {
+  const { data, error } = await supabase.rpc('public_asset_catalog_feed', {
     p_tenant_id: tenantId,
     p_scope: q.scope,
     p_project_id: q.project_id ?? null,
-    p_listing_type: q.listing_type ?? null,
     p_asset_type: q.property_type ?? null,
     p_city_id: q.city_id ?? null,
     p_district_id: q.district_id ?? null,
-    p_min_price: q.min_price ?? null,
-    p_max_price: q.max_price ?? null,
     p_bedrooms: q.bedrooms ?? null,
     p_limit: q.page_size,
     p_offset: offset,
   });
-  if (error && /public_property_feed|schema cache|Could not find the function/i.test(error.message)) {
-    const legacy = await supabase.rpc('public_listing_feed', {
-      p_tenant_id: tenantId,
-      p_listing_type: q.listing_type ?? null,
-      p_asset_type: q.property_type ?? null,
-      p_city_id: q.city_id ?? null,
-      p_district_id: q.district_id ?? null,
-      p_min_price: q.min_price ?? null,
-      p_max_price: q.max_price ?? null,
-      p_bedrooms: q.bedrooms ?? null,
-      p_limit: q.page_size,
-      p_offset: offset,
-    });
-    data = legacy.data;
-    error = legacy.error;
-  }
-  if (error) throw new Error(`Failed to list public listings: ${error.message}`);
+  if (error) throw new Error(`Failed to list public properties: ${error.message}`);
   type PublicListingFeedRow = {
     listing_id: string;
     asset_slug?: string | null;
-    listing_number: string;
-    title_ar: string;
+    listing_number?: string | null;
+    title_ar?: string | null;
     title_en?: string | null;
+    asset_name_ar?: string | null;
+    asset_name_en?: string | null;
     description_ar?: string | null;
     description_en?: string | null;
     asset_type: string;
-    listing_type: string;
-    asking_price: number | null;
+    listing_type?: string | null;
+    asking_price?: number | null;
     project_id?: string | null;
     parent_asset_id?: string | null;
     city_id?: string | null;
@@ -112,22 +92,23 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     created_at: string;
     asset_media?: unknown[];
     pricing_period?: string | null;
-    commercial_status: string;
+    commercial_status?: string | null;
     asset_id: string;
     lat?: number | null;
     lng?: number | null;
     total_count?: number | string | null;
   };
   let rows = (data ?? []) as PublicListingFeedRow[];
-  if (q.scope === 'independent') rows = rows.filter((r) => !r.project_id && !r.parent_asset_id);
-  if (q.scope === 'project') rows = rows.filter((r) => !!r.project_id && (!q.project_id || r.project_id === q.project_id));
+  if (q.listing_type) rows = rows.filter((r) => r.listing_type === q.listing_type);
+  if (q.min_price != null) rows = rows.filter((r) => r.asking_price != null && Number(r.asking_price) >= q.min_price!);
+  if (q.max_price != null) rows = rows.filter((r) => r.asking_price != null && Number(r.asking_price) <= q.max_price!);
   // Temporary compatibility shape for the current public-site. Source of truth is now Listing + Asset.
   const properties = rows.map((r) => ({
-    id: r.listing_id,
-    slug: r.asset_slug ?? r.listing_number,
+    id: r.asset_id,
+    slug: r.asset_slug ?? r.asset_id,
     tenant_id: tenantId,
-    title_ar: r.title_ar,
-    title_en: r.title_en,
+    title_ar: r.asset_name_ar ?? r.title_ar,
+    title_en: r.asset_name_en ?? r.title_en,
     description_ar: r.description_ar,
     description_en: r.description_en,
     property_type: r.asset_type,
@@ -140,14 +121,14 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     bedrooms: r.bedrooms,
     bathrooms: r.bathrooms,
     area_sqm: r.area_sqm,
-    status: 'published',
+    status: 'active',
     advertisement_license_number: r.advertisement_license_number,
     advertiser_name: r.advertiser_name,
     created_at: r.created_at,
     property_media: r.asset_media ?? [],
-    listing_number: r.listing_number,
+    listing_number: r.listing_number ?? null,
     pricing_period: r.pricing_period,
-    commercial_status: r.commercial_status,
+    commercial_status: r.commercial_status ?? 'available',
     asset_id: r.asset_id,
     lat: r.lat,
     lng: r.lng,
