@@ -36,6 +36,7 @@ export const GET = withErrorHandling<RouteContext>(async (request, { params }) =
     price: l?.asking_price ?? null,
     status: 'published',
     property_media: a.media ?? [],
+    listing_id: l?.id ?? null,
     listing_number: l?.listing_number ?? null,
     pricing_period: l?.pricing_period ?? null,
     commercial_status: l?.commercial_status ?? null,
