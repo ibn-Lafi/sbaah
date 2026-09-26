@@ -21,7 +21,7 @@ export function PropertyCard({ property, city, locale }: { property: PublicPrope
         ) : null}
       </div>
       <div className="flex flex-col gap-1 p-4">
-        <span className="text-xs font-medium text-tenant-primary">{getListingTypeLabel(locale, property.listing_type)}</span>
+        <span className="text-xs font-medium text-tenant-primary">{property.listing_type ? getListingTypeLabel(locale, property.listing_type) : (locale === 'ar' ? 'عقار' : 'Property')}</span>
         <h3 className="truncate font-semibold">{title}</h3>
         <p className="text-sm text-black/60">
           {getPropertyTypeLabel(locale, property.property_type)}
@@ -32,7 +32,7 @@ export function PropertyCard({ property, city, locale }: { property: PublicPrope
           {property.bedrooms !== null ? ` · ${property.bedrooms} ${locale === 'ar' ? 'غرف' : 'bd'}` : ''}
           {property.bathrooms !== null ? ` · ${property.bathrooms} ${locale === 'ar' ? 'حمامات' : 'ba'}` : ''}
         </p>
-        <p className="mt-1 font-semibold text-tenant-secondary">{formatPrice(locale, property.price)}</p>
+        <p className="mt-1 font-semibold text-tenant-secondary">{property.price != null ? formatPrice(locale, property.price) : (locale === 'ar' ? 'السعر عند الطلب' : 'Price on request')}</p>
       </div>
     </a>
   );
