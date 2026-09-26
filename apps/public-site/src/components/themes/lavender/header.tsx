@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import type { HeaderProps } from '../types';
 
-const SCROLL_THRESHOLD = 28;
+const SCROLL_THRESHOLD = 72;
 
 export function Header({
   locale,
@@ -43,21 +43,21 @@ export function Header({
   return (
     <>
       <header
-        className={`fixed inset-x-0 top-0 z-50 border-b transition-all duration-300 ${
+        className={`fixed z-50 transition-all duration-300 ${
           scrolled
-            ? 'border-black/10 bg-[#f7f5ef]/95 text-[#171a17] shadow-[0_8px_30px_rgba(17,24,17,.06)] backdrop-blur-xl'
-            : 'border-white/20 bg-[#111510]/45 text-white backdrop-blur-[3px]'
+            ? 'inset-x-3 top-3 rounded-2xl border border-black/10 bg-[#f7f5ef]/95 text-[#171a17] shadow-[0_8px_30px_rgba(17,24,17,.10)] backdrop-blur-xl sm:inset-x-5 sm:top-4 lg:left-1/2 lg:right-auto lg:w-[min(760px,calc(100%-3rem))] lg:-translate-x-1/2'
+            : 'pointer-events-none inset-x-0 top-0 -translate-y-full border-transparent bg-transparent text-white opacity-0'
         }`}
       >
 
-        <div className="mx-auto flex h-20 w-full max-w-7xl items-center justify-between gap-6 px-5 sm:px-6">
+        <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:h-[68px] sm:px-5">
           <a href={homeHref} className="flex min-w-0 shrink-0 items-center" aria-label={tenantName}>
             {website.logo_url ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={website.logo_url}
                 alt={tenantName}
-                className="max-h-11 w-auto max-w-[180px] object-contain sm:max-w-[220px]"
+                className="max-h-9 w-auto max-w-[150px] object-contain sm:max-h-10 sm:max-w-[190px]"
               />
             ) : (
               <span className="text-xl font-semibold tracking-tight sm:text-2xl">{tenantName}</span>
@@ -150,7 +150,6 @@ export function Header({
         </div>
       )}
 
-      <div className="h-20" />
     </>
   );
 }
