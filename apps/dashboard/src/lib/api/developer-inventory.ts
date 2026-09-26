@@ -5,7 +5,9 @@ export interface UnitType { id:string; project_id:string|null; name_ar:string; n
 export function listPhases(token:string){return apiGet<{phases:ProjectPhase[]}>('/v1/projects/phases',token);}
 export function createPhase(token:string,input:Record<string,unknown>){return apiPost<{phase:ProjectPhase}>('/v1/projects/phases',input,token);}
 export function listUnitTypes(token:string){return apiGet<{unit_types:UnitType[]}>('/v1/projects/unit-types',token);}
-export function createUnitType(token:string,input:Record<string,unknown>){return apiPost<{unit_type:UnitType}>('/v1/projects/unit-types',input,token);}\nexport function removeUnitType(token:string,id:string){return apiDelete<{status:string}>(`/v1/projects/unit-types?id=${encodeURIComponent(id)}`,token);}\nexport function archiveProjectAsset(token:string,id:string){return apiDelete<{status:string}>(`/v1/assets/${encodeURIComponent(id)}`,token);}
+export function createUnitType(token:string,input:Record<string,unknown>){return apiPost<{unit_type:UnitType}>('/v1/projects/unit-types',input,token);}
+export function removeUnitType(token:string,id:string){return apiDelete<{status:string}>(`/v1/projects/unit-types?id=${encodeURIComponent(id)}`,token);}
+export function archiveProjectAsset(token:string,id:string){return apiDelete<{status:string}>(`/v1/assets/${encodeURIComponent(id)}`,token);}
 export async function listProjectAssets(token:string,projectId:string){const assets:Asset[]=[];let page=1;let total=0;do{const result=await apiGet<{assets:Asset[];page:number;page_size:number;total:number}>(`/v1/assets?project_id=${encodeURIComponent(projectId)}&page_size=50&page=${page}`,token);assets.push(...result.assets);total=result.total;page+=1;}while(assets.length<total);return{assets,page:1,page_size:assets.length,total};}
 export function createProjectAsset(token:string,projectId:string,input:AssetInput){return apiPost<{asset:Asset}>('/v1/assets',{...input,project_id:projectId},token);}
 
