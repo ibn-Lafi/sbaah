@@ -18,7 +18,10 @@ export function Footer({ locale, dict, tenant, website, customPages }: FooterPro
     { href: homeHref, label: locale === 'ar' ? 'من نحن' : 'About us' },
     { href: locale === 'ar' ? '/projects' : '/en/projects', label: dict.projects },
     { href: locale === 'ar' ? '/properties' : '/en/properties', label: dict.properties },
-    ...customPages.map((page) => ({ href: locale === 'ar' ? `/pages/${page.slug}` : `/en/pages/${page.slug}`, label: page.title })),
+    ...customPages.map((page) => ({
+      href: locale === 'ar' ? `/pages/${page.slug}` : `/en/pages/${page.slug}`,
+      label: page.title,
+    })),
   ];
   const socialLinks = [
     safeExternalUrl(tenant.social_instagram) && {
@@ -90,23 +93,107 @@ export function Footer({ locale, dict, tenant, website, customPages }: FooterPro
       <div className="mx-auto w-full max-w-7xl px-6 py-12 sm:px-8 sm:py-14 lg:px-10 lg:py-16">
         <div className="grid gap-10 lg:grid-cols-[1.2fr_.8fr_.9fr] lg:gap-16">
           <div>
-            {website.logo_url ? <img src={website.logo_url} alt={name} className="max-h-16 w-auto max-w-[230px] object-contain brightness-0 invert" /> : <p className="text-3xl font-medium">{name}</p>}
-            {website.footer_description && <p className="mt-4 max-w-md text-sm leading-7 text-white/75">{website.footer_description}</p>}
-            {socialLinks.length>0&&<div className="mt-6 flex flex-wrap gap-3">{socialLinks.map(({key,label,href,Icon})=><a key={key} href={href} target="_blank" rel="noopener noreferrer" aria-label={label} className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-tenant-primary transition-transform hover:-translate-y-0.5"><Icon className="h-[18px] w-[18px]"/></a>)}</div>}
+            {website.logo_url ? (
+              <img
+                src={website.logo_url}
+                alt={name}
+                className="max-h-16 w-auto max-w-[230px] object-contain brightness-0 invert"
+              />
+            ) : (
+              <p className="text-3xl font-medium">{name}</p>
+            )}
+            {website.footer_description && (
+              <p className="mt-4 max-w-md text-sm leading-7 text-white/75">
+                {website.footer_description}
+              </p>
+            )}
+            {socialLinks.length > 0 && (
+              <div className="mt-6 flex flex-wrap gap-3">
+                {socialLinks.map(({ key, label, href, Icon }) => (
+                  <a
+                    key={key}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={label}
+                    className="text-tenant-primary flex h-11 w-11 items-center justify-center rounded-full bg-white transition-transform hover:-translate-y-0.5"
+                  >
+                    <Icon className="h-[18px] w-[18px]" />
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
           <nav className="flex flex-col items-start gap-4 text-[17px] sm:text-lg">
-            {navigation.map(link=><a key={link.href} href={link.href} className="text-white/85 transition-colors hover:text-white">{link.label}</a>)}
+            {navigation.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                className="text-white/85 transition-colors hover:text-white"
+              >
+                {link.label}
+              </a>
+            ))}
           </nav>
           <div className="space-y-8">
-            <div><h3 className="mb-3 text-xl font-semibold text-tenant-secondary">{locale==='ar'?'تواصل معنا':'Contact us'}</h3><div className="space-y-2 text-[15px] text-white/85">{tenant.social_phone&&<a dir="ltr" href={`tel:${digitsOnly(tenant.social_phone)}`} className="block w-fit">{tenant.social_phone}</a>}{tenant.social_whatsapp&&<a dir="ltr" href={`https://wa.me/${digitsOnly(tenant.social_whatsapp)}`} target="_blank" rel="noopener noreferrer" className="block w-fit">{tenant.social_whatsapp}</a>}</div></div>
-            {website.address&&<div><h3 className="mb-3 text-xl font-semibold text-tenant-secondary">{locale==='ar'?'الموقع':'Location'}</h3><p className="max-w-sm text-[15px] leading-7 text-white/85">{website.address}</p></div>}
+            <div>
+              <h3 className="text-tenant-secondary mb-3 text-xl font-semibold">
+                {locale === 'ar' ? 'تواصل معنا' : 'Contact us'}
+              </h3>
+              <div className="space-y-2 text-[15px] text-white/85">
+                {tenant.social_phone && (
+                  <a
+                    dir="ltr"
+                    href={`tel:${digitsOnly(tenant.social_phone)}`}
+                    className="block w-fit"
+                  >
+                    {tenant.social_phone}
+                  </a>
+                )}
+                {tenant.social_whatsapp && (
+                  <a
+                    dir="ltr"
+                    href={`https://wa.me/${digitsOnly(tenant.social_whatsapp)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block w-fit"
+                  >
+                    {tenant.social_whatsapp}
+                  </a>
+                )}
+              </div>
+            </div>
+            {website.address && (
+              <div>
+                <h3 className="text-tenant-secondary mb-3 text-xl font-semibold">
+                  {locale === 'ar' ? 'الموقع' : 'Location'}
+                </h3>
+                <p className="max-w-sm text-[15px] leading-7 text-white/85">{website.address}</p>
+              </div>
+            )}
           </div>
         </div>
-        {registrations.length>0&&<div className="mt-10 flex flex-wrap gap-x-8 gap-y-3 border-t border-white/15 pt-6">{registrations.map(entry=><div key={entry.key} className="text-sm"><span className="text-white/55">{entry.label}: </span><strong dir="ltr" className="font-medium text-white/85">{entry.value}</strong></div>)}</div>}
+        {registrations.length > 0 && (
+          <div className="mt-10 flex flex-wrap gap-x-8 gap-y-3 border-t border-white/15 pt-6">
+            {registrations.map((entry) => (
+              <div key={entry.key} className="text-sm">
+                <span className="text-white/55">{entry.label}: </span>
+                <strong dir="ltr" className="font-medium text-white/85">
+                  {entry.value}
+                </strong>
+              </div>
+            ))}
+          </div>
+        )}
         <div className="mt-10 border-t border-white/15 pt-6 text-center text-sm text-white/55">
-          <a href={locale==='ar'?'/en':'/'} className="font-semibold text-white">{locale==='ar'?'English':'العربية'}</a>
-          <p dir="auto" className="mx-auto mt-5 w-full text-center leading-6">© {new Date().getFullYear()} {website.copyright_text || 'جميع الحقوق محفوظة @سبعة'}</p>
+          <a href={locale === 'ar' ? '/en' : '/'} className="font-semibold text-white">
+            {locale === 'ar' ? 'English' : 'العربية'}
+          </a>
+          <p dir="auto" className="mx-auto mt-5 w-full text-center leading-6">
+            © {new Date().getFullYear()} {website.copyright_text || 'جميع الحقوق محفوظة @سبعة'}
+          </p>
         </div>
       </div>
     </footer>
-  );}
+  );
+}
