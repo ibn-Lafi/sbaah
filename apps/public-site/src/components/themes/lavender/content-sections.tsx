@@ -11,6 +11,7 @@ import type {
 } from '@sbaah/shared';
 import { LavenderHeading, LavenderSection } from './primitives';
 import { LavenderStatsCounter } from './stats-counter';
+export { LavenderServices } from './services-section';
 const copy = {
   ar: {
     stats: 'أرقامنا',
@@ -63,44 +64,6 @@ export function LavenderStats({ locale, config }: { locale: Locale; config: Stat
             </div>
           ))}
         </dl>
-      </div>
-    </LavenderSection>
-  );
-}
-export function LavenderServices({
-  locale,
-  config,
-}: {
-  locale: Locale;
-  config: ServicesSectionConfig;
-}) {
-  const items = (config.items ?? []).filter((i) => i.title);
-  if (!items.length) return null;
-  return (
-    <LavenderSection className="overflow-hidden bg-[#f5f1ee] py-12 text-[#173d34] sm:py-16 lg:py-24">
-      <div className="mx-auto max-w-6xl">
-        <p className="mb-10 text-end text-4xl font-light leading-none text-[#aa8c62] sm:mb-14 sm:text-6xl">
-          {locale === 'ar' ? 'خدماتنا' : 'Services'}
-        </p>
-        <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-16">
-          <div className="min-w-0">
-            {items.map((item, index) => (
-              <article key={index} className={index === 0 ? 'block' : 'hidden'}>
-                <span className="mb-5 block text-end text-xl text-[#aa8c62]">{index + 1}</span>
-                <h3 className="text-end text-3xl font-semibold leading-tight sm:text-4xl lg:text-5xl">{item.title}</h3>
-                {item.description && <p className="mt-6 text-end text-lg leading-[1.9] text-[#5d5b59] sm:text-xl lg:text-2xl">{item.description}</p>}
-              </article>
-            ))}
-          </div>
-          <ol className="border-e-2 border-[#173d34]/10 pe-4 sm:pe-5">
-            {items.map((item, index) => (
-              <li key={index} className={`relative py-3 text-end text-xl leading-tight sm:text-2xl ${index === 0 ? 'font-medium text-[#173d34]' : 'text-[#173d34]/35'}`}>
-                {index === 0 && <span className="absolute -end-[18px] top-0 h-full w-[3px] bg-[#173d34] sm:-end-[22px]" />}
-                <span className="tabular-nums">{index + 1}.</span> {item.title}
-              </li>
-            ))}
-          </ol>
-        </div>
       </div>
     </LavenderSection>
   );
