@@ -98,7 +98,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
     return (
       <div>
         {before.map((s) => renderThemedSection(s, resolvedTheme.components, themedCtx))}
-        {detailSection && <LavenderProjectDetail locale={locale} data={data} />}{' '}
+        {detailSection && <LavenderProjectDetail locale={locale} data={data} tenantId={site.tenant.id} />}{' '}
         {after.map((s) => renderThemedSection(s, resolvedTheme.components, themedCtx))}
       </div>
     );
