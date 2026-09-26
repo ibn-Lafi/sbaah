@@ -53,7 +53,7 @@ export function LavenderProjectDetail({
   const hasLocation = typeof project.lat === 'number' && typeof project.lng === 'number';
 
   return (
-    <main className="bg-[#f4f1ea] text-[#171713]">
+    <main className="bg-[var(--tenant-background)] text-[#171713]">
       <section className="relative -mt-20 h-[calc(100svh+5rem)] min-h-[calc(100svh+5rem)] w-full overflow-hidden bg-[#171713] text-white">
         {primary && <img src={primary.url} alt={title} loading="eager" className="absolute inset-0 h-full w-full object-cover" />}
         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/20" />
@@ -79,7 +79,7 @@ export function LavenderProjectDetail({
 
       <LavenderProjectMediaGallery locale={locale} groups={groups} />
 
-      <section className="bg-[#f4f1ea] px-5 py-10 text-[#171713] sm:px-6 sm:py-14 lg:py-16">
+      <section className="bg-[var(--tenant-background)] px-5 py-10 text-[#171713] sm:px-6 sm:py-14 lg:py-16">
         <div className="mx-auto max-w-6xl">
           <h2 className="mb-5 text-center text-xl font-semibold sm:mb-8 sm:text-3xl lg:text-4xl">{locale === 'ar' ? 'أرقام المشروع' : 'Project facts'}</h2>
           <dl className="grid grid-cols-3 gap-2 sm:gap-4 lg:gap-6">
