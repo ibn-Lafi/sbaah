@@ -235,7 +235,7 @@ export function SectionConfigEditor({
                       }
                     />
                     <Input
-                      placeholder="الوصف"
+                      placeholder="عنوان الرقم"
                       value={item.label ?? ''}
                       onChange={(e) =>
                         setItems((v) =>
