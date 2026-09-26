@@ -24,11 +24,16 @@ export function WebsiteBrandingCard({ accessToken }: { accessToken: string }) {
   const [website, setWebsite] = useState<Website | null>(null);
   const [colorDraft, setColorDraft] = useState({ primary: '', secondary: '', background: '' });
   const [error, setError] = useState<string | null>(null);
+  const [copyrightDraft, setCopyrightDraft] = useState('');
+  const [copyrightLocked, setCopyrightLocked] = useState(true);
 
   useEffect(() => {
     void getWebsite(accessToken).then((result) => {
       setWebsite(result.website);
       setColorDraft({ primary: result.website.primary_color, secondary: result.website.secondary_color, background: result.website.background_color ?? '#F4F1EA' });
+      setCopyrightDraft(result.website.copyright_text || 'جميع الحقوق محفوظة @سبعة');
+      // The API remains the source of truth for Gold entitlement; unlock is attempted only when editing.
+      setCopyrightLocked(false);
     });
   }, [accessToken]);
 
@@ -112,7 +117,15 @@ export function WebsiteBrandingCard({ accessToken }: { accessToken: string }) {
         <div className="rounded-xl border border-border-subtle bg-surface-subtle p-3 text-xs leading-6 text-text-secondary">
           <strong className="text-text-primary">نظام الألوان:</strong> الأساسي للأزرار وروابط الإجراء والعناصر النشطة، الثانوي للتفاصيل الداعمة واللمسات البصرية، والخلفية لسطح الصفحات والأقسام. النصوص تبقى بألوان عالية التباين لضمان القراءة.
         </div>
-        <FormError message={error} />
+        <div className="border-border-subtle mt-2 border-t pt-4">
+          <label className="mb-2 block text-xs font-medium text-text-secondary">حقوق الموقع</label>
+          <div className="relative">
+            <Input value={copyrightDraft} onChange={(e) => setCopyrightDraft(e.target.value)} onBlur={async()=>{if(copyrightLocked)return;try{const {website:updated}=await updateWebsite(accessToken,{copyright_text:copyrightDraft});setWebsite(current=>current?{...current,...updated}:current)}catch(err){if(err instanceof ApiRequestError&&err.status===403){setCopyrightLocked(true);setCopyrightDraft(website.copyright_text||'جميع الحقوق محفوظة @سبعة')}setError(err instanceof ApiRequestError?err.message:'تعذر حفظ حقوق الموقع')}}} disabled={copyrightLocked} className="h-10 pe-10" />
+            {copyrightLocked&&<span aria-label="مغلق" title="مغلق" className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-text-tertiary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span>}
+          </div>
+          {copyrightLocked?<p className="mt-2 text-xs leading-5 text-text-tertiary">تخصيص حقوق الموقع متاح لباقة <strong className="text-text-primary">Gold</strong> فقط. <a href="/billing/plans" className="font-medium text-brand hover:underline">رقِّ باقتك لتخصيص النص.</a></p>:<p className="mt-2 text-xs leading-5 text-text-tertiary">يمكنك تخصيص نص الحقوق لأن باقتك تدعم هذه الميزة.</p>}
+        </div>
+                <FormError message={error} />
         <AssetUploader
           label={t.logoLabel}
           currentUrl={website.logo_url}
