@@ -196,6 +196,8 @@ export interface Website {
   theme_id: string;
   primary_color: string;
   secondary_color: string;
+  /** الخلفية العامة لصفحات وأقسام موقع المستأجر. */
+  background_color: string;
   font_family: string;
   logo_url: string | null;
   favicon_url: string | null;
