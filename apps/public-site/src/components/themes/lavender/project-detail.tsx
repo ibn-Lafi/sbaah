@@ -3,6 +3,7 @@ import type { PublicProjectDetailResponse } from '@/lib/api/public-projects';
 import { pickLocalized } from '@/lib/i18n/localized-field';
 import { localizedPath } from '@/lib/routing/public-url';
 import { getListingTypeLabel, getPropertyTypeLabel } from '@/lib/property/labels';
+import { LavenderProjectMediaGallery } from './project-media-gallery';
 
 const labels: Record<string, { ar: string; en: string }> = {
   bedrooms: { ar: 'غرف النوم', en: 'Bedrooms' },
@@ -32,9 +33,46 @@ export function LavenderProjectDetail({
   const images = data.media.filter((media) => media.media_type === 'image');
   const primary = images.find((media) => media.is_primary) ?? images[0];
   const by = (category: string) => images.filter((media) => media.category === category);
-  const gallery = images
-    .filter((media) => ['general', 'exterior', 'interior'].includes(media.category))
-    .slice(0, 6);
+  const gallery = images.filter((media) =>
+    ['general', 'exterior', 'interior'].includes(media.category),
+  );
+  const mediaGalleryGroups = [
+    {
+      key: 'gallery' as const,
+      label: locale === 'ar' ? 'معرض الصور' : 'Photo gallery',
+      items: gallery.map((media, index) => ({
+        id: media.id,
+        url: media.url,
+        alt: pickLocalized(locale, media.alt_ar ?? `${title} ${index + 1}`, media.alt_en),
+      })),
+    },
+    {
+      key: 'master_plan' as const,
+      label: locale === 'ar' ? 'مخطط المشروع' : 'Master plan',
+      items: by('master_plan').map((media, index) => ({
+        id: media.id,
+        url: media.url,
+        alt: pickLocalized(
+          locale,
+          media.alt_ar ?? `${locale === 'ar' ? 'مخطط المشروع' : 'Master plan'} ${index + 1}`,
+          media.alt_en,
+        ),
+      })),
+    },
+    {
+      key: 'construction' as const,
+      label: locale === 'ar' ? 'أعمال الإنشاء' : 'Construction',
+      items: by('construction').map((media, index) => ({
+        id: media.id,
+        url: media.url,
+        alt: pickLocalized(
+          locale,
+          media.alt_ar ?? `${locale === 'ar' ? 'أعمال الإنشاء' : 'Construction'} ${index + 1}`,
+          media.alt_en,
+        ),
+      })),
+    },
+  ];
   const mediaSections = [
     ['master_plan', locale === 'ar' ? 'مخطط المشروع' : 'Master plan'],
     ['unit_plans', locale === 'ar' ? 'مخططات الوحدات' : 'Unit plans'],
@@ -181,28 +219,10 @@ export function LavenderProjectDetail({
           </div>
         </div>
       </section>
-      {gallery.length > 0 && (
-        <section
-          aria-label={locale === 'ar' ? 'صور المشروع' : 'Project gallery'}
-          className="px-5 pb-14 sm:px-6 sm:pb-20"
-        >
-          <div className="mx-auto grid max-w-7xl grid-cols-2 gap-1 sm:grid-cols-12">
-            {gallery.map((media, index) => (
-              <img
-                key={media.id}
-                src={media.url}
-                alt={pickLocalized(locale, media.alt_ar ?? `${title} ${index + 1}`, media.alt_en)}
-                loading={index === 0 ? 'eager' : 'lazy'}
-                className={
-                  (index === 0
-                    ? 'col-span-2 aspect-[16/10] sm:col-span-8 sm:row-span-2 '
-                    : 'aspect-square sm:col-span-4 ') + 'h-full w-full object-cover'
-                }
-              />
-            ))}
-          </div>
-        </section>
-      )}
+      <LavenderProjectMediaGallery
+        locale={locale}
+        groups={mediaGalleryGroups}
+      />
       {projectProperties.length > 0 && (
         <section
           id="project-properties"
