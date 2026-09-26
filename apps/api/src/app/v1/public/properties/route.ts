@@ -126,6 +126,7 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     advertiser_name: r.advertiser_name,
     created_at: r.created_at,
     property_media: r.asset_media ?? [],
+    listing_id: r.listing_id ?? null,
     listing_number: r.listing_number ?? null,
     pricing_period: r.pricing_period,
     commercial_status: r.commercial_status ?? 'available',
