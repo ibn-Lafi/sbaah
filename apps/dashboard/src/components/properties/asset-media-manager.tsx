@@ -2,11 +2,15 @@
 import {useEffect,useMemo,useState} from 'react';
 import {Card}from'@/components/ui/card';import{Select}from'@/components/ui/select';import{getSupabaseBrowserClient}from'@/lib/supabase/client';
 import{createAssetMedia,deleteAssetMedia,listAssetMedia,updateAssetMedia,type AssetMedia,type AssetMediaCategory}from'@/lib/api/real-estate';
-const categories:Array<{value:AssetMediaCategory;label:string}>=[{value:'general',label:'صور العقار'},{value:'exterior',label:'الواجهة الخارجية'},{value:'entrance',label:'المدخل'},{value:'living',label:'المجلس / الصالة'},{value:'bedrooms',label:'غرف النوم'},{value:'kitchen',label:'المطبخ'},{value:'bathrooms',label:'دورات المياه'},{value:'outdoor',label:'المساحات الخارجية'},{value:'amenities',label:'المرافق'},{value:'parking',label:'المواقف'},{value:'floor_plan',label:'المخطط'},{value:'location',label:'الموقع والمحيط'},{value:'view',label:'الإطلالة'},{value:'construction',label:'مراحل الإنشاء'},{value:'other',label:'أخرى'}];
+const categories:Array<{value:AssetMediaCategory;label:string}>=[
+ {value:'general',label:'معرض الصور'},
+ {value:'floor_plan',label:'مخطط العقار'},
+ {value:'construction',label:'أعمال الإنشاء'},
+];
 const Star=()=> <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-current"><path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9L12 3Z"/></svg>;
 const Trash=()=> <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-none stroke-current" strokeWidth="1.8"><path d="M4 7h16M9 7V4h6v3m3 0-1 13H7L6 7m4 4v5m4-5v5"/></svg>;
 export function AssetMediaManager({assetId,tenantId,accessToken,canManage,isUnit=false}:{assetId:string;tenantId:string;accessToken:string;canManage:boolean;isUnit?:boolean}){
- const[media,setMedia]=useState<AssetMedia[]>([]),[category,setCategory]=useState<AssetMediaCategory>('general'),[busy,setBusy]=useState(false),[error,setError]=useState('');const visible=categories.filter(c=>!isUnit||!['exterior','entrance','parking','construction'].includes(c.value));
+ const[media,setMedia]=useState<AssetMedia[]>([]),[category,setCategory]=useState<AssetMediaCategory>('general'),[busy,setBusy]=useState(false),[error,setError]=useState('');const visible=categories;
  const load=async()=>setMedia((await listAssetMedia(accessToken,assetId)).media);useEffect(()=>{void load().catch(e=>setError(e instanceof Error?e.message:'تعذر تحميل الوسائط'))},[accessToken,assetId]);
  const groups=useMemo(()=>visible.map(c=>({...c,items:media.filter(x=>x.category===c.value).sort((a,b)=>a.order_index-b.order_index)})).filter(x=>x.items.length),[media,isUnit]);
  async function upload(files:FileList|null){if(!files?.length)return;setBusy(true);setError('');try{const supabase=getSupabaseBrowserClient();for(const file of Array.from(files)){const type=file.type.startsWith('video/')?'video':file.type.startsWith('image/')?'image':null;if(!type)throw new Error('يسمح بالصور والفيديو فقط');const ext=file.name.split('.').pop()?.toLowerCase()||'bin',objectPath=`${tenantId}/assets/${assetId}/${crypto.randomUUID()}.${ext}`;const{error:e}=await supabase.storage.from('property-media').upload(objectPath,file,{contentType:file.type,upsert:false});if(e)throw e;const{data}=supabase.storage.from('property-media').getPublicUrl(objectPath);await createAssetMedia(accessToken,assetId,{media_type:type,category,url:data.publicUrl,order_index:media.filter(x=>x.category===category).length,is_primary:media.length===0&&type==='image'});}await load();}catch(e){setError(e instanceof Error?e.message:'تعذر رفع الوسائط')}finally{setBusy(false)}}
