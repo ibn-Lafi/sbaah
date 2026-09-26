@@ -10,6 +10,7 @@ import type {
   VideoSectionConfig,
 } from '@sbaah/shared';
 import { LavenderHeading, LavenderSection } from './primitives';
+import { LavenderStatsCounter } from './stats-counter';
 const copy = {
   ar: {
     stats: 'أرقامنا',
@@ -49,35 +50,19 @@ const soft = (value?: 'default' | 'soft') => (value === 'soft' ? 'bg-[#f4f1ea]' 
 
 export function LavenderStats({ locale, config }: { locale: Locale; config: StatsSectionConfig }) {
   const configured = (config.items ?? []).slice(0, 3);
-  const items = Array.from({ length: 3 }, (_, index) => configured[index] ?? { value: '—', label: '' });
+  const items = Array.from({ length: 3 }, (_, index) => configured[index] ?? { value: '0', label: '' });
   return (
-    <LavenderSection className="bg-[#f4f1ea] text-[#171713]">
-      <div className="mx-auto max-w-[1440px]">
-        <div className="rounded-[18px] bg-tenant-primary px-3 py-10 text-white sm:rounded-[24px] sm:px-8 sm:py-16 lg:px-20 lg:py-24">
-          <h2 className="mb-9 text-center text-[1.65rem] font-semibold leading-tight sm:mb-14 sm:text-4xl lg:mb-20 lg:text-6xl">
-            {config.title_ar || copy[locale].stats}
-          </h2>
-          <dl className="mx-auto grid max-w-[1180px] grid-cols-3 gap-[10px] sm:gap-6 lg:gap-10">
-            {items.map((item, index) => (
-              <div key={index} className="relative min-w-0">
-                <div className="flex aspect-[1.04/1] min-h-[106px] flex-col items-center justify-center rounded-[18px] bg-white/[.14] px-1.5 text-center sm:min-h-[190px] sm:rounded-[28px] sm:px-5 lg:min-h-[250px]">
-                  <dd className="max-w-full truncate text-[1.65rem] font-semibold leading-none tracking-tight sm:text-5xl lg:text-6xl">{item.value || '—'}</dd>
-                  <dt className="mt-3 line-clamp-2 text-[9px] leading-[1.25] text-white/90 sm:mt-5 sm:text-base lg:text-lg">{item.label}</dt>
-                </div>
-                {index < 2 && (
-                  <span aria-hidden="true" className="absolute -end-[7px] -top-[7px] z-10 grid size-[24px] place-items-center rounded-full bg-tenant-primary text-[9px] text-white/70 sm:-end-[15px] sm:-top-[15px] sm:size-[42px] sm:text-sm lg:-end-[20px] lg:-top-[20px] lg:size-[54px]">
-                    ↘
-                  </span>
-                )}
-                {index === 1 && (
-                  <span aria-hidden="true" className="absolute -bottom-[7px] -end-[7px] z-10 grid size-[24px] place-items-center rounded-full bg-tenant-primary text-[9px] text-white/70 sm:-bottom-[15px] sm:-end-[15px] sm:size-[42px] sm:text-sm lg:-bottom-[20px] lg:-end-[20px] lg:size-[54px]">
-                    ↑
-                  </span>
-                )}
-              </div>
-            ))}
-          </dl>
-        </div>
+    <LavenderSection className="bg-[#f4f1ea] py-10 text-[#171713] sm:py-14 lg:py-16">
+      <div className="mx-auto max-w-6xl">
+        <h2 className="mb-5 text-center text-xl font-semibold sm:mb-8 sm:text-3xl lg:text-4xl">{config.title_ar || copy[locale].stats}</h2>
+        <dl className="grid grid-cols-3 gap-2 sm:gap-4 lg:gap-6">
+          {items.map((item, index) => (
+            <div key={index} className="flex min-h-[88px] min-w-0 flex-col items-center justify-center rounded-[18px] border border-white/50 bg-white/30 px-1.5 py-3 text-center shadow-[0_8px_28px_rgba(23,23,19,.05)] backdrop-blur-xl sm:min-h-[135px] sm:rounded-[24px] sm:px-4 sm:py-5 lg:min-h-[155px]">
+              <dd className="max-w-full truncate text-xl font-semibold tracking-tight text-tenant-primary sm:text-4xl lg:text-5xl"><LavenderStatsCounter value={item.value || '0'} /></dd>
+              <dt className="mt-1.5 line-clamp-2 text-[9px] leading-3 text-black/60 sm:mt-3 sm:text-sm sm:leading-5 lg:text-base">{item.label}</dt>
+            </div>
+          ))}
+        </dl>
       </div>
     </LavenderSection>
   );
