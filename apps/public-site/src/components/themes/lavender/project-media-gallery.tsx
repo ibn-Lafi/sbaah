@@ -65,17 +65,17 @@ export function LavenderProjectMediaGallery({
                   type="button"
                   onClick={() => move(locale === 'ar' ? 1 : -1)}
                   aria-label={locale === 'ar' ? 'الصورة السابقة' : 'Previous image'}
-                  className="absolute start-2.5 top-1/2 grid size-9 -translate-y-1/2 place-items-center rounded-full bg-white text-lg text-[#171713] shadow-md transition hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tenant-primary sm:start-4 sm:size-11 sm:text-xl"
+                  className="absolute start-2.5 top-1/2 grid size-9 -translate-y-1/2 place-items-center rounded-full border border-black/10 bg-white/95 text-[#171713] shadow-sm backdrop-blur-sm transition hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tenant-primary sm:start-4 sm:size-11 sm:text-xl"
                 >
-                  <span aria-hidden="true">{locale === 'ar' ? '→' : '←'}</span>
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" className="size-4 sm:size-5"><path d="M15 5 8 12l7 7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
                 </button>
                 <button
                   type="button"
                   onClick={() => move(locale === 'ar' ? -1 : 1)}
                   aria-label={locale === 'ar' ? 'الصورة التالية' : 'Next image'}
-                  className="bg-tenant-primary absolute end-2.5 top-1/2 grid size-9 -translate-y-1/2 place-items-center rounded-full text-lg text-white shadow-md transition hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tenant-primary sm:end-4 sm:size-11 sm:text-xl"
+                  className="bg-tenant-primary absolute end-2.5 top-1/2 grid size-9 -translate-y-1/2 place-items-center rounded-full border border-white/20 text-white shadow-sm transition hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tenant-primary sm:end-4 sm:size-11 sm:text-xl"
                 >
-                  <span aria-hidden="true">{locale === 'ar' ? '←' : '→'}</span>
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" className="size-4 sm:size-5"><path d="m9 5 7 7-7 7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
                 </button>
               </>
             )}
