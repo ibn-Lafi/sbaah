@@ -16,9 +16,10 @@ export function Footer({ locale, dict, tenant, website, customPages }: FooterPro
   const name = locale === 'ar' ? tenant.name_ar : tenant.name_en,
     homeHref = locale === 'ar' ? '/' : '/en';
   const navigation = [
-    { href: homeHref, label: locale === 'ar' ? 'الرئيسية' : 'Home' },
+    { href: homeHref, label: locale === 'ar' ? 'من نحن' : 'About us' },
     { href: locale === 'ar' ? '/projects' : '/en/projects', label: dict.projects },
     { href: locale === 'ar' ? '/properties' : '/en/properties', label: dict.properties },
+    ...customPages.map((page) => ({ href: locale === 'ar' ? `/pages/${page.slug}` : `/en/pages/${page.slug}`, label: page.title })),
   ];
   const socialLinks = [
     safeExternalUrl(tenant.social_instagram) && {
@@ -71,141 +72,27 @@ export function Footer({ locale, dict, tenant, website, customPages }: FooterPro
     },
   ].filter((entry): entry is { key: string; label: string; value: string } => Boolean(entry));
   return (
-    <footer id="contact" className="bg-[#151915] text-white">
-      <div className="mx-auto w-full max-w-7xl px-5 py-16 sm:px-6 sm:py-20">
-        <div className="grid gap-12 border-t border-white/20 pt-8 lg:grid-cols-[1.35fr_.7fr_.8fr_1fr] lg:gap-10">
+    <footer id="contact" className="bg-tenant-primary text-white">
+      <div className="mx-auto w-full max-w-7xl px-6 py-12 sm:px-8 sm:py-14 lg:px-10 lg:py-16">
+        <div className="grid gap-10 lg:grid-cols-[1.2fr_.8fr_.9fr] lg:gap-16">
           <div>
-            {website.logo_url ? (
-              <img
-                src={website.logo_url}
-                alt={name}
-                className="max-h-14 w-auto max-w-[220px] object-contain"
-              />
-            ) : (
-              <p className="text-3xl font-medium">{name}</p>
-            )}
-            {website.footer_description && (
-              <p className="mt-6 max-w-md text-sm leading-7 text-white/55">
-                {website.footer_description}
-              </p>
-            )}
-            {socialLinks.length > 0 && (
-              <div className="mt-7 flex flex-wrap gap-3">
-                {socialLinks.map(({ key, label, href, Icon }) => (
-                  <a
-                    key={key}
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={label}
-                    className="hover:border-tenant-primary hover:text-tenant-primary flex h-10 w-10 items-center justify-center border border-white/20 text-white/65 transition-colors"
-                  >
-                    <Icon className="h-[17px] w-[17px]" />
-                  </a>
-                ))}
-              </div>
-            )}
+            {website.logo_url ? <img src={website.logo_url} alt={name} className="max-h-16 w-auto max-w-[230px] object-contain brightness-0 invert" /> : <p className="text-3xl font-medium">{name}</p>}
+            {website.footer_description && <p className="mt-4 max-w-md text-sm leading-7 text-white/75">{website.footer_description}</p>}
+            {socialLinks.length>0&&<div className="mt-6 flex flex-wrap gap-3">{socialLinks.map(({key,label,href,Icon})=><a key={key} href={href} target="_blank" rel="noopener noreferrer" aria-label={label} className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-tenant-primary transition-transform hover:-translate-y-0.5"><Icon className="h-[18px] w-[18px]"/></a>)}</div>}
           </div>
-          <div>
-            <h3 className="mb-5 text-[11px] font-semibold uppercase tracking-[.2em] text-white/40">
-              {locale === 'ar' ? 'روابط سريعة' : 'Navigation'}
-            </h3>
-            <div className="flex flex-col items-start gap-3 text-sm">
-              {navigation.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  className="text-white/65 transition-colors hover:text-white"
-                >
-                  {link.label}
-                </a>
-              ))}
-            </div>
-          </div>
-          <div>
-            <h3 className="mb-5 text-[11px] font-semibold uppercase tracking-[.2em] text-white/40">
-              {dict.otherPages}
-            </h3>
-            <div className="flex flex-col items-start gap-3 text-sm">
-              {customPages.length > 0 ? (
-                customPages.map((page) => (
-                  <a
-                    key={page.id}
-                    href={locale === 'ar' ? `/pages/${page.slug}` : `/en/pages/${page.slug}`}
-                    className="text-white/65 transition-colors hover:text-white"
-                  >
-                    {page.title}
-                  </a>
-                ))
-              ) : (
-                <span className="text-white/35">—</span>
-              )}
-            </div>
-          </div>
-          <div>
-            <h3 className="mb-5 text-[11px] font-semibold uppercase tracking-[.2em] text-white/40">
-              {dict.contact}
-            </h3>
-            <div className="space-y-4 text-sm">
-              {tenant.social_phone && (
-                <div>
-                  <span className="mb-1 block text-[11px] text-white/35">{dict.phoneNumber}</span>
-                  <a
-                    dir="ltr"
-                    href={`tel:${digitsOnly(tenant.social_phone)}`}
-                    className="text-white/75 hover:text-white"
-                  >
-                    {tenant.social_phone}
-                  </a>
-                </div>
-              )}
-              {tenant.social_whatsapp && (
-                <div>
-                  <span className="mb-1 block text-[11px] text-white/35">
-                    {dict.whatsappNumber}
-                  </span>
-                  <a
-                    dir="ltr"
-                    href={`https://wa.me/${digitsOnly(tenant.social_whatsapp)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-white/75 hover:text-white"
-                  >
-                    {tenant.social_whatsapp}
-                  </a>
-                </div>
-              )}
-              {website.address && (
-                <div>
-                  <span className="mb-1 block text-[11px] text-white/35">{dict.address}</span>
-                  <p className="max-w-xs leading-6 text-white/65">{website.address}</p>
-                </div>
-              )}
-            </div>
+          <nav className="flex flex-col items-start gap-4 text-[17px] sm:text-lg">
+            {navigation.map(link=><a key={link.href} href={link.href} className="text-white/85 transition-colors hover:text-white">{link.label}</a>)}
+          </nav>
+          <div className="space-y-8">
+            <div><h3 className="mb-3 text-xl font-semibold text-tenant-secondary">{locale==='ar'?'تواصل معنا':'Contact us'}</h3><div className="space-y-2 text-[15px] text-white/85">{tenant.social_phone&&<a dir="ltr" href={`tel:${digitsOnly(tenant.social_phone)}`} className="block w-fit">{tenant.social_phone}</a>}{tenant.social_whatsapp&&<a dir="ltr" href={`https://wa.me/${digitsOnly(tenant.social_whatsapp)}`} target="_blank" rel="noopener noreferrer" className="block w-fit">{tenant.social_whatsapp}</a>}</div></div>
+            {website.address&&<div><h3 className="mb-3 text-xl font-semibold text-tenant-secondary">{locale==='ar'?'الموقع':'Location'}</h3><p className="max-w-sm text-[15px] leading-7 text-white/85">{website.address}</p></div>}
           </div>
         </div>
-        {registrations.length > 0 && (
-          <div className="mt-12 grid border-y border-white/15 sm:grid-cols-3">
-            {registrations.map((entry) => (
-              <div
-                key={entry.key}
-                className="border-b border-white/15 py-4 last:border-b-0 sm:border-b-0 sm:border-e sm:px-5 sm:first:ps-0 sm:last:border-e-0"
-              >
-                <span className="block text-[10px] text-white/35">{entry.label}</span>
-                <strong dir="ltr" className="mt-1 block text-sm font-medium text-white/75">
-                  {entry.value}
-                </strong>
-              </div>
-            ))}
-          </div>
-        )}
-        <div className="flex flex-col gap-5 pt-7 text-xs text-white/35 sm:flex-row sm:items-center sm:justify-between">
-          <span>
-            © {new Date().getFullYear()} {name}
-          </span>
-          <SiteBadge accountType={tenant.account_type} locale={locale} />
+        {registrations.length>0&&<div className="mt-10 flex flex-wrap gap-x-8 gap-y-3 border-t border-white/15 pt-6">{registrations.map(entry=><div key={entry.key} className="text-sm"><span className="text-white/55">{entry.label}: </span><strong dir="ltr" className="font-medium text-white/85">{entry.value}</strong></div>)}</div>}
+        <div className="mt-10 flex flex-col gap-5 border-t border-white/15 pt-6 text-sm text-white/55 sm:flex-row sm:items-center sm:justify-between">
+          <span>© {new Date().getFullYear()} {locale==='ar'?'جميع الحقوق محفوظة':'All rights reserved'} — {name}</span>
+          <div className="flex items-center gap-5"><a href={locale==='ar'?'/en':'/'} className="font-semibold text-white">{locale==='ar'?'English':'العربية'}</a><SiteBadge accountType={tenant.account_type} locale={locale}/></div>
         </div>
       </div>
     </footer>
-  );
-}
+  );}
