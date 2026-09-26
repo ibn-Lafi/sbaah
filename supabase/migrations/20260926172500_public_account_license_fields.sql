@@ -2,9 +2,9 @@
 -- The footer still applies account-type checks before rendering:
 -- institution/company => CR, VAT, FAL and Wafi; individual => FAL and freelance certificate.
 
-drop function if exists resolve_public_tenant_chrome(text, text);
+drop function if exists public.resolve_public_tenant_chrome(text, text);
 
-create function resolve_public_tenant_chrome(p_subdomain text, p_custom_domain text)
+create function public.resolve_public_tenant_chrome(p_subdomain text, p_custom_domain text)
 returns table(
   id uuid,
   status public.tenant_status,
