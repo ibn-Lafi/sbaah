@@ -53,10 +53,10 @@ export function LavenderProjectDetail({
 
   return (
     <main className="bg-[#f4f1ea] text-[#171713]">
-      <section className="relative h-[78svh] min-h-[540px] overflow-hidden bg-[#171713] text-white sm:h-[86svh]">
+      <section className="relative -mt-20 h-[100svh] min-h-[100svh] w-full overflow-hidden bg-[#171713] text-white">
         {primary && <img src={primary.url} alt={title} loading="eager" className="absolute inset-0 h-full w-full object-cover" />}
         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/20" />
-        <div className="relative mx-auto flex h-full max-w-7xl items-end px-5 pb-10 pt-24 sm:px-6 sm:pb-14">
+        <div className="relative flex h-full w-full items-end px-5 pb-10 pt-24 sm:px-8 sm:pb-14 lg:px-12 lg:pb-16">
           <div className="w-full max-w-4xl border-t border-white/40 pt-5">
             <p className="mb-3 text-xs font-semibold tracking-[.14em] text-white/75">{locale === 'ar' ? 'مشروع عقاري' : 'REAL ESTATE PROJECT'}</p>
             <h1 className="text-4xl font-semibold leading-tight sm:text-6xl lg:text-7xl">{title}</h1>
