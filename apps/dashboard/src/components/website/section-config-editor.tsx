@@ -83,7 +83,7 @@ export function SectionConfigEditor({
     'promo_banner',
     'free_content',
   ].includes(section.type);
-  const hasSimpleTitle = !['property_detail', 'project_detail', 'map', 'footer'].includes(
+  const hasSimpleTitle = !['property_detail', 'project_detail', 'map', 'footer', 'services'].includes(
     section.type,
   );
   const config = section.config as HeroSectionConfig & AboutSectionConfig;
@@ -138,7 +138,6 @@ export function SectionConfigEditor({
     'projects_showcase',
     'properties_by_city',
     'stats',
-    'services',
     'faq',
   ].includes(section.type);
   const supportsColumns = [
@@ -147,7 +146,6 @@ export function SectionConfigEditor({
     'projects_showcase',
     'properties_by_city',
     'stats',
-    'services',
   ].includes(section.type);
   const [tone, setTone] = useState<SectionTone>((section.config.tone as SectionTone) ?? 'default');
   const [headingAlign, setHeadingAlign] = useState<SectionHeadingAlign>(
