@@ -13,10 +13,10 @@ export function LavenderServices({ locale, config }: { locale: Locale; config: S
 
   return (
     <LavenderSection
-      className="overflow-hidden bg-[#f5f1ee] py-12 text-[#173d34] sm:py-16 lg:py-24"
+      className="overflow-hidden bg-[var(--tenant-secondary)] py-12 text-[var(--tenant-primary)] sm:py-16 lg:py-24"
     >
       <div dir={locale === 'ar' ? 'rtl' : 'ltr'} className="mx-auto max-w-6xl">
-        <p className="mb-10 text-4xl font-light leading-none text-[#aa8c62] sm:mb-14 sm:text-6xl">
+        <p className="mb-10 text-4xl font-light leading-none text-[var(--tenant-primary)] sm:mb-14 sm:text-6xl">
           {locale === 'ar' ? 'خدماتنا' : 'Services'}
         </p>
 
@@ -26,14 +26,14 @@ export function LavenderServices({ locale, config }: { locale: Locale; config: S
               {current.title}
             </h3>
             {current.description && (
-              <p className="mt-6 max-w-3xl text-lg leading-[1.9] text-[#5d5b59] sm:text-xl lg:text-2xl">
+              <p className="mt-6 max-w-3xl text-lg leading-[1.9] text-[var(--tenant-primary)]/70 sm:text-xl lg:text-2xl">
                 {current.description}
               </p>
             )}
           </div>
 
           <div
-            className={`lg:col-start-1 lg:row-start-1 ${locale === 'ar' ? 'border-r-2 border-[#173d34]/10 pr-4 sm:pr-5' : 'border-l-2 border-[#173d34]/10 pl-4 sm:pl-5'}`}
+            className={`lg:col-start-1 lg:row-start-1 ${locale === 'ar' ? 'border-r-2 border-[var(--tenant-primary)]/15 pr-4 sm:pr-5' : 'border-l-2 border-[var(--tenant-primary)]/15 pl-4 sm:pl-5'}`}
             role="tablist"
             aria-label={locale === 'ar' ? 'الخدمات' : 'Services'}
           >
@@ -46,12 +46,12 @@ export function LavenderServices({ locale, config }: { locale: Locale; config: S
                   role="tab"
                   aria-selected={selected}
                   onClick={() => setActive(index)}
-                  className={`relative block w-full py-3 text-start text-xl leading-tight transition-colors sm:text-2xl ${selected ? 'font-medium text-[#173d34]' : 'text-[#173d34]/35 hover:text-[#173d34]/65'}`}
+                  className={`relative block w-full py-3 text-start text-xl leading-tight transition-colors sm:text-2xl ${selected ? 'font-medium text-[var(--tenant-primary)]' : 'text-[var(--tenant-primary)]/35 hover:text-[var(--tenant-primary)]/65'}`}
                 >
                   {selected && (
                     <span
                       aria-hidden="true"
-                      className={`absolute top-0 h-full w-[3px] bg-[#173d34] ${locale === 'ar' ? '-right-[18px] sm:-right-[22px]' : '-left-[18px] sm:-left-[22px]'}`}
+                      className={`absolute top-0 h-full w-[3px] bg-[var(--tenant-primary)] ${locale === 'ar' ? '-right-[18px] sm:-right-[22px]' : '-left-[18px] sm:-left-[22px]'}`}
                     />
                   )}
                   {item.title}
