@@ -6,7 +6,9 @@ import { Input } from '@/components/ui/input';
 import {
   createPhase,
   createUnitType,
-  createProjectAsset,\n  removeUnitType,\n  archiveProjectAsset,
+  createProjectAsset,
+  removeUnitType,
+  archiveProjectAsset,
   getProjectSalesCenter,
   listPhases,
   listProjectAssets,
@@ -76,7 +78,9 @@ export function ProjectInventory({
   const [batchPrefix, setBatchPrefix] = useState('');
   const [batchStart, setBatchStart] = useState('1');
   const [batchBusy, setBatchBusy] = useState(false);
-  const [batchError, setBatchError] = useState('');\n  const [deleteError, setDeleteError] = useState('');\n  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [batchError, setBatchError] = useState('');
+  const [deleteError, setDeleteError] = useState('');
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [showAssetForm, setShowAssetForm] = useState(false);
   const [search, setSearch] = useState('');
   const [phaseFilter, setPhaseFilter] = useState('all');
@@ -958,7 +962,8 @@ export function ProjectInventory({
                     <th className="p-3 text-start">نوع الوحدة</th>
                     <th className="p-3 text-start">الحالة التجارية</th>
                     <th className="p-3 text-start">سعر العرض</th>
-                    <th className="p-3 text-start">سعر البيع</th>\n                    {canManage && <th className="p-3 text-start">الإجراءات</th>}
+                    <th className="p-3 text-start">سعر البيع</th>
+                    {canManage && <th className="p-3 text-start">الإجراءات</th>}
                   </tr>
                 </thead>
                 <tbody>
