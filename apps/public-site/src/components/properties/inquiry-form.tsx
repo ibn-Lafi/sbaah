@@ -15,7 +15,8 @@ const LABELS = {
     email: 'البريد الإلكتروني (اختياري)',
     submit: 'إرسال',
     sending: 'جارٍ الإرسال...',
-    success: 'تم تسجيل اهتمامك، سنتواصل معك قريبًا',
+    successTitle: 'تم تسجيل اهتمامك',
+    success: 'شكرًا لك، استلمنا بياناتك وسيتواصل معك الفريق قريبًا.',
     genericError: 'تعذّر إرسال الاستفسار، حاول مرة أخرى',
   },
   en: {
@@ -25,7 +26,8 @@ const LABELS = {
     email: 'Email (optional)',
     submit: 'Submit',
     sending: 'Sending...',
-    success: "Your inquiry was sent — we'll be in touch soon",
+    successTitle: 'Interest registered successfully',
+    success: "Thank you. We received your details and our team will contact you soon",
     genericError: 'Could not send your inquiry, please try again',
   },
 };
@@ -106,7 +108,17 @@ export function InquiryForm({ locale, tenantId, listingId, assetId, projectId, v
   }
 
   if (submitted) {
-    return <p className="rounded-lg bg-tenant-primary/10 p-4 text-sm text-tenant-primary">{t.success}</p>;
+    return (
+      <div className={variant === 'lavender' ? 'mx-auto flex min-h-[290px] w-full max-w-xl flex-col items-center justify-center rounded-2xl border border-black/10 bg-white p-6 text-center shadow-[0_10px_35px_rgba(23,23,19,.06)] sm:min-h-[330px] sm:p-8' : 'flex min-h-[260px] flex-col items-center justify-center rounded-xl border border-black/10 bg-white p-6 text-center'}>
+        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-tenant-primary/10 text-tenant-primary sm:h-16 sm:w-16" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7 sm:h-8 sm:w-8">
+            <path d="m7 12.5 3.2 3.2L17.5 8.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
+        <h3 className="mt-5 text-xl font-semibold text-black sm:text-2xl">{t.successTitle}</h3>
+        <p className="mt-2 max-w-sm text-sm leading-7 text-black/55">{t.success}</p>
+      </div>
+    );
   }
 
   return (
