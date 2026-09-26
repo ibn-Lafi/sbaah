@@ -55,7 +55,10 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
   const supabase = createAnonClient();
   const tenantId = await resolvePublicTenantId(q.domain, supabase);
   const offset = (q.page - 1) * q.page_size;
-  const { data, error } = await supabase.rpc('public_property_feed', {
+  // Keep the public website resilient when the newer scoped RPC migration has
+  // not reached an environment yet. The legacy feed has the same published
+  // Listing -> Asset contract; scope/project filtering is applied below.
+  let { data, error } = await supabase.rpc('public_property_feed', {
     p_tenant_id: tenantId,
     p_scope: q.scope,
     p_project_id: q.project_id ?? null,
@@ -69,6 +72,22 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     p_limit: q.page_size,
     p_offset: offset,
   });
+  if (error && /public_property_feed|schema cache|Could not find the function/i.test(error.message)) {
+    const legacy = await supabase.rpc('public_listing_feed', {
+      p_tenant_id: tenantId,
+      p_listing_type: q.listing_type ?? null,
+      p_asset_type: q.property_type ?? null,
+      p_city_id: q.city_id ?? null,
+      p_district_id: q.district_id ?? null,
+      p_min_price: q.min_price ?? null,
+      p_max_price: q.max_price ?? null,
+      p_bedrooms: q.bedrooms ?? null,
+      p_limit: q.page_size,
+      p_offset: offset,
+    });
+    data = legacy.data;
+    error = legacy.error;
+  }
   if (error) throw new Error(`Failed to list public listings: ${error.message}`);
   type PublicListingFeedRow = {
     listing_id: string;
@@ -99,7 +118,9 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     lng?: number | null;
     total_count?: number | string | null;
   };
-  const rows = (data ?? []) as PublicListingFeedRow[];
+  let rows = (data ?? []) as PublicListingFeedRow[];
+  if (q.scope === 'independent') rows = rows.filter((r) => !r.project_id && !r.parent_asset_id);
+  if (q.scope === 'project') rows = rows.filter((r) => !!r.project_id && (!q.project_id || r.project_id === q.project_id));
   // Temporary compatibility shape for the current public-site. Source of truth is now Listing + Asset.
   const properties = rows.map((r) => ({
     id: r.listing_id,
