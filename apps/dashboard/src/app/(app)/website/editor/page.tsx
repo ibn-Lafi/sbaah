@@ -96,10 +96,7 @@ export default function WebsiteEditorPage() {
   const contentSections =
     activePage?.website_sections.filter((s) => {
       if (s.type === 'footer' || s.type === 'broker_marketer_form') return false;
-      if (true) {
-        return (LAVENDER_ALLOWED_SECTIONS[activePageKey] ?? []).includes(s.type);
-      }
-      return true;
+      return (LAVENDER_ALLOWED_SECTIONS[activePageKey] ?? []).includes(s.type);
     }) ?? [];
   // محرر الجوال: الأقسام المُفعَّلة تُعرض في "محتوى الصفحة"، والمخفية
   // تصبح "مكتبة" القسم القابلة للإضافة — كل أقسام الصفحة موجودة أصلًا
@@ -274,7 +271,7 @@ export default function WebsiteEditorPage() {
             }}
             className="bg-surface-subtle-3 !h-9 flex-1 !rounded-full border-0 px-4 text-sm"
           >
-            {(true ? EDITOR_PAGE_KEYS : ['home', 'properties', 'property_detail', 'projects', 'project_detail'] as WebsitePageKey[]).map((key) => (
+            {EDITOR_PAGE_KEYS.map((key) => (
               <option key={key} value={key}>
                 {t.pageTabLabels[key]}
               </option>
@@ -787,7 +784,7 @@ export default function WebsiteEditorPage() {
                 }}
                 className="bg-surface-subtle-3 !h-10 w-[170px] !rounded-full border-0 px-4 text-sm"
               >
-                {(true ? EDITOR_PAGE_KEYS : ['home', 'properties', 'property_detail', 'projects', 'project_detail'] as WebsitePageKey[]).map((key) => (
+                {EDITOR_PAGE_KEYS.map((key) => (
                   <option key={key} value={key}>
                     {t.pageTabLabels[key]}
                   </option>
