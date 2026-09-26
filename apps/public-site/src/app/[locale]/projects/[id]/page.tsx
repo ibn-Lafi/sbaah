@@ -86,12 +86,14 @@ export default async function ProjectDetailPage({ params }: PageProps) {
       (s) =>
         s.type !== 'project_detail' &&
         s.type !== 'contact' &&
+        s.type !== 'property_request' &&
         (!detailSection || s.order_index < detailSection.order_index),
     );
     const after = site.sections.filter(
       (s) =>
         s.type !== 'project_detail' &&
         s.type !== 'contact' &&
+        s.type !== 'property_request' &&
         detailSection &&
         s.order_index > detailSection.order_index,
     );
