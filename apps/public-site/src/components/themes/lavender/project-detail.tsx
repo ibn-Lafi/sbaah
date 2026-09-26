@@ -3,6 +3,7 @@ import type { PublicProjectDetailResponse } from '@/lib/api/public-projects';
 import { pickLocalized } from '@/lib/i18n/localized-field';
 import { LavenderProjectMediaGallery } from './project-media-gallery';
 import { InquiryForm } from '@/components/properties/inquiry-form';
+import { LavenderStatsCounter } from './stats-counter';
 
 export function LavenderProjectDetail({
   locale,
@@ -78,14 +79,21 @@ export function LavenderProjectDetail({
 
       <LavenderProjectMediaGallery locale={locale} groups={groups} />
 
-      <section className="bg-white px-5 py-14 sm:px-6 sm:py-20">
+      <section className="bg-[#f4f1ea] px-5 py-10 text-[#171713] sm:px-6 sm:py-14 lg:py-16">
         <div className="mx-auto max-w-6xl">
-          <h2 className="mb-7 text-3xl font-semibold sm:text-5xl">{locale === 'ar' ? 'أرقام المشروع' : 'Project facts'}</h2>
-          <div className="grid grid-cols-3 overflow-hidden rounded-2xl border border-black/10">
-            <div className="p-4 text-center sm:p-7"><p className="text-xs text-black/55">{locale === 'ar' ? 'نسبة الإنجاز' : 'Progress'}</p><strong className="mt-2 block text-2xl sm:text-4xl">{project.completion_percentage ?? 0}%</strong></div>
-            <div className="border-x border-black/10 p-4 text-center sm:p-7"><p className="text-xs text-black/55">{locale === 'ar' ? 'عدد الوحدات' : 'Units'}</p><strong className="mt-2 block text-2xl sm:text-4xl">{project.planned_units_count ?? data.total ?? 0}</strong></div>
-            <div className="p-4 text-center sm:p-7"><p className="text-xs text-black/55">{locale === 'ar' ? 'نماذج المشروع' : 'Models'}</p><strong className="mt-2 block text-2xl sm:text-4xl">{data.unit_types.length}</strong></div>
-          </div>
+          <h2 className="mb-5 text-center text-xl font-semibold sm:mb-8 sm:text-3xl lg:text-4xl">{locale === 'ar' ? 'أرقام المشروع' : 'Project facts'}</h2>
+          <dl className="grid grid-cols-3 gap-2 sm:gap-4 lg:gap-6">
+            {[
+              { value: `${project.completion_percentage ?? 0}%`, label: locale === 'ar' ? 'نسبة الإنجاز' : 'Progress' },
+              { value: String(project.planned_units_count ?? data.total ?? 0), label: locale === 'ar' ? 'عدد الوحدات' : 'Units' },
+              { value: String(data.unit_types.length), label: locale === 'ar' ? 'نماذج المشروع' : 'Models' },
+            ].map((item) => (
+              <div key={item.label} className="flex min-h-[88px] min-w-0 flex-col items-center justify-center rounded-[18px] border border-white/50 bg-white/30 px-1.5 py-3 text-center shadow-[0_8px_28px_rgba(23,23,19,.05)] backdrop-blur-xl sm:min-h-[135px] sm:rounded-[24px] sm:px-4 sm:py-5 lg:min-h-[155px]">
+                <dd className="max-w-full truncate text-xl font-semibold tracking-tight text-tenant-primary sm:text-4xl lg:text-5xl"><LavenderStatsCounter value={item.value} /></dd>
+                <dt className="mt-1.5 line-clamp-2 text-[9px] leading-3 text-black/60 sm:mt-3 sm:text-sm sm:leading-5 lg:text-base">{item.label}</dt>
+              </div>
+            ))}
+          </dl>
         </div>
       </section>
 
