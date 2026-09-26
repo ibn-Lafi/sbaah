@@ -16,7 +16,7 @@ export async function HeroSection({
   const searchMode = resolveHeroSearchMode(config);
   const showSearch = searchMode !== 'none';
   const useVideo = (variant === 'video' || variant === 'video_search') && Boolean(bannerVideoUrl);
-  const useImage = !useVideo && Boolean(bannerUrl);
+  const useImage = (variant === 'image' || variant === 'image_search') && Boolean(bannerUrl);
   const cities = showSearch ? await listCities() : [];
   return (
     <section className="relative -mt-20 min-h-[82svh] overflow-hidden bg-[#171a17] text-white sm:min-h-[88svh]">

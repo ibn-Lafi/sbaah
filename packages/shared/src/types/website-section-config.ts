@@ -46,8 +46,18 @@ export interface HeroSectionConfig {
 export function resolveHeroSearchMode(
   config: Pick<HeroSectionConfig, 'search_mode' | 'variant'>,
 ): HeroSearchMode {
-  if (config.search_mode) return config.search_mode;
-  return config.variant === 'image_search' || config.variant === 'video_search' ? 'both' : 'none';
+  // The four visible hero variants are the source of truth. A previously
+  // saved search_mode must never keep the search UI visible after the user
+  // switches to "image only" or "video only".
+  if (config.variant === 'image' || config.variant === 'video') return 'none';
+  if (config.variant === 'image_search' || config.variant === 'video_search') {
+    return config.search_mode && config.search_mode !== 'none' ? config.search_mode : 'both';
+  }
+
+  // Existing sections without a variant historically behaved as
+  // image_search, so retain that behaviour while still respecting an
+  // explicitly stored search target.
+  return config.search_mode ?? 'both';
 }
 
 export interface PropertyGridSectionConfig {

@@ -178,8 +178,15 @@ export function SectionConfigEditor({
       if (isPropertiesByCity) nextConfig.city_ids = selectedCityIds;
       if (isHero && subtitleAr) nextConfig.subtitle_ar = subtitleAr;
       if (hasBody && bodyAr) nextConfig.body_ar = bodyAr;
-      if (isHero) nextConfig.variant = variant;
-      if (isHero) nextConfig.search_mode = searchMode;
+      if (isHero) {
+        nextConfig.variant = variant;
+        const variantHasSearch = variant === 'image_search' || variant === 'video_search';
+        nextConfig.search_mode = variantHasSearch
+          ? searchMode === 'none'
+            ? 'both'
+            : searchMode
+          : 'none';
+      }
       if (supportsPresentation) {
         nextConfig.tone = tone;
         nextConfig.heading_align = headingAlign;
@@ -503,7 +510,15 @@ export function SectionConfigEditor({
           </label>
           <Select
             value={variant}
-            onChange={(e) => setVariant(e.target.value as HeroVariant)}
+            onChange={(e) => {
+              const nextVariant = e.target.value as HeroVariant;
+              const variantHasSearch =
+                nextVariant === 'image_search' || nextVariant === 'video_search';
+              setVariant(nextVariant);
+              setSearchMode((current) =>
+                variantHasSearch ? (current === 'none' ? 'both' : current) : 'none',
+              );
+            }}
             className="h-10"
           >
             {HERO_VARIANTS.map((v) => (
@@ -515,7 +530,7 @@ export function SectionConfigEditor({
         </div>
       )}
 
-      {isHero && (
+      {isHero && (variant === 'image_search' || variant === 'video_search') && (
         <div className="flex flex-col gap-2">
           <label className="text-text-secondary text-xs">
             {t.sectionConfigEditor.heroSearchModeLabel}
