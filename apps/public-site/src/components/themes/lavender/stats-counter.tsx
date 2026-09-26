@@ -22,7 +22,7 @@ export function LavenderStatsCounter({ value }: { value: string }) {
     const node = ref.current;
     let frame = 0;
     const observer = new IntersectionObserver(([entry]) => {
-      if (!entry.isIntersecting) return;
+      if (!entry?.isIntersecting) return;
       observer.disconnect();
       const started = performance.now();
       const duration = 1100;
