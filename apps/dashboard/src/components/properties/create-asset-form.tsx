@@ -32,7 +32,7 @@ function Counter({label,value,onChange}:{label:string;value:string;onChange:(val
 }
 
 export function CreateAssetForm({accessToken,onCreated,projectId,parentAssetId,parentAssetName}:{accessToken:string;onCreated:(id:string)=>void;projectId?:string;parentAssetId?:string;parentAssetName?:string;}){
- const [form,setForm]=useState(initial); const [step,setStep]=useState(0); const [showAdvanced,setShowAdvanced]=useState(false); const [busy,setBusy]=useState(false); const [error,setError]=useState('');
+ const [form,setForm]=useState(initial); const [step,setStep]=useState(0); const [showAdvanced,setShowAdvanced]=useState(false); const [busy,setBusy]=useState(false); const [error,setError]=useState(''); const [submitMode,setSubmitMode]=useState<'close'|'another'>('close');
  const [cities,setCities]=useState<City[]>([]); const [districts,setDistricts]=useState<District[]>([]); const [unitTypes,setUnitTypes]=useState<UnitType[]>([]);
  const inheritsLocation=Boolean(parentAssetId||projectId);
  const set=<K extends keyof FormState>(key:K,value:FormState[K])=>setForm(current=>({...current,[key]:value}));
@@ -50,7 +50,13 @@ export function CreateAssetForm({accessToken,onCreated,projectId,parentAssetId,p
    city_id:inheritsLocation?null:form.cityId||null,district_id:inheritsLocation?null:form.districtId||null,lat:inheritsLocation?null:form.location?.lat??null,lng:inheritsLocation?null:form.location?.lng??null,
    area_sqm:numberOrNull(form.area),land_area:parentAssetId?null:numberOrNull(form.landArea),built_area:parentAssetId?null:numberOrNull(form.builtArea),street_width:inheritsLocation?null:numberOrNull(form.streetWidth),
    bedrooms:numberOrNull(form.bedrooms),bathrooms:numberOrNull(form.bathrooms),floors_count:parentAssetId?null:numberOrNull(form.floorsCount),parking_count:numberOrNull(form.parkingCount),elevators_count:numberOrNull(form.elevatorsCount),property_age:parentAssetId?null:numberOrNull(form.propertyAge),furnishing:form.furnishing||null,description_ar:form.description||null,specifications:form.investment?{market_positioning:'investment'}:{},is_public:form.isPublic};
-  const result=await createAsset(accessToken,input);onCreated(result.asset.id);
+  const result=await createAsset(accessToken,input);
+  if(parentAssetId&&submitMode==='another'){
+   setForm(current=>({...initial,type:current.type,status:current.status,unitTypeId:current.unitTypeId,area:current.area,bedrooms:current.bedrooms,bathrooms:current.bathrooms,parkingCount:current.parkingCount,elevatorsCount:current.elevatorsCount,furnishing:current.furnishing,investment:current.investment,isPublic:false}));
+   setStep(0);setShowAdvanced(false);setSubmitMode('close');
+   return;
+  }
+  onCreated(result.asset.id);
  }catch(cause){setError(cause instanceof Error?cause.message:'تعذر إضافة العقار')}finally{setBusy(false)}}
  return <form onSubmit={submit} className="flex flex-col gap-5">
   <FormWizard steps={['التعريف','التفاصيل','المراجعة']} current={step} onStepChange={target=>target<step&&setStep(target)}/>
@@ -80,6 +86,7 @@ export function CreateAssetForm({accessToken,onCreated,projectId,parentAssetId,p
    <p className="text-xs text-text-secondary">بعد الحفظ يمكنك إضافة الصور والفيديو وإنشاء عرض بيع أو إيجار من صفحة العقار/الوحدة. لا نطلب السعر أثناء إنشاء الأصل.</p>
   </div>}
   {error&&<p className="text-sm text-red-600">{error}</p>}
+  {parentAssetId&&step===2&&<div className="grid gap-2 sm:grid-cols-2"><button type="submit" disabled={busy} onClick={()=>setSubmitMode('another')} className="h-10 rounded-lg border border-border-default px-4 text-sm font-medium disabled:opacity-50">{busy&&submitMode==='another'?'جارٍ الحفظ…':'حفظ وإضافة وحدة أخرى'}</button><p className="self-center text-xs text-text-secondary">سيتم الاحتفاظ بالنوع والمساحة والمواصفات المشتركة فقط، ولن يتم نسخ الاسم أو الرقم أو حالة الظهور.</p></div>}
   <WizardActions step={step} total={3} loading={busy} submitLabel={parentAssetId?'إضافة الوحدة':'إضافة العقار'} onBack={()=>setStep(current=>Math.max(0,current-1))} onNext={next}/>
  </form>
 }
