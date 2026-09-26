@@ -104,7 +104,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
     whatsappPhone: site.whatsapp_phone,
     tenantId: site.tenant.id,
     assetId: property.asset_id,
-    listingId: property.id,
+    listingId: property.listing_id ?? undefined,
     cities,
     themeKey: resolvedTheme.key,
   };
@@ -151,7 +151,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
 
                 <div>
                   <span className="text-tenant-primary text-sm font-medium">
-                    {property.listing_type ? getListingTypeLabel(locale, property.listing_type) : (locale === 'ar' ? 'عقار' : 'Property')}
+                    {property.listing_type ? getListingTypeLabel(locale, property.listing_type) : getPropertyTypeLabel(locale, property.property_type)}
                   </span>
                   <h1 className="mt-1 text-2xl font-bold">{title}</h1>
                   <p className="mt-1 text-black/60">
@@ -162,7 +162,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
                       : ''}
                   </p>
                   <p className="text-tenant-primary mt-3 text-2xl font-bold">
-                    {property.price != null ? formatPrice(locale, property.price) : (locale === 'ar' ? 'السعر عند الطلب' : 'Price on request')}
+                    {property.price != null ? formatPrice(locale, property.price) : null}
                   </p>
                 </div>
 
