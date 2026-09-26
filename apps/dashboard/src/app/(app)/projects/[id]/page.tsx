@@ -1,10 +1,13 @@
 'use client';
 
 import { use, useEffect, useState } from 'react';
-import type { Project } from '@sbaah/shared';
+import type { Project, ProjectUpdateInput } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
 import { BackButton } from '@/components/ui/back-button';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Modal } from '@/components/ui/modal';
+import { ProjectForm } from '@/components/hierarchy/project-form';
 import { DeleteButton } from '@/components/ui/delete-button';
 import { DetailLoadError } from '@/components/ui/detail-load-error';
 import { ProjectInventory } from '@/components/hierarchy/project-inventory';
@@ -13,7 +16,7 @@ import { ProjectPublishingPanel } from '@/components/hierarchy/project-publishin
 import { FormPageSkeleton } from '@/components/ui/form-page-skeleton';
 import { SegmentedToggle } from '@/components/ui/segmented-toggle';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
-import { deleteProject, getProject } from '@/lib/api/hierarchy';
+import { deleteProject, getProject, updateProject } from '@/lib/api/hierarchy';
 import { ApiRequestError, isNotFoundError } from '@/lib/api/client';
 import { useLocale } from '@/lib/i18n/locale-context';
 
@@ -35,6 +38,7 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
   const [loadError, setLoadError] = useState<string | null>(null);
   const [retryKey, setRetryKey] = useState(0);
   const [activeSection, setActiveSection] = useState<ProjectSection>('overview');
+  const [showEdit, setShowEdit] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -128,7 +132,10 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
               </div>
 
               <Card className="p-6">
-                <h2 className="font-semibold text-text-primary">بيانات المشروع</h2>
+                <div className="flex items-center justify-between gap-3">
+                  <h2 className="font-semibold text-text-primary">بيانات المشروع</h2>
+                  {canManage && <Button variant="secondary" onClick={() => setShowEdit(true)}>تعديل بيانات المشروع</Button>}
+                </div>
                 <dl className="mt-5 grid gap-5 text-sm sm:grid-cols-2 lg:grid-cols-3">
                   <div>
                     <dt className="text-text-secondary">اسم المشروع بالعربية</dt>
@@ -155,6 +162,22 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
                 )}
               </Card>
             </div>
+          )}
+
+          {showEdit && canManage && (
+            <Modal title="تعديل بيانات المشروع" onClose={() => setShowEdit(false)} maxWidth="820px" mobileCentered>
+              <ProjectForm
+                mode="edit"
+                initialValues={project}
+                accessToken={accessToken}
+                submitLabel="حفظ التعديلات"
+                onSubmit={async (input) => {
+                  const { project: updated } = await updateProject(accessToken, id, input as ProjectUpdateInput);
+                  setProject(updated);
+                  setShowEdit(false);
+                }}
+              />
+            </Modal>
           )}
 
           {activeSection === 'media' && (
