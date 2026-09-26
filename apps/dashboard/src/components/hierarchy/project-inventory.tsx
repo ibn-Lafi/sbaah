@@ -78,6 +78,7 @@ export function ProjectInventory({
   const [batchBusy, setBatchBusy] = useState(false);
   const [batchError, setBatchError] = useState('');
   const [showAssetForm, setShowAssetForm] = useState(false);
+  const [showModelForm, setShowModelForm] = useState(false);
   const [search, setSearch] = useState('');
   const [phaseFilter, setPhaseFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
@@ -264,107 +265,6 @@ export function ProjectInventory({
         </div>
       )}
 
-      {sales && (
-        <Card className="p-5 md:p-6">
-          <div className="mb-4">
-            <h3 className="font-semibold">تحليلات المبيعات</h3>
-            <p className="text-text-secondary mt-1 text-xs">
-              مؤشرات مشتقة مباشرة من الصفقات والمخزون الحالي للمشروع.
-            </p>
-          </div>
-          <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
-            <div className="bg-surface-subtle-3 rounded-xl p-4">
-              <p className="text-text-secondary text-xs">الإيرادات المحققة</p>
-              <p className="mt-1 font-semibold">{money(sales.analytics.revenue)}</p>
-            </div>
-            <div className="bg-surface-subtle-3 rounded-xl p-4">
-              <p className="text-text-secondary text-xs">متوسط سعر البيع</p>
-              <p className="mt-1 font-semibold">{money(sales.analytics.average_sale_price)}</p>
-            </div>
-            <div className="bg-surface-subtle-3 rounded-xl p-4">
-              <p className="text-text-secondary text-xs">متوسط مدة الإغلاق</p>
-              <p className="mt-1 font-semibold">
-                {Math.round(sales.analytics.average_days_to_close)} يوم
-              </p>
-            </div>
-            <div className="bg-surface-subtle-3 rounded-xl p-4">
-              <p className="text-text-secondary text-xs">نسبة البيع من المخزون</p>
-              <p className="mt-1 font-semibold">
-                {Math.round(sales.analytics.sell_through_rate * 100)}%
-              </p>
-            </div>
-            <div className="bg-surface-subtle-3 rounded-xl p-4">
-              <p className="text-text-secondary text-xs">نسبة الوحدات بالتفاوض</p>
-              <p className="mt-1 font-semibold">
-                {Math.round(sales.analytics.negotiation_rate * 100)}%
-              </p>
-            </div>
-            <div className="bg-surface-subtle-3 rounded-xl p-4">
-              <p className="text-text-secondary text-xs">سعر البيع مقابل سعر العرض</p>
-              <p className="mt-1 font-semibold">
-                {Math.round(sales.analytics.asking_to_sale_ratio * 100)}%
-              </p>
-            </div>
-            <div className="bg-surface-subtle-3 rounded-xl p-4">
-              <p className="text-text-secondary text-xs">نسبة المتاح</p>
-              <p className="mt-1 font-semibold">
-                {Math.round(sales.analytics.available_rate * 100)}%
-              </p>
-            </div>
-            <div className="bg-surface-subtle-3 rounded-xl p-4">
-              <p className="text-text-secondary text-xs">نسبة المحجوز</p>
-              <p className="mt-1 font-semibold">
-                {Math.round(sales.analytics.reserved_rate * 100)}%
-              </p>
-            </div>
-          </div>
-        </Card>
-      )}
-
-      {sales && (
-        <Card className="p-5 md:p-6">
-          <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <h3 className="font-semibold">قمع المبيعات</h3>
-              <p className="text-text-secondary mt-1 text-xs">
-                عملاء فريدون مرتبطون بوحدات هذا المشروع في كل مرحلة.
-              </p>
-            </div>
-            <div className="text-end">
-              <p className="text-text-secondary text-xs">التحويل من الاهتمام إلى البيع</p>
-              <p className="text-lg font-semibold">
-                {Math.round(sales.funnel.overall_conversion * 100)}%
-              </p>
-            </div>
-          </div>
-          <div className="grid gap-2 sm:grid-cols-5">
-            {sales.funnel.stages.map((stage, index) => {
-              const labels = {
-                interest: 'اهتمام',
-                viewing: 'معاينة',
-                reservation: 'حجز',
-                negotiation: 'تفاوض',
-                won: 'بيع مكتمل',
-              };
-              return (
-                <div key={stage.stage} className="border-border-subtle rounded-xl border p-3">
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="text-text-secondary text-xs">{labels[stage.stage]}</p>
-                    <strong>{stage.count}</strong>
-                  </div>
-                  {index > 0 && (
-                    <div className="border-border-subtle text-text-secondary mt-3 border-t pt-2 text-[11px]">
-                      <p>تحويل {Math.round(stage.conversion_from_previous * 100)}%</p>
-                      <p>تسرب {Math.round(stage.drop_off_from_previous * 100)}%</p>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </Card>
-      )}
-
       {sales && sales.inventory.length > 0 && (
         <div className="grid gap-4 lg:grid-cols-2">
           <Card className="p-5">
@@ -518,9 +418,14 @@ export function ProjectInventory({
             </p>
           </div>
           {canManage && (
-            <Button onClick={() => setShowAssetForm((v) => !v)}>
-              {showAssetForm ? 'إغلاق' : 'إضافة عقار للمشروع'}
-            </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button variant="secondary" onClick={() => setShowModelForm((v) => !v)}>
+                {showModelForm ? 'إغلاق النموذج' : 'إضافة نموذج'}
+              </Button>
+              <Button onClick={() => setShowAssetForm((v) => !v)}>
+                {showAssetForm ? 'إغلاق' : 'إضافة عقار'}
+              </Button>
+            </div>
           )}
         </div>
         {showAssetForm && (
@@ -567,7 +472,7 @@ export function ProjectInventory({
             <p className="text-text-secondary mb-3 text-xs">
               أنشئ النموذج مرة واحدة ثم استخدمه لتوليد أي عدد من الوحدات المتطابقة.
             </p>
-            {canManage && (
+            {canManage && showModelForm && (
               <div className="space-y-3">
                 <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
                   <Input
@@ -718,6 +623,7 @@ export function ProjectInventory({
                       setTypeFurnishing('');
                       setTypeDescription('');
                       setBatchTypeId(result.unit_type.id);
+                      setShowModelForm(false);
                       await load();
                     }}
                   >
@@ -737,125 +643,6 @@ export function ProjectInventory({
             </p>
           </section>
         </div>
-
-        {canManage && types.length > 0 && (
-          <div className="border-border-default mt-6 rounded-xl border p-4">
-            <div className="mb-4">
-              <h3 className="font-semibold">إضافة عدة عقارات من نموذج</h3>
-              <p className="text-text-secondary mt-1 text-xs">
-                كل وحدة تُحفظ كعقار مستقل داخل المشروع ومرتبطة بالنموذج نفسه.
-              </p>
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              <select
-                className="border-border-default bg-surface-card h-10 rounded-xl border px-3 text-sm"
-                value={batchTypeId}
-                onChange={(e) => setBatchTypeId(e.target.value)}
-              >
-                <option value="">اختر النموذج</option>
-                {types.map((type) => (
-                  <option key={type.id} value={type.id}>
-                    {type.name_ar}
-                  </option>
-                ))}
-              </select>
-              <Input
-                value={batchCount}
-                onChange={(e) => setBatchCount(e.target.value)}
-                type="number"
-                min="1"
-                max="200"
-                placeholder="عدد العقارات"
-              />
-              <Input
-                value={batchPrefix}
-                onChange={(e) => setBatchPrefix(e.target.value)}
-                placeholder="بادئة رقم الوحدة — مثال A-"
-              />
-              <Input
-                value={batchStart}
-                onChange={(e) => setBatchStart(e.target.value)}
-                type="number"
-                min="1"
-                placeholder="رقم البداية"
-              />
-            </div>
-            {batchError && <p className="mt-3 text-sm text-red-600">{batchError}</p>}
-            <div className="mt-4 flex justify-end">
-              <Button
-                disabled={
-                  batchBusy || !batchTypeId || Number(batchCount) < 1 || Number(batchCount) > 200
-                }
-                onClick={async () => {
-                  const model = types.find((x) => x.id === batchTypeId);
-                  if (!model) return;
-                  setBatchBusy(true);
-                  setBatchError('');
-                  try {
-                    const count = Math.floor(Number(batchCount));
-                    const start = Math.floor(Number(batchStart) || 1);
-                    for (let i = 0; i < count; i++) {
-                      const unitNumber = `${batchPrefix}${start + i}`;
-                      await createProjectAsset(accessToken, projectId, {
-                        project_id: projectId,
-                        unit_type_id: model.id,
-                        asset_type: model.asset_type ?? 'other',
-                        name_ar: `${model.name_ar} - ${unitNumber}`,
-                        unit_number: unitNumber,
-                        physical_status: 'ready',
-                        area_sqm: model.area_sqm,
-                        bedrooms: model.bedrooms ?? null,
-                        bathrooms: model.bathrooms ?? null,
-                        land_area:
-                          typeof model.specifications?.land_area === 'number'
-                            ? model.specifications.land_area
-                            : null,
-                        built_area:
-                          typeof model.specifications?.built_area === 'number'
-                            ? model.specifications.built_area
-                            : null,
-                        floors_count:
-                          typeof model.specifications?.floors_count === 'number'
-                            ? model.specifications.floors_count
-                            : null,
-                        parking_count:
-                          typeof model.specifications?.parking_count === 'number'
-                            ? model.specifications.parking_count
-                            : null,
-                        elevators_count:
-                          typeof model.specifications?.elevators_count === 'number'
-                            ? model.specifications.elevators_count
-                            : null,
-                        street_width:
-                          typeof model.specifications?.street_width === 'number'
-                            ? model.specifications.street_width
-                            : null,
-                        furnishing:
-                          typeof model.specifications?.furnishing === 'string'
-                            ? (model.specifications.furnishing as
-                                'unfurnished' | 'semi_furnished' | 'furnished')
-                            : null,
-                        description_ar:
-                          typeof model.specifications?.description === 'string'
-                            ? model.specifications.description
-                            : null,
-                        specifications: model.specifications ?? {},
-                      });
-                    }
-                    setBatchCount('1');
-                    await load();
-                  } catch (err) {
-                    setBatchError(err instanceof Error ? err.message : 'تعذر إنشاء العقارات');
-                  } finally {
-                    setBatchBusy(false);
-                  }
-                }}
-              >
-                {batchBusy ? 'جاري إنشاء العقارات...' : 'إنشاء العقارات'}
-              </Button>
-            </div>
-          </div>
-        )}
 
         {sales && sales.inventory.length > 0 && (
           <>
