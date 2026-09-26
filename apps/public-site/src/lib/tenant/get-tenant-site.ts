@@ -12,6 +12,8 @@ export interface TenantSite {
     cr_number: string | null;
     tax_number: string | null;
     fal_license_number: string | null;
+    freelance_document_number: string | null;
+    wafi_license_number: string | null;
     social_instagram: string | null;
     social_tiktok: string | null;
     social_whatsapp: string | null;
