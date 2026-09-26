@@ -51,7 +51,7 @@ export async function LavenderFeaturedProperties({
   config: FeaturedPropertiesSectionConfig;
 }) {
   const [result, cities] = await Promise.all([
-    listPublicProperties({ page_size: 50 }),
+    listPublicProperties({ page_size: 50, scope: 'all' }),
     listCities(),
   ]);
   const ids = new Set(config.property_ids ?? []);
@@ -60,23 +60,14 @@ export async function LavenderFeaturedProperties({
   ).slice(0, 5);
   const city = new Map(cities.map((c) => [c.id, c]));
   return (
-    <LavenderSection className={tone(config.tone)}>
-      <div className={align(config.heading_align)}>
-        <LavenderHeading
-          eyebrow={locale === 'ar' ? 'مختارات عقارية' : 'Selected portfolio'}
-          title={config.title_ar || copy[locale].featured}
-          action={<More locale={locale} href="/properties" />}
-        />
+    <LavenderSection className="bg-transparent">
+      <div className={`mb-8 flex items-end justify-between gap-6 sm:mb-12 ${align(config.heading_align)}`}>
+        <h2 className="text-3xl font-semibold text-[#171713] sm:text-5xl">{config.title_ar || copy[locale].featured}</h2>
+        <More locale={locale} href="/properties" />
       </div>
-      <div className={`grid gap-x-5 gap-y-10 sm:grid-cols-2 ${cols(config.columns)}`}>
-        {items.map((p, i) => (
-          <LavenderProperty
-            key={p.id}
-            property={p}
-            city={p.city_id ? city.get(p.city_id) : undefined}
-            locale={locale}
-            featured={i === 0 && config.columns !== 4}
-          />
+      <div className="-mx-5 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:-mx-8 sm:gap-5 sm:px-8 lg:-mx-12 lg:px-12">
+        {items.map((p) => (
+          <LavenderProperty key={p.id} property={p} city={p.city_id ? city.get(p.city_id) : undefined} locale={locale} card />
         ))}
       </div>
     </LavenderSection>
@@ -90,28 +81,20 @@ export async function LavenderLatestProperties({
   config: LatestPropertiesSectionConfig;
 }) {
   const [result, cities] = await Promise.all([
-    listPublicProperties({ page_size: 12 }),
+    listPublicProperties({ page_size: 12, scope: 'all' }),
     listCities(),
   ]);
   const city = new Map(cities.map((c) => [c.id, c]));
   const items = result.properties.slice(0, Math.min(Math.max(config.limit ?? 6, 1), 12));
   return (
-    <LavenderSection className={tone(config.tone)}>
-      <div className={align(config.heading_align)}>
-        <LavenderHeading
-          eyebrow={locale === 'ar' ? 'أحدث العروض' : 'Latest listings'}
-          title={config.title_ar || copy[locale].latest}
-          action={<More locale={locale} href="/properties" />}
-        />
+    <LavenderSection className="bg-transparent">
+      <div className={`mb-8 flex items-end justify-between gap-6 sm:mb-12 ${align(config.heading_align)}`}>
+        <h2 className="text-3xl font-semibold text-[#171713] sm:text-5xl">{config.title_ar || copy[locale].latest}</h2>
+        <More locale={locale} href="/properties" />
       </div>
-      <div className={`grid gap-x-5 gap-y-10 sm:grid-cols-2 ${cols(config.columns)}`}>
+      <div className="-mx-5 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:-mx-8 sm:gap-5 sm:px-8 lg:-mx-12 lg:px-12">
         {items.map((p) => (
-          <LavenderProperty
-            key={p.id}
-            property={p}
-            city={p.city_id ? city.get(p.city_id) : undefined}
-            locale={locale}
-          />
+          <LavenderProperty key={p.id} property={p} city={p.city_id ? city.get(p.city_id) : undefined} locale={locale} card />
         ))}
       </div>
     </LavenderSection>
