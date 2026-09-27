@@ -145,6 +145,29 @@ export interface CloudflareCustomHostnameDetails {
   sslValidationRecords: { name: string; value: string }[];
 }
 
+interface CloudflareCustomHostnameApiResult {
+  status: string;
+  ssl: {
+    status: string;
+    validation_records?: { txt_name?: string; txt_value?: string }[];
+    validation_errors?: { message?: string }[];
+  };
+}
+
+function toCustomHostnameDetails(result: CloudflareCustomHostnameApiResult): CloudflareCustomHostnameDetails {
+  return {
+    active: result.status === 'active' && result.ssl.status === 'active',
+    hostnameStatus: result.status,
+    sslStatus: result.ssl.status,
+    sslValidationErrors: (result.ssl.validation_errors ?? [])
+      .map((error) => error.message)
+      .filter((message): message is string => Boolean(message)),
+    sslValidationRecords: (result.ssl.validation_records ?? [])
+      .filter((record) => record.txt_name && record.txt_value)
+      .map((record) => ({ name: record.txt_name as string, value: record.txt_value as string })),
+  };
+}
+
 /**
  * Ground truth for POST /v1/tenant/domain/verify — asks Cloudflare itself
  * whether it considers this hostname fully connected, instead of us
@@ -159,22 +182,31 @@ export async function getCloudflareCustomHostnameDetails(
   cloudflareHostnameId: string,
 ): Promise<CloudflareCustomHostnameDetails> {
   const zoneId = requireEnv('CLOUDFLARE_ZONE_ID');
-  const result = await cloudflareFetch<{
-    status: string;
-    ssl: {
-      status: string;
-      validation_records?: { txt_name?: string; txt_value?: string }[];
-      validation_errors?: { message?: string }[];
-    };
-  }>(`/zones/${zoneId}/custom_hostnames/${cloudflareHostnameId}`, { method: 'GET' });
+  const result = await cloudflareFetch<CloudflareCustomHostnameApiResult>(
+    `/zones/${zoneId}/custom_hostnames/${cloudflareHostnameId}`,
+    { method: 'GET' },
+  );
 
-  return {
-    active: result.status === 'active' && result.ssl.status === 'active',
-    hostnameStatus: result.status,
-    sslStatus: result.ssl.status,
-    sslValidationErrors: (result.ssl.validation_errors ?? []).map((error) => error.message).filter((message): message is string => Boolean(message)),
-    sslValidationRecords: (result.ssl.validation_records ?? [])
-      .filter((record) => record.txt_name && record.txt_value)
-      .map((record) => ({ name: record.txt_name as string, value: record.txt_value as string })),
-  };
+  return toCustomHostnameDetails(result);
+}
+
+/**
+ * Re-runs Cloudflare's hostname and certificate validation immediately.
+ * A read-only GET does not restart validation after Cloudflare's backoff has
+ * reached a timed-out, moved, or deleted state; PATCHing the same SSL
+ * configuration is Cloudflare's documented refresh operation.
+ */
+export async function refreshCloudflareCustomHostnameDetails(
+  cloudflareHostnameId: string,
+): Promise<CloudflareCustomHostnameDetails> {
+  const zoneId = requireEnv('CLOUDFLARE_ZONE_ID');
+  const result = await cloudflareFetch<CloudflareCustomHostnameApiResult>(
+    `/zones/${zoneId}/custom_hostnames/${cloudflareHostnameId}`,
+    {
+      method: 'PATCH',
+      body: JSON.stringify({ ssl: { method: 'txt', type: 'dv' } }),
+    },
+  );
+
+  return toCustomHostnameDetails(result);
 }
