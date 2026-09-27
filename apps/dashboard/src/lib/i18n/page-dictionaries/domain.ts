@@ -10,7 +10,9 @@ export const domainAr = {
     statusVerified: 'مُفعّل',
     statusPending: 'بانتظار ربط DNS',
     dnsInstructions:
-      'أضِف كلا السجلين لدى مزوّد الدومين — CNAME للربط وTXT لإثبات الملكية، كلاهما مطلوب قبل تفعيل الشهادة.',
+      'أضف جميع سجلات DNS الظاهرة أدناه كما هي. قد تظهر سجلات تحقق إضافية بعد أول اختبار للربط؛ أضفها أيضًا ثم أعد الاختبار.',
+    apexHint:
+      'يفضّل ربط نطاق فرعي مثل www.example.com. ربط النطاق الرئيسي example.com يتطلب من مزود DNS دعم CNAME Flattening/ALIAS؛ وإلا استخدم www.',
     dnsFieldName: 'الاسم (Name)',
     dnsFieldValue: 'القيمة (Value)',
     copyValue: 'نسخ',
@@ -49,7 +51,9 @@ export const domainEn: typeof domainAr = {
     statusVerified: 'Active',
     statusPending: 'Awaiting DNS connection',
     dnsInstructions:
-      'Add both records with your domain provider — CNAME to connect and TXT to prove ownership. Both are required before the certificate is activated.',
+      'Add every DNS record shown below exactly as provided. Additional certificate-validation records may appear after the first verification check; add them too, then verify again.',
+    apexHint:
+      'A subdomain such as www.example.com is recommended. Connecting the apex example.com requires DNS-provider support for CNAME flattening/ALIAS; otherwise use www.',
     dnsFieldName: 'Name',
     dnsFieldValue: 'Value',
     copyValue: 'Copy',
