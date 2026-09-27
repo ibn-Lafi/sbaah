@@ -49,16 +49,28 @@ const logos: Record<RegistrationKind, { src: string; alt: string; width: number;
 export function OfficialRegistrationBadges({ entries }: { entries: RegistrationBadge[] }) {
   if (entries.length === 0) return null;
 
+  const lastRowCount = entries.length % 3;
+  const lastRowStart = entries.length - lastRowCount;
+
   return (
     <div className="mx-auto grid w-fit max-w-full grid-cols-3 items-start gap-x-3 gap-y-4 sm:gap-x-8 sm:gap-y-6">
-      {entries.map(({ key, label, value }) => {
+      {entries.map(({ key, label, value }, index) => {
         const logo = logos[key];
+        const lastRowIndex = index - lastRowStart;
+        const positionClass =
+          lastRowCount === 1 && lastRowIndex === 0
+            ? 'col-start-2'
+            : lastRowCount === 2 && lastRowIndex === 0
+              ? 'col-start-2'
+              : lastRowCount === 2 && lastRowIndex === 1
+                ? 'col-start-1'
+                : '';
 
         return (
           <figure
             key={key}
             aria-label={`${label}: ${value}`}
-            className="flex w-[72px] flex-col items-center gap-1.5 sm:w-[150px] sm:gap-2.5"
+            className={`flex w-[72px] flex-col items-center gap-1.5 sm:w-[150px] sm:gap-2.5 ${positionClass}`}
           >
             <Image
               src={logo.src}
