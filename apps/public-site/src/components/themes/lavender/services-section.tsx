@@ -5,16 +5,20 @@ import type { Locale } from '@/lib/i18n/locales';
 import type { ServicesSectionConfig } from '@sbaah/shared';
 import { LavenderSection } from './primitives';
 
-export function LavenderServices({ locale, config }: { locale: Locale; config: ServicesSectionConfig }) {
+export function LavenderServices({
+  locale,
+  config,
+}: {
+  locale: Locale;
+  config: ServicesSectionConfig;
+}) {
   const items = (config.items ?? []).filter((item) => item.title);
   const [active, setActive] = useState(0);
   if (!items.length) return null;
   const current = items[Math.min(active, items.length - 1)]!;
 
   return (
-    <LavenderSection
-      className="overflow-hidden bg-[var(--tenant-secondary)] py-12 text-[var(--tenant-primary)] sm:py-16 lg:py-24"
-    >
+    <LavenderSection className="overflow-hidden py-12 text-[var(--tenant-primary)] sm:py-16 lg:py-24">
       <div dir={locale === 'ar' ? 'rtl' : 'ltr'} className="mx-auto max-w-6xl">
         <p className="mb-10 text-4xl font-light leading-none text-[var(--tenant-primary)] sm:mb-14 sm:text-6xl">
           {locale === 'ar' ? 'خدماتنا' : 'Services'}
@@ -26,14 +30,14 @@ export function LavenderServices({ locale, config }: { locale: Locale; config: S
               {current.title}
             </h3>
             {current.description && (
-              <p className="mt-6 max-w-3xl text-lg leading-[1.9] text-[var(--tenant-primary)]/70 sm:text-xl lg:text-2xl">
+              <p className="text-[var(--tenant-primary)]/70 mt-6 max-w-3xl text-lg leading-[1.9] sm:text-xl lg:text-2xl">
                 {current.description}
               </p>
             )}
           </div>
 
           <div
-            className={`lg:col-start-1 lg:row-start-1 ${locale === 'ar' ? 'border-r-2 border-[var(--tenant-primary)]/15 pr-4 sm:pr-5' : 'border-l-2 border-[var(--tenant-primary)]/15 pl-4 sm:pl-5'}`}
+            className={`lg:col-start-1 lg:row-start-1 ${locale === 'ar' ? 'border-[var(--tenant-primary)]/15 border-r-2 pr-4 sm:pr-5' : 'border-[var(--tenant-primary)]/15 border-l-2 pl-4 sm:pl-5'}`}
             role="tablist"
             aria-label={locale === 'ar' ? 'الخدمات' : 'Services'}
           >
