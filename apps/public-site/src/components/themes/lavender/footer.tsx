@@ -184,16 +184,9 @@ export function Footer({ locale, dict, tenant, website, customPages }: FooterPro
             )}
           </div>
         </div>
-        {registrations.length > 0 && (
-          <div className="mt-10 border-t border-white/15 pt-6">
-            <OfficialRegistrationBadges entries={registrations} />
-          </div>
-        )}
-        <div className="mt-10 border-t border-white/15 pt-6 text-center text-sm text-white/55">
-          <a href={locale === 'ar' ? '/en' : '/'} className="font-semibold text-white">
-            {locale === 'ar' ? 'English' : 'العربية'}
-          </a>
-          <p dir="auto" className="mx-auto mt-5 w-full text-center leading-6">
+        <div className="mt-10 flex flex-col items-center gap-6 border-t border-white/15 pt-6">
+          {registrations.length > 0 && <OfficialRegistrationBadges entries={registrations} />}
+          <p dir="auto" className="mx-auto w-full text-center text-sm leading-6 text-white/55">
             © {new Date().getFullYear()} {website.copyright_text || 'جميع الحقوق محفوظة @سبعة'}
           </p>
         </div>

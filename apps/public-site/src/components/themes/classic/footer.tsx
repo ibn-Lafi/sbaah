@@ -220,7 +220,7 @@ export function Footer({ locale, dict, tenant, website, customPages }: FooterPro
 
         <div className="flex flex-col items-center gap-6 border-t border-white/10 pt-6">
           <OfficialRegistrationBadges entries={businessNumbers} />
-          <div className="flex w-full justify-center sm:justify-end">
+          <div className="flex w-full justify-center">
             <SiteBadge accountType={tenant.account_type} locale={locale} />
           </div>
         </div>
