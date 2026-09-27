@@ -6,13 +6,13 @@ const updateSchema = z.object({ status: z.enum(['open','in_progress','waiting_cu
 const replySchema = z.object({ message: z.string().trim().min(1).max(5000) });
 
 export const GET = withErrorHandling<{ params: Promise<{ id: string }> }>(async (request, { params }) => {
-  const { id } = await params; const { supabase, adminSupabase } = await getPlatformAdminClient(request);
+  const { id } = await params; const { adminSupabase } = await getPlatformAdminClient(request);
   const { data, error } = await adminSupabase.from('support_tickets').select('*, support_ticket_messages(*)').eq('id', id).order('created_at', { foreignTable: 'support_ticket_messages', ascending: true }).maybeSingle();
   if (error) throw new Error(error.message); if (!data) throw new ApiError(404,'ticket_not_found','التذكرة غير موجودة');
   return okResponse({ ticket: data });
 });
 export const PATCH = withErrorHandling<{ params: Promise<{ id: string }> }>(async (request, { params }) => {
-  const { id } = await params; const { supabase, adminSupabase } = await getPlatformAdminClient(request); const input=updateSchema.parse(await request.json());
+  const { id } = await params; const { adminSupabase } = await getPlatformAdminClient(request); const input=updateSchema.parse(await request.json());
   const { data,error }=await adminSupabase.from('support_tickets').update(input).eq('id',id).select().single(); if(error) throw new Error(error.message); return okResponse({ticket:data});
 });
 export const POST = withErrorHandling<{ params: Promise<{ id: string }> }>(async (request, { params }) => {
