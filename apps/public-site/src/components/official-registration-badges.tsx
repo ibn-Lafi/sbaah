@@ -44,13 +44,13 @@ const logos: Record<RegistrationKind, { src: string; alt: string; width: number;
 
 /**
  * Displays the supplied official card artwork without an extra frame.
- * Each registration number is kept immediately beside its matching card.
+ * Cards are arranged three per row, with each registration number below its matching card.
  */
 export function OfficialRegistrationBadges({ entries }: { entries: RegistrationBadge[] }) {
   if (entries.length === 0) return null;
 
   return (
-    <div className="flex w-full flex-nowrap items-center justify-start gap-3 overflow-x-auto pb-1 [scrollbar-width:none] sm:justify-center sm:gap-5 [&::-webkit-scrollbar]:hidden">
+    <div className="mx-auto grid w-fit max-w-full grid-cols-3 items-start gap-x-3 gap-y-4 sm:gap-x-8 sm:gap-y-6">
       {entries.map(({ key, label, value }) => {
         const logo = logos[key];
 
@@ -58,7 +58,7 @@ export function OfficialRegistrationBadges({ entries }: { entries: RegistrationB
           <figure
             key={key}
             aria-label={`${label}: ${value}`}
-            className="flex flex-none items-center gap-1.5 sm:gap-2.5"
+            className="flex w-[72px] flex-col items-center gap-1.5 sm:w-[150px] sm:gap-2.5"
           >
             <Image
               src={logo.src}
@@ -70,7 +70,7 @@ export function OfficialRegistrationBadges({ entries }: { entries: RegistrationB
             />
             <figcaption
               dir="ltr"
-              className="max-w-[72px] break-words text-[7px] font-semibold leading-3 tracking-wide text-white/90 sm:max-w-[150px] sm:text-xs sm:leading-5"
+              className="w-full break-words text-center text-[7px] font-semibold leading-3 tracking-wide text-white/90 sm:text-xs sm:leading-5"
             >
               {value}
             </figcaption>
