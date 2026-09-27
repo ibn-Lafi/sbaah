@@ -7,7 +7,7 @@ import { assertNotAgent } from '@/lib/auth/assert-not-agent';
 import { assertTenantActive } from '@/lib/tenant/assert-tenant-active';
 
 const SOCIAL_COLUMNS =
-  'social_instagram, social_tiktok, social_whatsapp, social_snapchat, social_phone, social_facebook, social_x, social_telegram';
+  'social_instagram, social_tiktok, social_whatsapp, social_snapchat, social_facebook, social_x, social_telegram';
 
 /**
  * حسابي (Settings) — حسابات التواصل الاجتماعي. المالك/المسؤول يعبّئان ما
