@@ -6,7 +6,6 @@ export interface SocialLinks {
   social_tiktok: string | null;
   social_whatsapp: string | null;
   social_snapchat: string | null;
-  social_phone: string | null;
   social_facebook: string | null;
   social_x: string | null;
   social_telegram: string | null;
@@ -19,6 +18,10 @@ export function getSocialLinks(accessToken: string) {
 export function updateSocialLinks(accessToken: string, input: SocialLinksUpdateInput) {
   return apiPatch<SocialLinks>('/tenant/social-links', input, accessToken);
 }
+
+export interface InquiryContact { inquiry_email: string | null; inquiry_phone: string | null; }
+export function getInquiryContact(accessToken: string) { return apiGet<InquiryContact>('/tenant/inquiry-contact', accessToken); }
+export function updateInquiryContact(accessToken: string, input: InquiryContact) { return apiPatch<InquiryContact>('/tenant/inquiry-contact', input, accessToken); }
 
 export interface AccountTypeInfo {
   id: string;
