@@ -52,9 +52,9 @@ export function WebsiteBrandingCard({ accessToken }: { accessToken: string }) {
   }
 
   return (
-    <Card className="p-6">
+    <Card className="p-4 sm:p-5">
       <h2 className="mb-4 text-base font-semibold text-text-primary">{pages.settings.websiteData.brandingTitle}</h2>
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-3">
         <div className="flex flex-col gap-2">
           <label className="text-sm font-medium text-text-primary">{t.primaryColor}</label>
           <div className="flex items-center gap-2">
@@ -63,14 +63,14 @@ export function WebsiteBrandingCard({ accessToken }: { accessToken: string }) {
               value={colorDraft.primary}
               onChange={(e) => setColorDraft((c) => ({ ...c, primary: e.target.value }))}
               onBlur={() => void saveColor('primary_color', colorDraft.primary)}
-              className="h-10 w-10 shrink-0 cursor-pointer rounded-input border border-border-default"
+              className="h-[46px] w-[46px] shrink-0 cursor-pointer rounded-input border border-border-default"
             />
             <Input
               value={colorDraft.primary}
               onChange={(e) => setColorDraft((c) => ({ ...c, primary: e.target.value }))}
               onBlur={() => void saveColor('primary_color', colorDraft.primary)}
               dir="ltr"
-              className="h-10 min-w-0 flex-1"
+              compact className="min-w-0 flex-1"
             />
           </div>
         </div>
@@ -82,14 +82,14 @@ export function WebsiteBrandingCard({ accessToken }: { accessToken: string }) {
               value={colorDraft.secondary}
               onChange={(e) => setColorDraft((c) => ({ ...c, secondary: e.target.value }))}
               onBlur={() => void saveColor('secondary_color', colorDraft.secondary)}
-              className="h-10 w-10 shrink-0 cursor-pointer rounded-input border border-border-default"
+              className="h-[46px] w-[46px] shrink-0 cursor-pointer rounded-input border border-border-default"
             />
             <Input
               value={colorDraft.secondary}
               onChange={(e) => setColorDraft((c) => ({ ...c, secondary: e.target.value }))}
               onBlur={() => void saveColor('secondary_color', colorDraft.secondary)}
               dir="ltr"
-              className="h-10 min-w-0 flex-1"
+              compact className="min-w-0 flex-1"
             />
           </div>
         </div>
@@ -102,14 +102,14 @@ export function WebsiteBrandingCard({ accessToken }: { accessToken: string }) {
               value={colorDraft.background}
               onChange={(e) => setColorDraft((draft) => ({ ...draft, background: e.target.value }))}
               onBlur={() => void saveColor('background_color', colorDraft.background)}
-              className="h-10 w-10 shrink-0 cursor-pointer rounded-input border border-border-default"
+              className="h-[46px] w-[46px] shrink-0 cursor-pointer rounded-input border border-border-default"
             />
             <Input
               value={colorDraft.background}
               onChange={(e) => setColorDraft((draft) => ({ ...draft, background: e.target.value }))}
               onBlur={() => void saveColor('background_color', colorDraft.background)}
               dir="ltr"
-              className="h-10 min-w-0 flex-1"
+              compact className="min-w-0 flex-1"
             />
           </div>
         </div>
@@ -119,7 +119,7 @@ export function WebsiteBrandingCard({ accessToken }: { accessToken: string }) {
         <div className="border-border-subtle mt-2 border-t pt-4">
           <label className="mb-2 block text-sm font-medium text-text-primary">حقوق الموقع</label>
           <div className="relative">
-            <Input value={copyrightDraft} onChange={(e) => setCopyrightDraft(e.target.value)} onBlur={async()=>{if(copyrightLocked)return;try{const {website:updated}=await updateWebsite(accessToken,{copyright_text:copyrightDraft});setWebsite(current=>current?{...current,...updated}:current)}catch(err){if(err instanceof ApiRequestError&&err.status===403){setCopyrightLocked(true);setCopyrightDraft(website.copyright_text||'جميع الحقوق محفوظة @سبعة')}setError(err instanceof ApiRequestError?err.message:'تعذر حفظ حقوق الموقع')}}} disabled={copyrightLocked} className="h-10 pe-10" />
+            <Input value={copyrightDraft} onChange={(e) => setCopyrightDraft(e.target.value)} onBlur={async()=>{if(copyrightLocked)return;try{const {website:updated}=await updateWebsite(accessToken,{copyright_text:copyrightDraft});setWebsite(current=>current?{...current,...updated}:current)}catch(err){if(err instanceof ApiRequestError&&err.status===403){setCopyrightLocked(true);setCopyrightDraft(website.copyright_text||'جميع الحقوق محفوظة @سبعة')}setError(err instanceof ApiRequestError?err.message:'تعذر حفظ حقوق الموقع')}}} disabled={copyrightLocked} compact className="pe-10" />
             {copyrightLocked&&<span aria-label="مغلق" title="مغلق" className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-text-tertiary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span>}
           </div>
           {copyrightLocked?<p className="mt-2 text-xs leading-5 text-text-tertiary">تخصيص حقوق الموقع متاح لباقة <strong className="text-text-primary">Gold</strong> فقط. <a href="/billing/plans" className="font-medium text-brand hover:underline">رقِّ باقتك لتخصيص النص.</a></p>:<p className="mt-2 text-xs leading-5 text-text-tertiary">يمكنك تخصيص نص الحقوق لأن باقتك تدعم هذه الميزة.</p>}
