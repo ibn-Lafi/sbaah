@@ -202,12 +202,6 @@ function OrganizationInfoCard({
     setPickerOpen(false);
   }
 
-  function removeField(key: OptionalOrganizationField) {
-    setActiveFields((current) => current.filter((field) => field !== key));
-    setValues((current) => ({ ...current, [key]: '' }));
-    setSaved(false);
-  }
-
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     setError(null);
@@ -553,7 +547,9 @@ function InquiryContactCard({ accessToken }: { accessToken: string }) {
   useEffect(() => { void getInquiryContact(accessToken).then(setDraft).catch((e) => setError(e instanceof ApiRequestError ? e.message : 'تعذر تحميل بيانات الاستفسار')); }, [accessToken]);
   if (!draft) return null;
   async function save(event: React.FormEvent) {
-    event.preventDefault(); setError(null); setSaved(false); setLoading(true);
+    event.preventDefault();
+    if (!draft) return;
+    setError(null); setSaved(false); setLoading(true);
     try { setDraft(await updateInquiryContact(accessToken, { inquiry_email: draft.inquiry_email?.trim() || null, inquiry_phone: draft.inquiry_phone?.trim() || null })); setSaved(true); }
     catch (e) { setError(e instanceof ApiRequestError ? e.message : 'تعذر حفظ بيانات الاستفسار'); }
     finally { setLoading(false); }
