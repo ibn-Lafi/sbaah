@@ -152,26 +152,8 @@ export function Footer({ locale, dict, tenant, website, customPages }: FooterPro
                 {locale === 'ar' ? 'تواصل معنا' : 'Contact us'}
               </h3>
               <div className="space-y-2 text-[15px] text-white/85">
-                {tenant.social_phone && (
-                  <a
-                    dir="ltr"
-                    href={`tel:${digitsOnly(tenant.social_phone)}`}
-                    className="block w-fit"
-                  >
-                    {tenant.social_phone}
-                  </a>
-                )}
-                {tenant.social_whatsapp && (
-                  <a
-                    dir="ltr"
-                    href={`https://wa.me/${digitsOnly(tenant.social_whatsapp)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block w-fit"
-                  >
-                    {tenant.social_whatsapp}
-                  </a>
-                )}
+                {tenant.inquiry_email && <a dir="ltr" href={`mailto:${tenant.inquiry_email}`} className="block w-fit">{tenant.inquiry_email}</a>}
+                {tenant.inquiry_phone && <a dir="ltr" href={`tel:${tenant.inquiry_phone}`} className="block w-fit">{tenant.inquiry_phone}</a>}
               </div>
             </div>
             {website.address && (
