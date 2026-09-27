@@ -78,6 +78,8 @@ export interface PublicTenantChrome {
   social_facebook?: string | null;
   social_x?: string | null;
   social_telegram?: string | null;
+  inquiry_email: string | null;
+  inquiry_phone: string | null;
   custom_domain: string | null;
   custom_domain_status: CustomDomainStatus | null;
 }
