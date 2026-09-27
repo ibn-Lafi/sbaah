@@ -1,4 +1,5 @@
 import type { NextRequest } from 'next/server';
+import { createServiceRoleClient } from '@sbaah/shared';
 import { getAuthenticatedClient } from './get-authenticated-client';
 import { requirePlatformAdmin } from './require-platform-admin';
 
@@ -6,5 +7,5 @@ import { requirePlatformAdmin } from './require-platform-admin';
 export async function getPlatformAdminClient(request: NextRequest) {
   const { supabase, accessToken } = getAuthenticatedClient(request);
   await requirePlatformAdmin(supabase);
-  return { supabase, accessToken };
+  return { supabase, adminSupabase: createServiceRoleClient(), accessToken };
 }
