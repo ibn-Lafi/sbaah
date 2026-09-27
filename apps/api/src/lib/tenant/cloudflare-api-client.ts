@@ -64,48 +64,22 @@ async function cloudflareFetch<T>(path: string, init: RequestInit): Promise<T> {
 
 export interface CloudflareCustomHostname {
   cloudflareHostnameId: string;
-  ownershipVerificationName: string;
-  ownershipVerificationValue: string;
 }
 
 /**
- * Registers `domain` as a Custom Hostname on our zone so Cloudflare starts
- * issuing it a certificate once the owner adds both DNS records — called
- * once, when the owner first sets their custom domain. Requires
- * CLOUDFLARE_API_TOKEN (a Zone-scoped token with SSL and Certificates: Edit)
- * and CLOUDFLARE_ZONE_ID (PLATFORM_ROOT_DOMAIN's own zone id, both from
- * Cloudflare's dashboard).
+ * Registers a non-wildcard hostname with automatic HTTP certificate
+ * validation. Once the customer points its CNAME at our SaaS target,
+ * Cloudflare serves the CA challenge from its edge; no TXT records are
+ * required from the customer.
  */
 export async function createCloudflareCustomHostname(domain: string): Promise<CloudflareCustomHostname> {
   const zoneId = requireEnv('CLOUDFLARE_ZONE_ID');
-  const result = await cloudflareFetch<{
-    id: string;
-    ownership_verification?: { name?: string; value?: string };
-  }>(`/zones/${zoneId}/custom_hostnames`, {
+  const result = await cloudflareFetch<{ id: string }>(`/zones/${zoneId}/custom_hostnames`, {
     method: 'POST',
-    body: JSON.stringify({ hostname: domain, ssl: { method: 'txt', type: 'dv' } }),
+    body: JSON.stringify({ hostname: domain, ssl: { method: 'http', type: 'dv' } }),
   });
 
-  // Cloudflare documents ownership_verification as optional. In practice it
-  // can be populated asynchronously, so do not crash after a successful
-  // create merely because the first response does not contain it yet.
-  let ownership = result.ownership_verification;
-  if (!ownership?.name || !ownership.value) {
-    const details = await cloudflareFetch<{
-      ownership_verification?: { name?: string; value?: string };
-    }>(`/zones/${zoneId}/custom_hostnames/${result.id}`, { method: 'GET' });
-    ownership = details.ownership_verification;
-  }
-  if (!ownership?.name || !ownership.value) {
-    await deleteCloudflareCustomHostname(result.id);
-    throw new Error('Cloudflare created the custom hostname but did not provide ownership verification DNS records');
-  }
-
-  return {
-    cloudflareHostnameId: result.id,
-    ownershipVerificationName: ownership.name,
-    ownershipVerificationValue: ownership.value,
-  };
+  return { cloudflareHostnameId: result.id };
 }
 
 /**
@@ -204,7 +178,7 @@ export async function refreshCloudflareCustomHostnameDetails(
     `/zones/${zoneId}/custom_hostnames/${cloudflareHostnameId}`,
     {
       method: 'PATCH',
-      body: JSON.stringify({ ssl: { method: 'txt', type: 'dv' } }),
+      body: JSON.stringify({ ssl: { method: 'http', type: 'dv' } }),
     },
   );
 
