@@ -8,56 +8,49 @@ export interface RegistrationBadge {
   value: string;
 }
 
-const logos: Record<
-  RegistrationKind,
-  { src: string; alt: string; width: number; height: number; className: string }
-> = {
-  cr: {
-    src: '/business-badges/saudi-competitiveness-business-center.png',
-    alt: 'المركز السعودي للتنافسية والأعمال',
-    width: 3308,
-    height: 1859,
-    className: 'h-4 w-full scale-[1.45] sm:h-9',
-  },
-  tax: {
-    src: '/business-badges/zatca.png',
-    alt: 'هيئة الزكاة والضريبة والجمارك',
-    width: 500,
-    height: 113,
-    className: 'h-3 w-full sm:h-7',
-  },
-  fal: {
-    src: '/business-badges/fal.png',
-    alt: 'فال',
-    width: 498,
-    height: 302,
-    className: 'h-4 w-full scale-[1.12] sm:h-9',
-  },
-  wafi: {
-    src: '/business-badges/wafi.png',
-    alt: 'وافي للبيع والتأجير على الخارطة',
-    width: 1364,
-    height: 674,
-    className: 'h-4 w-full scale-[1.3] sm:h-9',
-  },
-  freelance: {
-    src: '/business-badges/freelance.webp',
-    alt: 'منصة العمل الحر',
-    width: 732,
-    height: 454,
-    className: 'h-4 w-full scale-[1.25] sm:h-9',
-  },
-};
+const logos: Record<RegistrationKind, { src: string; alt: string; width: number; height: number }> =
+  {
+    cr: {
+      src: '/business-badges/commercial-registration-card.png',
+      alt: 'بطاقة السجل التجاري — المركز السعودي للتنافسية والأعمال',
+      width: 357,
+      height: 203,
+    },
+    tax: {
+      src: '/business-badges/tax-number-card.png',
+      alt: 'بطاقة الرقم الضريبي — هيئة الزكاة والضريبة والجمارك',
+      width: 357,
+      height: 201,
+    },
+    fal: {
+      src: '/business-badges/fal-license-card.png',
+      alt: 'بطاقة رخصة فال',
+      width: 355,
+      height: 200,
+    },
+    wafi: {
+      src: '/business-badges/wafi-license-card.png',
+      alt: 'بطاقة رخصة وافي للبيع والتأجير على الخارطة',
+      width: 357,
+      height: 203,
+    },
+    freelance: {
+      src: '/business-badges/freelance-certificate-card.png',
+      alt: 'بطاقة وثيقة العمل الحر',
+      width: 354,
+      height: 200,
+    },
+  };
 
 /**
- * Displays the issuing program's official mark instead of a textual heading.
- * The number remains visible, while the hidden accessible label preserves its meaning.
+ * Displays the supplied official card artwork without an extra frame.
+ * Each registration number is kept immediately beside its matching card.
  */
 export function OfficialRegistrationBadges({ entries }: { entries: RegistrationBadge[] }) {
   if (entries.length === 0) return null;
 
   return (
-    <div className="flex w-full flex-nowrap justify-start gap-2 overflow-x-auto pb-1 [scrollbar-width:none] sm:justify-center sm:gap-3 [&::-webkit-scrollbar]:hidden">
+    <div className="flex w-full flex-nowrap items-center justify-start gap-3 overflow-x-auto pb-1 [scrollbar-width:none] sm:justify-center sm:gap-5 [&::-webkit-scrollbar]:hidden">
       {entries.map(({ key, label, value }) => {
         const logo = logos[key];
 
@@ -65,21 +58,19 @@ export function OfficialRegistrationBadges({ entries }: { entries: RegistrationB
           <figure
             key={key}
             aria-label={`${label}: ${value}`}
-            className="flex h-[30px] w-[50px] flex-none flex-col overflow-hidden rounded border border-black/10 bg-white shadow-sm sm:h-[70px] sm:w-[120px] sm:rounded-lg"
+            className="flex flex-none items-center gap-1.5 sm:gap-2.5"
           >
-            <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden px-1 sm:px-2 sm:py-1">
-              <Image
-                src={logo.src}
-                alt={logo.alt}
-                width={logo.width}
-                height={logo.height}
-                sizes="(max-width: 639px) 50px, 120px"
-                className={`${logo.className} object-contain`}
-              />
-            </div>
+            <Image
+              src={logo.src}
+              alt={logo.alt}
+              width={logo.width}
+              height={logo.height}
+              sizes="(max-width: 639px) 50px, 120px"
+              className="h-[30px] w-[50px] flex-none object-contain sm:h-[68px] sm:w-[120px]"
+            />
             <figcaption
-              dir="auto"
-              className="border-t border-black/10 bg-slate-50 px-0.5 py-px text-center text-[5px] font-semibold leading-[6px] tracking-wide text-slate-800 sm:px-2 sm:py-1 sm:text-[10px] sm:leading-3"
+              dir="ltr"
+              className="max-w-[72px] break-words text-[7px] font-semibold leading-3 tracking-wide text-white/90 sm:max-w-[150px] sm:text-xs sm:leading-5"
             >
               {value}
             </figcaption>
