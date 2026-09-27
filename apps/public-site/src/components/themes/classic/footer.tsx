@@ -12,6 +12,10 @@ import {
 } from '@/components/footer-icons';
 import type { FooterProps } from '../types';
 import { safeExternalUrl } from '@/lib/security/public-values';
+import {
+  OfficialRegistrationBadges,
+  type RegistrationBadge,
+} from '@/components/official-registration-badges';
 
 const digitsOnly = (value: string) => value.replace(/[^0-9]/g, '');
 
@@ -83,63 +87,31 @@ export function Footer({ locale, dict, tenant, website, customPages }: FooterPro
         key: 'cr' as const,
         label: dict.crNumber,
         value: tenant.cr_number,
-        src: '/business-badges/saudi-business-center.png',
-        alt: 'المركز السعودي للأعمال',
-        objectPosition: '50% 50%',
-        scale: 'scale-[1.85]',
       },
     isOrganization &&
       tenant.tax_number && {
         key: 'tax' as const,
         label: dict.taxNumber,
         value: tenant.tax_number,
-        src: '/business-badges/zatca.jpeg',
-        alt: 'هيئة الزكاة والضريبة والجمارك',
-        objectPosition: '50% 50%',
-        scale: 'scale-[1.35]',
       },
     tenant.fal_license_number && {
       key: 'fal' as const,
       label: dict.falLicense,
       value: tenant.fal_license_number,
-      src: '/business-badges/rega.png',
-      alt: 'الهيئة العامة للعقار',
-      objectPosition: '50% 50%',
-      scale: 'scale-[1.3]',
     },
     isOrganization &&
       tenant.wafi_license_number && {
         key: 'wafi' as const,
         label: dict.wafiLicense,
         value: tenant.wafi_license_number,
-        src: '/business-badges/rega.png',
-        alt: 'الهيئة العامة للعقار',
-        objectPosition: '50% 50%',
-        scale: 'scale-[1.3]',
       },
     !isOrganization &&
       tenant.freelance_document_number && {
         key: 'freelance' as const,
         label: dict.freelanceDocument,
         value: tenant.freelance_document_number,
-        src: '/business-badges/saudi-business-center.png',
-        alt: 'شهادة العمل الحر',
-        objectPosition: '50% 50%',
-        scale: 'scale-[1.85]',
       },
-  ].filter(
-    (
-      entry,
-    ): entry is {
-      key: 'cr' | 'tax' | 'fal' | 'wafi' | 'freelance';
-      label: string;
-      value: string;
-      src: string;
-      alt: string;
-      objectPosition: string;
-      scale: string;
-    } => Boolean(entry),
-  );
+  ].filter((entry): entry is RegistrationBadge => Boolean(entry));
 
   return (
     <footer className="bg-tenant-secondary text-sm text-white/60">
@@ -246,40 +218,11 @@ export function Footer({ locale, dict, tenant, website, customPages }: FooterPro
           )}
         </div>
 
-        <div className="flex flex-col items-center gap-4 border-t border-white/10 pt-6 sm:flex-row sm:justify-between">
-          {businessNumbers.length > 0 && (
-            <div className="flex flex-wrap items-center justify-center gap-3">
-              {businessNumbers.map(({ key, label, value, src, alt, objectPosition, scale }) => (
-                <div
-                  key={key}
-                  className="flex items-center gap-2 rounded-xl bg-white/5 px-2.5 py-2"
-                >
-                  <span
-                    title={label}
-                    className="relative flex h-9 w-9 flex-none items-center justify-center overflow-hidden rounded-full bg-white/10"
-                  >
-                    {/* Crop the whitespace baked into some official source files. */}
-                    <span
-                      role="img"
-                      aria-label={alt}
-                      className={`block h-full w-full bg-contain bg-center bg-no-repeat ${scale}`}
-                      style={{
-                        backgroundImage: `url("${src}")`,
-                        backgroundPosition: objectPosition,
-                      }}
-                    />
-                  </span>
-                  <span className="flex flex-col">
-                    <span className="text-[11px] text-white/45">{label}</span>
-                    <strong dir="ltr" className="font-medium text-white/85">
-                      {value}
-                    </strong>
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-          <SiteBadge accountType={tenant.account_type} locale={locale} />
+        <div className="flex flex-col items-center gap-6 border-t border-white/10 pt-6">
+          <OfficialRegistrationBadges entries={businessNumbers} />
+          <div className="flex w-full justify-center sm:justify-end">
+            <SiteBadge accountType={tenant.account_type} locale={locale} />
+          </div>
         </div>
       </div>
     </footer>

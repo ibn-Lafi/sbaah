@@ -8,6 +8,10 @@ import {
   XIcon,
 } from '@/components/footer-icons';
 import { safeExternalUrl } from '@/lib/security/public-values';
+import {
+  OfficialRegistrationBadges,
+  type RegistrationBadge,
+} from '@/components/official-registration-badges';
 import type { FooterProps } from '../types';
 
 const digitsOnly = (value: string) => value.replace(/[^0-9]/g, '');
@@ -94,7 +98,7 @@ export function Footer({ locale, dict, tenant, website, customPages }: FooterPro
         label: dict.freelanceDocument,
         value: tenant.freelance_document_number,
       },
-  ].filter((entry): entry is { key: string; label: string; value: string } => Boolean(entry));
+  ].filter((entry): entry is RegistrationBadge => Boolean(entry));
   return (
     <footer id="contact" className="bg-tenant-primary text-white">
       <div className="mx-auto w-full max-w-7xl px-6 py-12 sm:px-8 sm:py-14 lg:px-10 lg:py-16">
@@ -181,15 +185,8 @@ export function Footer({ locale, dict, tenant, website, customPages }: FooterPro
           </div>
         </div>
         {registrations.length > 0 && (
-          <div className="mt-10 flex flex-wrap gap-x-8 gap-y-3 border-t border-white/15 pt-6">
-            {registrations.map((entry) => (
-              <div key={entry.key} className="text-sm">
-                <span className="text-white/55">{entry.label}: </span>
-                <strong dir="ltr" className="font-medium text-white/85">
-                  {entry.value}
-                </strong>
-              </div>
-            ))}
+          <div className="mt-10 border-t border-white/15 pt-6">
+            <OfficialRegistrationBadges entries={registrations} />
           </div>
         )}
         <div className="mt-10 border-t border-white/15 pt-6 text-center text-sm text-white/55">
