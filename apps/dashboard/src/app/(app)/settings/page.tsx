@@ -178,17 +178,17 @@ function OrganizationInfoCard({
     freelance_document_number: initial.freelance_document_number ?? '',
     wafi_license_number: initial.wafi_license_number ?? '',
   });
-  const availableFields: { key: OptionalOrganizationField; label: string; placeholder: string }[] =
+  const availableFields: { key: OptionalOrganizationField; label: string; placeholder: string; image: string }[] =
     accountType === 'individual'
       ? [
-          { key: 'fal_license_number', label: t.falLicense.title, placeholder: t.falLicense.placeholder },
-          { key: 'freelance_document_number', label: t.organizationInfo.freelanceDocumentLabel, placeholder: t.organizationInfo.freelanceDocumentPlaceholder },
+          { key: 'fal_license_number', label: t.falLicense.title, placeholder: t.falLicense.placeholder, image: '/business-badges/fal-license-card.png' },
+          { key: 'freelance_document_number', label: t.organizationInfo.freelanceDocumentLabel, placeholder: t.organizationInfo.freelanceDocumentPlaceholder, image: '/business-badges/freelance-certificate-card.png' },
         ]
       : [
-          { key: 'cr_number', label: t.organizationInfo.crNumberLabel, placeholder: t.organizationInfo.crNumberPlaceholder },
-          { key: 'tax_number', label: t.organizationInfo.taxNumberLabel, placeholder: t.organizationInfo.taxNumberPlaceholder },
-          { key: 'fal_license_number', label: t.falLicense.title, placeholder: t.falLicense.placeholder },
-          { key: 'wafi_license_number', label: t.organizationInfo.wafiLicenseLabel, placeholder: t.organizationInfo.wafiLicensePlaceholder },
+          { key: 'cr_number', label: t.organizationInfo.crNumberLabel, placeholder: t.organizationInfo.crNumberPlaceholder, image: '/business-badges/commercial-registration-card.png' },
+          { key: 'tax_number', label: t.organizationInfo.taxNumberLabel, placeholder: t.organizationInfo.taxNumberPlaceholder, image: '/business-badges/tax-number-card.png' },
+          { key: 'fal_license_number', label: t.falLicense.title, placeholder: t.falLicense.placeholder, image: '/business-badges/fal-license-card.png' },
+          { key: 'wafi_license_number', label: t.organizationInfo.wafiLicenseLabel, placeholder: t.organizationInfo.wafiLicensePlaceholder, image: '/business-badges/wafi-license-card.png' },
         ];
   const [activeFields, setActiveFields] = useState<OptionalOrganizationField[]>(
     () => availableFields.filter(({ key }) => Boolean(values[key])).map(({ key }) => key)
@@ -306,11 +306,12 @@ function OrganizationInfoCard({
               <button type="button" onClick={() => setPickerOpen(false)} className="flex h-9 w-9 items-center justify-center rounded-full bg-surface-subtle text-xl text-text-secondary">×</button>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              {availableFields.map(({ key, label }) => {
+              {availableFields.map(({ key, label, image }) => {
                 const active = activeFields.includes(key);
                 return (
-                  <button key={key} type="button" disabled={active} onClick={() => addField(key)} className="flex min-h-20 items-center justify-center rounded-2xl border border-border-default bg-surface-page p-3 text-center text-sm font-semibold transition-colors hover:border-brand hover:text-brand disabled:opacity-35">
-                    {label}
+                  <button key={key} type="button" disabled={active} onClick={() => addField(key)} className="group flex min-h-32 flex-col items-center justify-center gap-2 rounded-2xl border border-border-default bg-surface-page p-3 text-center transition-colors hover:border-brand disabled:opacity-35">
+                    <img src={image} alt={label} className="h-auto w-full max-w-[150px] rounded-lg object-contain transition-transform group-hover:scale-[1.02]" />
+                    <span className="text-xs font-semibold text-text-secondary group-hover:text-brand">{label}</span>
                   </button>
                 );
               })}
