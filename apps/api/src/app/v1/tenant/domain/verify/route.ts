@@ -50,7 +50,8 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
     return okResponse({ custom_domain_status: 'verified' as const, verified: true });
   }
 
-  const { active, sslValidationRecords } = await getCloudflareCustomHostnameDetails(tenant.custom_domain_cloudflare_id);
+  const { active, hostnameStatus, sslStatus, sslValidationErrors, sslValidationRecords } =
+    await getCloudflareCustomHostnameDetails(tenant.custom_domain_cloudflare_id);
   const currentRecords = (tenant.custom_domain_dns_records as DnsRecord[] | null) ?? [];
   const refreshedRecords = withSslValidationRecords(currentRecords, sslValidationRecords);
 
@@ -67,7 +68,16 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
     if (refreshError) {
       throw new Error(`Failed to refresh domain DNS records: ${refreshError.message}`);
     }
-    return okResponse({ custom_domain_status: 'pending' as const, verified: false });
+    return okResponse({
+      custom_domain_status: 'pending' as const,
+      verified: false,
+      cloudflare: {
+        hostname_status: hostnameStatus,
+        ssl_status: sslStatus,
+        ssl_validation_errors: sslValidationErrors,
+      },
+      dns_records: refreshedRecords,
+    });
   }
 
   const { error: updateError } = await serviceRole
@@ -78,5 +88,14 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
     throw new Error(`Failed to mark domain verified: ${updateError.message}`);
   }
 
-  return okResponse({ custom_domain_status: 'verified' as const, verified: true });
+  return okResponse({
+    custom_domain_status: 'verified' as const,
+    verified: true,
+    cloudflare: {
+      hostname_status: hostnameStatus,
+      ssl_status: sslStatus,
+      ssl_validation_errors: sslValidationErrors,
+    },
+    dns_records: refreshedRecords,
+  });
 });
