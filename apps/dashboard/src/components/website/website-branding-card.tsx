@@ -56,7 +56,7 @@ export function WebsiteBrandingCard({ accessToken }: { accessToken: string }) {
       <h2 className="mb-4 text-base font-semibold text-text-primary">{pages.settings.websiteData.brandingTitle}</h2>
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <label className="text-xs text-text-secondary">{t.primaryColor}</label>
+          <label className="text-sm font-medium text-text-primary">{t.primaryColor}</label>
           <div className="flex items-center gap-2">
             <input
               type="color"
@@ -75,7 +75,7 @@ export function WebsiteBrandingCard({ accessToken }: { accessToken: string }) {
           </div>
         </div>
         <div className="flex flex-col gap-2">
-          <label className="text-xs text-text-secondary">{t.secondaryColor}</label>
+          <label className="text-sm font-medium text-text-primary">{t.secondaryColor}</label>
           <div className="flex items-center gap-2">
             <input
               type="color"
@@ -94,7 +94,7 @@ export function WebsiteBrandingCard({ accessToken }: { accessToken: string }) {
           </div>
         </div>
         <div className="flex flex-col gap-2">
-          <label className="text-xs text-text-secondary">لون الخلفية</label>
+          <label className="text-sm font-medium text-text-primary">لون الخلفية</label>
           <p className="text-xs text-text-tertiary">خلفية الصفحات والأقسام الأساسية للموقع.</p>
           <div className="flex items-center gap-2">
             <input
@@ -117,7 +117,7 @@ export function WebsiteBrandingCard({ accessToken }: { accessToken: string }) {
           <strong className="text-text-primary">نظام الألوان:</strong> الأساسي للأزرار وروابط الإجراء والعناصر النشطة، الثانوي للتفاصيل الداعمة واللمسات البصرية، والخلفية لسطح الصفحات والأقسام. النصوص تبقى بألوان عالية التباين لضمان القراءة.
         </div>
         <div className="border-border-subtle mt-2 border-t pt-4">
-          <label className="mb-2 block text-xs font-medium text-text-secondary">حقوق الموقع</label>
+          <label className="mb-2 block text-sm font-medium text-text-primary">حقوق الموقع</label>
           <div className="relative">
             <Input value={copyrightDraft} onChange={(e) => setCopyrightDraft(e.target.value)} onBlur={async()=>{if(copyrightLocked)return;try{const {website:updated}=await updateWebsite(accessToken,{copyright_text:copyrightDraft});setWebsite(current=>current?{...current,...updated}:current)}catch(err){if(err instanceof ApiRequestError&&err.status===403){setCopyrightLocked(true);setCopyrightDraft(website.copyright_text||'جميع الحقوق محفوظة @سبعة')}setError(err instanceof ApiRequestError?err.message:'تعذر حفظ حقوق الموقع')}}} disabled={copyrightLocked} className="h-10 pe-10" />
             {copyrightLocked&&<span aria-label="مغلق" title="مغلق" className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-text-tertiary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span>}
