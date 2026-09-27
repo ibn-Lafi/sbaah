@@ -154,38 +154,15 @@ export function Footer({ locale, dict, tenant, website, customPages }: FooterPro
           {/* تواصل معنا — الاتصال، واتساب، العنوان */}
           <div className="flex min-w-[220px] flex-col items-start gap-4">
             <h3 className="text-base font-semibold text-white">{dict.contact}</h3>
-            {tenant.social_phone && (
-              <a
-                href={`tel:${digitsOnly(tenant.social_phone)}`}
-                className="hover:text-tenant-primary flex items-center gap-3"
-              >
-                <span className="text-tenant-primary flex h-9 w-9 flex-none items-center justify-center rounded-full bg-white/10">
-                  <CallIcon className="h-[16px] w-[16px]" />
-                </span>
-                <span className="flex flex-col">
-                  <span className="text-xs text-white/40">{dict.phoneNumber}</span>
-                  <span className="font-medium text-white" dir="ltr">
-                    {tenant.social_phone}
-                  </span>
-                </span>
+            {tenant.inquiry_email && (
+              <a href={`mailto:${tenant.inquiry_email}`} className="hover:text-tenant-primary flex items-center gap-3">
+                <span className="flex flex-col"><span className="text-xs text-white/40">{locale === 'ar' ? 'البريد الإلكتروني' : 'Email'}</span><span className="font-medium text-white" dir="ltr">{tenant.inquiry_email}</span></span>
               </a>
             )}
-            {tenant.social_whatsapp && (
-              <a
-                href={`https://wa.me/${digitsOnly(tenant.social_whatsapp)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-tenant-primary flex items-center gap-3"
-              >
-                <span className="text-tenant-primary flex h-9 w-9 flex-none items-center justify-center rounded-full bg-white/10">
-                  <WhatsappIcon className="h-[16px] w-[16px]" />
-                </span>
-                <span className="flex flex-col">
-                  <span className="text-xs text-white/40">{dict.whatsappNumber}</span>
-                  <span className="font-medium text-white" dir="ltr">
-                    {tenant.social_whatsapp}
-                  </span>
-                </span>
+            {tenant.inquiry_phone && (
+              <a href={`tel:${tenant.inquiry_phone}`} className="hover:text-tenant-primary flex items-center gap-3">
+                <span className="text-tenant-primary flex h-9 w-9 flex-none items-center justify-center rounded-full bg-white/10"><CallIcon className="h-[16px] w-[16px]" /></span>
+                <span className="flex flex-col"><span className="text-xs text-white/40">{dict.phoneNumber}</span><span className="font-medium text-white" dir="ltr">{tenant.inquiry_phone}</span></span>
               </a>
             )}
             {website.address && (
