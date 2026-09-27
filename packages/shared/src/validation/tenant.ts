@@ -122,12 +122,17 @@ export const socialLinksUpdateSchema = z.object({
   social_tiktok: optionalTrimmedString(200),
   social_whatsapp: optionalTrimmedString(30),
   social_snapchat: optionalTrimmedString(200),
-  social_phone: optionalTrimmedString(30),
   social_facebook: optionalTrimmedString(200),
   social_x: optionalTrimmedString(200),
   social_telegram: optionalTrimmedString(200),
 });
 export type SocialLinksUpdateInput = z.infer<typeof socialLinksUpdateSchema>;
+
+export const inquiryContactUpdateSchema = z.object({
+  inquiry_email: optionalTrimmedString(200).refine((value) => !value || z.string().email().safeParse(value).success, 'البريد الإلكتروني غير صحيح'),
+  inquiry_phone: optionalTrimmedString(50),
+});
+export type InquiryContactUpdateInput = z.infer<typeof inquiryContactUpdateSchema>;
 
 
 /** حسابي — أنشطة العمل مستقلة عن نوع الكيان وعن صلاحيات الموظفين. */
