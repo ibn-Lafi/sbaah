@@ -215,12 +215,13 @@ function CustomDomainCard({
           <div className="flex min-w-0 flex-1 flex-col gap-2">
             <label className="text-text-primary text-sm font-medium">{t.customDomain.domainNameLabel}</label>
             <Input
-              placeholder="example.com"
+              placeholder="www.example.com"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               dir="ltr"
               compact
             />
+            <p className="text-text-secondary text-xs leading-5">{t.customDomain.apexHint}</p>
           </div>
           <Button type="submit" disabled={loading} className="sm:w-fit">
             {loading ? t.customDomain.connecting : t.customDomain.connectDomain}
