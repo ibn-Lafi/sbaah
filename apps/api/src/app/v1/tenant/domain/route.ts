@@ -52,11 +52,15 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
 
   const { data, error } = await supabase
     .from('tenants')
-    .select('custom_domain, custom_domain_status, custom_domain_dns_records, plans(custom_domain_allowed)')
+    .select('custom_domain, custom_domain_status, custom_domain_dns_records, custom_domain_cloudflare_id, plans(custom_domain_allowed)')
     .eq('id', caller.tenantId)
     .single();
   if (error) {
     throw new Error(`Failed to load domain status: ${error.message}`);
+  }
+
+  if (previousCloudflareId && previousCloudflareId !== cloudflareHostname.cloudflareHostnameId) {
+    await deleteCloudflareCustomHostname(previousCloudflareId);
   }
 
   return okResponse({
@@ -90,12 +94,30 @@ export const PATCH = withErrorHandling(async (request: NextRequest) => {
   const serviceRole = createServiceRoleClient();
   await assertTenantActive(serviceRole, caller.tenantId);
 
-  // Registers the domain with Cloudflare itself first — this is what makes
-  // Cloudflare start issuing it a real certificate once DNS is pointed
-  // correctly (see cloudflare-api-client.ts's doc comment). Done before the
-  // database write so a Cloudflare-side failure (e.g. misconfigured API
-  // token) never leaves a tenant with a "pending" domain that can never
-  // actually verify.
+  // Idempotency matters here: retries are common while DNS is propagating.
+  // Re-registering the same hostname at Cloudflare can return a conflict and
+  // used to make a harmless retry look like a broken connection.
+  const { data: currentTenant, error: currentTenantError } = await serviceRole
+    .from('tenants')
+    .select('custom_domain, custom_domain_status, custom_domain_dns_records, custom_domain_cloudflare_id')
+    .eq('id', caller.tenantId)
+    .single();
+  if (currentTenantError) {
+    throw new Error(`Failed to load current custom domain: ${currentTenantError.message}`);
+  }
+  if (currentTenant.custom_domain === custom_domain && currentTenant.custom_domain_cloudflare_id) {
+    return okResponse({
+      custom_domain: currentTenant.custom_domain,
+      custom_domain_status: currentTenant.custom_domain_status,
+      dns_records: (currentTenant.custom_domain_dns_records as DnsRecord[] | null) ?? [],
+      custom_domain_allowed: true,
+    });
+  }
+
+  // Register the replacement before touching our DB. The old Cloudflare
+  // resource stays live until the new state is safely persisted, avoiding a
+  // needless outage if Cloudflare rejects the replacement.
+  const previousCloudflareId = currentTenant.custom_domain_cloudflare_id as string | null;
   const cloudflareHostname = await createCloudflareCustomHostname(custom_domain);
   const dnsRecords = dnsRecordsFor(custom_domain, cloudflareHostname);
 
