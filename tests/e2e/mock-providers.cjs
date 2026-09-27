@@ -54,9 +54,15 @@ globalThis.fetch = async function mockedFetch(input, init = {}) {
       });
     }
     if (init.method === 'DELETE') return json(200, { success: true, result: { id: hostnameId } });
+    if (init.method === 'PATCH') {
+      return json(200, {
+        success: true,
+        result: { status: 'active', ssl: { status: 'active', validation_records: [{ txt_name: '_acme-challenge.e2e', txt_value: 'e2e-ssl' }] } },
+      });
+    }
     return json(200, {
       success: true,
-      result: { status: 'active', ssl: { status: 'active', validation_records: [{ txt_name: '_acme-challenge.e2e', txt_value: 'e2e-ssl' }] } },
+      result: { status: 'moved', ssl: { status: 'validation_timed_out', validation_records: [{ txt_name: '_acme-challenge.e2e', txt_value: 'e2e-ssl' }] } },
     });
   }
   if (url.hostname.endsWith('googleapis.com') || url.hostname === 'accounts.google.com') {
