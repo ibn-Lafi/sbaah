@@ -24,7 +24,6 @@ import {
   FacebookIcon,
   TelegramIcon,
   XIcon,
-  CallIcon,
   LocationIcon,
 } from '@/components/website/editor-icons';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
