@@ -22,6 +22,8 @@ export interface TenantSite {
     social_facebook: string | null;
     social_x: string | null;
     social_telegram: string | null;
+    inquiry_email: string | null;
+    inquiry_phone: string | null;
     /** Set only once verified — the canonical URL a subdomain visitor is redirected to (see [locale]/layout.tsx). */
     custom_domain: string | null;
   };
