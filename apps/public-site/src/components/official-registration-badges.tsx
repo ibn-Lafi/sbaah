@@ -17,35 +17,35 @@ const logos: Record<
     alt: 'المركز السعودي للتنافسية والأعمال',
     width: 3308,
     height: 1859,
-    className: 'h-9 w-full scale-[1.45] sm:h-12',
+    className: 'h-4 w-full scale-[1.45] sm:h-9',
   },
   tax: {
     src: '/business-badges/zatca.png',
     alt: 'هيئة الزكاة والضريبة والجمارك',
     width: 500,
     height: 113,
-    className: 'h-7 w-full sm:h-9',
+    className: 'h-3 w-full sm:h-7',
   },
   fal: {
     src: '/business-badges/fal.png',
     alt: 'فال',
     width: 498,
     height: 302,
-    className: 'h-9 w-full scale-[1.12] sm:h-12',
+    className: 'h-4 w-full scale-[1.12] sm:h-9',
   },
   wafi: {
     src: '/business-badges/wafi.png',
     alt: 'وافي للبيع والتأجير على الخارطة',
     width: 1364,
     height: 674,
-    className: 'h-9 w-full scale-[1.3] sm:h-12',
+    className: 'h-4 w-full scale-[1.3] sm:h-9',
   },
   freelance: {
     src: '/business-badges/freelance.webp',
     alt: 'منصة العمل الحر',
     width: 732,
     height: 454,
-    className: 'h-9 w-full scale-[1.25] sm:h-12',
+    className: 'h-4 w-full scale-[1.25] sm:h-9',
   },
 };
 
@@ -65,21 +65,21 @@ export function OfficialRegistrationBadges({ entries }: { entries: RegistrationB
           <figure
             key={key}
             aria-label={`${label}: ${value}`}
-            className="flex h-[70px] w-[120px] flex-none flex-col overflow-hidden rounded-lg border border-black/10 bg-white shadow-sm sm:h-[86px] sm:w-[150px] sm:rounded-xl"
+            className="flex h-[30px] w-[50px] flex-none flex-col overflow-hidden rounded border border-black/10 bg-white shadow-sm sm:h-[70px] sm:w-[120px] sm:rounded-lg"
           >
-            <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden px-2 py-1 sm:px-3 sm:py-2">
+            <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden px-1 sm:px-2 sm:py-1">
               <Image
                 src={logo.src}
                 alt={logo.alt}
                 width={logo.width}
                 height={logo.height}
-                sizes="(max-width: 639px) 120px, 150px"
+                sizes="(max-width: 639px) 50px, 120px"
                 className={`${logo.className} object-contain`}
               />
             </div>
             <figcaption
               dir="auto"
-              className="border-t border-black/10 bg-slate-50 px-2 py-1 text-center text-[10px] font-semibold leading-3 tracking-wide text-slate-800 sm:text-xs sm:leading-4"
+              className="border-t border-black/10 bg-slate-50 px-0.5 py-px text-center text-[5px] font-semibold leading-[6px] tracking-wide text-slate-800 sm:px-2 sm:py-1 sm:text-[10px] sm:leading-3"
             >
               {value}
             </figcaption>
