@@ -115,7 +115,7 @@ export const PATCH = withErrorHandling(async (request: NextRequest) => {
   // needless outage if Cloudflare rejects the replacement.
   const previousCloudflareId = currentTenant.custom_domain_cloudflare_id as string | null;
   const cloudflareHostname = await createCloudflareCustomHostname(custom_domain);
-  const dnsRecords = dnsRecordsFor(custom_domain, cloudflareHostname);
+  const dnsRecords = dnsRecordsFor(custom_domain);
 
   const { data, error } = await serviceRole
     .from('tenants')

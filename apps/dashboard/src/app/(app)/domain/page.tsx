@@ -32,7 +32,7 @@ function CopyIcon({ copied, className }: { copied: boolean; className?: string }
   );
 }
 
-/** Copies `value` to the clipboard, showing a checkmark for 1.5s as feedback — used for the long, easy-to-mistype CNAME/TXT values a founder must paste into their DNS provider. */
+/** Copies `value` to the clipboard, showing a checkmark for 1.5s as feedback — used for DNS values a founder must paste into their provider. */
 function CopyButton({ value, label }: { value: string; label: string }) {
   const [copied, setCopied] = useState(false);
 
@@ -110,9 +110,6 @@ function CustomDomainCard({
     setVerifying(true);
     try {
       const result = await verifyDomain(accessToken);
-      // Refreshed either way — Cloudflare's certificate-validation DNS
-      // records (see verify/route.ts) can newly appear on a check that's
-      // still "not verified yet", and the owner needs to see those too.
       onChanged();
       if (!result.verified) {
         setNotVerifiedYet(true);
@@ -330,6 +327,26 @@ export default function DomainPage() {
   }
 
   useEffect(reload, [accessToken]);
+
+  useEffect(() => {
+    if (!canEdit || !domain?.custom_domain || domain.custom_domain_status !== 'pending') return;
+
+    let cancelled = false;
+    const intervalId = window.setInterval(() => {
+      void verifyDomain(accessToken)
+        .then((result) => {
+          if (!cancelled && result.verified) {
+            setDomainState((current) => current ? { ...current, custom_domain_status: 'verified' } : current);
+          }
+        })
+        .catch(() => undefined);
+    }, 30_000);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(intervalId);
+    };
+  }, [accessToken, canEdit, domain?.custom_domain, domain?.custom_domain_status]);
 
   return (
     <AppShell

@@ -1,5 +1,3 @@
-import type { CloudflareCustomHostname } from './cloudflare-api-client';
-
 export interface DnsRecord {
   type: 'CNAME' | 'TXT';
   name: string;
@@ -13,49 +11,12 @@ function requireEnv(name: string): string {
 }
 
 /**
- * Builds the two records the owner must add at their DNS provider — stored
- * as-is in tenants.custom_domain_dns_records. Unlike the previous Railway
- * integration (a unique CNAME target per domain), the CNAME here is the same
- * fixed value for every tenant (Cloudflare routes by matching the incoming
- * Host header against the registered Custom Hostname, not by where the CNAME
- * itself resolves) — only the TXT ownership-verification value differs per
- * domain, from Cloudflare's own createCustomHostname response.
+ * Automatic HTTP validation needs only the routing CNAME. Cloudflare serves
+ * the certificate authority's challenge from its own edge after this record
+ * points at the SaaS target, so customers never copy rotating TXT tokens.
  */
-export function dnsRecordsFor(customDomain: string, cloudflareHostname: CloudflareCustomHostname): DnsRecord[] {
+export function dnsRecordsFor(customDomain: string): DnsRecord[] {
   return [
     { type: 'CNAME', name: customDomain, value: requireEnv('CLOUDFLARE_FALLBACK_CNAME_TARGET') },
-    { type: 'TXT', name: cloudflareHostname.ownershipVerificationName, value: cloudflareHostname.ownershipVerificationValue },
-  ];
-}
-
-/**
- * Adds/refreshes the certificate-validation TXT records (see
- * `CloudflareCustomHostnameDetails.sslValidationRecords`'s doc comment) onto
- * an existing record set — these normally aren't known yet at the moment
- * `dnsRecordsFor` first runs (Cloudflare fills them in shortly after
- * creating the hostname), so `verify/route.ts` calls this on every check to
- * pick them up once Cloudflare has them, replacing any earlier (possibly
- * stale) set of validation records rather than duplicating them.
- *
- * Deliberately a no-op when `sslValidationRecords` is empty — Cloudflare's
- * own docs say that array "may be empty for a short period" even for a
- * hostname that already has records from an earlier check. Overwriting
- * unconditionally would erase DNS instructions an owner already saw (and
- * may have already copied into their provider) the moment a single "test
- * connection" click happens to land during that gap — replacing them only
- * when Cloudflare actually returns something keeps whatever was last known
- * good instead of flashing it away.
- */
-export function withSslValidationRecords(
-  baseRecords: DnsRecord[],
-  sslValidationRecords: { name: string; value: string }[],
-): DnsRecord[] {
-  if (sslValidationRecords.length === 0) {
-    return baseRecords;
-  }
-  const withoutOldValidationRecords = baseRecords.filter((record) => !record.name.startsWith('_acme-challenge.'));
-  return [
-    ...withoutOldValidationRecords,
-    ...sslValidationRecords.map((record) => ({ type: 'TXT' as const, name: record.name, value: record.value })),
   ];
 }

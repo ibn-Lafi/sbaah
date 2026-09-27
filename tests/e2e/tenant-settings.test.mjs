@@ -15,6 +15,9 @@ test('the custom domain flow still works for the owner through the API', async (
   const added = await api('PATCH', '/tenant/domain', { token: owner, body: { custom_domain: 'agency-a.example' } });
   assert.equal(added.status, 200, JSON.stringify(added.body));
   assert.equal(added.body.custom_domain_status, 'pending');
+  assert.deepEqual(added.body.dns_records, [
+    { type: 'CNAME', name: 'agency-a.example', value: 'fallback.sbaah.test' },
+  ]);
 
   const verified = await api('POST', '/tenant/domain/verify', { token: owner });
   assert.equal(verified.status, 200, JSON.stringify(verified.body));

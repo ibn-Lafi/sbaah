@@ -53,7 +53,7 @@ export interface DnsRecord {
 export interface DomainInfo {
   custom_domain: string | null;
   custom_domain_status: CustomDomainStatus | null;
-  /** One CNAME (routing) + one TXT (Cloudflare ownership verification) record — both required before Cloudflare issues a certificate. */
+  /** The single routing CNAME; Cloudflare completes HTTP certificate validation automatically after it resolves. */
   dns_records: DnsRecord[];
   custom_domain_allowed: boolean;
 }
@@ -62,7 +62,7 @@ export function getDomain(accessToken: string) {
   return apiGet<DomainInfo>('/tenant/domain', accessToken);
 }
 
-/** Self-service DNS check ("اختبار الربط") — a real CNAME + TXT lookup, no admin review involved. */
+/** Self-service Cloudflare refresh; the page also polls this endpoint while setup is pending. */
 export function verifyDomain(accessToken: string) {
   return apiPost<{ custom_domain_status: CustomDomainStatus; verified: boolean }>('/tenant/domain/verify', undefined, accessToken);
 }

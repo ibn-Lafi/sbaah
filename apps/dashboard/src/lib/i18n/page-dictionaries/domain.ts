@@ -10,7 +10,7 @@ export const domainAr = {
     statusVerified: 'مُفعّل',
     statusPending: 'بانتظار ربط DNS',
     dnsInstructions:
-      'أضف جميع سجلات DNS الظاهرة أدناه كما هي. قد تظهر سجلات تحقق إضافية بعد أول اختبار للربط؛ أضفها أيضًا ثم أعد الاختبار.',
+      'أضف سجل CNAME الظاهر أدناه فقط. بعد انتشاره، ستتحقق سبعة من الربط وتصدر شهادة الأمان تلقائيًا.',
     apexHint:
       'يفضّل ربط نطاق فرعي مثل www.example.com. ربط النطاق الرئيسي example.com يتطلب من مزود DNS دعم CNAME Flattening/ALIAS؛ وإلا استخدم www.',
     dnsFieldName: 'الاسم (Name)',
@@ -18,7 +18,7 @@ export const domainAr = {
     copyValue: 'نسخ',
     verifyConnection: 'اختبار الربط',
     notVerifiedYet:
-      'لم يتم رصد الربط بعد — تأكد من إضافة السجلين أعلاه بالضبط لدى مزوّد الدومين، وقد يستغرق انتشارها حتى ساعات قليلة قبل إعادة المحاولة.',
+      'لم يتم رصد سجل CNAME بعد. تأكد من إضافته كما هو؛ ستواصل سبعة الفحص تلقائيًا ويمكنك إعادة الاختبار يدويًا.',
     removeDomain: 'إلغاء ربط الدومين',
     domainNameLabel: 'اسم الدومين',
     connecting: 'جارٍ الربط...',
@@ -51,7 +51,7 @@ export const domainEn: typeof domainAr = {
     statusVerified: 'Active',
     statusPending: 'Awaiting DNS connection',
     dnsInstructions:
-      'Add every DNS record shown below exactly as provided. Additional certificate-validation records may appear after the first verification check; add them too, then verify again.',
+      'Add the single CNAME record shown below. Once it propagates, Sbaah verifies the connection and issues SSL automatically.',
     apexHint:
       'A subdomain such as www.example.com is recommended. Connecting the apex example.com requires DNS-provider support for CNAME flattening/ALIAS; otherwise use www.',
     dnsFieldName: 'Name',
@@ -59,7 +59,7 @@ export const domainEn: typeof domainAr = {
     copyValue: 'Copy',
     verifyConnection: 'Verify Connection',
     notVerifiedYet:
-      'Connection not detected yet — make sure both records above are added exactly as shown with your domain provider. Propagation can take up to a few hours before trying again.',
+      'The CNAME has not been detected yet. Add it exactly as shown; Sbaah keeps checking automatically and you can also retry manually.',
     removeDomain: 'Disconnect Domain',
     domainNameLabel: 'Domain Name',
     connecting: 'Connecting...',

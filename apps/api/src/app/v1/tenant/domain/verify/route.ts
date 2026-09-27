@@ -5,7 +5,7 @@ import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
 import { assertOwner } from '@/lib/auth/assert-owner';
 import { refreshCloudflareCustomHostnameDetails } from '@/lib/tenant/cloudflare-api-client';
-import { withSslValidationRecords, type DnsRecord } from '@/lib/tenant/domain-dns-records';
+import { dnsRecordsFor } from '@/lib/tenant/domain-dns-records';
 import { assertTenantActive } from '@/lib/tenant/assert-tenant-active';
 
 /**
@@ -50,10 +50,9 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
     return okResponse({ custom_domain_status: 'verified' as const, verified: true });
   }
 
-  const { active, hostnameStatus, sslStatus, sslValidationErrors, sslValidationRecords } =
+  const { active, hostnameStatus, sslStatus, sslValidationErrors } =
     await refreshCloudflareCustomHostnameDetails(tenant.custom_domain_cloudflare_id);
-  const currentRecords = (tenant.custom_domain_dns_records as DnsRecord[] | null) ?? [];
-  const refreshedRecords = withSslValidationRecords(currentRecords, sslValidationRecords);
+  const refreshedRecords = dnsRecordsFor(tenant.custom_domain);
 
   // Only the service role may write the verification state (migration
   // 0113); Cloudflare's answer above is what authorizes it.
