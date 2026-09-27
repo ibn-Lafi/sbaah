@@ -126,6 +126,9 @@ export async function deleteCloudflareCustomHostname(cloudflareHostnameId: strin
 
 export interface CloudflareCustomHostnameDetails {
   active: boolean;
+  hostnameStatus: string;
+  sslStatus: string;
+  sslValidationErrors: string[];
   /**
    * The DNS-01 certificate-validation TXT records (`_acme-challenge.<domain>`)
    * Cloudflare's CA needs before it will actually issue a certificate — a
@@ -158,11 +161,18 @@ export async function getCloudflareCustomHostnameDetails(
   const zoneId = requireEnv('CLOUDFLARE_ZONE_ID');
   const result = await cloudflareFetch<{
     status: string;
-    ssl: { status: string; validation_records?: { txt_name?: string; txt_value?: string }[] };
+    ssl: {
+      status: string;
+      validation_records?: { txt_name?: string; txt_value?: string }[];
+      validation_errors?: { message?: string }[];
+    };
   }>(`/zones/${zoneId}/custom_hostnames/${cloudflareHostnameId}`, { method: 'GET' });
 
   return {
     active: result.status === 'active' && result.ssl.status === 'active',
+    hostnameStatus: result.status,
+    sslStatus: result.ssl.status,
+    sslValidationErrors: (result.ssl.validation_errors ?? []).map((error) => error.message).filter((message): message is string => Boolean(message)),
     sslValidationRecords: (result.ssl.validation_records ?? [])
       .filter((record) => record.txt_name && record.txt_value)
       .map((record) => ({ name: record.txt_name as string, value: record.txt_value as string })),
