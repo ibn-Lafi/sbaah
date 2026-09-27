@@ -29,7 +29,7 @@ import {
 } from '@/components/website/editor-icons';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { useLocale } from '@/lib/i18n/locale-context';
-import { getSocialLinks, updateSocialLinks, updateAccountType, type SocialLinks } from '@/lib/api/tenant';
+import { getSocialLinks, updateSocialLinks, getInquiryContact, updateInquiryContact, updateAccountType, type SocialLinks, type InquiryContact } from '@/lib/api/tenant';
 import { getWebsite, updateWebsite } from '@/lib/api/website';
 import { sendProfileChangeOtp, updateMyProfile, verifyProfileChange } from '@/lib/api/auth';
 import { signOut } from '@/lib/auth/session';
@@ -273,9 +273,6 @@ function OrganizationInfoCard({
               <div key={key} className="flex flex-col gap-2">
                 <div className="flex items-center justify-between gap-3">
                   <label className="text-sm font-medium text-text-primary">{label}</label>
-                  <button type="button" onClick={() => removeField(key)} className="inline-flex h-8 items-center justify-center rounded-lg px-2 text-xs font-medium text-text-secondary transition-colors hover:bg-danger-surface hover:text-danger">
-                    {locale === 'ar' ? 'إزالة' : 'Remove'}
-                  </button>
                 </div>
                 <Input compact value={values[key]} onChange={(event) => setValues((current) => ({ ...current, [key]: event.target.value }))} placeholder={placeholder} dir="ltr" />
               </div>
@@ -337,7 +334,6 @@ function SocialLinksCard({ accessToken, initial }: { accessToken: string; initia
 
   const fields: { key: keyof SocialLinks; label: string; placeholder: string; Icon: typeof InstagramIcon; phone?: boolean }[] = [
     { key: 'social_whatsapp', label: t.socialLinks.whatsapp, placeholder: t.socialLinks.phonePlaceholder, Icon: WhatsappIcon, phone: true },
-    { key: 'social_phone', label: t.socialLinks.call, placeholder: t.socialLinks.phonePlaceholder, Icon: CallIcon, phone: true },
     { key: 'social_instagram', label: t.socialLinks.instagram, placeholder: t.socialLinks.instagramPlaceholder, Icon: InstagramIcon },
     { key: 'social_tiktok', label: t.socialLinks.tiktok, placeholder: t.socialLinks.tiktokPlaceholder, Icon: TiktokIcon },
     { key: 'social_snapchat', label: t.socialLinks.snapchat, placeholder: t.socialLinks.snapchatPlaceholder, Icon: SnapchatIcon },
@@ -549,6 +545,31 @@ function OrganizationTab({ accessToken }: { accessToken: string }) {
   );
 }
 
+function InquiryContactCard({ accessToken }: { accessToken: string }) {
+  const { locale } = useLocale();
+  const [draft, setDraft] = useState<InquiryContact | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [saved, setSaved] = useState(false);
+  useEffect(() => { void getInquiryContact(accessToken).then(setDraft).catch((e) => setError(e instanceof ApiRequestError ? e.message : 'تعذر تحميل بيانات الاستفسار')); }, [accessToken]);
+  if (!draft) return null;
+  async function save(event: React.FormEvent) {
+    event.preventDefault(); setError(null); setSaved(false); setLoading(true);
+    try { setDraft(await updateInquiryContact(accessToken, { inquiry_email: draft.inquiry_email?.trim() || null, inquiry_phone: draft.inquiry_phone?.trim() || null })); setSaved(true); }
+    catch (e) { setError(e instanceof ApiRequestError ? e.message : 'تعذر حفظ بيانات الاستفسار'); }
+    finally { setLoading(false); }
+  }
+  return <Card className="p-4 sm:p-5">
+    <h2 className="mb-1 text-base font-semibold text-text-primary">{locale === 'ar' ? 'بيانات الاستفسار' : 'Inquiry contact'}</h2>
+    <p className="mb-4 text-sm text-text-secondary">{locale === 'ar' ? 'هذه البيانات فقط تظهر في الفوتر تحت تواصل معنا.' : 'Only these details appear under Contact us in the footer.'}</p>
+    <form onSubmit={(e)=>void save(e)} className="flex flex-col gap-2.5">
+      <div className="flex flex-col gap-2"><label className="text-sm font-medium text-text-primary">{locale === 'ar' ? 'البريد الإلكتروني' : 'Email'}</label><Input compact type="email" dir="ltr" value={draft.inquiry_email ?? ''} onChange={(e)=>setDraft({...draft,inquiry_email:e.target.value})} placeholder="info@example.com" /></div>
+      <div className="flex flex-col gap-2"><label className="text-sm font-medium text-text-primary">{locale === 'ar' ? 'الرقم' : 'Number'}</label><Input compact dir="ltr" value={draft.inquiry_phone ?? ''} onChange={(e)=>setDraft({...draft,inquiry_phone:e.target.value})} placeholder={locale === 'ar' ? 'هاتف أو جوال' : 'Phone or mobile'} /></div>
+      <FormError message={error}/><Button type="submit" disabled={loading} className="h-9 min-w-20 w-fit px-3 text-xs">{loading ? (locale === 'ar' ? 'جارٍ الحفظ...' : 'Saving...') : saved ? (locale === 'ar' ? 'تم الحفظ' : 'Saved') : (locale === 'ar' ? 'حفظ' : 'Save')}</Button>
+    </form>
+  </Card>;
+}
+
 function ContactTab({ accessToken }: { accessToken: string }) {
   const { pages } = useLocale();
   const settings = pages.settings;
@@ -570,7 +591,7 @@ function ContactTab({ accessToken }: { accessToken: string }) {
     };
   }, [accessToken, settings.socialLinks.loadFailed]);
 
-  return <>{socialLinks ? <SocialLinksCard accessToken={accessToken} initial={socialLinks} /> : <Card className="p-4 sm:p-5">{socialLinksError ? <FormError message={socialLinksError} /> : <div className="flex flex-col gap-2.5" aria-busy="true"><Skeleton className="h-5 w-40" /><Skeleton className="h-11 w-full" /><Skeleton className="h-11 w-full" /></div>}</Card>}<WebsiteTextFieldCard accessToken={accessToken} field="address" icon={<LocationIcon className="h-[18px] w-[18px] text-text-secondary" />} title={settings.address.title} description={settings.address.description} placeholder={settings.address.placeholder} saveFailedMessage={settings.address.saveFailed} /></>;
+  return <>{socialLinks ? <SocialLinksCard accessToken={accessToken} initial={socialLinks} /> : <Card className="p-4 sm:p-5">{socialLinksError ? <FormError message={socialLinksError} /> : <div className="flex flex-col gap-2.5" aria-busy="true"><Skeleton className="h-5 w-40" /><Skeleton className="h-11 w-full" /><Skeleton className="h-11 w-full" /></div>}</Card>}<InquiryContactCard accessToken={accessToken} /><WebsiteTextFieldCard accessToken={accessToken} field="address" icon={<LocationIcon className="h-[18px] w-[18px] text-text-secondary" />} title={settings.address.title} description={settings.address.description} placeholder={settings.address.placeholder} saveFailedMessage={settings.address.saveFailed} /></>;
 }
 
 function BrandTab({ accessToken }: { accessToken: string }) {
