@@ -1,3 +1,4 @@
+import { resolve4, resolve6, resolveCname } from 'node:dns/promises';
 import type { NextRequest } from 'next/server';
 import { createServiceRoleClient } from '@sbaah/shared';
 import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
@@ -8,26 +9,40 @@ import { refreshCloudflareCustomHostnameDetails } from '@/lib/tenant/cloudflare-
 import { dnsRecordsFor } from '@/lib/tenant/domain-dns-records';
 import { assertTenantActive } from '@/lib/tenant/assert-tenant-active';
 
+async function resolveAddresses(hostname: string): Promise<string[]> {
+  const [ipv4, ipv6] = await Promise.all([
+    resolve4(hostname).catch(() => []),
+    resolve6(hostname).catch(() => []),
+  ]);
+  return [...ipv4, ...ipv6];
+}
+
 /**
- * Self-service verification (founder's explicit decision — no manual
- * console review, same "add domain → get DNS records → test connection"
- * flow as any SaaS custom-domain feature). The owner clicks "اختبار
- * الربط" after pointing their domain's DNS at us; this asks Cloudflare
- * itself whether it now considers the hostname fully connected (routing +
- * certificate issued — see cloudflare-api-client.ts's doc comment on why
- * that's the ground truth, not a DNS lookup we run ourselves) and flips
- * `custom_domain_status` to 'verified' the moment it does — no admin in
- * the loop at all.
- *
- * Also refreshes `custom_domain_dns_records` with Cloudflare's own
- * certificate-validation TXT records (`_acme-challenge.<domain>`) on every
- * check, even when still pending — these aren't necessarily known yet right
- * when the domain is first added (Cloudflare fills them in shortly after),
- * so the owner needs to see them appear here once Cloudflare has them, not
- * just the one ownership-verification TXT captured at creation time. A real
- * gap found in production: without this, a domain can sit "pending"
- * forever because the owner was never shown the second set of DNS records
- * Cloudflare actually needs before it will issue a certificate.
+ * Cloudflare keeps a previously activated custom hostname active after its
+ * customer-facing DNS record is removed. Verify the live DNS route as well,
+ * accepting either a regular CNAME or an apex ALIAS/flattened CNAME whose
+ * addresses currently match the SaaS target.
+ */
+async function isDomainRoutedToTarget(domain: string, target: string): Promise<boolean> {
+  const normalizedTarget = target.toLowerCase().replace(/\.$/, '');
+  const aliases = await resolveCname(domain).catch(() => []);
+  if (aliases.some((alias) => alias.toLowerCase().replace(/\.$/, '') === normalizedTarget)) {
+    return true;
+  }
+
+  const [domainAddresses, targetAddresses] = await Promise.all([
+    resolveAddresses(domain),
+    resolveAddresses(target),
+  ]);
+  const targetSet = new Set(targetAddresses);
+  return domainAddresses.length > 0 && domainAddresses.some((address) => targetSet.has(address));
+}
+
+/**
+ * Self-service verification requires both Cloudflare hostname/certificate
+ * activation and a live DNS route to the SaaS target. Re-checking DNS even
+ * after a previous success prevents the dashboard from showing "connected"
+ * after the owner removes or breaks the record at their DNS provider.
  */
 export const POST = withErrorHandling(async (request: NextRequest) => {
   const { supabase } = getAuthenticatedClient(request);
@@ -36,7 +51,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 
   const { data: tenant, error: loadError } = await supabase
     .from('tenants')
-    .select('custom_domain, custom_domain_status, custom_domain_cloudflare_id, custom_domain_dns_records')
+    .select('custom_domain, custom_domain_cloudflare_id')
     .eq('id', caller.tenantId)
     .single();
   if (loadError) {
@@ -46,55 +61,44 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
     throw new ApiError(400, 'no_custom_domain', 'لا يوجد دومين مخصص مضاف بعد');
   }
 
-  if (tenant.custom_domain_status === 'verified') {
-    return okResponse({ custom_domain_status: 'verified' as const, verified: true });
+  const refreshedRecords = dnsRecordsFor(tenant.custom_domain);
+  const routingTarget = refreshedRecords[0]?.value;
+  if (!routingTarget) {
+    throw new Error('Missing custom-domain routing target');
   }
 
-  const { active, hostnameStatus, sslStatus, sslValidationErrors } =
-    await refreshCloudflareCustomHostnameDetails(tenant.custom_domain_cloudflare_id);
-  const refreshedRecords = dnsRecordsFor(tenant.custom_domain);
+  const [{ active: cloudflareActive, hostnameStatus, sslStatus, sslValidationErrors }, dnsActive] =
+    await Promise.all([
+      refreshCloudflareCustomHostnameDetails(tenant.custom_domain_cloudflare_id),
+      isDomainRoutedToTarget(tenant.custom_domain, routingTarget),
+    ]);
+  const active = cloudflareActive && dnsActive;
 
-  // Only the service role may write the verification state (migration
-  // 0113); Cloudflare's answer above is what authorizes it.
   const serviceRole = createServiceRoleClient();
   await assertTenantActive(serviceRole, caller.tenantId);
 
-  if (!active) {
-    const { error: refreshError } = await serviceRole
-      .from('tenants')
-      .update({ custom_domain_dns_records: refreshedRecords })
-      .eq('id', caller.tenantId);
-    if (refreshError) {
-      throw new Error(`Failed to refresh domain DNS records: ${refreshError.message}`);
-    }
-    return okResponse({
-      custom_domain_status: 'pending' as const,
-      verified: false,
-      cloudflare: {
-        hostname_status: hostnameStatus,
-        ssl_status: sslStatus,
-        ssl_validation_errors: sslValidationErrors,
-      },
-      dns_records: refreshedRecords,
-    });
-  }
-
+  const customDomainStatus = active ? 'verified' : 'pending';
   const { error: updateError } = await serviceRole
     .from('tenants')
-    .update({ custom_domain_status: 'verified', custom_domain_dns_records: refreshedRecords })
+    .update({
+      custom_domain_status: customDomainStatus,
+      custom_domain_dns_records: refreshedRecords,
+    })
     .eq('id', caller.tenantId);
   if (updateError) {
-    throw new Error(`Failed to mark domain verified: ${updateError.message}`);
+    throw new Error(`Failed to update domain verification: ${updateError.message}`);
   }
 
   return okResponse({
-    custom_domain_status: 'verified' as const,
-    verified: true,
+    custom_domain_status: customDomainStatus,
+    verified: active,
     cloudflare: {
       hostname_status: hostnameStatus,
       ssl_status: sslStatus,
       ssl_validation_errors: sslValidationErrors,
     },
+    dns: { routed: dnsActive },
     dns_records: refreshedRecords,
   });
 });
+
