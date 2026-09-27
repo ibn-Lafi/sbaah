@@ -134,6 +134,12 @@ export const inquiryContactUpdateSchema = z.object({
 });
 export type InquiryContactUpdateInput = z.infer<typeof inquiryContactUpdateSchema>;
 
+export const inquiryContactUpdateSchema = z.object({
+  inquiry_email: optionalTrimmedString(200).refine((value) => !value || z.string().email().safeParse(value).success, 'البريد الإلكتروني غير صحيح'),
+  inquiry_phone: optionalTrimmedString(50),
+});
+export type InquiryContactUpdateInput = z.infer<typeof inquiryContactUpdateSchema>;
+
 
 /** حسابي — أنشطة العمل مستقلة عن نوع الكيان وعن صلاحيات الموظفين. */
 export const businessActivitiesUpdateSchema = z.object({
