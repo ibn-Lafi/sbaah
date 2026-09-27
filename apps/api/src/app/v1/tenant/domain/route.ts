@@ -59,10 +59,6 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     throw new Error(`Failed to load domain status: ${error.message}`);
   }
 
-  if (previousCloudflareId && previousCloudflareId !== cloudflareHostname.cloudflareHostnameId) {
-    await deleteCloudflareCustomHostname(previousCloudflareId);
-  }
-
   return okResponse({
     custom_domain: data.custom_domain,
     custom_domain_status: data.custom_domain_status,
@@ -142,6 +138,10 @@ export const PATCH = withErrorHandling(async (request: NextRequest) => {
       throw new ApiError(409, 'domain_already_taken', 'هذا الدومين مستخدَم بالفعل من حساب آخر');
     }
     throw new Error(`Failed to set custom domain: ${error.message}`);
+  }
+
+  if (previousCloudflareId && previousCloudflareId !== cloudflareHostname.cloudflareHostnameId) {
+    await deleteCloudflareCustomHostname(previousCloudflareId);
   }
 
   return okResponse({
