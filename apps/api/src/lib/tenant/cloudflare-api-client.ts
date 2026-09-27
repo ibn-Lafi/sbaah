@@ -80,16 +80,31 @@ export async function createCloudflareCustomHostname(domain: string): Promise<Cl
   const zoneId = requireEnv('CLOUDFLARE_ZONE_ID');
   const result = await cloudflareFetch<{
     id: string;
-    ownership_verification: { name: string; value: string };
+    ownership_verification?: { name?: string; value?: string };
   }>(`/zones/${zoneId}/custom_hostnames`, {
     method: 'POST',
     body: JSON.stringify({ hostname: domain, ssl: { method: 'txt', type: 'dv' } }),
   });
 
+  // Cloudflare documents ownership_verification as optional. In practice it
+  // can be populated asynchronously, so do not crash after a successful
+  // create merely because the first response does not contain it yet.
+  let ownership = result.ownership_verification;
+  if (!ownership?.name || !ownership.value) {
+    const details = await cloudflareFetch<{
+      ownership_verification?: { name?: string; value?: string };
+    }>(`/zones/${zoneId}/custom_hostnames/${result.id}`, { method: 'GET' });
+    ownership = details.ownership_verification;
+  }
+  if (!ownership?.name || !ownership.value) {
+    await deleteCloudflareCustomHostname(result.id);
+    throw new Error('Cloudflare created the custom hostname but did not provide ownership verification DNS records');
+  }
+
   return {
     cloudflareHostnameId: result.id,
-    ownershipVerificationName: result.ownership_verification.name,
-    ownershipVerificationValue: result.ownership_verification.value,
+    ownershipVerificationName: ownership.name,
+    ownershipVerificationValue: ownership.value,
   };
 }
 
