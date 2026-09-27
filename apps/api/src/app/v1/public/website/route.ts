@@ -72,6 +72,8 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     social_facebook: chrome.social_facebook ?? null,
     social_x: chrome.social_x ?? null,
     social_telegram: chrome.social_telegram ?? null,
+    inquiry_email: chrome.inquiry_email,
+    inquiry_phone: chrome.inquiry_phone,
     // A verified custom domain is the canonical URL going forward — the
     // subdomain redirects to this once verified (see public-site's
     // [locale]/layout.tsx), matching standard SaaS custom-domain practice
