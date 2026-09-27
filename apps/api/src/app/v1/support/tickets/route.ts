@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { z } from 'zod';
-import { okResponse, withErrorHandling } from '@/lib/http';
+import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
 
@@ -26,10 +26,21 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   const { supabase } = getAuthenticatedClient(request);
   const caller = await getCallerContext(supabase);
   const input = inputSchema.parse(await request.json());
-  const { data: user } = await supabase.from('users').select('full_name,email,phone').eq('id', caller.userId).single();
+  const [{ data: user, error: userError }, { data: auth, error: authError }] = await Promise.all([
+    supabase.from('users').select('full_name,email,phone').eq('id', caller.userId).single(),
+    supabase.auth.getUser(),
+  ]);
+  if (userError) throw new Error(`Failed to load support requester: ${userError.message}`);
+  if (authError || !auth.user) throw new Error('Failed to load authenticated support requester');
+
+  const requesterEmail = user.email?.trim().toLowerCase() || auth.user.email?.trim().toLowerCase();
+  if (!requesterEmail) {
+    throw new ApiError(400, 'support_email_required', 'أضف بريدًا إلكترونيًا إلى حسابك قبل إرسال تذكرة الدعم');
+  }
+
   const { data, error } = await supabase.from('support_tickets').insert({
     ...input, ticket_number: ticketNumber(), tenant_id: caller.tenantId, created_by_user_id: caller.userId,
-    requester_name: user?.full_name ?? 'عميل سبعة', requester_email: user?.email ?? '', requester_phone: user?.phone ?? null,
+    requester_name: user.full_name || caller.fullName || 'عميل سبعة', requester_email: requesterEmail, requester_phone: user.phone ?? null,
   }).select().single();
   if (error) throw new Error(`Failed to create support ticket: ${error.message}`);
   return okResponse({ ticket: data }, 201);
