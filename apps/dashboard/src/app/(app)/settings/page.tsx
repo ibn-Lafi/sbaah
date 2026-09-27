@@ -167,37 +167,67 @@ function OrganizationInfoCard({
   };
   canEdit: boolean;
 }) {
-  const { pages } = useLocale();
+  const { pages, locale } = useLocale();
   const t = pages.settings;
+  type OptionalOrganizationField = 'cr_number' | 'tax_number' | 'fal_license_number' | 'freelance_document_number' | 'wafi_license_number';
   const [nameAr, setNameAr] = useState(initial.name_ar);
-  const [crNumber, setCrNumber] = useState(initial.cr_number ?? '');
-  const [taxNumber, setTaxNumber] = useState(initial.tax_number ?? '');
-  const [fal, setFal] = useState(initial.fal_license_number ?? '');
-  const [freelanceDocument, setFreelanceDocument] = useState(initial.freelance_document_number ?? '');
-  const [wafiLicense, setWafiLicense] = useState(initial.wafi_license_number ?? '');
+  const [values, setValues] = useState<Record<OptionalOrganizationField, string>>({
+    cr_number: initial.cr_number ?? '',
+    tax_number: initial.tax_number ?? '',
+    fal_license_number: initial.fal_license_number ?? '',
+    freelance_document_number: initial.freelance_document_number ?? '',
+    wafi_license_number: initial.wafi_license_number ?? '',
+  });
+  const availableFields: { key: OptionalOrganizationField; label: string; placeholder: string }[] =
+    accountType === 'individual'
+      ? [
+          { key: 'fal_license_number', label: t.falLicense.title, placeholder: t.falLicense.placeholder },
+          { key: 'freelance_document_number', label: t.organizationInfo.freelanceDocumentLabel, placeholder: t.organizationInfo.freelanceDocumentPlaceholder },
+        ]
+      : [
+          { key: 'cr_number', label: t.organizationInfo.crNumberLabel, placeholder: t.organizationInfo.crNumberPlaceholder },
+          { key: 'tax_number', label: t.organizationInfo.taxNumberLabel, placeholder: t.organizationInfo.taxNumberPlaceholder },
+          { key: 'fal_license_number', label: t.falLicense.title, placeholder: t.falLicense.placeholder },
+          { key: 'wafi_license_number', label: t.organizationInfo.wafiLicenseLabel, placeholder: t.organizationInfo.wafiLicensePlaceholder },
+        ];
+  const [activeFields, setActiveFields] = useState<OptionalOrganizationField[]>(
+    () => availableFields.filter(({ key }) => Boolean(values[key])).map(({ key }) => key)
+  );
+  const [pickerOpen, setPickerOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  function addField(key: OptionalOrganizationField) {
+    setActiveFields((current) => current.includes(key) ? current : [...current, key]);
+    setPickerOpen(false);
+  }
+
+  function removeField(key: OptionalOrganizationField) {
+    setActiveFields((current) => current.filter((field) => field !== key));
+    setValues((current) => ({ ...current, [key]: '' }));
+    setSaved(false);
+  }
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     setError(null);
     setSaved(false);
-
+    const active = new Set(activeFields);
     const payload = accountType === 'individual'
       ? {
           account_type: 'individual' as const,
           name_ar: nameAr,
-          fal_license_number: fal,
-          freelance_document_number: freelanceDocument,
+          fal_license_number: active.has('fal_license_number') ? values.fal_license_number : null,
+          freelance_document_number: active.has('freelance_document_number') ? values.freelance_document_number : null,
         }
       : {
           account_type: accountType,
           name_ar: nameAr,
-          cr_number: crNumber,
-          tax_number: taxNumber,
-          fal_license_number: fal,
-          wafi_license_number: wafiLicense,
+          cr_number: active.has('cr_number') ? values.cr_number : null,
+          tax_number: active.has('tax_number') ? values.tax_number : null,
+          fal_license_number: active.has('fal_license_number') ? values.fal_license_number : null,
+          wafi_license_number: active.has('wafi_license_number') ? values.wafi_license_number : null,
         };
 
     const result = organizationInfoUpdateSchema.safeParse(payload);
@@ -205,7 +235,6 @@ function OrganizationInfoCard({
       setError(result.error.issues[0]?.message ?? t.common.invalidData);
       return;
     }
-
     setLoading(true);
     try {
       await updateAccountType(accessToken, result.data);
@@ -225,46 +254,71 @@ function OrganizationInfoCard({
         : t.organizationInfo.companyNamePlaceholder;
 
   return (
-    <Card className="p-6">
-      <h2 className="mb-1 text-base font-semibold text-text-primary">{t.organizationInfo.title}</h2>
-      <p className="mb-4 text-sm text-text-secondary">{t.organizationInfo.description}</p>
-      {canEdit ? (
-        <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-3">
-          <Input placeholder={namePlaceholder} value={nameAr} onChange={(e) => setNameAr(e.target.value)} />
-          {accountType !== 'individual' && (
-            <>
-              <Input placeholder={t.organizationInfo.crNumberPlaceholder} value={crNumber} onChange={(e) => setCrNumber(e.target.value)} dir="ltr" />
-              <Input placeholder={t.organizationInfo.taxNumberPlaceholder} value={taxNumber} onChange={(e) => setTaxNumber(e.target.value)} dir="ltr" />
-            </>
+    <>
+      <Card className="p-6">
+        <div className="mb-1 flex items-center justify-between gap-3">
+          <h2 className="text-base font-semibold text-text-primary">{t.organizationInfo.title}</h2>
+          {canEdit && (
+            <button type="button" onClick={() => setPickerOpen(true)} aria-label={locale === 'ar' ? 'إضافة حقل' : 'Add field'} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border-default bg-surface-card text-xl font-medium text-brand transition-colors hover:bg-surface-subtle">+</button>
           )}
-          <Input value={fal} onChange={(e) => setFal(e.target.value)} placeholder={t.falLicense.placeholder} dir="ltr" />
-          {accountType === 'individual' ? (
-            <Input value={freelanceDocument} onChange={(e) => setFreelanceDocument(e.target.value)} placeholder={t.organizationInfo.freelanceDocumentPlaceholder} dir="ltr" />
-          ) : (
-            <Input value={wafiLicense} onChange={(e) => setWafiLicense(e.target.value)} placeholder={t.organizationInfo.wafiLicensePlaceholder} dir="ltr" />
-          )}
-          <FormError message={error} />
-          <Button type="submit" disabled={loading} className="w-fit">
-            {loading ? t.common.saving : saved ? t.common.saved : t.common.save}
-          </Button>
-        </form>
-      ) : (
-        <>
-          <InfoRow label={t.organizationInfo.websiteNameLabel} value={initial.name_ar} />
-          {accountType !== 'individual' && (
-            <>
-              <InfoRow label={t.organizationInfo.crNumberLabel} value={initial.cr_number ?? '—'} />
-              <InfoRow label={t.organizationInfo.taxNumberLabel} value={initial.tax_number ?? '—'} />
-            </>
-          )}
-          <InfoRow label={t.falLicense.title} value={initial.fal_license_number ?? '—'} />
-          <InfoRow
-            label={accountType === 'individual' ? t.organizationInfo.freelanceDocumentLabel : t.organizationInfo.wafiLicenseLabel}
-            value={(accountType === 'individual' ? initial.freelance_document_number : initial.wafi_license_number) ?? '—'}
-          />
-        </>
+        </div>
+        <p className="mb-4 text-sm text-text-secondary">{t.organizationInfo.description}</p>
+        {canEdit ? (
+          <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-text-primary">{t.organizationInfo.websiteNameLabel}</label>
+              <Input placeholder={namePlaceholder} value={nameAr} onChange={(e) => setNameAr(e.target.value)} />
+            </div>
+            {availableFields.filter(({ key }) => activeFields.includes(key)).map(({ key, label, placeholder }) => (
+              <div key={key} className="flex flex-col gap-2">
+                <div className="flex items-center justify-between gap-3">
+                  <label className="text-sm font-medium text-text-primary">{label}</label>
+                  <button type="button" onClick={() => removeField(key)} className="text-xs font-medium text-text-secondary transition-colors hover:text-danger">
+                    {locale === 'ar' ? 'إزالة' : 'Remove'}
+                  </button>
+                </div>
+                <Input value={values[key]} onChange={(event) => setValues((current) => ({ ...current, [key]: event.target.value }))} placeholder={placeholder} dir="ltr" />
+              </div>
+            ))}
+            <FormError message={error} />
+            <Button type="submit" disabled={loading} className="w-fit">
+              {loading ? t.common.saving : saved ? t.common.saved : t.common.save}
+            </Button>
+          </form>
+        ) : (
+          <>
+            <InfoRow label={t.organizationInfo.websiteNameLabel} value={initial.name_ar} />
+            {availableFields.filter(({ key }) => Boolean(initial[key])).map(({ key, label }) => (
+              <InfoRow key={key} label={label} value={initial[key] ?? '—'} />
+            ))}
+          </>
+        )}
+      </Card>
+
+      {pickerOpen && canEdit && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/35 p-4 backdrop-blur-[2px]" onClick={() => setPickerOpen(false)}>
+          <div role="dialog" aria-modal="true" className="w-full max-w-md rounded-[28px] bg-surface-card p-5 shadow-2xl" onClick={(event) => event.stopPropagation()}>
+            <div className="mb-5 flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-bold text-text-primary">{locale === 'ar' ? 'إضافة حقل' : 'Add field'}</h3>
+                <p className="mt-1 text-sm text-text-secondary">{locale === 'ar' ? 'اختر البيانات التي تريد إضافتها.' : 'Choose the information you want to add.'}</p>
+              </div>
+              <button type="button" onClick={() => setPickerOpen(false)} className="flex h-9 w-9 items-center justify-center rounded-full bg-surface-subtle text-xl text-text-secondary">×</button>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {availableFields.map(({ key, label }) => {
+                const active = activeFields.includes(key);
+                return (
+                  <button key={key} type="button" disabled={active} onClick={() => addField(key)} className="flex min-h-20 items-center justify-center rounded-2xl border border-border-default bg-surface-page p-3 text-center text-sm font-semibold transition-colors hover:border-brand hover:text-brand disabled:opacity-35">
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
       )}
-    </Card>
+    </>
   );
 }
 
