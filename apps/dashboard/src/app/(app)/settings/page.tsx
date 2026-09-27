@@ -238,6 +238,7 @@ function OrganizationInfoCard({
     setLoading(true);
     try {
       await updateAccountType(accessToken, result.data);
+      setActiveFields(availableFields.filter(({ key }) => Boolean(values[key].trim())).map(({ key }) => key));
       setSaved(true);
     } catch (err) {
       setError(err instanceof ApiRequestError ? err.message : t.organizationInfo.saveFailed);
@@ -385,8 +386,7 @@ function SocialLinksCard({ accessToken, initial }: { accessToken: string; initia
                 <Icon className="h-[18px] w-[18px] text-text-secondary" />
                 {label}
               </label>
-              <button type="button" onClick={() => { setActiveFields((current) => current.filter((field) => field !== key)); setDraft((current) => ({ ...current, [key]: null })); setSaved(false); }} className="inline-flex h-8 items-center justify-center rounded-lg px-2 text-xs font-medium text-text-secondary transition-colors hover:bg-danger-surface hover:text-danger">{locale === 'ar' ? 'إزالة' : 'Remove'}</button>
-              </div>
+</div>
               {phone ? (
                 <PhoneInput className="!h-[46px] px-3 text-sm" storagePrefix="966" placeholder={placeholder} value={draft[key] ?? ''} onChange={(value) => setDraft((current) => ({ ...current, [key]: value }))} />
               ) : (
