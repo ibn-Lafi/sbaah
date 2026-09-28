@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { useLocale } from '@/lib/i18n/locale-context';
 
-type Filter = 'all' | 'customers' | 'calendar' | 'rent' | 'system';
+type Filter = 'all' | 'customers' | 'projects' | 'units' | 'calendar' | 'rent' | 'system';
 type Notice = { id:string; category:Exclude<Filter,'all'>; title:string; body:string; href:string; level:'high'|'important'|'new'|'info' };
 
 function Bell({className}:{className?:string}) {
@@ -28,7 +28,7 @@ export function NotificationCenter(){
     return items;
   },[me.tenant.trial_ends_at,me.tenant.status,ar]);
   const shown=filter==='all'?notices:notices.filter(n=>n.category===filter);
-  const tabs:Array<[Filter,string]>=[['all',ar?'الكل':'All'],['customers',ar?'العملاء':'Customers'],['calendar',ar?'المواعيد':'Calendar'],['rent',ar?'الإيجار':'Rent'],['system',ar?'النظام':'System']];
+  const tabs:Array<[Filter,string]>=[['all',ar?'الكل':'All'],['customers',ar?'العملاء':'Customers'],['projects',ar?'المشاريع':'Projects'],['units',ar?'الوحدات':'Units'],['calendar',ar?'المواعيد':'Calendar'],['rent',ar?'الإيجار':'Rent'],['system',ar?'النظام':'System']];
 
   return <div className="relative flex-none">
     <button type="button" onClick={()=>setOpen(v=>!v)} aria-label={ar?'التنبيهات':'Notifications'} className="relative flex h-9 w-9 items-center justify-center rounded-full bg-white/15 text-white md:h-[42px] md:w-[42px] md:bg-surface-subtle md:text-text-primary">
