@@ -92,26 +92,26 @@ export default function ThemeStorePage() {
       orgName={me.tenant.name_ar}
       accountType={me.tenant.account_type}
     >
-      <div className="flex w-full flex-col gap-6">
+      <div className="flex w-full flex-col gap-6 pb-28 sm:pb-24">
         <FormError message={error} />
 
         {themes.find((theme) => theme.id === website.theme_id) ? (() => {
           const activeTheme = themes.find((theme) => theme.id === website.theme_id)!;
           return (
-            <div className="w-full overflow-hidden rounded-xl border border-border-default bg-surface-card px-3 py-2.5 sm:px-4">
-              <div className="flex items-center gap-3">
-                <div className="h-16 w-24 shrink-0 overflow-hidden rounded-lg border border-border-subtle sm:h-[72px] sm:w-28">
+            <div className="fixed inset-x-3 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-40 mx-auto max-w-5xl overflow-hidden rounded-2xl border border-border-default bg-surface-card/95 px-3 py-2.5 shadow-xl backdrop-blur sm:inset-x-6 sm:bottom-6 sm:px-4 lg:right-[calc(50%+7rem)] lg:left-auto lg:w-[min(64rem,calc(100vw-20rem))] lg:-translate-x-1/2">
+              <div className="flex items-center gap-2.5 sm:gap-3">
+                <div className="h-12 w-[72px] shrink-0 overflow-hidden rounded-lg border border-border-subtle sm:h-14 sm:w-20">
                   <ThemePreview themeKey={activeTheme.key} primaryColor={website.primary_color} previewImageUrl={activeTheme.preview_image_url} />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[11px] font-medium text-text-secondary sm:text-xs">الثيم المستخدم</p>
-                  <h2 className="mt-0.5 truncate text-sm font-semibold text-text-primary sm:text-base">{activeTheme.name_ar}</h2>
+                  <p className="text-[10px] font-medium text-text-secondary sm:text-xs">الثيم المستخدم</p>
+                  <h2 className="mt-0.5 truncate text-xs font-semibold text-text-primary sm:text-sm">{activeTheme.name_ar}</h2>
                 </div>
-                <div className="flex shrink-0 items-center gap-2">
-                  <a href="/website/editor" className="flex h-9 items-center justify-center rounded-lg bg-brand px-3 text-xs font-semibold text-white transition hover:opacity-90 sm:px-4 sm:text-sm">
+                <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+                  <a href="/website/editor" className="flex h-8 items-center justify-center whitespace-nowrap rounded-lg bg-brand px-2.5 text-[11px] font-semibold text-white transition hover:opacity-90 sm:h-9 sm:px-4 sm:text-sm">
                     {t.themeStore.customizeTheme}
                   </a>
-                  <a href={siteUrl} target="_blank" rel="noopener noreferrer" className="flex h-9 items-center justify-center rounded-lg border border-border-default bg-surface-card px-3 text-xs font-semibold text-text-primary transition hover:bg-surface-subtle sm:px-4 sm:text-sm">
+                  <a href={siteUrl} target="_blank" rel="noopener noreferrer" className="flex h-8 items-center justify-center whitespace-nowrap rounded-lg border border-border-default bg-surface-card px-2.5 text-[11px] font-semibold text-text-primary transition hover:bg-surface-subtle sm:h-9 sm:px-4 sm:text-sm">
                     فتح الموقع
                   </a>
                 </div>
