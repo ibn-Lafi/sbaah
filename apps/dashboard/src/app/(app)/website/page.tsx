@@ -98,7 +98,7 @@ export default function ThemeStorePage() {
         {themes.find((theme) => theme.id === website.theme_id) ? (() => {
           const activeTheme = themes.find((theme) => theme.id === website.theme_id)!;
           return (
-            <div className="fixed inset-x-6 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-40 mx-auto max-w-4xl overflow-hidden rounded-2xl border border-white/15 bg-brand px-3 py-2.5 shadow-xl sm:inset-x-10 sm:bottom-6 sm:px-4 lg:right-[calc(50%+7rem)] lg:left-auto lg:w-[min(56rem,calc(100vw-24rem))] lg:-translate-x-1/2">
+            <div className="fixed inset-x-[11%] bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-40 mx-auto max-w-4xl overflow-hidden rounded-2xl border border-white/15 bg-brand px-3 py-2 shadow-xl sm:inset-x-10 sm:bottom-6 sm:px-4 sm:py-2.5 lg:right-[calc(50%+7rem)] lg:left-auto lg:w-[min(56rem,calc(100vw-24rem))] lg:-translate-x-1/2">
               <div className="flex items-center gap-2.5 sm:gap-3">
                 <div className="h-12 w-[72px] shrink-0 overflow-hidden rounded-lg border border-border-subtle sm:h-14 sm:w-20">
                   <ThemePreview themeKey={activeTheme.key} primaryColor={website.primary_color} previewImageUrl={activeTheme.preview_image_url} />
