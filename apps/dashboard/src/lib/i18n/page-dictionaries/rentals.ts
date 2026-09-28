@@ -1,7 +1,7 @@
 export const rentalsAr = {
   pageTitle: 'الإيجارات',
   allStatuses: 'كل الحالات',
-  addRental: '+ إضافة إيجار',
+  addRental: 'إضافة إيجار',
   createModalTitle: 'إضافة إيجار',
   createSubmitLabel: 'إضافة الإيجار',
   emptyState: 'لا توجد عقود إيجار بعد',
@@ -45,7 +45,7 @@ export const rentalsAr = {
 export const rentalsEn: typeof rentalsAr = {
   pageTitle: 'Rentals',
   allStatuses: 'All statuses',
-  addRental: '+ Add Rental',
+  addRental: 'Add Rental',
   createModalTitle: 'Add Rental',
   createSubmitLabel: 'Add Rental',
   emptyState: 'No rental contracts yet',
