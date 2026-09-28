@@ -2,10 +2,10 @@ import { apiDelete, apiGet, apiPatch, apiPost, apiUpload } from './client';
 export type ContractStatus='active'|'expired'|'cancelled'|'terminated'|'renewed'|'archived'|'unknown';
 export type ContractSource='ejar'|'rega'|'moj'|'bank'|'external'|'other';
 export interface ContractParty{id:string;party_id:string|null;role:string;display_name:string;identifier_type?:string|null;identifier_number?:string|null;email?:string|null;phone?:string|null}
-export interface ContractLink{id:string;link_type:'project'|'asset'|'lead'|'deal'|'listing'|'party';project_id?:string|null;asset_id?:string|null;lead_id?:string|null;deal_id?:string|null;listing_id?:string|null;party_id?:string|null;relation_type?:string|null}
+export interface ContractLink{id:string;link_type:'project'|'asset'|'lead'|'deal'|'listing'|'party';project_id?:string|null;asset_id?:string|null;lead_id?:string|null;deal_id?:string|null;listing_id?:string|null;party_id?:string|null;relation_type?:string|null;entity_label?:string|null;entity_href?:string|null}
 export interface ContractDocument{id:string;document_type:string;file_name:string;storage_path:string;mime_type?:string|null;file_size?:number|null;is_primary:boolean;created_at:string}
 export interface ContractReminder{id:string;remind_at:string;kind:string;note?:string|null;sent_at?:string|null}
-export interface ContractRow{id:string;title:string;contract_type:string;contract_category:string;contract_number:string|null;source:ContractSource;source_name:string|null;official_reference_number:string|null;official_url?:string|null;status:ContractStatus;total_value:number|null;currency:string;start_date:string|null;end_date:string|null;auto_renew:boolean;renewal_period_months?:number|null;notes:string|null;created_at:string;contract_parties?:ContractParty[];contract_links?:ContractLink[];contract_documents?:ContractDocument[];contract_reminders?:ContractReminder[]}
+export interface ContractRow{id:string;title:string;contract_type:string;contract_category:string;contract_number:string|null;source:ContractSource;source_name:string|null;official_reference_number:string|null;official_url?:string|null;status:ContractStatus;total_value:number|null;currency:string;start_date:string|null;end_date:string|null;auto_renew:boolean;renewal_period_months?:number|null;notes:string|null;parent_contract_id?:string|null;created_at:string;contract_parties?:ContractParty[];contract_links?:ContractLink[];contract_documents?:ContractDocument[];contract_reminders?:ContractReminder[]}
 export const listContracts=(token:string,params='')=>apiGet<{contracts:ContractRow[];total:number}>(`/v1/contracts${params?`?${params}`:''}`,token);
 export const getContract=(token:string,id:string)=>apiGet<{contract:ContractRow}>(`/v1/contracts/${id}`,token);
 export const createContract=(token:string,input:unknown)=>apiPost<{contract:ContractRow}>('/v1/contracts',input,token);
@@ -25,3 +25,5 @@ export const removeContractDocument=(token:string,id:string,documentId:string)=>
 
 export interface ContractDealLookup{id:string;status:string;deal_type:'sale'|'rent'|null;value:number|null;lead_id:string;created_at:string;leads?:{full_name:string}|null}
 export const listContractDeals=(token:string)=>apiGet<{deals:ContractDealLookup[]}>('/v1/contracts/lookups/deals',token);
+
+export const renewContract=(token:string,id:string,input:unknown)=>apiPost<{contract:ContractRow}>(`/v1/contracts/${id}/renew`,input,token);
