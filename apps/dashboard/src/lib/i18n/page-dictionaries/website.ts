@@ -29,7 +29,7 @@ export const websiteAr = {
     pageContent: 'محتوى الصفحة',
     bottomOfPage: 'أسفل الصفحة',
     sectionsCount: (n: number) => (n === 0 ? 'لا أقسام' : n === 1 ? 'قسم واحد' : `${n} أقسام`),
-    addSection: '+ إضافة قسم',
+    addSection: 'إضافة قسم',
     addSectionTitle: 'إضافة قسم جديد',
     searchSectionPlaceholder: 'بحث باستخدام اسم القسم',
     noHiddenSections: 'كل الأقسام المتاحة لهذه الصفحة مُضافة بالفعل',
@@ -65,8 +65,8 @@ export const websiteAr = {
   assetUploader: {
     replace: 'استبدال',
     remove: 'إزالة',
-    uploadImage: '+ رفع صورة',
-    uploadVideo: '+ رفع فيديو',
+    uploadImage: 'رفع صورة',
+    uploadVideo: 'رفع فيديو',
     uploading: 'جارٍ الرفع...',
     errors: {
       uploadImage: 'تعذّر رفع الصورة',
@@ -152,7 +152,7 @@ export const websiteAr = {
     deleteConfirmTitle: 'حذف الصفحة',
     deleteConfirmMessage: (title: string) =>
       `سيتم حذف صفحة "${title}" نهائيًا، وسيختفي رابطها من تذييل موقعك. لا يمكن التراجع عن هذا الإجراء.`,
-    addButton: '+ إضافة صفحة',
+    addButton: 'إضافة صفحة',
     saveEditLabel: 'حفظ التعديلات',
     createLabel: 'إنشاء الصفحة',
     errors: {
@@ -189,7 +189,7 @@ export const websiteEn: typeof websiteAr = {
     bottomOfPage: 'Bottom of Page',
     sectionsCount: (n: number) =>
       n === 0 ? 'No sections' : n === 1 ? '1 section' : `${n} sections`,
-    addSection: '+ Add Section',
+    addSection: 'Add Section',
     addSectionTitle: 'Add New Section',
     searchSectionPlaceholder: 'Search by section name',
     noHiddenSections: 'Every available section for this page has already been added',
@@ -226,8 +226,8 @@ export const websiteEn: typeof websiteAr = {
   assetUploader: {
     replace: 'Replace',
     remove: 'Remove',
-    uploadImage: '+ Upload image',
-    uploadVideo: '+ Upload video',
+    uploadImage: 'Upload image',
+    uploadVideo: 'Upload video',
     uploading: 'Uploading...',
     errors: {
       uploadImage: 'Failed to upload the image',
@@ -313,7 +313,7 @@ export const websiteEn: typeof websiteAr = {
     deleteConfirmTitle: 'Delete Page',
     deleteConfirmMessage: (title: string) =>
       `The page "${title}" will be permanently deleted, and its link will disappear from your footer. This cannot be undone.`,
-    addButton: '+ Add Page',
+    addButton: 'Add Page',
     saveEditLabel: 'Save Changes',
     createLabel: 'Create Page',
     errors: {
