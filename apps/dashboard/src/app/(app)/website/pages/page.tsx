@@ -151,7 +151,7 @@ export default function CustomPagesPage() {
           <>
             {pages.map((page) =>
               editingId === page.id ? (
-                <Card key={page.id} className="p-6">
+                <Card key={page.id} className="p-4 sm:p-6">
                   <PageForm
                     draft={editDraft}
                     onChange={setEditDraft}
@@ -163,7 +163,7 @@ export default function CustomPagesPage() {
                   />
                 </Card>
               ) : (
-                <Card key={page.id} className="flex items-center justify-between gap-3 p-5">
+                <Card key={page.id} className="flex items-center justify-between gap-2 p-4 sm:gap-3 sm:p-5">
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold text-text-primary">{page.title}</p>
                     <p className="truncate text-xs text-text-secondary" dir="ltr">
@@ -193,7 +193,7 @@ export default function CustomPagesPage() {
             )}
 
             {creating ? (
-              <Card className="p-6">
+              <Card className="p-4 sm:p-6">
                 <PageForm
                   draft={newDraft}
                   onChange={setNewDraft}
@@ -215,7 +215,7 @@ export default function CustomPagesPage() {
                   setNewDraft(EMPTY_DRAFT);
                   setError(null);
                 }}
-                className="w-fit"
+                className="h-10 w-fit rounded-full px-5 sm:h-[46px] sm:px-6"
               >
                 {t.addButton}
               </Button>
