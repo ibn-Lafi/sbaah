@@ -33,7 +33,7 @@ export function PlanComparisonButton() {
     {open && <div className="fixed inset-0 z-[140] flex items-end justify-center bg-black/40 backdrop-blur-[2px] sm:items-center sm:p-4" onClick={() => setOpen(false)}>
       <div role="dialog" aria-modal="true" className="bg-surface-card flex max-h-[92dvh] w-full flex-col rounded-t-[28px] shadow-2xl sm:max-w-[760px] sm:rounded-[28px]" onClick={(e) => e.stopPropagation()}>
         <div className="border-border-subtle flex flex-none items-center justify-between border-b px-5 py-4 sm:px-6">
-          <div><h2 className="text-lg font-bold text-text-primary">{locale === 'ar' ? 'مقارنة الباقات' : 'Compare plans'}</h2><p className="mt-0.5 text-xs text-text-secondary">{locale === 'ar' ? 'اختر الباقة التي تناسب احتياجك' : 'Choose the plan that fits your needs'}</p></div>
+          <h2 className="text-lg font-bold text-text-primary">{locale === 'ar' ? 'مقارنة الباقات' : 'Compare plans'}</h2>
           <button type="button" onClick={() => setOpen(false)} aria-label={locale === 'ar' ? 'إغلاق' : 'Close'} className="bg-surface-subtle text-text-secondary flex h-9 w-9 items-center justify-center rounded-full text-xl">×</button>
         </div>
         <div className="overflow-y-auto px-4 py-4 sm:px-6 sm:py-5">
