@@ -67,6 +67,7 @@ export function getNavItems(t: ChromeDictionary): NavEntry[] {
     { href: '/', label: t.nav.dashboard, icon: DashboardIcon },
     { href: '/leads', label: t.nav.leads, icon: ClientsIcon, capability: 'crm' },
     { href: '/viewings', label: 'التقويم', icon: CalendarIcon, capability: 'crm' },
+    { href: '/contracts', label: 'العقود', icon: PagesIcon },
     {
       group: 'properties',
       capability: 'properties',
