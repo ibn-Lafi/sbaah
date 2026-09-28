@@ -4,6 +4,7 @@ import { ApiError, extractClientIp, okResponse, withErrorHandling } from '@/lib/
 import { verifyCaptcha } from '@/lib/captcha/verify-captcha';
 import { validatePublicTenantTarget } from '@/lib/tenant/validate-public-target';
 import { enforceRateLimit, RATE_LIMITS } from '@/lib/rate-limit/enforce-rate-limit';
+import { notifyTenant } from '@/lib/notifications/notify';
 
 /**
  * Unauthenticated — public-site's inquiry form. `leads` intentionally has
@@ -43,23 +44,36 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
         ? { listing_id: input.listing_id }
         : null;
 
+  let createdLeadId: string | null = null;
   if (interest) {
-    const { error: insertError } = await serviceRole.rpc('create_public_lead_with_interest', {
+    const { data: createdLead, error: insertError } = await serviceRole.rpc('create_public_lead_with_interest', {
       p_tenant_id: input.tenant_id,
       p_lead: { full_name: input.full_name, phone: input.phone, email: input.email ?? null },
       p_interest: interest,
     });
     if (insertError) throw new Error(`Failed to save lead with interest: ${insertError.message}`);
+    createdLeadId = Array.isArray(createdLead) ? createdLead[0]?.id ?? null : (createdLead as { id?: string } | null)?.id ?? null;
   } else {
-    const { error: insertError } = await serviceRole.from('leads').insert({
+    const { data: createdLead, error: insertError } = await serviceRole.from('leads').insert({
       tenant_id: input.tenant_id,
       full_name: input.full_name,
       phone: input.phone,
       email: input.email ?? null,
       source: 'website_form',
       status: 'new',
-    });
+    }).select('id').single();
     if (insertError) throw new Error(`Failed to save public lead: ${insertError.message}`);
+    createdLeadId = createdLead.id;
+  }
+
+  // Some database function versions do not return the created row. Resolve it
+  // narrowly so a website inquiry still produces a useful, direct notification.
+  if (!createdLeadId) {
+    const { data: createdLead } = await serviceRole.from('leads').select('id').eq('tenant_id', input.tenant_id).eq('phone', input.phone).order('created_at', { ascending: false }).limit(1).maybeSingle();
+    createdLeadId = createdLead?.id ?? null;
+  }
+  if (createdLeadId) {
+    await notifyTenant({ tenantId: input.tenant_id, category: 'customers', level: 'new', title: 'طلب جديد من الموقع', body: `أرسل ${input.full_name} طلبًا جديدًا من موقعك.`, href: `/leads/${createdLeadId}`, eventKey: `lead:${createdLeadId}:website-created` });
   }
 
   return okResponse({ status: 'received' }, 201);
