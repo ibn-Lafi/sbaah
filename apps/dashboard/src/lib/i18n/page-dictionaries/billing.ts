@@ -21,7 +21,7 @@ export const billingAr = {
   plans: {
     backButton: 'رجوع للفوترة',
     heading: 'اختر باقتك',
-    subheading: 'يمكنك تغيير الباقة في أي وقت من صفحة الفوترة.',
+    subheading: 'اختر الباقة المناسبة لك',
     cycleToggle: {
       annual: 'سنوي',
       monthly: 'شهري',
@@ -79,7 +79,7 @@ export const billingEn: typeof billingAr = {
   plans: {
     backButton: 'Back to Billing',
     heading: 'Choose your plan',
-    subheading: 'You can change your plan anytime from the billing page.',
+    subheading: 'Choose the plan that suits you',
     cycleToggle: {
       annual: 'Yearly',
       monthly: 'Monthly',
