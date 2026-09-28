@@ -72,6 +72,7 @@ export function DateTimePicker({ value, onChange, placeholder, className = '' }:
       {open && (
         <div className="rounded-card border-border-subtle bg-surface-card absolute inset-x-0 z-30 mt-2 w-full overflow-hidden border shadow-[0_10px_30px_rgba(31,29,34,.16)] sm:inset-x-auto sm:w-auto">
           <div className="flex justify-center">
+          <div className="flex justify-center overflow-hidden [&>div]:w-full [&>div]:max-w-[280px] [&>div]:px-2 sm:[&>div]:px-3">
           <Calendar
             month={viewMonth}
             onMonthChange={setViewMonth}
