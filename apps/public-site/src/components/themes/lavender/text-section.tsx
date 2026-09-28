@@ -7,11 +7,11 @@ export function TextSection({ type, locale, config }: TextSectionProps) {
   if (!body) return null;
   const title = config.title_ar || DEFAULT_SECTION_TITLE[type].ar;
   return (
-    <LavenderSection className={type === 'about' ? 'bg-white' : 'bg-[#171713] text-white'}>
+    <LavenderSection className="bg-white text-[#171713]">
       <div className="border-current/20 grid gap-10 border-t pt-7 lg:grid-cols-[.8fr_1.2fr] lg:gap-20">
         <div>
           <span
-            className={`text-xs font-semibold tracking-[.16em] ${type === 'about' ? 'text-tenant-primary' : 'text-white/75'}`}
+            className={`text-xs font-semibold tracking-[.16em] text-tenant-primary`}
           >
             {type === 'about'
               ? locale === 'ar'
@@ -22,13 +22,13 @@ export function TextSection({ type, locale, config }: TextSectionProps) {
                 : 'WHY CHOOSE US'}
           </span>
           <h2
-            className={`mt-4 text-4xl font-semibold leading-tight tracking-tight sm:text-5xl ${type === 'about' ? 'text-black' : 'text-white'}`}
+            className={`mt-4 text-4xl font-semibold leading-tight tracking-tight sm:text-5xl text-black`}
           >
             {title}
           </h2>
         </div>
         <p
-          className={`max-w-3xl whitespace-pre-line text-lg leading-9 sm:text-xl ${type === 'about' ? 'text-black/70' : 'text-white/75'}`}
+          className={`max-w-3xl whitespace-pre-line text-lg leading-9 sm:text-xl text-black/70`}
         >
           {body}
         </p>
