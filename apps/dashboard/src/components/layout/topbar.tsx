@@ -106,11 +106,9 @@ export function Topbar({ title, siteUrl }: TopbarProps) {
       <div className="flex h-10 flex-none items-center overflow-visible rounded-[13px] border border-white/25 md:hidden">
         <NotificationCenter mobileGrouped />
         <span className="h-5 w-px flex-none bg-white/25" />
-        <div className="relative flex-none">
-          <button type="button" onClick={() => setSiteMenuOpen((v) => !v)} aria-label={t.topbar.visitSite} title={t.topbar.visitSite} className="flex h-9 w-9 flex-none items-center justify-center bg-transparent text-white">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="h-[17px] w-[17px]"><path d="M14 4h6v6M10 14 20 4M13 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3-3v-6" /></svg>
-          </button>
-        </div>
+        <a href={siteUrl} target="_blank" rel="noreferrer" aria-label={t.topbar.visitSite} title={t.topbar.visitSite} className="flex h-9 w-9 flex-none items-center justify-center bg-transparent text-white">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="h-[17px] w-[17px]"><path d="M14 4h6v6M10 14 20 4M13 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3-3v-6" /></svg>
+        </a>
       </div>
     </div>
   );
