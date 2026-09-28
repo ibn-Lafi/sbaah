@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import type { Website } from '@sbaah/shared';
+import { SUPPORTED_WEBSITE_FONTS, type Website } from '@sbaah/shared';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
 import { FormError } from '@/components/ui/form-error';
 import { AssetUploader } from './asset-uploader';
 import { useLocale } from '@/lib/i18n/locale-context';
@@ -35,6 +36,16 @@ export function WebsiteBrandingCard({ accessToken }: { accessToken: string }) {
       setCopyrightLocked(!result.capabilities.can_customize_copyright);
     });
   }, [accessToken]);
+
+  async function saveFont(font: string) {
+    setError(null);
+    try {
+      const { website: updated } = await updateWebsite(accessToken, { font_family: font });
+      setWebsite((current) => (current ? { ...current, ...updated } : current));
+    } catch (err) {
+      setError(err instanceof ApiRequestError ? err.message : t.errors.saveFont);
+    }
+  }
 
   async function saveColor(field: 'primary_color' | 'secondary_color' | 'background_color', value: string) {
     if (!HEX_PATTERN.test(value)) return;
@@ -112,6 +123,12 @@ export function WebsiteBrandingCard({ accessToken }: { accessToken: string }) {
               compact className="min-w-0 flex-1"
             />
           </div>
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium text-text-primary">{t.font}</label>
+          <Select value={website.font_family} onChange={(e) => void saveFont(e.target.value)} className="h-10">
+            {SUPPORTED_WEBSITE_FONTS.map((font) => <option key={font} value={font}>{font}</option>)}
+          </Select>
         </div>
         <div className="rounded-xl border border-border-subtle bg-surface-subtle p-3 text-xs leading-6 text-text-secondary">
           <strong className="text-text-primary">نظام الألوان:</strong> الأساسي للأزرار وروابط الإجراء والعناصر النشطة، الثانوي للتفاصيل الداعمة واللمسات البصرية، والخلفية لسطح الصفحات والأقسام. النصوص تبقى بألوان عالية التباين لضمان القراءة.
