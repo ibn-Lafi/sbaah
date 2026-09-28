@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/card';
 import { FormError } from '@/components/ui/form-error';
 import { ThemeGallerySkeleton } from '@/components/website/theme-gallery-skeleton';
 import { ThemeGallery } from '@/components/website/theme-gallery';
+import { ThemePreview } from '@/components/website/theme-preview';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { useLocale } from '@/lib/i18n/locale-context';
 import { getWebsite, updateWebsite } from '@/lib/api/website';
@@ -94,7 +95,32 @@ export default function ThemeStorePage() {
       <div className="flex w-full flex-col gap-6">
         <FormError message={error} />
 
-        <Card className="p-8">
+        {themes.find((theme) => theme.id === website.theme_id) ? (() => {
+          const activeTheme = themes.find((theme) => theme.id === website.theme_id)!;
+          return (
+            <Card className="w-full p-3 sm:p-4">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                <div className="aspect-[4/3] w-full shrink-0 overflow-hidden rounded-xl border border-border-default sm:w-36">
+                  <ThemePreview themeKey={activeTheme.key} primaryColor={website.primary_color} previewImageUrl={activeTheme.preview_image_url} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-medium text-text-secondary">الثيم المستخدم</p>
+                  <h2 className="mt-1 truncate text-base font-semibold text-text-primary">{activeTheme.name_ar}</h2>
+                </div>
+                <div className="flex shrink-0 flex-wrap items-center gap-2">
+                  <a href="/website/editor" className="flex h-10 items-center justify-center rounded-[10px] bg-brand px-4 text-sm font-semibold text-white transition hover:opacity-90">
+                    {t.themeStore.customizeTheme}
+                  </a>
+                  <a href={siteUrl} target="_blank" rel="noopener noreferrer" className="flex h-10 items-center justify-center rounded-[10px] border border-border-default bg-surface-card px-4 text-sm font-semibold text-text-primary transition hover:bg-surface-subtle">
+                    فتح الموقع
+                  </a>
+                </div>
+              </div>
+            </Card>
+          );
+        })() : null}
+
+        <Card className="p-4 sm:p-8">
           <h2 className="mb-1 text-base font-semibold text-text-primary">{t.themeStore.pageTitle}</h2>
           <p className="mb-4 text-sm text-text-secondary">{t.themeStore.description}</p>
           <ThemeGallery
