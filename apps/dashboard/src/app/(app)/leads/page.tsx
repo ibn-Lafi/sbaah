@@ -92,7 +92,7 @@ export default function LeadsPage() {
             </option>
           ))}
         </Select> : <div />}
-        {canManage && <Button onClick={() => setShowCreate(true)}>+ عميل</Button>}
+        {canManage && <Button onClick={() => setShowCreate(true)} className="h-11 min-w-[140px] rounded-full px-7 sm:min-w-[160px]">+ عميل</Button>}
       </div>
 
       {showCreate && (
