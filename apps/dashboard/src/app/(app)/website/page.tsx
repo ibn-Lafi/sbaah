@@ -122,7 +122,7 @@ export default function ThemeStorePage() {
 
         <Card className="p-4 sm:p-8">
           <h2 className="mb-1 text-base font-semibold text-text-primary">{t.themeStore.pageTitle}</h2>
-          <p className="mb-4 text-sm text-text-secondary">{t.themeStore.description}</p>
+          <div className="mb-4" />
           <ThemeGallery
             themes={themes}
             selectedThemeId={website.theme_id}
