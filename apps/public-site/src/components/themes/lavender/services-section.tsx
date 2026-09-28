@@ -24,8 +24,8 @@ export function LavenderServices({
           {locale === 'ar' ? 'خدماتنا' : 'Services'}
         </p>
 
-        <div className="grid items-start gap-10 lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-16">
-          <div className="min-w-0 lg:col-start-2 lg:row-start-1" aria-live="polite">
+        <div className="flex flex-col gap-7 lg:grid lg:grid-cols-[320px_minmax(0,1fr)] lg:items-start lg:gap-16">
+          <div className="order-2 min-w-0 lg:order-none lg:col-start-2 lg:row-start-1" aria-live="polite">
             <h3 className="text-3xl font-semibold leading-tight sm:text-4xl lg:text-5xl">
               {current.title}
             </h3>
@@ -37,7 +37,7 @@ export function LavenderServices({
           </div>
 
           <div
-            className={`lg:col-start-1 lg:row-start-1 ${locale === 'ar' ? 'border-[var(--tenant-primary)]/15 border-r-2 pr-4 sm:pr-5' : 'border-[var(--tenant-primary)]/15 border-l-2 pl-4 sm:pl-5'}`}
+            className="order-1 flex w-full gap-2 overflow-x-auto border-b border-[var(--tenant-primary)]/15 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:order-none lg:col-start-1 lg:row-start-1 lg:block lg:overflow-visible lg:border-b-0 lg:border-r-2 lg:pr-5"
             role="tablist"
             aria-label={locale === 'ar' ? 'الخدمات' : 'Services'}
           >
@@ -50,12 +50,12 @@ export function LavenderServices({
                   role="tab"
                   aria-selected={selected}
                   onClick={() => setActive(index)}
-                  className={`relative block w-full py-3 text-start text-xl leading-tight transition-colors sm:text-2xl ${selected ? 'font-medium text-[var(--tenant-primary)]' : 'text-[var(--tenant-primary)]/35 hover:text-[var(--tenant-primary)]/65'}`}
+                  className={`relative shrink-0 whitespace-nowrap px-3 py-3 text-start text-base leading-tight transition-colors sm:text-lg lg:block lg:w-full lg:px-0 lg:text-2xl ${selected ? 'font-medium text-[var(--tenant-primary)]' : 'text-[var(--tenant-primary)]/35 hover:text-[var(--tenant-primary)]/65'}`}
                 >
                   {selected && (
                     <span
                       aria-hidden="true"
-                      className={`absolute top-0 h-full w-[3px] bg-[var(--tenant-primary)] ${locale === 'ar' ? '-right-[18px] sm:-right-[22px]' : '-left-[18px] sm:-left-[22px]'}`}
+                      className="absolute inset-x-2 bottom-0 h-[2px] bg-[var(--tenant-primary)] lg:inset-x-auto lg:top-0 lg:right-[-22px] lg:h-full lg:w-[3px]"
                     />
                   )}
                   {item.title}
