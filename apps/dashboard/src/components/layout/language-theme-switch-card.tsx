@@ -9,7 +9,7 @@ function LanguageIcon(){return <svg viewBox="0 0 24 24" fill="none" stroke="curr
 
 export function LanguageThemeSwitchCard(){
  const {locale,setLocale}=useLocale();const {theme,toggleTheme}=useTheme();const ar=locale==='ar';
- return <div className="overflow-hidden rounded-[18px] border border-border-subtle bg-surface-card md:hidden">
+ return <div className="overflow-hidden bg-transparent md:hidden">
   <div className="flex min-h-[64px] items-center justify-between gap-4 px-4">
    <div className="flex items-center gap-3 text-text-primary"><span className="text-text-tertiary"><MoonIcon/></span><span className="text-sm font-medium">{ar?'الوضع الداكن':'Dark mode'}</span></div>
    <Switch checked={theme==='dark'} onChange={toggleTheme}/>
