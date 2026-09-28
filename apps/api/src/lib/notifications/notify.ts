@@ -7,11 +7,14 @@ interface NotifyInput {tenantId:string;recipientUserId:string;category:Category;
 /** Trusted server-side notification write. event_key makes retries idempotent per recipient. */
 export async function notifyUser(input:NotifyInput){
  const db=createServiceRoleClient();
- const {error}=await db.from('notifications').upsert({
+ const {data:existing,error:lookupError}=await db.from('notifications').select('id').eq('recipient_user_id',input.recipientUserId).eq('event_key',input.eventKey).maybeSingle();
+ if(lookupError){console.error('Failed to check notification idempotency',lookupError.message);return}
+ if(existing)return;
+ const {error}=await db.from('notifications').insert({
   tenant_id:input.tenantId,recipient_user_id:input.recipientUserId,category:input.category,level:input.level??'info',
   title:input.title,body:input.body,href:input.href??null,event_key:input.eventKey,
- },{onConflict:'recipient_user_id,event_key',ignoreDuplicates:true});
- if(error)console.error('Failed to create notification',error.message);
+ });
+ if(error && error.code!=='23505')console.error('Failed to create notification',error.message);
 }
 export async function notifyTenant(input:Omit<NotifyInput,'recipientUserId'>){
  const db=createServiceRoleClient();
