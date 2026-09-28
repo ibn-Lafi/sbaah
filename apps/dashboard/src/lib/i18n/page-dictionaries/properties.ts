@@ -142,7 +142,7 @@ export const propertiesEn: typeof propertiesAr = {
     deleteConfirmTitle: 'Delete media',
     deleteConfirmMessage: 'This file will be permanently deleted. This action cannot be undone.',
     uploading: 'Uploading...',
-    addButton: '+ Add photo or video',
+    addButton: 'Add photo or video',
     uploadError: 'Failed to upload file',
     deleteError: 'Failed to delete file',
   },
