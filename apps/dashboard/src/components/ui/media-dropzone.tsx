@@ -21,10 +21,18 @@ export function MediaDropzone({accept,multiple=false,disabled=false,hint,onFiles
     tabIndex={disabled?-1:0}
     onKeyDown={event=>{if(!disabled&&(event.key==='Enter'||event.key===' ')){event.preventDefault();inputRef.current?.click()}}}
   >
-    <MediaIcon/>
-    <p className="mt-3 text-sm font-medium text-text-primary sm:text-base"><span className="text-brand underline underline-offset-4">استعرض</span> أو اسحب الملفات وأفلتها هنا</p>
-    <p className="mt-2 text-xs text-text-secondary sm:text-sm">{hint}</p>
-    {disabled&&<p className="mt-3 text-xs font-medium text-brand">جارٍ الرفع...</p>}
+    {disabled ? (
+      <div className="flex flex-col items-center justify-center" role="status" aria-live="polite">
+        <span className="h-12 w-12 animate-spin rounded-full border-4 border-brand/20 border-t-brand sm:h-14 sm:w-14" aria-hidden="true"/>
+        <p className="mt-4 text-sm font-medium text-brand">جارٍ الرفع...</p>
+      </div>
+    ) : (
+      <>
+        <MediaIcon/>
+        <p className="mt-3 text-sm font-medium text-text-primary sm:text-base"><span className="text-brand underline underline-offset-4">استعرض</span> أو اسحب الملفات وأفلتها هنا</p>
+        <p className="mt-2 text-xs text-text-secondary sm:text-sm">{hint}</p>
+      </>
+    )}
     <input ref={inputRef} className="hidden" type="file" accept={accept} multiple={multiple} disabled={disabled} onChange={event=>{receive(event.currentTarget.files);event.currentTarget.value=''}}/>
   </div>;
 }
