@@ -81,7 +81,7 @@ export default function AssetDetail({ params }: { params: Promise<{ id: string }
                 {asset.area_sqm&&<span>{asset.area_sqm} م²</span>}{parent&&asset.unit_number&&<span>وحدة {asset.unit_number}</span>}{parent&&asset.floor_number!=null&&<span>الدور {asset.floor_number}</span>}{asset.reference_number&&<span>مرجع {asset.reference_number}</span>}
               </div>
             </div>
-            {canManage&&<Button variant="secondary" disabled={savingVisibility} onClick={()=>{setSavingVisibility(true);setVisibilityError(null);void updateAsset(accessToken,id,{is_public:!asset.is_public}).then(({asset:updated})=>setAsset(current=>current?{...current,...updated}:current)).catch(error=>setVisibilityError(error instanceof Error?error.message:'تعذر تحديث الظهور')).finally(()=>setSavingVisibility(false));}}>{savingVisibility?'جارٍ الحفظ...':asset.is_public?'إخفاء من الموقع':'إظهار في الموقع'}</Button>}
+
           </div>
           {visibilityError&&<p className="mt-3 text-sm text-danger">{visibilityError}</p>}
         </Card>
@@ -121,7 +121,10 @@ export default function AssetDetail({ params }: { params: Promise<{ id: string }
       </div>}
 
       {showListing && <Modal title="إنشاء عرض عقاري" onClose={() => setShowListing(false)}><CreateListingForm accessToken={accessToken} assetId={id} assetName={asset.name_ar} onCreated={listingId => { window.location.href = `/listings/${listingId}`; }} /></Modal>}
-      {me.user.role !== 'agent' && <details className="self-end relative"><summary className="cursor-pointer list-none rounded-lg border border-border-default px-3 py-2 text-sm text-text-secondary">•••</summary><div className="absolute bottom-11 end-0 z-20 min-w-44 rounded-lg border border-border-default bg-surface-card p-1 shadow-lg"><button type="button" disabled={children.length > 0} title={children.length ? 'يجب نقل أو أرشفة الوحدات التابعة أولًا' : undefined} onClick={async()=>{if(!confirm(`هل تريد أرشفة هذا ${parent?'الوحدة':'العقار'}؟`))return;await archiveAsset(accessToken,id);window.location.href=parent?`/properties/${parent.id}`:'/properties';}} className="w-full rounded-md px-3 py-2 text-start text-sm text-danger hover:bg-surface-subtle-3 disabled:cursor-not-allowed disabled:opacity-40">أرشفة {parent?'الوحدة':'العقار'}</button></div></details>}
+      {canManage && <div className="flex flex-wrap items-center justify-end gap-2">
+        <button type="button" disabled={children.length > 0} title={children.length ? 'يجب نقل أو أرشفة الوحدات التابعة أولًا' : undefined} onClick={async()=>{if(!confirm(`هل تريد أرشفة هذا ${parent?'الوحدة':'العقار'}؟`))return;await archiveAsset(accessToken,id);window.location.href=parent?`/properties/${parent.id}`:'/properties';}} className="inline-flex h-9 items-center justify-center rounded-full bg-danger-surface px-4 text-sm font-semibold text-danger transition-colors hover:bg-danger hover:text-white disabled:cursor-not-allowed disabled:opacity-40">أرشفة {parent?'الوحدة':'العقار'}</button>
+        <button type="button" disabled={savingVisibility} onClick={()=>{setSavingVisibility(true);setVisibilityError(null);void updateAsset(accessToken,id,{is_public:!asset.is_public}).then(({asset:updated})=>setAsset(current=>current?{...current,...updated}:current)).catch(error=>setVisibilityError(error instanceof Error?error.message:'تعذر تحديث الظهور')).finally(()=>setSavingVisibility(false));}} className="inline-flex h-9 items-center justify-center rounded-full border border-border-default px-4 text-sm font-medium text-text-secondary transition-colors hover:bg-surface-subtle disabled:opacity-50">{savingVisibility?'جارٍ الحفظ...':asset.is_public?'إخفاء من الموقع':'إظهار في الموقع'}</button>
+      </div>}
     </div>}
   </AppShell>;
 }
