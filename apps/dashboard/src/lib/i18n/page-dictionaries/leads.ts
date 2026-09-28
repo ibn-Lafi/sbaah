@@ -1,8 +1,8 @@
 export const leadsAr = {
   list: {
-    title: 'إدارة العملاء',
+    title: 'العملاء',
     statusFilterAll: 'الكل',
-    addButton: '+ إضافة عميل محتمل',
+    addButton: 'إضافة عميل',
     table: {
       name: 'العميل',
       phone: 'الجوال',
@@ -31,7 +31,7 @@ export const leadsAr = {
     notFoundTitle: 'عميل محتمل غير موجود',
     notFoundMessage: 'العميل المحتمل غير موجود.',
     defaultTitle: 'تفاصيل العميل المحتمل',
-    backLabel: 'رجوع لقائمة الطلبات',
+    backLabel: 'العودة للعملاء',
     deleteLabel: 'حذف',
     deleteConfirmTitle: 'حذف العميل المحتمل',
     deleteConfirmMessage: 'سيتم حذف هذا العميل المحتمل وكل ملاحظاته نهائيًا، ولا يمكن التراجع عن هذا الإجراء.',
@@ -77,9 +77,9 @@ export const leadsAr = {
 
 export const leadsEn: typeof leadsAr = {
   list: {
-    title: 'Leads',
+    title: 'Customers',
     statusFilterAll: 'All',
-    addButton: '+ Add lead',
+    addButton: 'Add customer',
     table: {
       name: 'Lead',
       phone: 'Phone',
