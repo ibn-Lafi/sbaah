@@ -4,7 +4,7 @@ create table if not exists public.notifications (
  id uuid primary key default gen_random_uuid(),
  tenant_id uuid not null references public.tenants(id) on delete cascade,
  recipient_user_id uuid not null references public.users(id) on delete cascade,
- category text not null check (category in ('customers','projects','units','calendar','rent','system')),
+ category text not null check (category in ('customers','real_estate','calendar','rent','system')),
  level text not null default 'info' check (level in ('high','important','new','info')),
  title text not null, body text not null, href text, event_key text,
  read_at timestamptz, created_at timestamptz not null default now()
