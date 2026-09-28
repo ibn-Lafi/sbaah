@@ -111,13 +111,13 @@ export function Topbar({ title, siteUrl }: TopbarProps) {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="h-[17px] w-[17px]"><path d="M14 4h6v6M10 14 20 4M13 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3-3v-6" /></svg>
           </button>
           {siteMenuOpen && (
-            <div className="bg-surface-card border-border-subtle absolute end-0 top-[44px] z-[130] w-[210px] rounded-[16px] border p-2 shadow-[0_12px_32px_rgba(31,29,34,.18)]">
-              <a href={siteUrl} target="_blank" rel="noreferrer" onClick={() => setSiteMenuOpen(false)} className="text-text-primary hover:bg-surface-subtle flex h-10 w-full items-center gap-2 rounded-[11px] px-3 text-sm font-semibold">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="h-[17px] w-[17px] flex-none"><path d="M14 4h6v6M10 14 20 4M13 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3-3v-6" /></svg>
+            <div className="bg-surface-card border-border-subtle absolute end-0 top-[42px] z-[130] w-[168px] rounded-[13px] border p-1.5 shadow-[0_10px_26px_rgba(31,29,34,.16)]">
+              <a href={siteUrl} target="_blank" rel="noreferrer" onClick={() => setSiteMenuOpen(false)} className="text-text-primary hover:bg-surface-subtle flex h-9 w-full items-center gap-2 rounded-[9px] px-2.5 text-[12px] font-semibold">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="h-[15px] w-[15px] flex-none"><path d="M14 4h6v6M10 14 20 4M13 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3-3v-6" /></svg>
                 <span>{locale === 'ar' ? 'فتح الموقع' : 'Open website'}</span>
               </a>
               <button type="button" onClick={async () => { await navigator.clipboard.writeText(siteUrl); setCopied(true); window.setTimeout(() => setCopied(false), 1500); }} className="text-text-primary hover:bg-surface-subtle flex h-10 w-full items-center gap-2 rounded-[11px] px-3 text-sm font-semibold">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="h-[17px] w-[17px] flex-none"><rect x="8" y="8" width="11" height="11" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="h-[15px] w-[15px] flex-none"><rect x="8" y="8" width="11" height="11" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg>
                 <span>{copied ? (locale === 'ar' ? 'تم نسخ الرابط' : 'Link copied') : (locale === 'ar' ? 'نسخ رابط الموقع' : 'Copy website link')}</span>
               </button>
             </div>
