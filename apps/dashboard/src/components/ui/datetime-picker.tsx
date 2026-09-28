@@ -70,13 +70,15 @@ export function DateTimePicker({ value, onChange, placeholder, className = '' }:
       </button>
 
       {open && (
-        <div className="rounded-card border-border-subtle bg-surface-card absolute z-30 mt-2 border shadow-[0_10px_30px_rgba(31,29,34,.16)]">
+        <div className="rounded-card border-border-subtle bg-surface-card absolute inset-x-0 z-30 mt-2 w-full overflow-hidden border shadow-[0_10px_30px_rgba(31,29,34,.16)] sm:inset-x-auto sm:w-auto">
+          <div className="flex justify-center">
           <Calendar
             month={viewMonth}
             onMonthChange={setViewMonth}
             selected={selected}
             onSelect={(date) => onChange(joinValue(date, time || '09:00'))}
           />
+          </div>
           <div className="border-border-subtle flex items-center gap-2 border-t px-4 py-3">
             <span className="text-text-secondary text-xs">{t.time}</span>
             <input
