@@ -98,25 +98,25 @@ export default function ThemeStorePage() {
         {themes.find((theme) => theme.id === website.theme_id) ? (() => {
           const activeTheme = themes.find((theme) => theme.id === website.theme_id)!;
           return (
-            <Card className="w-full p-3 sm:p-4">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-                <div className="aspect-[4/3] w-full shrink-0 overflow-hidden rounded-xl border border-border-default sm:w-36">
+            <div className="w-full overflow-hidden rounded-xl border border-border-default bg-surface-card px-3 py-2.5 sm:px-4">
+              <div className="flex items-center gap-3">
+                <div className="h-16 w-24 shrink-0 overflow-hidden rounded-lg border border-border-subtle sm:h-[72px] sm:w-28">
                   <ThemePreview themeKey={activeTheme.key} primaryColor={website.primary_color} previewImageUrl={activeTheme.preview_image_url} />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs font-medium text-text-secondary">الثيم المستخدم</p>
-                  <h2 className="mt-1 truncate text-base font-semibold text-text-primary">{activeTheme.name_ar}</h2>
+                  <p className="text-[11px] font-medium text-text-secondary sm:text-xs">الثيم المستخدم</p>
+                  <h2 className="mt-0.5 truncate text-sm font-semibold text-text-primary sm:text-base">{activeTheme.name_ar}</h2>
                 </div>
-                <div className="flex shrink-0 flex-wrap items-center gap-2">
-                  <a href="/website/editor" className="flex h-10 items-center justify-center rounded-[10px] bg-brand px-4 text-sm font-semibold text-white transition hover:opacity-90">
+                <div className="flex shrink-0 items-center gap-2">
+                  <a href="/website/editor" className="flex h-9 items-center justify-center rounded-lg bg-brand px-3 text-xs font-semibold text-white transition hover:opacity-90 sm:px-4 sm:text-sm">
                     {t.themeStore.customizeTheme}
                   </a>
-                  <a href={siteUrl} target="_blank" rel="noopener noreferrer" className="flex h-10 items-center justify-center rounded-[10px] border border-border-default bg-surface-card px-4 text-sm font-semibold text-text-primary transition hover:bg-surface-subtle">
+                  <a href={siteUrl} target="_blank" rel="noopener noreferrer" className="flex h-9 items-center justify-center rounded-lg border border-border-default bg-surface-card px-3 text-xs font-semibold text-text-primary transition hover:bg-surface-subtle sm:px-4 sm:text-sm">
                     فتح الموقع
                   </a>
                 </div>
               </div>
-            </Card>
+            </div>
           );
         })() : null}
 
