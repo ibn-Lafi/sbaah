@@ -4,6 +4,7 @@ import { projectInputSchema, PROJECT_STATUSES } from '@sbaah/shared';
 import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
+import { notifyTenant } from '@/lib/notifications/notify';
 
 const listQuerySchema = z.object({
   status: z.enum(PROJECT_STATUSES).optional(),
@@ -57,5 +58,6 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
     throw new Error(`Failed to create project: ${error.message}`);
   }
 
+  await notifyTenant({tenantId:caller.tenantId,category:'real_estate',level:'info',title:'مشروع جديد',body:`تم إنشاء مشروع ${data.name}.`,href:`/projects/${data.id}`,eventKey:`project:${data.id}:created`});
   return okResponse({ project: data }, 201);
 });
