@@ -122,7 +122,7 @@ function CustomDomainCard({
   }
 
   return (
-    <Card className="p-6">
+    <Card className="p-4 sm:p-6">
       <h2 className="text-text-primary mb-1 text-base font-semibold">{t.customDomain.title}</h2>
       <p className="text-text-secondary mb-4 text-sm">{t.customDomain.subtitle}</p>
 
@@ -267,7 +267,7 @@ function SubdomainCard({
   }
 
   return (
-    <Card className="p-6">
+    <Card className="p-4 sm:p-6">
       <h2 className="text-text-primary mb-1 text-base font-semibold">{t.subdomain.title}</h2>
       <p className="text-text-secondary mb-4 text-sm">{t.subdomain.subtitle}</p>
 
