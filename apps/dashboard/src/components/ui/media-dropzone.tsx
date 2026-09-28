@@ -29,7 +29,7 @@ export function MediaDropzone({accept,multiple=false,disabled=false,hint,onFiles
     ) : (
       <>
         <MediaIcon/>
-        <p className="mt-3 text-sm font-medium text-text-primary sm:text-base"><span className="text-brand underline underline-offset-4">استعرض</span> أو اسحب الملفات وأفلتها هنا</p>
+        <p className="mt-3 text-sm font-medium text-text-primary sm:text-base"><span className="text-brand underline underline-offset-4">اختر الملفات</span> أو اسحبها هنا</p>
         <p className="mt-2 text-xs text-text-secondary sm:text-sm">{hint}</p>
       </>
     )}
