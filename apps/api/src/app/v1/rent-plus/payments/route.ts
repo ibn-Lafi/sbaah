@@ -4,6 +4,7 @@ import { ApiError, okResponse, withErrorHandling, databaseWriteError } from '@/l
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
 import { assertOptionalTenantOwnedRow, assertTenantOwnedRow } from '@/lib/tenant/assert-tenant-owned-row';
+import { notifyTenant } from '@/lib/notifications/notify';
 
 export const GET = withErrorHandling(async (request: NextRequest) => {
   const { supabase } = getAuthenticatedClient(request);
@@ -68,5 +69,6 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   }
   const { data, error } = await supabase.rpc('record_lease_payment', { p_payment: payment, p_allocations: allocations }).single();
   if (error) throw databaseWriteError(error, 'Failed to record lease payment');
+  await notifyTenant({tenantId:caller.tenantId,category:'rent',level:'info',title:'تم تسجيل دفعة',body:`تم تسجيل دفعة بقيمة ${input.amount}.`,href:`/rent-plus/contracts/${input.contract_id}`,eventKey:`lease-payment:${data.id}:recorded`});
   return okResponse({ payment: data }, 201);
 });
