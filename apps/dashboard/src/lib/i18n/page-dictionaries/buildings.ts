@@ -1,7 +1,7 @@
 export const buildingsAr = {
   list: {
     title: 'العمارات',
-    addButton: '+ إضافة عمارة',
+    addButton: 'إضافة عمارة',
     createModalTitle: 'إضافة عمارة',
     createSubmitLabel: 'إضافة العمارة',
     table: {
@@ -39,7 +39,7 @@ export const buildingsAr = {
 export const buildingsEn: typeof buildingsAr = {
   list: {
     title: 'Buildings',
-    addButton: '+ Add building',
+    addButton: 'Add building',
     createModalTitle: 'Add building',
     createSubmitLabel: 'Add building',
     table: {
