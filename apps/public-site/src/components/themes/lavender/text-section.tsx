@@ -10,17 +10,11 @@ export function TextSection({ type, locale, config }: TextSectionProps) {
     <LavenderSection className="bg-white text-[#171713]">
       <div className="border-current/20 grid gap-10 border-t pt-7 lg:grid-cols-[.8fr_1.2fr] lg:gap-20">
         <div>
-          <span
-            className={`text-xs font-semibold tracking-[.16em] text-tenant-primary`}
-          >
-            {type === 'about'
-              ? locale === 'ar'
-                ? 'عن الشركة'
-                : 'ABOUT THE COMPANY'
-              : locale === 'ar'
-                ? 'قيمتنا المضافة'
-                : 'WHY CHOOSE US'}
-          </span>
+          {type === 'about' && (
+            <span className="text-xs font-semibold tracking-[.16em] text-tenant-primary">
+              {locale === 'ar' ? 'عن الشركة' : 'ABOUT THE COMPANY'}
+            </span>
+          )}
           <h2
             className={`mt-4 text-4xl font-semibold leading-tight tracking-tight sm:text-5xl text-black`}
           >
