@@ -8,6 +8,7 @@ import { assertOwner } from '@/lib/auth/assert-owner';
 import { refreshCloudflareCustomHostnameDetails } from '@/lib/tenant/cloudflare-api-client';
 import { dnsRecordsFor } from '@/lib/tenant/domain-dns-records';
 import { assertTenantActive } from '@/lib/tenant/assert-tenant-active';
+import { notifyTenant } from '@/lib/notifications/notify';
 
 async function resolveAddresses(hostname: string): Promise<string[]> {
   const [ipv4, ipv6] = await Promise.all([
@@ -87,6 +88,10 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
     .eq('id', caller.tenantId);
   if (updateError) {
     throw new Error(`Failed to update domain verification: ${updateError.message}`);
+  }
+
+  if (active) {
+    await notifyTenant({tenantId:caller.tenantId,category:'system',level:'info',title:'تم ربط الدومين',body:`أصبح ${tenant.custom_domain} متصلًا بموقعك.`,href:'/website/domain',eventKey:`domain:${tenant.custom_domain}:verified`});
   }
 
   return okResponse({
