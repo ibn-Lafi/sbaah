@@ -103,7 +103,6 @@ export function Topbar({ title, siteUrl }: TopbarProps) {
         )}
         </div>
       </div>
-      <div className="md:hidden"><NotificationCenter /></div>
       <div className="relative flex-none md:hidden">
         <button type="button" onClick={() => setSiteMenuOpen((v) => !v)} aria-label={t.topbar.visitSite} title={t.topbar.visitSite} className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-white/15 text-white">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="h-[17px] w-[17px]"><path d="M14 4h6v6M10 14 20 4M13 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3-3v-6" /></svg>
