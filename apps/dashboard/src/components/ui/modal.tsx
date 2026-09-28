@@ -26,11 +26,11 @@ export function Modal({ title, onClose, children, maxWidth = '720px', mobileCent
 
   return (
     <div
-      className={`fixed inset-0 z-[120] flex justify-center bg-black/40 backdrop-blur-[2px] ${mobileCentered ? 'items-end p-0 sm:items-center sm:p-4' : 'items-end p-0 sm:items-center sm:p-4'}`}
+      className={`fixed inset-0 z-[120] flex justify-center bg-black/40 backdrop-blur-[2px] ${mobileCentered ? 'items-center p-3 sm:p-4' : 'items-end p-0 sm:items-center sm:p-4'}`}
       onClick={onClose}
     >
       <div
-        className={`bg-surface-card w-full min-w-0 overflow-x-hidden overflow-y-auto overscroll-contain shadow-[0_20px_60px_rgba(31,29,34,.25)] [scrollbar-gutter:stable] ${mobileCentered ? 'max-h-[calc(100dvh-8px)] rounded-t-[24px] px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-0 sm:max-h-[90vh] sm:rounded-card sm:p-8' : 'h-[calc(100dvh-8px)] max-h-[calc(100dvh-8px)] rounded-t-[24px] px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-0 sm:h-auto sm:max-h-[90vh] sm:rounded-card sm:p-8'}`}
+        className={`bg-surface-card w-full min-w-0 overflow-x-hidden overflow-y-auto overscroll-contain shadow-[0_20px_60px_rgba(31,29,34,.25)] [scrollbar-gutter:stable] ${mobileCentered ? 'max-h-[calc(100dvh-24px)] rounded-card px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-0 sm:max-h-[90vh] sm:p-8' : 'h-[calc(100dvh-8px)] max-h-[calc(100dvh-8px)] rounded-t-[24px] px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-0 sm:h-auto sm:max-h-[90vh] sm:rounded-card sm:p-8'}`}
         style={{ maxWidth }}
         onClick={(event) => event.stopPropagation()}
       >
