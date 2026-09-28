@@ -139,7 +139,7 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
                   <div className="mb-4 flex items-center justify-between gap-3">
                     <div>
                       <h2 className="font-semibold text-text-primary">المبيعات</h2>
-                      <p className="mt-1 text-xs text-text-secondary">ملخص سريع لأداء المشروع.</p>
+                      
                     </div>
                     <span className="text-sm font-semibold text-brand">
                       {sales.summary.total ? Math.round((sales.summary.sold / sales.summary.total) * 100) : 0}% مبيع
