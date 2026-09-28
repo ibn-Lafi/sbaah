@@ -91,7 +91,7 @@ export function AppShell({ title, orgName, accountType, children, mobileImmersiv
               </a>
             </div>
           )}
-          <div className={`flex-1 overflow-auto overscroll-contain md:p-7 md:pb-7 ${mobileImmersive ? 'p-0 pb-0' : 'p-3.5 pb-24'}`}>{children}</div>
+          <div className={`flex-1 overflow-auto overscroll-contain md:p-7 md:pb-7 ${mobileImmersive ? 'p-0 pb-0' : 'p-3 pb-[5.5rem] sm:p-4 sm:pb-24'}`}>{children}</div>
         </div>
       </div>
       <div className={mobileImmersive ? 'hidden md:block' : undefined}>
