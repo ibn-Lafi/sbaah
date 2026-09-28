@@ -82,7 +82,7 @@ export default function LeadsPage() {
         {customerKind === 'prospect' ? <Select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-          className="w-[140px]"
+          className="border-border-subtle bg-surface-card text-text-secondary focus:border-brand h-8 w-[118px] rounded-lg px-2 text-xs font-medium shadow-none"
           compact
         >
           <option value="all">{t.list.statusFilterAll}</option>
