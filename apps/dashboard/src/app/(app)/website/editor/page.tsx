@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import {
-  SUPPORTED_WEBSITE_FONTS,
   HERO_VARIANTS,
   type HeroVariant,
   type Website,
@@ -21,7 +20,6 @@ import { SectionConfigEditor } from '@/components/website/section-config-editor'
 import { SectionRowMenu } from '@/components/website/section-row-menu';
 import { SitePreview, type Device } from '@/components/website/site-preview';
 import {
-  AdjustmentsIcon,
   CloseIcon,
   DesktopIcon,
   MobileIcon,
@@ -45,7 +43,7 @@ import {
 } from '@/lib/api/website';
 import { ApiRequestError } from '@/lib/api/client';
 
-type PanelView = 'sections' | 'settings';
+type PanelView = 'sections';
 type ZoneKey = 'top' | 'content' | 'bottom';
 
 const EDITOR_PAGE_KEYS: WebsitePageKey[] = ['home', 'properties', 'projects'];
@@ -75,7 +73,6 @@ export default function WebsiteEditorPage() {
   const [device, setDevice] = useState<Device>('desktop');
   const [previewRevision, setPreviewRevision] = useState(0);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [colorsOpen, setColorsOpen] = useState(true);
   const [openZones, setOpenZones] = useState<Record<ZoneKey, boolean>>({
     top: true,
     content: true,
@@ -130,17 +127,6 @@ export default function WebsiteEditorPage() {
 
   function toggleZone(zone: ZoneKey) {
     setOpenZones((current) => ({ ...current, [zone]: !current[zone] }));
-  }
-
-  async function saveFont(font: string) {
-    setError(null);
-    try {
-      const { website: updated } = await updateWebsite(accessToken, { font_family: font });
-      setWebsite((current) => (current ? { ...current, ...updated } : current));
-      setPreviewRevision((value) => value + 1);
-    } catch (err) {
-      setError(err instanceof ApiRequestError ? err.message : t.editor.errors.saveFont);
-    }
   }
 
   async function saveFooterDescription(value: string) {
@@ -311,15 +297,6 @@ export default function WebsiteEditorPage() {
                 <h1 className="text-text-primary text-base font-semibold">
                   {t.editor.sectionsFor(t.pageTabLabels[activePageKey])}
                 </h1>
-                <button
-                  type="button"
-                  onClick={() => setPanelView('settings')}
-                  aria-label={t.editor.pageSettings}
-                  title={t.editor.pageSettings}
-                  className="text-text-secondary hover:text-brand"
-                >
-                  <AdjustmentsIcon className="h-[18px] w-[18px]" />
-                </button>
               </div>
 
               <a href="/website" className="text-brand mt-1 block px-4 text-sm font-semibold hover:underline">
@@ -444,32 +421,7 @@ export default function WebsiteEditorPage() {
                 )}
               </div>
             </>
-          ) : (
-            <>
-              <div className="flex items-center justify-between px-4 pt-4">
-                <h1 className="text-text-primary text-base font-semibold">{t.editor.pageSettings}</h1>
-                <button
-                  type="button"
-                  onClick={() => setPanelView('sections')}
-                  className="text-text-secondary hover:text-brand"
-                >
-                  <CloseIcon className="h-[18px] w-[18px]" />
-                </button>
-              </div>
-              <div className="flex flex-col gap-4 px-4 py-4">
-                <div className="flex flex-col gap-2">
-                  <label className="text-text-secondary text-xs">{t.editor.font}</label>
-                  <Select value={website.font_family} onChange={(e) => void saveFont(e.target.value)} className="h-10">
-                    {SUPPORTED_WEBSITE_FONTS.map((font) => (
-                      <option key={font} value={font}>
-                        {font}
-                      </option>
-                    ))}
-                  </Select>
-                </div>
-              </div>
-            </>
-          )}
+          ) : null}
         </div>
 
         {/*
@@ -610,15 +562,6 @@ export default function WebsiteEditorPage() {
                   <h2 className="text-text-primary text-sm font-semibold">
                     {t.editor.sectionsFor(t.pageTabLabels[activePageKey])}
                   </h2>
-                  <button
-                    type="button"
-                    onClick={() => setPanelView('settings')}
-                    aria-label={t.editor.pageSettings}
-                    title={t.editor.pageSettings}
-                    className="text-text-secondary hover:text-brand"
-                  >
-                    <AdjustmentsIcon className="h-[17px] w-[17px]" />
-                  </button>
                 </div>
                 <div className="divide-border-subtle flex-1 divide-y">
                   <div className="p-4">
@@ -724,52 +667,7 @@ export default function WebsiteEditorPage() {
                   </div>
                 </div>
               </>
-            ) : (
-              <>
-                <div className="border-border-subtle flex h-14 flex-none items-center justify-between border-b px-4">
-                  <h2 className="text-text-primary text-sm font-semibold">{t.editor.pageSettings}</h2>
-                  <button
-                    type="button"
-                    onClick={() => setPanelView('sections')}
-                    className="text-text-secondary hover:text-brand"
-                  >
-                    <CloseIcon className="h-[17px] w-[17px]" />
-                  </button>
-                </div>
-                <div className="flex-1 p-4">
-                  <FormError message={error} />
-                  <button
-                    type="button"
-                    onClick={() => setColorsOpen((v) => !v)}
-                    className="text-text-primary flex w-full items-center justify-between py-2 text-sm font-semibold"
-                  >
-                    {t.editor.colorsAndIdentity}
-                    <ChevronIcon
-                      open={colorsOpen}
-                      className="text-text-secondary h-[14px] w-[14px]"
-                    />
-                  </button>
-                  {colorsOpen && (
-                    <div className="flex flex-col gap-4 pb-4">
-                      <div className="flex flex-col gap-2">
-                        <label className="text-text-secondary text-xs">{t.editor.font}</label>
-                        <Select
-                          value={website.font_family}
-                          onChange={(e) => void saveFont(e.target.value)}
-                          className="h-10"
-                        >
-                          {SUPPORTED_WEBSITE_FONTS.map((font) => (
-                            <option key={font} value={font}>
-                              {font}
-                            </option>
-                          ))}
-                        </Select>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </>
-            )}
+            ) : null}
           </div>
 
           <div className="flex min-w-0 flex-1 flex-col">
