@@ -1,4 +1,4 @@
-import { apiGet, apiPatch, apiPost, apiUpload } from './client';
+import { apiDelete, apiGet, apiPatch, apiPost, apiUpload } from './client';
 export type ContractStatus='active'|'expired'|'cancelled'|'terminated'|'renewed'|'archived'|'unknown';
 export type ContractSource='ejar'|'rega'|'moj'|'bank'|'external'|'other';
 export interface ContractParty{id:string;party_id:string|null;role:string;display_name:string;identifier_type?:string|null;identifier_number?:string|null;email?:string|null;phone?:string|null}
@@ -17,3 +17,8 @@ export const uploadContractDocument=(token:string,id:string,file:File,documentTy
 export const contractDocumentUrl=(id:string,documentId:string)=>{const base=(process.env.NEXT_PUBLIC_API_URL??'').replace(/\/+$/,'');const path=base.endsWith('/v1')?`/contracts/${id}/documents/${documentId}`:`/v1/contracts/${id}/documents/${documentId}`;return `${base}${path}`};
 
 export const listContractsForEntity=(token:string,type:'project'|'asset'|'lead'|'deal'|'listing'|'party',id:string)=>apiGet<{contracts:ContractRow[]}>(`/v1/contracts/by-entity?type=${type}&id=${encodeURIComponent(id)}`,token);
+
+export const removeContractParty=(token:string,id:string,partyId:string)=>apiDelete<{deleted:boolean}>(`/v1/contracts/${id}/parties/${partyId}`,token);
+export const removeContractLink=(token:string,id:string,linkId:string)=>apiDelete<{deleted:boolean}>(`/v1/contracts/${id}/links/${linkId}`,token);
+export const removeContractReminder=(token:string,id:string,reminderId:string)=>apiDelete<{deleted:boolean}>(`/v1/contracts/${id}/reminders/${reminderId}`,token);
+export const removeContractDocument=(token:string,id:string,documentId:string)=>apiDelete<{deleted:boolean}>(`/v1/contracts/${id}/documents/${documentId}`,token);
