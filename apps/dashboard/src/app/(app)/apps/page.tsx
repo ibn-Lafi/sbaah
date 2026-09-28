@@ -343,7 +343,7 @@ export default function AppsPage() {
                       {ar ? `مرحبًا، أنا ${assistant.name}` : `Hi, I'm ${assistant.name}`}
                     </h2>
                     <p className="text-text-secondary mt-2 text-sm leading-6">
-                      {ar ? 'ابدأ محادثتك. يتم الآن حفظ المحادثات بأمان داخل سبعة، وسيتم توصيل الردود الذكية مع Grok في الخطوة التالية.' : 'Start chatting. Conversations are now stored in Sbaah; Grok responses will be connected next.'}
+                      {ar ? 'ابدأ محادثتك مع مساعدك.' : 'Start a conversation with your assistant.'}
                     </p>
                   </div>
                 ) : (
@@ -419,7 +419,7 @@ export default function AppsPage() {
                     </div>
                     <div className="border-border-default flex shrink-0 justify-end border-t p-3">
                       <button type="button" onClick={handleNewConversation} className="bg-brand rounded-[10px] px-4 py-2.5 text-sm font-semibold text-white">
-                        {ar ? '+ محادثة جديدة' : '+ New conversation'}
+                        {ar ? 'محادثة جديدة' : 'New conversation'}
                       </button>
                     </div>
                   </aside>
@@ -448,7 +448,7 @@ export default function AppsPage() {
                 <h1 className="text-text-primary text-xl font-bold sm:text-2xl">{ar ? 'أنشئ مساعدك' : 'Create your assistant'}</h1>
                 <p className="text-text-secondary mt-2 text-sm leading-6">
                   {ar
-                    ? 'سمّ مساعدك وحدد شخصيته مرة واحدة. بعدها سيكون مساعدك داخل سبعة للمحادثة معك وتنفيذ المهام المسموحة.'
+                    ? 'اختر اسم مساعدك وطريقة تعامله معك.'
                     : 'Name your assistant and define its personality once. It will then become your assistant inside Sbaah.'}
                 </p>
               </div>
@@ -515,7 +515,7 @@ export default function AppsPage() {
                 </div>
                 <h2 className="text-text-primary text-3xl font-bold tracking-tight sm:text-4xl">{ar ? 'قريبًا' : 'Coming soon'}</h2>
                 <p className="text-text-secondary mt-3 text-sm leading-7">
-                  {ar ? 'واتس اب Ai قيد البناء ليعمل كمساعد ذكي متصل بمحادثات عملائك داخل سبعة.' : 'WhatsApp AI is being built as an intelligent assistant connected to your customer conversations in Sbaah.'}
+                  {ar ? 'مساعد واتساب لردود العملاء قادم قريبًا.' : 'WhatsApp customer assistant is coming soon.'}
                 </p>
               </div>
             </div>
