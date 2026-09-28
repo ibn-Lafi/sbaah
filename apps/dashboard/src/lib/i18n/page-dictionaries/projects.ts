@@ -1,7 +1,7 @@
 export const projectsAr = {
   list: {
     title: 'المشاريع',
-    addButton: '+ إضافة مشروع',
+    addButton: 'إضافة مشروع',
     createModalTitle: 'إضافة مشروع',
     createSubmitLabel: 'إضافة المشروع',
     table: {
@@ -17,7 +17,7 @@ export const projectsAr = {
     defaultTitle: 'تعديل مشروع',
     editSubmitLabel: 'حفظ التعديلات',
     buildingsSectionTitle: 'العمارات التابعة لهذا المشروع',
-    addBuildingButton: '+ إضافة عمارة',
+    addBuildingButton: 'إضافة عمارة',
     createBuildingModalTitle: 'إضافة عمارة',
     createBuildingSubmitLabel: 'إضافة العمارة',
     noBuildings: 'لا عمارات مرتبطة بعد.',
@@ -47,7 +47,7 @@ export const projectsAr = {
 export const projectsEn: typeof projectsAr = {
   list: {
     title: 'Projects',
-    addButton: '+ Add project',
+    addButton: 'Add project',
     createModalTitle: 'Add project',
     createSubmitLabel: 'Add project',
     table: {
@@ -63,7 +63,7 @@ export const projectsEn: typeof projectsAr = {
     defaultTitle: 'Edit project',
     editSubmitLabel: 'Save changes',
     buildingsSectionTitle: 'Buildings under this project',
-    addBuildingButton: '+ Add building',
+    addBuildingButton: 'Add building',
     createBuildingModalTitle: 'Add building',
     createBuildingSubmitLabel: 'Add building',
     noBuildings: 'No buildings linked yet.',
