@@ -8,8 +8,7 @@ import type {
 export const websiteAr = {
   themeStore: {
     pageTitle: 'تصميم الموقع',
-    description:
-      'اختر شكل موقعك، ثم اضغط "تخصيص الثيم" على الثيم الحالي لتعديل أقسامه وألوانه ومحتواه',
+    description: 'اختر الثيم المناسب لموقعك',
     customizeTheme: 'تخصيص الثيم',
     selectTheme: 'اختيار',
     previewTheme: 'معاينة',
@@ -30,7 +29,7 @@ export const websiteAr = {
     bottomOfPage: 'أسفل الصفحة',
     sectionsCount: (n: number) => (n === 0 ? 'لا أقسام' : n === 1 ? 'قسم واحد' : `${n} أقسام`),
     addSection: 'إضافة قسم',
-    addSectionTitle: 'إضافة قسم جديد',
+    addSectionTitle: 'إضافة قسم',
     searchSectionPlaceholder: 'بحث باستخدام اسم القسم',
     noHiddenSections: 'كل الأقسام المتاحة لهذه الصفحة مُضافة بالفعل',
     addSectionConfirm: 'إضافة',
@@ -40,11 +39,11 @@ export const websiteAr = {
     deleteSection: 'حذف القسم',
     sectionMenu: 'خيارات القسم',
     logoLabel: 'الشعار (مقاس 250×100)',
-    announcementBarLabel: 'الشريط (نص إعلاني أعلى الصفحة)',
+    announcementBarLabel: 'الشريط الإعلاني',
     announcementBarPlaceholder: 'مثال: عروض نهاية الأسبوع سارية الآن',
     footerLabel: 'الفوتر',
     footerLogoNote: 'يظهر نفس الشعار الموجود أعلى الصفحة (250×100) في الفوتر أيضًا.',
-    footerDescriptionLabel: 'التعريف الذي يظهر في الفوتر',
+    footerDescriptionLabel: 'وصف الفوتر',
     footerDescriptionPlaceholder: 'نبذة قصيرة عن الحساب تظهر في تذييل الموقع',
     colorsAndIdentity: 'الألوان والهوية',
     primaryColor: 'اللون الأساسي',
@@ -136,8 +135,7 @@ export const websiteAr = {
   } satisfies Record<WebsitePageKey, string>,
   customPages: {
     pageTitle: 'الصفحات',
-    description:
-      'صفحات إضافية (مثل سياسة الخصوصية) تظهر روابطها تلقائيًا في تذييل موقعك الإلكتروني.',
+    description: 'أضف صفحات مثل سياسة الخصوصية والشروط.',
     form: {
       titleLabel: 'عنوان الصفحة',
       titlePlaceholder: 'مثال: سياسة الخصوصية',
@@ -167,8 +165,7 @@ export const websiteAr = {
 export const websiteEn: typeof websiteAr = {
   themeStore: {
     pageTitle: 'Website Design',
-    description:
-      'Choose the look of your website, then click "Customize theme" on your current theme to edit its sections, colors and content',
+    description: 'Choose a theme for your website',
     customizeTheme: 'Customize theme',
     selectTheme: 'Select',
     previewTheme: 'Preview',
