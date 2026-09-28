@@ -11,7 +11,7 @@ function Bell({className}:{className?:string}) {
   return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>;
 }
 
-export function NotificationCenter(){
+export function NotificationCenter({mobileGrouped=false}:{mobileGrouped?:boolean}){
   const {me}=useCurrentUser();
   const {locale}=useLocale();
   const ar=locale==='ar';
@@ -31,7 +31,7 @@ export function NotificationCenter(){
   const tabs:Array<[Filter,string]>=[['all',ar?'الكل':'All'],['customers',ar?'العملاء':'Customers'],['real_estate',ar?'العقارات':'Real estate'],['calendar',ar?'المواعيد':'Calendar'],['rent',ar?'الإيجار':'Rent'],['system',ar?'النظام':'System']];
 
   return <div className="relative flex-none">
-    <button type="button" onClick={()=>setOpen(v=>!v)} aria-label={ar?'التنبيهات':'Notifications'} className="relative flex h-9 w-9 items-center justify-center rounded-full bg-white/15 text-white md:h-[42px] md:w-[42px] md:bg-surface-subtle md:text-text-primary">
+    <button type="button" onClick={()=>setOpen(v=>!v)} aria-label={ar?'التنبيهات':'Notifications'} className={`relative flex h-9 w-9 items-center justify-center text-white md:h-[42px] md:w-[42px] md:rounded-full md:bg-surface-subtle md:text-text-primary ${mobileGrouped?'bg-transparent':'rounded-full bg-white/15'}`}>
       <Bell className="h-[18px] w-[18px] md:h-[19px] md:w-[19px]"/>
       {notices.length>0&&<span className="absolute end-0.5 top-0.5 flex h-[16px] min-w-[16px] items-center justify-center rounded-full bg-danger px-1 text-[9px] font-bold leading-none text-white">{notices.length>9?'9+':notices.length}</span>}
     </button>
