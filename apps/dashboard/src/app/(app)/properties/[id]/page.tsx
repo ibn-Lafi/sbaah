@@ -2,6 +2,7 @@
 import { use, useEffect, useMemo, useState } from 'react';
 import { isNotFoundError, type Asset } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
+import { LinkedContracts } from '@/components/contracts/linked-contracts';
 import { CreateAssetForm, assetTypeLabels } from '@/components/properties/create-asset-form';
 import { AssetMediaManager } from '@/components/properties/asset-media-manager';
 import { CreateListingForm } from '@/components/properties/create-listing-form';
@@ -120,6 +121,7 @@ export default function AssetDetail({ params }: { params: Promise<{ id: string }
         {relationships&&<Card className="overflow-hidden"><div className="flex items-center justify-between gap-3 p-4"><div><h2 className="font-semibold">النشاط</h2></div>{activeLease&&<a href={`/rent-plus/contracts/${activeLease.id}`} className="text-xs font-medium text-brand">العقد النشط</a>}</div>{timeline.length===0?<p className="px-4 pb-5 text-sm text-text-secondary">لا يوجد نشاط مسجل بعد.</p>:<div className="divide-y divide-border-subtle">{timeline.slice(0,15).map(x=><div key={x.id} className="flex items-start justify-between gap-3 px-4 py-3"><div className="min-w-0"><p className="text-sm font-medium">{x.label}</p>{x.href?<a href={x.href} className="mt-0.5 block truncate text-xs text-brand">{x.detail}</a>:<p className="mt-0.5 truncate text-xs text-text-secondary">{x.detail}</p>}</div><time className="shrink-0 text-[11px] text-text-secondary">{new Intl.DateTimeFormat('ar-SA',{dateStyle:'medium'}).format(new Date(x.at))}</time></div>)}</div>}</Card>}
       </div>}
 
+      <LinkedContracts token={accessToken} type="asset" id={id} />
       {showListing && <Modal title="إنشاء عرض عقاري" onClose={() => setShowListing(false)}><CreateListingForm accessToken={accessToken} assetId={id} assetName={asset.name_ar} onCreated={listingId => { window.location.href = `/listings/${listingId}`; }} /></Modal>}
       {canManage && <div className="flex flex-wrap items-center justify-end gap-2">
         <button type="button" disabled={children.length > 0} title={children.length ? 'يجب نقل أو أرشفة الوحدات التابعة أولًا' : undefined} onClick={async()=>{if(!confirm(`هل تريد أرشفة هذا ${parent?'الوحدة':'العقار'}؟`))return;await archiveAsset(accessToken,id);window.location.href=parent?`/properties/${parent.id}`:'/properties';}} className="inline-flex h-9 items-center justify-center rounded-full bg-danger-surface px-4 text-sm font-semibold text-danger transition-colors hover:bg-danger hover:text-white disabled:cursor-not-allowed disabled:opacity-40">أرشفة {parent?'الوحدة':'العقار'}</button>
