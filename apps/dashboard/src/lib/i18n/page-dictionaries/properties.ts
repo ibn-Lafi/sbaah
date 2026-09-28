@@ -2,7 +2,7 @@ export const propertiesAr = {
   list: {
     title: 'العقارات',
     statusFilterAll: 'كل الحالات',
-    addButton: '+ إضافة عقار',
+    addButton: 'إضافة عقار',
     createModalTitle: 'إضافة عقار',
     createSubmitLabel: 'إضافة العقار',
     table: {
@@ -21,7 +21,7 @@ export const propertiesAr = {
     editSubmitLabel: 'حفظ التعديلات',
     mediaSectionTitle: 'الصور والفيديو',
     rentalsSectionTitle: 'عقود الإيجار على هذا العقار',
-    addRentalButton: '+ إضافة إيجار',
+    addRentalButton: 'إضافة إيجار',
     createRentalModalTitle: 'إضافة إيجار',
     createRentalSubmitLabel: 'إضافة الإيجار',
     noRentals: 'لا عقود إيجار مسجّلة بعد.',
@@ -67,7 +67,7 @@ export const propertiesAr = {
     deleteConfirmTitle: 'حذف الوسائط',
     deleteConfirmMessage: 'سيتم حذف هذا الملف نهائيًا، ولا يمكن التراجع عن هذا الإجراء.',
     uploading: 'جارٍ الرفع...',
-    addButton: '+ إضافة صورة أو فيديو',
+    addButton: 'إضافة صورة أو فيديو',
     uploadError: 'تعذّر رفع الملف',
     deleteError: 'تعذّر حذف الملف',
   },
@@ -77,7 +77,7 @@ export const propertiesEn: typeof propertiesAr = {
   list: {
     title: 'Properties',
     statusFilterAll: 'All statuses',
-    addButton: '+ Add property',
+    addButton: 'Add property',
     createModalTitle: 'Add property',
     createSubmitLabel: 'Add property',
     table: {
@@ -96,7 +96,7 @@ export const propertiesEn: typeof propertiesAr = {
     editSubmitLabel: 'Save changes',
     mediaSectionTitle: 'Photos and video',
     rentalsSectionTitle: 'Rentals on this property',
-    addRentalButton: '+ Add rental',
+    addRentalButton: 'Add rental',
     createRentalModalTitle: 'Add rental',
     createRentalSubmitLabel: 'Add rental',
     noRentals: 'No rentals recorded yet.',
