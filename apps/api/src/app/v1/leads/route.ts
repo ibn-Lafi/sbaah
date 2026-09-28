@@ -118,7 +118,8 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
     .single();
   if (error) throw databaseWriteError(error, 'Failed to create lead with interest');
   if (!data) throw new ApiError(500, 'lead_create_failed', 'تعذر إنشاء العميل المحتمل');
+  const createdLead = data as { id: string };
 
-  await notifyTenant({tenantId:caller.tenantId,category:'customers',level:'new',title:'عميل محتمل جديد',body:`تمت إضافة ${lead.full_name} إلى العملاء المحتملين.`,href:`/leads/${data.id}`,eventKey:`lead:${data.id}:created`});
+  await notifyTenant({tenantId:caller.tenantId,category:'customers',level:'new',title:'عميل محتمل جديد',body:`تمت إضافة ${lead.full_name} إلى العملاء المحتملين.`,href:`/leads/${createdLead.id}`,eventKey:`lead:${createdLead.id}:created`});
   return okResponse({ lead: data }, 201);
 });
