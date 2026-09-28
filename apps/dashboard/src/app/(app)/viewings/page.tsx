@@ -208,9 +208,8 @@ export default function CalendarPage() {
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-xl font-bold text-text-primary">التقويم</h1>
-          <p className="mt-1 text-sm text-text-secondary">مواعيدك ومعايناتك ومتابعات العملاء في مكان واحد.</p>
         </div>
-        <Button onClick={() => setShowAdd(true)}>+ إضافة</Button>
+        <Button onClick={() => setShowAdd(true)}>إضافة</Button>
       </div>
 
       <div className="mb-4">
@@ -255,7 +254,7 @@ export default function CalendarPage() {
 
         <div className="space-y-4 md:min-w-0">
           <Card className="p-5">
-            <p className="text-xs font-medium text-brand">أجندة اليوم المحدد</p>
+            <p className="text-xs font-medium text-brand">أجندة اليوم</p>
             <h2 className="mt-1 font-bold">{new Intl.DateTimeFormat('ar-SA', { weekday:'long', day:'numeric', month:'long' }).format(selectedDate)}</h2>
             <div className="mt-4 space-y-2">
               {loading ? <p className="text-sm text-text-secondary">جاري التحميل…</p> : selectedItems.length === 0 ? <p className="py-5 text-center text-sm text-text-secondary">لا توجد أنشطة في هذا اليوم.</p> : selectedItems.map(item => {
