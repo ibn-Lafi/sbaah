@@ -8,7 +8,6 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
 import { ProjectForm } from '@/components/hierarchy/project-form';
-import { DeleteButton } from '@/components/ui/delete-button';
 import { DetailLoadError } from '@/components/ui/detail-load-error';
 import { ProjectInventory } from '@/components/hierarchy/project-inventory';
 import { ProjectMediaManager } from '@/components/hierarchy/project-media-manager';
@@ -16,7 +15,7 @@ import { ProjectPublishingPanel } from '@/components/hierarchy/project-publishin
 import { FormPageSkeleton } from '@/components/ui/form-page-skeleton';
 import { SegmentedToggle } from '@/components/ui/segmented-toggle';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
-import { deleteProject, getProject, updateProject } from '@/lib/api/hierarchy';
+import { getProject, updateProject } from '@/lib/api/hierarchy';
 import { getProjectSalesCenter, type ProjectSalesCenter } from '@/lib/api/developer-inventory';
 import { ApiRequestError, isNotFoundError } from '@/lib/api/client';
 import { useLocale } from '@/lib/i18n/locale-context';
@@ -69,15 +68,6 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
     { value: 'inventory', label: 'العقارات' },
     ...(canManage ? [{ value: 'publishing' as const, label: 'البيانات والنشر' }] : []),
   ];
-
-  async function handleDelete() {
-    try {
-      await deleteProject(accessToken, id);
-      window.location.href = '/projects';
-    } catch (err) {
-      throw new Error(err instanceof ApiRequestError ? err.message : t.detail.deleteFallbackError);
-    }
-  }
 
   if (notFound) {
     return (
@@ -214,13 +204,9 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
           {activeSection === 'publishing' && canManage && (
             <div className="flex flex-col gap-6">
               <ProjectPublishingPanel project={project} accessToken={accessToken} onChange={setProject} />
-              <div className="flex justify-end">
-                <DeleteButton
-                  label={t.detail.deleteLabel}
-                  confirmTitle={t.detail.deleteConfirmTitle}
-                  confirmMessage={t.detail.deleteConfirmMessage}
-                  onConfirm={handleDelete}
-                />
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                <button type="button" onClick={async()=>{if(!confirm('هل تريد أرشفة المشروع؟'))return;const {project:updated}=await updateProject(accessToken,id,{status:'archived'});setProject(updated);}} className="inline-flex h-9 items-center justify-center rounded-full bg-danger-surface px-4 text-sm font-semibold text-danger transition-colors hover:bg-danger hover:text-white">أرشفة المشروع</button>
+                <button type="button" onClick={async()=>{const {project:updated}=await updateProject(accessToken,id,{is_public:!project.is_public});setProject(updated);}} className="inline-flex h-9 items-center justify-center rounded-full border border-border-default px-4 text-sm font-medium text-text-secondary transition-colors hover:bg-surface-subtle">{project.is_public?'إخفاء من الموقع':'إظهار في الموقع'}</button>
               </div>
             </div>
           )}
