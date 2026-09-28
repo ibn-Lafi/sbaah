@@ -3,6 +3,7 @@
 import { use, useEffect, useState } from 'react';
 import type { Project, ProjectUpdateInput } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
+import { LinkedContracts } from '@/components/contracts/linked-contracts';
 import { BackButton } from '@/components/ui/back-button';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -192,6 +193,8 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
               />
             </Modal>
           )}
+
+          {activeSection === 'overview' && <LinkedContracts token={accessToken} type="project" id={id} />}
 
           {activeSection === 'media' && (
             <ProjectMediaManager projectId={id} tenantId={me.tenant.id} accessToken={accessToken} canManage={canManage} />
