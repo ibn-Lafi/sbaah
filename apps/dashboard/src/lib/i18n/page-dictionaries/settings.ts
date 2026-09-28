@@ -89,7 +89,7 @@ export const settingsAr = {
     saveFailed: 'تعذّر حفظ وصف الموقع',
   },
   websiteData: {
-    brandingTitle: 'ألوان وشعار الموقع',
+    brandingTitle: 'ألوان وخط الموقع',
     logoFooterNote: 'يظهر هذا الشعار أيضًا في تذييل موقعك الإلكتروني.',
   },
   languageThemeCard: {
