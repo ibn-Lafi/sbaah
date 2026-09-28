@@ -108,11 +108,11 @@ export default function PropertiesPage() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           {canManage &&
             (view === 'rent' ? (
-              <Button onClick={() => setShowAddToRent(true)} className="h-11 min-w-[140px] self-end rounded-full px-7 sm:order-2 sm:min-w-[160px]">
+              <Button onClick={() => setShowAddToRent(true)} className="h-10 min-w-0 self-end rounded-full px-5 sm:order-2 sm:h-11 sm:min-w-[160px] sm:px-7">
                 إضافة للتأجير
               </Button>
             ) : (
-              <Button onClick={() => setShowCreateAsset(true)} className="h-11 min-w-[140px] self-end rounded-full px-7 sm:order-2 sm:min-w-[160px]">
+              <Button onClick={() => setShowCreateAsset(true)} className="h-10 min-w-0 self-end rounded-full px-5 sm:order-2 sm:h-11 sm:min-w-[160px] sm:px-7">
                 إضافة عقار
               </Button>
             ))}
