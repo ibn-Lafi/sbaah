@@ -15,3 +15,5 @@ export const addContractLink=(token:string,id:string,input:unknown)=>apiPost<{li
 export const addContractReminder=(token:string,id:string,input:unknown)=>apiPost<{reminder:ContractReminder}>(`/v1/contracts/${id}/reminders`,input,token);
 export const uploadContractDocument=(token:string,id:string,file:File,documentType='attachment')=>{const f=new FormData();f.set('file',file);f.set('document_type',documentType);return apiUpload<{document:ContractDocument}>(`/v1/contracts/${id}/documents`,f,token)};
 export const contractDocumentUrl=(id:string,documentId:string)=>{const base=(process.env.NEXT_PUBLIC_API_URL??'').replace(/\/+$/,'');const path=base.endsWith('/v1')?`/contracts/${id}/documents/${documentId}`:`/v1/contracts/${id}/documents/${documentId}`;return `${base}${path}`};
+
+export const listContractsForEntity=(token:string,type:'project'|'asset'|'lead'|'deal'|'listing'|'party',id:string)=>apiGet<{contracts:ContractRow[]}>(`/v1/contracts/by-entity?type=${type}&id=${encodeURIComponent(id)}`,token);
