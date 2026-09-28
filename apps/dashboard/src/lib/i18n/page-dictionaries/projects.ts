@@ -8,8 +8,7 @@ export const projectsAr = {
       name: 'اسم المشروع',
       status: 'الحالة',
     },
-    emptyState:
-      'لا توجد مشاريع بعد — تجميع اختياري لعقاراتك تحت مشروع واحد (مثل مشروع سكني متعدد العمارات)',
+    emptyState: 'لا توجد مشاريع بعد',
   },
   detail: {
     notFoundTitle: 'مشروع غير موجود',
@@ -54,8 +53,7 @@ export const projectsEn: typeof projectsAr = {
       name: 'Project name',
       status: 'Status',
     },
-    emptyState:
-      'No projects yet — an optional way to group your properties under one project (like a multi-building residential development)',
+    emptyState: 'No projects yet',
   },
   detail: {
     notFoundTitle: 'Project not found',
