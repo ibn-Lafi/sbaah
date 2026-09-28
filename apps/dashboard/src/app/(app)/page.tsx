@@ -17,9 +17,9 @@ function dayLabel(dateIso: string, range: 7 | 30, weekdayShort: readonly string[
 function KpiCard({ label, value, delta, deltaTone }: { label: string; value: string; delta: string; deltaTone: 'success' | 'warning' | 'muted' }) {
   const deltaClass = deltaTone === 'success' ? 'text-success' : deltaTone === 'warning' ? 'text-warning' : 'text-text-secondary';
   return (
-    <div className="flex flex-col gap-2.5 rounded-[18px] bg-surface-card p-5 shadow-[0_2px_12px_rgba(31,29,34,.06)]">
+    <div className="flex flex-col gap-2.5 rounded-[18px] bg-surface-card p-4 sm:p-5 shadow-[0_2px_12px_rgba(31,29,34,.06)]">
       <span className="text-[13px] text-text-secondary">{label}</span>
-      <span className="text-[30px] font-bold leading-none text-text-primary" dir="ltr">
+      <span className="text-[24px] font-bold sm:text-[30px] leading-none text-text-primary" dir="ltr">
         {value}
       </span>
       <span className={`text-xs font-medium ${deltaClass}`}>{delta}</span>
@@ -56,7 +56,7 @@ export default function DashboardHomePage() {
       ) : (
         <div className="flex flex-col gap-5">
           {completedSetup < setupTasks.length && (
-            <section className="rounded-[22px] border border-border-subtle bg-surface-card p-5 shadow-[0_2px_12px_rgba(31,29,34,.06)]">
+            <section className="rounded-[22px] border border-border-subtle bg-surface-card p-4 sm:p-5 shadow-[0_2px_12px_rgba(31,29,34,.06)]">
               <div className="mb-4 flex items-end justify-between gap-3">
                 <div>
                   <p className="text-xs font-medium text-text-secondary">ابدأ بخطوات بسيطة</p>
@@ -81,7 +81,7 @@ export default function DashboardHomePage() {
             </section>
           )}
 
-          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-2.5 sm:gap-4 lg:grid-cols-4">
             <KpiCard
               label={t.kpis.publishedProperties}
               value={summary.properties.published.toLocaleString('en-US')}
@@ -108,7 +108,7 @@ export default function DashboardHomePage() {
           </div>
 
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.4fr_1fr]">
-            <div className="flex flex-col gap-[18px] rounded-[18px] bg-surface-card p-[22px] shadow-[0_2px_12px_rgba(31,29,34,.06)]">
+            <div className="flex flex-col gap-[18px] rounded-[18px] bg-surface-card p-4 sm:p-[22px] shadow-[0_2px_12px_rgba(31,29,34,.06)]">
               <div className="flex items-center justify-between">
                 <h2 className="text-base font-semibold text-text-primary">{t.viewsChart.title}</h2>
                 {summary.property_views && (
@@ -147,7 +147,7 @@ export default function DashboardHomePage() {
               )}
             </div>
 
-            <div className="flex flex-col gap-3 rounded-[18px] bg-surface-card p-[22px] shadow-[0_2px_12px_rgba(31,29,34,.06)]">
+            <div className="flex flex-col gap-3 rounded-[18px] bg-surface-card p-4 sm:p-[22px] shadow-[0_2px_12px_rgba(31,29,34,.06)]">
               <div className="flex items-center justify-between">
                 <h2 className="text-base font-semibold text-text-primary">{t.latestLeads.title}</h2>
                 <a href="/leads" className="text-xs font-semibold text-brand">
