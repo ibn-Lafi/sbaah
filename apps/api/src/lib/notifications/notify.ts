@@ -1,4 +1,3 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
 import { createServiceRoleClient } from '@sbaah/shared';
 
 type Category='customers'|'real_estate'|'calendar'|'rent'|'system';
