@@ -3,6 +3,7 @@ import { assetInputSchema, assetSearchSchema } from '@sbaah/shared';
 import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
+import { notifyTenant } from '@/lib/notifications/notify';
 
 export const GET = withErrorHandling(async (request: NextRequest) => {
   const { supabase } = getAuthenticatedClient(request);
@@ -60,5 +61,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   if (input.parent_asset_id) Object.assign(createPayload, { street_width: null });
   const { data, error } = await supabase.from('assets').insert(createPayload).select().single();
   if (error) throw new Error(`Failed to create asset: ${error.message}`);
+  const isUnit=Boolean(data.parent_asset_id||data.unit_type_id); const kind=isUnit?'وحدة':'عقار';
+  await notifyTenant({tenantId:caller.tenantId,category:'real_estate',level:'info',title:`${kind} جديد`,body:`تمت إضافة ${data.name||kind}.`,href:`/properties/${data.id}`,eventKey:`asset:${data.id}:created`});
   return okResponse({ asset: data }, 201);
 });
