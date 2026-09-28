@@ -23,7 +23,7 @@ export const settingsAr = {
     title: 'نوع الحساب',
     switchButton: 'تبديل النوع',
     editTitle: 'تبديل نوع الحساب',
-    editDescription: 'يحدّد النوع الحقول المطلوبة وشكل صفحة "من نحن" في موقعك.',
+    editDescription: 'اختر نوع الحساب المناسب لجهتك.',
     options: {
       individual: { label: 'فرد', description: 'وسيط مستقل يعمل باسمه برخصة فال' },
       institution: { label: 'مؤسسة', description: 'مؤسسة فردية لها سجل تجاري ورقم ضريبي' },
@@ -33,7 +33,7 @@ export const settingsAr = {
   },
   organizationInfo: {
     title: 'بيانات الجهة',
-    description: 'اسم موقعك، السجل التجاري، والرقم الضريبي — تظهر في موقعك الإلكتروني العام.',
+    description: 'بيانات الجهة التي تظهر في موقعك.',
     websiteNameLabel: 'اسم الموقع',
     individualNamePlaceholder: 'اسم الجهة',
     institutionNamePlaceholder: 'اسم المؤسسة',
@@ -50,20 +50,20 @@ export const settingsAr = {
   },
   falLicense: {
     title: 'رخصة فال',
-    descriptionSet: 'رقم رخصتك المهنية من الهيئة العامة للعقار.',
-    descriptionUnset: 'أدخلها لتفعيل نشر موقعك الإلكتروني العام — الحساب يعمل بكامل ميزاته الأخرى بدونها.',
+    descriptionSet: 'رقم رخصة فال المسجل لحسابك.',
+    descriptionUnset: 'أضف رخصة فال لتفعيل نشر الموقع.',
     placeholder: 'رقم رخصة فال',
     invalidNumber: 'تحقق من رقم الرخصة',
     saveFailed: 'تعذّر حفظ رخصة فال',
   },
   email: {
     title: 'البريد الإلكتروني',
-    description: 'يُستخدم لتسجيل الدخول برمز تحقق، تغيير كلمة المرور، وإشعارات حسابك.',
+    description: 'البريد المستخدم للدخول وإشعارات الحساب.',
     saveFailed: 'تعذّر حفظ البريد الإلكتروني',
   },
   socialLinks: {
     title: 'حسابات التواصل الاجتماعي',
-    description: 'يظهر في تذييل موقعك الإلكتروني فقط ما تمت تعبئته هنا.',
+    description: 'الحسابات التي تظهر في تذييل موقعك.',
     instagram: 'إنستغرام',
     instagramPlaceholder: 'رابط حساب إنستغرام',
     tiktok: 'تيك توك',
@@ -78,18 +78,18 @@ export const settingsAr = {
   },
   address: {
     title: 'العنوان',
-    description: 'يظهر مع تواصل معنا في تذييل موقعك الإلكتروني.',
+    description: 'العنوان الظاهر في موقعك.',
     placeholder: 'مثال: الرياض، حي العليا، شارع الملك فهد',
     saveFailed: 'تعذّر حفظ العنوان',
   },
   websiteDescription: {
     title: 'وصف الموقع',
-    description: 'نص يظهر دائمًا في تذييل موقعك الإلكتروني.',
+    description: 'نبذة قصيرة تظهر في تذييل الموقع.',
     placeholder: 'نبذة قصيرة عن نشاطك تظهر في تذييل الموقع',
     saveFailed: 'تعذّر حفظ وصف الموقع',
   },
   websiteData: {
-    brandingTitle: 'ألوان وشعار المتجر',
+    brandingTitle: 'ألوان وشعار الموقع',
     logoFooterNote: 'يظهر هذا الشعار أيضًا في تذييل موقعك الإلكتروني.',
   },
   languageThemeCard: {
