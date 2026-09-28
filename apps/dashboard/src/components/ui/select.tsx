@@ -15,7 +15,7 @@ export interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
 export function Select({ className = '', compact = false, style, ...props }: SelectProps) {
   return (
     <select
-      className={`h-[54px] rounded-input border border-border-default px-4 text-base text-text-primary outline-none focus:border-text-primary focus:shadow-[0_0_0_2px_rgba(31,29,34,.08)] ${className}`}
+      className={`h-[48px] w-full min-w-0 rounded-input border border-border-default px-3.5 text-sm text-text-primary outline-none focus:border-text-primary focus:shadow-[0_0_0_2px_rgba(31,29,34,.08)] md:h-[54px] md:px-4 md:text-base ${className}`}
       style={compact ? { height: '46px', ...style } : style}
       {...props}
     />
