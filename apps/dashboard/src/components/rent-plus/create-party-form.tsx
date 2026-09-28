@@ -83,7 +83,7 @@ export function CreatePartyForm({ accessToken, onCreated }: { accessToken: strin
 
   return <form onSubmit={submit} className="flex flex-col gap-5">
     <div className="grid grid-cols-2 gap-2 rounded-xl bg-surface-subtle-3 p-1">
-      <button type="button" onClick={() => { setSource('crm'); setStep(0); setError(''); }} className={`rounded-lg px-3 py-2.5 text-sm font-semibold transition ${source === 'crm' ? 'bg-surface-card text-brand shadow-sm' : 'text-text-secondary'}`}>اختيار عميل مسجل</button>
+      <button type="button" onClick={() => { setSource('crm'); setStep(0); setError(''); }} className={`rounded-lg px-3 py-2.5 text-sm font-semibold transition ${source === 'crm' ? 'bg-surface-card text-brand shadow-sm' : 'text-text-secondary'}`}>عميل مسجل</button>
       <button type="button" onClick={() => { setSource('new'); setStep(0); setError(''); }} className={`rounded-lg px-3 py-2.5 text-sm font-semibold transition ${source === 'new' ? 'bg-surface-card text-brand shadow-sm' : 'text-text-secondary'}`}>مستأجر جديد</button>
     </div>
 
@@ -97,7 +97,7 @@ export function CreatePartyForm({ accessToken, onCreated }: { accessToken: strin
       {selectedLead && <div className="rounded-xl border border-border-default p-4 text-sm">
         <p className="font-semibold">{selectedLead.full_name}</p>
         <p className="mt-1 text-text-secondary">{selectedLead.phone || 'بدون رقم جوال'}{selectedLead.email ? ` · ${selectedLead.email}` : ''}</p>
-        {alreadyTenant && <p className="mt-2 text-xs font-semibold text-emerald-700">هذا العميل مسجل مسبقًا كمستأجر، وسيتم استخدام سجله الحالي دون تكرار.</p>}
+        {alreadyTenant && <p className="mt-2 text-xs font-semibold text-emerald-700">هذا العميل مسجل كمستأجر بالفعل.</p>}
       </div>}
     </div>}
 
@@ -110,7 +110,7 @@ export function CreatePartyForm({ accessToken, onCreated }: { accessToken: strin
 
     {step === 1 && source === 'crm' && selectedLead && <div className="rounded-xl border border-border-default p-4 text-sm">
       <span className="text-text-secondary">المستأجر: </span><strong>{selectedLead.full_name}</strong>
-      <p className="mt-2 text-text-secondary">{alreadyTenant ? 'سيتم استخدام سجل المستأجر الموجود.' : 'سيتم ربط المستأجر بملف العميل في CRM.'}</p>
+      <p className="mt-2 text-text-secondary">{alreadyTenant ? 'سيتم استخدام سجل المستأجر الحالي.' : 'سيتم ربط المستأجر بملف العميل.'}</p>
     </div>}
 
     {step === 1 && source === 'new' && <div className="space-y-4">
