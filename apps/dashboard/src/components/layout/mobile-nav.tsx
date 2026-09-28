@@ -214,7 +214,7 @@ export function MobileNav({ orgName, accountType }: MobileNavProps) {
                       <ChevronIcon open={isOpen} className="h-[14px] w-[14px] flex-none" />
                     </button>
                     {isOpen && (
-                      <div className="border-border-subtle me-[13px] flex flex-col gap-px border-e ps-[13px]">
+                      <div className="border-border-subtle me-[28px] flex flex-col gap-px border-e pe-[10px]">
                         {item.children.map((child) => {
                           const active = pathname === child.href;
                           const ChildIcon = child.icon;
