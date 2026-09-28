@@ -86,7 +86,7 @@ export function DateTimePicker({ value, onChange, placeholder, className = '' }:
               type="time"
               value={time}
               onChange={(e) => onChange(joinValue(selected ?? new Date(), e.target.value))}
-              className="rounded-control border-border-default text-text-primary h-9 flex-1 border px-2 text-sm outline-none"
+              className="rounded-control border-border-default text-text-primary h-9 min-w-0 flex-1 border px-2 text-sm outline-none"
             />
           </div>
         </div>
