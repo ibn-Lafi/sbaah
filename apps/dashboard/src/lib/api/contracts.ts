@@ -22,3 +22,6 @@ export const removeContractParty=(token:string,id:string,partyId:string)=>apiDel
 export const removeContractLink=(token:string,id:string,linkId:string)=>apiDelete<{deleted:boolean}>(`/v1/contracts/${id}/links/${linkId}`,token);
 export const removeContractReminder=(token:string,id:string,reminderId:string)=>apiDelete<{deleted:boolean}>(`/v1/contracts/${id}/reminders/${reminderId}`,token);
 export const removeContractDocument=(token:string,id:string,documentId:string)=>apiDelete<{deleted:boolean}>(`/v1/contracts/${id}/documents/${documentId}`,token);
+
+export interface ContractDealLookup{id:string;status:string;deal_type:'sale'|'rent'|null;value:number|null;lead_id:string;created_at:string;leads?:{full_name:string}|null}
+export const listContractDeals=(token:string)=>apiGet<{deals:ContractDealLookup[]}>('/v1/contracts/lookups/deals',token);
