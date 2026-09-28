@@ -1,6 +1,6 @@
 export const teamAr = {
   pageTitle: 'الفريق',
-  inviteButton: '+ دعوة عضو',
+  inviteButton: 'دعوة عضو',
   inviteModalTitle: 'دعوة عضو',
   table: {
     name: 'الاسم',
@@ -27,7 +27,7 @@ export const teamAr = {
 
 export const teamEn: typeof teamAr = {
   pageTitle: 'Team',
-  inviteButton: '+ Invite Member',
+  inviteButton: 'Invite Member',
   inviteModalTitle: 'Invite Member',
   table: {
     name: 'Name',
