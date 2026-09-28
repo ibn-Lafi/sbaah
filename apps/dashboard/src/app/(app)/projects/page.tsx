@@ -42,7 +42,7 @@ export default function ProjectsPage() {
       accountType={me.tenant.account_type}
     >
       <div className="mb-5 flex items-center justify-end">
-        {canManage && <Button onClick={() => setShowCreate(true)}>{t.list.addButton}</Button>}
+        {canManage && <Button onClick={() => setShowCreate(true)} className="h-11 min-w-[140px] rounded-full px-7 sm:min-w-[160px]">{t.list.addButton}</Button>}
       </div>
       {showCreate && (
         <Modal title={t.list.createModalTitle} onClose={() => setShowCreate(false)} maxWidth="820px" mobileCentered>
