@@ -110,7 +110,7 @@ export function MobileNav({ orgName, accountType }: MobileNavProps) {
   return (
     <div className="md:hidden">
       <div
-        className="fixed inset-x-3 z-40 flex items-center justify-between gap-2.5"
+        className="fixed inset-x-3 z-40 flex items-center justify-between gap-2"
         style={{ bottom: 'calc(env(safe-area-inset-bottom) + 12px)' }}
       >
         <button
@@ -118,12 +118,12 @@ export function MobileNav({ orgName, accountType }: MobileNavProps) {
           onClick={() => setSheetOpen(true)}
           aria-label={t.mobileNav.morePages}
           title={t.mobileNav.morePages}
-          className="bg-brand flex h-[52px] w-[52px] flex-none items-center justify-center rounded-full text-white shadow-[0_8px_24px_rgba(104,69,138,.3)]"
+          className="bg-brand flex h-[48px] w-[48px] flex-none items-center justify-center rounded-full text-white shadow-[0_8px_24px_rgba(104,69,138,.3)]"
         >
           <MenuIcon className="h-[20px] w-[20px]" />
         </button>
 
-        <nav className="border-border-subtle bg-surface-card flex h-[56px] min-w-0 flex-1 items-stretch rounded-full border p-1 shadow-[0_8px_24px_rgba(31,29,34,.12)]">
+        <nav className="border-border-subtle bg-surface-card flex h-[52px] min-w-0 flex-1 items-stretch rounded-full border p-1 shadow-[0_8px_24px_rgba(31,29,34,.12)]">
           {pinnedItems.map(({ key, href, label, icon: ItemIcon, activeHrefs }) => {
             const active = activeHrefs.includes(pathname);
             return (
@@ -145,7 +145,7 @@ export function MobileNav({ orgName, accountType }: MobileNavProps) {
           href="/settings"
           aria-label={t.settingsNavLabel}
           title={t.settingsNavLabel}
-          className={`border-border-subtle bg-surface-card flex h-[52px] w-[52px] flex-none items-center justify-center rounded-full border shadow-[0_8px_24px_rgba(31,29,34,.12)] transition-colors ${
+          className={`border-border-subtle bg-surface-card flex h-[48px] w-[48px] flex-none items-center justify-center rounded-full border shadow-[0_8px_24px_rgba(31,29,34,.12)] transition-colors ${
             settingsActive ? 'text-brand' : 'text-text-primary'
           }`}
         >
