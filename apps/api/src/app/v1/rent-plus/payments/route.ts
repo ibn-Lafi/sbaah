@@ -69,6 +69,8 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   }
   const { data, error } = await supabase.rpc('record_lease_payment', { p_payment: payment, p_allocations: allocations }).single();
   if (error) throw databaseWriteError(error, 'Failed to record lease payment');
-  await notifyTenant({tenantId:caller.tenantId,category:'rent',level:'info',title:'تم تسجيل دفعة',body:`تم تسجيل دفعة بقيمة ${input.amount}.`,href:`/rent-plus/contracts/${input.contract_id}`,eventKey:`lease-payment:${data.id}:recorded`});
+  if (!data) throw new ApiError(500, 'payment_create_failed', 'تعذر تسجيل الدفعة');
+  const createdPayment = data as { id: string };
+  await notifyTenant({tenantId:caller.tenantId,category:'rent',level:'info',title:'تم تسجيل دفعة',body:`تم تسجيل دفعة بقيمة ${input.amount}.`,href:`/rent-plus/contracts/${input.contract_id}`,eventKey:`lease-payment:${createdPayment.id}:recorded`});
   return okResponse({ payment: data }, 201);
 });
