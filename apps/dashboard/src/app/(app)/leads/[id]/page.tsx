@@ -3,6 +3,7 @@
 import { use, useEffect, useState } from 'react';
 import { LEAD_STATUSES } from '@sbaah/shared';
 import { AppShell } from '@/components/layout/app-shell';
+import { LinkedContracts } from '@/components/contracts/linked-contracts';
 import { BackButton } from '@/components/ui/back-button';
 import { Card } from '@/components/ui/card';
 import { DateTimePicker } from '@/components/ui/datetime-picker';
@@ -228,6 +229,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
             </>
           )}
 
+          <LinkedContracts token={accessToken} type="lead" id={id} />
         </div>
       )}
     </AppShell>
