@@ -30,7 +30,7 @@ export function LavenderProjectFilters({
   }
 
   return (
-    <div className="flex flex-col gap-3 border-y border-black/15 py-4 sm:flex-row sm:items-end sm:justify-between">
+    <div className="flex flex-col gap-3 rounded-2xl border border-black/10 bg-white/70 p-4 shadow-[0_8px_30px_rgba(23,23,19,.04)] sm:flex-row sm:items-end sm:justify-between sm:p-5">
       <label className="flex w-full max-w-sm flex-col gap-2">
         <span className="text-[11px] font-semibold uppercase tracking-[.16em] text-black/45">
           {t.label}
@@ -39,7 +39,7 @@ export function LavenderProjectFilters({
         <select
           value={cityId ?? ''}
           onChange={(event) => update(event.target.value)}
-          className="focus:border-tenant-primary min-h-12 w-full border-0 border-b border-black/30 bg-transparent px-0 text-sm outline-none transition"
+          className="focus:border-tenant-primary h-10 w-full rounded-lg border border-black/10 bg-white px-3 text-sm outline-none transition sm:h-11"
         >
           <option value="">{t.all}</option>
           {cities.map((city) => (
@@ -54,7 +54,7 @@ export function LavenderProjectFilters({
         <button
           type="button"
           onClick={() => update('')}
-          className="self-start border-b border-black/40 pb-1 text-xs font-medium text-black/60 transition hover:text-black sm:mb-3 sm:self-end"
+          className="self-start border-b border-black/40 pb-1 text-xs font-medium text-black/60 transition hover:text-black sm:mb-2 sm:self-end"
         >
           {t.clear}
         </button>
