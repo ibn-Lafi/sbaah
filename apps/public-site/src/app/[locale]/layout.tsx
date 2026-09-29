@@ -206,7 +206,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
         } as React.CSSProperties
       }
     >
-      <body className={font.className} style={{ backgroundColor: 'var(--tenant-background)' }}>
+      <body className={`${font.className} theme-${site.website.theme_key}`} style={{ backgroundColor: 'var(--tenant-background)', color: 'var(--lavender-ink, inherit)' }}>
         <Header
           locale={locale}
           dict={dict}
