@@ -45,7 +45,7 @@ async function handleResponse<T>(response: Response): Promise<T> {
 }
 
 interface RequestOptions {
-  method?: 'GET' | 'POST' | 'PATCH' | 'DELETE';
+  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   body?: unknown;
   accessToken?: string;
 }
@@ -91,6 +91,10 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
 /** Unauthenticated by default (OTP send/verify, register, reset-password, console login); pass accessToken for authenticated calls. */
 export function apiPost<T>(path: string, body: unknown, accessToken?: string): Promise<T> {
   return request<T>(path, { method: 'POST', body, accessToken });
+}
+
+export function apiPut<T>(path: string, body: unknown, accessToken: string): Promise<T> {
+  return request<T>(path, { method: 'PUT', body, accessToken });
 }
 
 export function apiPatch<T>(path: string, body: unknown, accessToken: string): Promise<T> {
