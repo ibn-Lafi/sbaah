@@ -43,9 +43,9 @@ export function Header({
   return (
     <>
       <header
-        className={`fixed inset-x-0 top-0 z-50 text-[#171a17] transition-[background-color,box-shadow,backdrop-filter] duration-300 ${
+        className={`fixed inset-x-0 top-0 z-50 text-[var(--lavender-ink)] transition-[background-color,box-shadow,backdrop-filter] duration-300 ${
           scrolled
-            ? 'bg-[#f7f5ef]/95 shadow-[0_8px_28px_rgba(17,24,17,.10)] backdrop-blur-xl'
+            ? 'bg-[var(--tenant-background)]/95 shadow-[0_8px_28px_rgba(17,24,17,.10)] backdrop-blur-xl'
             : 'bg-transparent shadow-none'
         }`}
       >
@@ -88,7 +88,7 @@ export function Header({
             </a>
             <a
               href={`${homeHref}#contact`}
-              className="inline-flex min-h-11 items-center justify-center border border-[#171a17] px-5 text-sm font-semibold transition-colors hover:bg-[#171a17] hover:text-white"
+              className="inline-flex min-h-11 items-center justify-center border border-[var(--tenant-primary)] px-5 text-sm font-semibold transition-colors hover:bg-tenant-primary hover:text-white"
             >
               {dict.contact}
             </a>
@@ -116,7 +116,7 @@ export function Header({
       </header>
 
       {open && (
-        <div className="fixed inset-0 z-40 flex flex-col bg-[#171a17] px-5 pb-8 pt-28 text-white lg:hidden">
+        <div className="fixed inset-0 z-40 flex flex-col bg-tenant-primary px-5 pb-8 pt-28 text-white lg:hidden">
           <nav
             className="mx-auto flex w-full max-w-7xl flex-1 flex-col border-t border-white/20"
             aria-label={dict.menu}
