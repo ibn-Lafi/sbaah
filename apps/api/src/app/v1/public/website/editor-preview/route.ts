@@ -1,0 +1,6 @@
+import type { NextRequest } from 'next/server';
+import { z } from 'zod';
+import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
+import { createServiceRoleClient } from '@/lib/supabase/service-role';
+const querySchema=z.object({token:z.string().uuid(),page:z.enum(['home','properties','projects'])});
+export const GET=withErrorHandling(async(request:NextRequest)=>{const input=querySchema.parse(Object.fromEntries(request.nextUrl.searchParams));const supabase=createServiceRoleClient();const{data:draft,error}=await supabase.from('website_editor_drafts').select('website_id,website,sections').eq('preview_token',input.token).maybeSingle();if(error)throw new Error(`Failed to load preview: ${error.message}`);if(!draft)throw new ApiError(404,'preview_not_found','Preview not found');const{data:page,error:pe}=await supabase.from('website_pages').select('id').eq('website_id',draft.website_id).eq('key',input.page).maybeSingle();if(pe)throw new Error(`Failed to resolve preview page: ${pe.message}`);if(!page)throw new ApiError(404,'preview_page_not_found','Preview page not found');const sections=(Array.isArray(draft.sections)?draft.sections:[]).filter((s:any)=>s.page_id===page.id&&s.is_visible).sort((a:any,b:any)=>a.order_index-b.order_index);return okResponse({website:draft.website,sections});});
