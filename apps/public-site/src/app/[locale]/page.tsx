@@ -1,5 +1,5 @@
 import { isLocale, DEFAULT_LOCALE } from '@/lib/i18n/locales';
-import { getTenantSite } from '@/lib/tenant/get-tenant-site';
+import { getTenantSite, applyEditorPreview } from '@/lib/tenant/get-tenant-site';
 import { isMarketingHost } from '@/lib/tenant/get-host';
 import { MarketingHome } from '@/components/marketing-home';
 import { resolveTheme, themeSupportsSection } from '@/components/themes/registry';
@@ -59,7 +59,7 @@ import {
  * to a component set via the registry; see components/themes/registry.ts
  * and docs/THEMES.md.
  */
-export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
+export default async function HomePage({ params, searchParams }: { params: Promise<{ locale: string }>; searchParams: Promise<Record<string,string|string[]|undefined>> }) {
   const { locale: rawLocale } = await params;
   const locale = isLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
 
@@ -70,7 +70,11 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     return <MarketingHome locale={locale} />;
   }
 
-  const site = await getTenantSite();
+  const baseSite = await getTenantSite();
+  const sp = await searchParams;
+  const tokenValue = sp.__sbaah_preview_token;
+  const token = Array.isArray(tokenValue) ? tokenValue[0] : tokenValue;
+  const site = baseSite ? await applyEditorPreview(baseSite, token, 'home') : null;
   if (!site) return null; // layout.tsx already calls notFound() in this case
 
   const tenantName = locale === 'ar' ? site.tenant.name_ar : site.tenant.name_en;
