@@ -8,7 +8,7 @@ import type {
   WebsiteSection,
   WebsiteUpdateInput,
 } from '@sbaah/shared';
-import { apiDelete, apiGet, apiPatch, apiPost, apiUpload } from './client';
+import { apiDelete, apiGet, apiPatch, apiPost, apiPut, apiUpload } from './client';
 
 export type WebsitePageWithSections = WebsitePage & { website_sections: WebsiteSection[] };
 
@@ -87,3 +87,10 @@ export function uploadSectionAsset(accessToken: string, sectionId: string, file:
   const formData = new FormData(); formData.append('file', file);
   return apiUpload<{ url: string }>(`/website/sections/${sectionId}/asset`, formData, accessToken);
 }
+
+export interface WebsiteEditorDraftSection { id:string; page_id:string; is_visible:boolean; order_index:number; config:Record<string,unknown> }
+export interface WebsiteEditorDraft { website:Record<string,unknown>; sections:WebsiteEditorDraftSection[]; updated_at?:string }
+export function getWebsiteEditorDraft(accessToken:string):Promise<{draft:WebsiteEditorDraft|null}>{return apiGet('/website/editor-draft',accessToken);}
+export function saveWebsiteEditorDraft(accessToken:string,draft:Omit<WebsiteEditorDraft,'updated_at'>):Promise<{draft:WebsiteEditorDraft}>{return apiPut('/website/editor-draft',draft,accessToken);}
+export function discardWebsiteEditorDraft(accessToken:string):Promise<{status:string}>{return apiDelete('/website/editor-draft',accessToken);}
+export function publishWebsiteEditorDraft(accessToken:string):Promise<{status:string}>{return apiPost('/website/editor-draft/publish',{},accessToken);}
