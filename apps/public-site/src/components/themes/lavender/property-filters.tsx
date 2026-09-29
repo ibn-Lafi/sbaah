@@ -58,7 +58,7 @@ export function LavenderPropertyFilters({
     router.push(pathname + (q.size ? '?' + q : ''));
   };
   const cls =
-    'min-h-12 w-full border-0 border-b border-black/30 bg-transparent px-0 text-sm text-[#171713] outline-none transition focus-visible:border-tenant-primary focus-visible:ring-2 focus-visible:ring-tenant-primary/30 disabled:cursor-not-allowed disabled:opacity-45';
+    'h-10 w-full rounded-lg border border-black/10 bg-white px-3 text-sm text-[#171713] outline-none transition focus-visible:border-tenant-primary focus-visible:ring-2 focus-visible:ring-tenant-primary/20 disabled:cursor-not-allowed disabled:opacity-45 sm:h-11';
   const fields = [
     <label key="listing" className="grid gap-1.5">
       <span className="text-xs font-semibold text-black/65">{t.listing}</span>
@@ -170,13 +170,13 @@ export function LavenderPropertyFilters({
   ];
   const active = Object.values(value).some(Boolean);
   return (
-    <section aria-label={t.filters} className="border-y border-black/15 py-6">
-      <div className="grid gap-x-6 gap-y-5 sm:grid-cols-2 lg:grid-cols-4">{fields}</div>
+    <section aria-label={t.filters} className="rounded-2xl border border-black/10 bg-white/70 p-4 shadow-[0_8px_30px_rgba(23,23,19,.04)] sm:p-5">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{fields}</div>
       {active && (
         <button
           type="button"
           onClick={() => router.push(pathname)}
-          className="focus-visible:ring-tenant-primary mt-6 border-b border-black/40 pb-1 text-sm font-semibold text-black/75 outline-none hover:text-black focus-visible:ring-2"
+          className="focus-visible:ring-tenant-primary mt-4 border-b border-black/40 pb-1 text-sm font-semibold text-black/75 outline-none hover:text-black focus-visible:ring-2"
         >
           {t.clear}
         </button>
