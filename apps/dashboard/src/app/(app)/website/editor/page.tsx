@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import {
-  HERO_VARIANTS,
-  type HeroVariant,
   type Website,
   type WebsitePageKey,
   type WebsiteSection,
@@ -82,7 +80,6 @@ export default function WebsiteEditorPage() {
   const [addSectionOpen, setAddSectionOpen] = useState(false);
   const [addSectionQuery, setAddSectionQuery] = useState('');
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
-  const [addSectionHeroVariant, setAddSectionHeroVariant] = useState<HeroVariant>('image_search');
 
   const siteUrl = `https://${me.tenant.subdomain}.${getPlatformRootDomain()}`;
   const activePage = pages.find((p) => p.key === activePageKey);
@@ -198,7 +195,6 @@ export default function WebsiteEditorPage() {
     setAddSectionOpen(false);
     setAddSectionQuery('');
     setSelectedSectionId(null);
-    setAddSectionHeroVariant('image_search');
   }
 
   function confirmAddSection() {
@@ -210,7 +206,7 @@ export default function WebsiteEditorPage() {
     if (section.type === 'hero') {
       void patchSection(section.id, {
         is_visible: true,
-        config: { ...section.config, variant: addSectionHeroVariant },
+        config: { ...section.config, variant: section.config.variant === 'video' || section.config.variant === 'video_search' ? 'video' : 'image' },
       });
     } else {
       void toggleSectionVisibility(section);
@@ -490,23 +486,6 @@ export default function WebsiteEditorPage() {
                     })}
                   </div>
                 )}
-
-                {selectedAddSection?.type === 'hero' && (
-                  <div className="mt-3 flex flex-col gap-2">
-                    <label className="text-text-secondary text-xs">{t.sectionConfigEditor.heroVariantLabel}</label>
-                    <Select
-                      value={addSectionHeroVariant}
-                      onChange={(e) => setAddSectionHeroVariant(e.target.value as HeroVariant)}
-                      className="h-10"
-                    >
-                      {HERO_VARIANTS.map((variant) => (
-                        <option key={variant} value={variant}>
-                          {t.sectionConfigEditor.heroVariants[variant]}
-                        </option>
-                      ))}
-                    </Select>
-                  </div>
-                )}
               </div>
 
               <div className="border-border-subtle flex flex-none items-center gap-2 border-t p-4">
@@ -757,23 +736,6 @@ export default function WebsiteEditorPage() {
                       </button>
                     );
                   })}
-                </div>
-              )}
-
-              {selectedAddSection?.type === 'hero' && (
-                <div className="flex flex-col gap-2">
-                  <label className="text-text-secondary text-xs">{t.sectionConfigEditor.heroVariantLabel}</label>
-                  <Select
-                    value={addSectionHeroVariant}
-                    onChange={(e) => setAddSectionHeroVariant(e.target.value as HeroVariant)}
-                    className="h-10"
-                  >
-                    {HERO_VARIANTS.map((variant) => (
-                      <option key={variant} value={variant}>
-                        {t.sectionConfigEditor.heroVariants[variant]}
-                      </option>
-                    ))}
-                  </Select>
                 </div>
               )}
 
