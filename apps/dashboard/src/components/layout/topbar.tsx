@@ -79,9 +79,8 @@ export function Topbar({ title, siteUrl }: TopbarProps) {
         )}
       </div>
 
-      <div className="hidden md:block"><NotificationCenter /></div>
-
       <div className="hidden items-center rounded-[14px] bg-brand p-1 md:flex">
+        <NotificationCenter desktopGrouped />
         <ThemeToggle className="!bg-transparent !text-white hover:!bg-white/10" />
         <LanguageToggle className="!bg-transparent !text-white hover:!bg-white/10" />
         <div className="relative flex-none">
