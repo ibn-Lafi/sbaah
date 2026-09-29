@@ -1,7 +1,4 @@
-import { listCities } from '@/lib/api/reference-data';
 import type { HeroSectionProps } from '../types';
-import { LavenderHeroSearch } from './hero-search';
-import { resolveHeroSearchMode } from '@sbaah/shared';
 
 export async function HeroSection({
   locale,
@@ -12,12 +9,9 @@ export async function HeroSection({
 }: HeroSectionProps) {
   const title = config.title_ar ?? tenantName;
   const subtitle = config.subtitle_ar ?? '';
-  const variant = config.variant ?? 'image_search';
-  const searchMode = resolveHeroSearchMode(config);
-  const showSearch = searchMode !== 'none';
-  const useVideo = (variant === 'video' || variant === 'video_search') && Boolean(bannerVideoUrl);
-  const useImage = (variant === 'image' || variant === 'image_search') && Boolean(bannerUrl);
-  const cities = showSearch ? await listCities() : [];
+  const variant = config.variant === 'video' || config.variant === 'video_search' ? 'video' : 'image';
+  const useVideo = variant === 'video' && Boolean(bannerVideoUrl);
+  const useImage = variant === 'image' && Boolean(bannerUrl);
   return (
     <section className="relative -mt-20 h-[calc(100svh+5rem)] min-h-[calc(100svh+5rem)] w-full overflow-hidden bg-[#171a17] text-white">
       {useVideo && (
@@ -40,7 +34,7 @@ export async function HeroSection({
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(6,10,9,.54)_0%,rgba(7,10,9,.35)_32%,rgba(7,9,8,.48)_64%,rgba(5,7,6,.76)_100%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_8%,rgba(0,0,0,.18)_100%)]" />
       <div
-        className={`relative mx-auto flex min-h-[100svh] w-full max-w-[90rem] flex-col items-center justify-center px-5 pb-10 pt-28 text-center sm:px-8 sm:pb-14 sm:pt-32 lg:px-12 ${showSearch ? 'lg:pb-12 lg:pt-36' : 'lg:pb-20 lg:pt-40'}`}
+        className={`relative mx-auto flex min-h-[100svh] w-full max-w-[90rem] flex-col items-center justify-center px-5 pb-10 pt-28 text-center sm:px-8 sm:pb-14 sm:pt-32 lg:px-12 lg:pb-20 lg:pt-40`}
       >
         <div className="mx-auto flex w-full max-w-5xl flex-col items-center">
           <h1 className="max-w-[22rem] text-balance text-[clamp(2.35rem,10.5vw,3.25rem)] font-medium leading-[1.3] tracking-[-.035em] text-white drop-shadow-[0_2px_22px_rgba(0,0,0,.28)] sm:max-w-3xl sm:text-6xl sm:leading-[1.2] lg:max-w-5xl lg:text-7xl lg:leading-[1.16] xl:text-[5.25rem]">
@@ -52,11 +46,6 @@ export async function HeroSection({
             </p>
           )}
         </div>
-        {showSearch && (
-          <div className="mt-8 w-full max-w-6xl sm:mt-10 lg:mt-12">
-            <LavenderHeroSearch locale={locale} cities={cities} mode={searchMode} />
-          </div>
-        )}
       </div>
     </section>
   );
