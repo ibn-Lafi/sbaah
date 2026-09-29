@@ -1,0 +1,11 @@
+import type { NextRequest } from 'next/server';
+import { z } from 'zod';
+import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
+import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
+import { getCallerContext } from '@/lib/auth/get-caller-context';
+import { assertNotAgent } from '@/lib/auth/assert-not-agent';
+const draftSchema=z.object({website:z.record(z.string(),z.unknown()),sections:z.array(z.object({id:z.string().uuid(),page_id:z.string().uuid(),is_visible:z.boolean(),order_index:z.number().int().nonnegative(),config:z.record(z.string(),z.unknown())}))});
+async function ctx(request:NextRequest){const {supabase}=getAuthenticatedClient(request);const caller=await getCallerContext(supabase);assertNotAgent(caller.role);const {data:website,error}=await supabase.from('websites').select('*').eq('tenant_id',caller.tenantId).maybeSingle();if(error)throw new Error(`Failed to resolve website: ${error.message}`);if(!website)throw new ApiError(404,'website_not_found','الموقع غير موجود');return{supabase,caller,website};}
+export const GET=withErrorHandling(async(request:NextRequest)=>{const{supabase,website}=await ctx(request);const{data,error}=await supabase.from('website_editor_drafts').select('website,sections,updated_at').eq('website_id',website.id).maybeSingle();if(error)throw new Error(`Failed to load editor draft: ${error.message}`);return okResponse({draft:data});});
+export const PUT=withErrorHandling(async(request:NextRequest)=>{const{supabase,caller,website}=await ctx(request);const input=draftSchema.parse(await request.json());const{data,error}=await supabase.from('website_editor_drafts').upsert({website_id:website.id,tenant_id:caller.tenantId,website:input.website,sections:input.sections,updated_at:new Date().toISOString()},{onConflict:'website_id'}).select('website,sections,updated_at').single();if(error)throw new Error(`Failed to save editor draft: ${error.message}`);return okResponse({draft:data});});
+export const DELETE=withErrorHandling(async(request:NextRequest)=>{const{supabase,website}=await ctx(request);const{error}=await supabase.from('website_editor_drafts').delete().eq('website_id',website.id);if(error)throw new Error(`Failed to discard editor draft: ${error.message}`);return okResponse({status:'discarded'});});
