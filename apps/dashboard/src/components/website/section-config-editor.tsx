@@ -446,7 +446,61 @@ export function SectionConfigEditor({
               type="file"
               accept="image/jpeg,image/png,image/webp"
               className="hidden"
-              onChange={(e) => setVariant(e.target.value as HeroVariant)}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                e.target.value = '';
+                if (file)
+                  void uploadSectionAsset(accessToken, section.id, file).then((r) =>
+                    setGalleryUrls((v) => [...v, r.url]),
+                  );
+              }}
+            />
+          </label>
+        </div>
+      )}
+      {hasImageUrl && (
+        <AssetUploader
+          label="صورة القسم"
+          currentUrl={mediaUrl || null}
+          onUpload={async (file) => {
+            const r = await uploadSectionAsset(accessToken, section.id, file);
+            setMediaUrl(r.url);
+          }}
+          onRemove={async () => setMediaUrl('')}
+        />
+      )}
+      {hasVideoUrl && (
+        <Input
+          placeholder="رابط الفيديو"
+          value={mediaUrl}
+          onChange={(e) => setMediaUrl(e.target.value)}
+        />
+      )}
+
+      {isHero && (
+        <Input
+          placeholder={t.sectionConfigEditor.subtitle}
+          value={subtitleAr}
+          onChange={(e) => setSubtitleAr(e.target.value)}
+        />
+      )}
+
+      {hasBody && (
+        <Textarea
+          placeholder={t.sectionConfigEditor.body}
+          value={bodyAr}
+          onChange={(e) => setBodyAr(e.target.value)}
+        />
+      )}
+
+      {isHero && (
+        <div className="flex flex-col gap-2">
+          <label className="text-text-secondary text-xs">
+            {t.sectionConfigEditor.heroVariantLabel}
+          </label>
+          <Select
+            value={variant}
+            onChange={(e) => setVariant(e.target.value as HeroVariant)}
             className="h-10"
           >
             {HERO_VARIANTS.filter((v) => v === 'image' || v === 'video').map((v) => (
@@ -457,6 +511,7 @@ export function SectionConfigEditor({
           </Select>
         </div>
       )}
+
 
       {showImageUploader && (
         <AssetUploader
