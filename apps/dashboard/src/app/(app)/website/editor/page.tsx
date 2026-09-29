@@ -89,6 +89,7 @@ export default function WebsiteEditorPage() {
   const [hasDraft, setHasDraft] = useState(false);
   const [draftBusy, setDraftBusy] = useState(false);
   const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
+  const [previewToken, setPreviewToken] = useState<string | null>(null);
 
   const siteUrl = `https://${me.tenant.subdomain}.${getPlatformRootDomain()}`;
   const activePage = pages.find((p) => p.key === activePageKey);
@@ -138,6 +139,7 @@ export default function WebsiteEditorPage() {
           setPages(draftPages);
           setTextDraft({ footerDescription: draftWebsite.footer_description ?? '' });
           setHasDraft(true);
+          setPreviewToken(draft.preview_token ?? null);
         } else {
           setWebsite(result.website);
           setPages(result.pages);
@@ -152,7 +154,7 @@ export default function WebsiteEditorPage() {
   }, [accessToken]);
 
   async function persistDraft(nextWebsite: Website, nextPages: WebsitePageWithSections[]) {
-    await saveWebsiteEditorDraft(accessToken, {
+    const { draft } = await saveWebsiteEditorDraft(accessToken, {
       website: nextWebsite as unknown as Record<string, unknown>,
       sections: nextPages.flatMap((page) => page.website_sections.map((section) => ({
         id: section.id, page_id: section.page_id, is_visible: section.is_visible,
@@ -160,6 +162,7 @@ export default function WebsiteEditorPage() {
       }))),
     });
     setHasDraft(true);
+    setPreviewToken(draft.preview_token ?? null);
     setPreviewRevision((value) => value + 1);
   }
 
@@ -172,7 +175,7 @@ export default function WebsiteEditorPage() {
       setWebsite(result.website); setPages(result.pages);
       setSavedWebsite(result.website); setSavedPages(result.pages);
       setTextDraft({ footerDescription: result.website.footer_description ?? '' });
-      setHasDraft(false); setPreviewRevision((value) => value + 1);
+      setHasDraft(false); setPreviewToken(null); setPreviewRevision((value) => value + 1);
     } catch (err) { setError(err instanceof ApiRequestError ? err.message : 'تعذر حفظ التغييرات.'); }
     finally { setDraftBusy(false); }
   }
@@ -184,7 +187,7 @@ export default function WebsiteEditorPage() {
       await discardWebsiteEditorDraft(accessToken);
       setWebsite(savedWebsite); setPages(savedPages);
       setTextDraft({ footerDescription: savedWebsite.footer_description ?? '' });
-      setHasDraft(false); setEditingSectionId(null); setPreviewRevision((value) => value + 1);
+      setHasDraft(false); setPreviewToken(null); setEditingSectionId(null); setPreviewRevision((value) => value + 1);
     } catch (err) { setError(err instanceof ApiRequestError ? err.message : 'تعذر التراجع عن التغييرات.'); }
     finally { setDraftBusy(false); }
   }
@@ -498,7 +501,7 @@ export default function WebsiteEditorPage() {
         </div>
         {mobilePreviewOpen && (
           <div className="fixed inset-0 z-30 bg-surface-page pt-14 pb-20">
-            <SitePreview siteUrl={siteUrl} pageKey={activePageKey} device="mobile" accessToken={accessToken} revision={previewRevision} />
+            <SitePreview siteUrl={siteUrl} pageKey={activePageKey} device="mobile" accessToken={accessToken} revision={previewRevision} previewToken={previewToken} />
           </div>
         )}
 
@@ -776,7 +779,7 @@ export default function WebsiteEditorPage() {
             </div>
 
             <div className="min-h-0 flex-1">
-              <SitePreview siteUrl={siteUrl} pageKey={activePageKey} device={device} accessToken={accessToken} revision={previewRevision} />
+              <SitePreview siteUrl={siteUrl} pageKey={activePageKey} device={device} accessToken={accessToken} revision={previewRevision} previewToken={previewToken} />
             </div>
           </div>
         </div>
