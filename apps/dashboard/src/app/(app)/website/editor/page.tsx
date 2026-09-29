@@ -186,6 +186,7 @@ export default function WebsiteEditorPage() {
   async function duplicateSectionHandler(section: WebsiteSection) {
     if (!activePage) return;
     const { section: created } = await duplicateSection(accessToken, section.id);
+    setPreviewRevision((value) => value + 1);
     setPages((current) =>
       current.map((p) => (p.id === activePage.id ? { ...p, website_sections: [...p.website_sections, created] } : p)),
     );
@@ -282,7 +283,7 @@ export default function WebsiteEditorPage() {
                   section={editingSection}
                   accessToken={accessToken}
                   website={website}
-                  onWebsiteUpdate={(updated) => setWebsite(updated)}
+                  onWebsiteUpdate={(updated) => { setWebsite(updated); setPreviewRevision((value) => value + 1); }}
                   onSaved={handleSectionSaved}
                 />
               </div>
@@ -530,7 +531,7 @@ export default function WebsiteEditorPage() {
                     section={editingSection}
                     accessToken={accessToken}
                     website={website}
-                    onWebsiteUpdate={(updated) => setWebsite(updated)}
+                    onWebsiteUpdate={(updated) => { setWebsite(updated); setPreviewRevision((value) => value + 1); }}
                     onSaved={handleSectionSaved}
                   />
                 </div>
