@@ -1,5 +1,5 @@
 import { isLocale, DEFAULT_LOCALE } from '@/lib/i18n/locales';
-import { getTenantSitePage } from '@/lib/tenant/get-tenant-site';
+import { getTenantSitePage, applyEditorPreview } from '@/lib/tenant/get-tenant-site';
 import { resolveTheme } from '@/components/themes/registry';
 import { LavenderProject } from '@/components/themes/lavender/cards';
 import { renderThemedSection } from '@/lib/website/render-section';
@@ -45,11 +45,14 @@ export default async function ProjectsPage({
     : rawSearchParams.city_id;
   const t = PAGE_LABELS[locale];
 
-  const [site, cities, listResult] = await Promise.all([
+  const [baseSite, cities, listResult] = await Promise.all([
     getTenantSitePage('projects'),
     listCities(),
     listPublicProjects(1, 50),
   ]);
+  const previewValue = rawSearchParams.__sbaah_preview_token;
+  const previewToken = Array.isArray(previewValue) ? previewValue[0] : previewValue;
+  const site = baseSite ? await applyEditorPreview(baseSite, previewToken, 'projects') : null;
   if (!site) return null;
 
   const citiesById = new Map(cities.map((city) => [city.id, city]));
