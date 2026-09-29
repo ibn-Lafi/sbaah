@@ -7,7 +7,7 @@ import {
   PropertyFilters,
   type PropertyFiltersValue,
 } from '@/components/properties/property-filters';
-import { getTenantSitePage } from '@/lib/tenant/get-tenant-site';
+import { getTenantSitePage, applyEditorPreview } from '@/lib/tenant/get-tenant-site';
 import { resolveTheme } from '@/components/themes/registry';
 import { LavenderProperty } from '@/components/themes/lavender/cards';
 import { LavenderPropertyFilters } from '@/components/themes/lavender/property-filters';
@@ -73,7 +73,7 @@ export default async function PropertiesPage({ params, searchParams }: PageProps
   };
   const page = Number(first(sp.page)) || 1;
 
-  const [site, cities, districts, listResult] = await Promise.all([
+  const [baseSite, cities, districts, listResult] = await Promise.all([
     getTenantSitePage('properties'),
     listCities(),
     filters.city_id ? listDistricts(filters.city_id) : Promise.resolve([]),
@@ -88,6 +88,9 @@ export default async function PropertiesPage({ params, searchParams }: PageProps
       page,
     }),
   ]);
+  const previewValue = sp.__sbaah_preview_token;
+  const previewToken = Array.isArray(previewValue) ? previewValue[0] : previewValue;
+  const site = baseSite ? await applyEditorPreview(baseSite, previewToken, 'properties') : null;
   if (!site) return null; // layout.tsx already calls notFound()/renders suspended in this case
 
   const citiesById = new Map(cities.map((city) => [city.id, city]));
