@@ -7,7 +7,7 @@ import type {
 
 export const websiteAr = {
   themeStore: {
-    pageTitle: 'تصميم الموقع',
+    pageTitle: 'متجر الثيمات',
     description: 'اختر الثيم المناسب لموقعك',
     customizeTheme: 'تخصيص الثيم',
     selectTheme: 'اختيار',
