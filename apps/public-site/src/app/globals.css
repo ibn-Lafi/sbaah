@@ -11,6 +11,7 @@
 @theme {
   --color-tenant-primary: var(--tenant-primary, #68458a);
   --color-tenant-secondary: var(--tenant-secondary, #000000);
+  --color-tenant-background: var(--tenant-background, #f4f1ea);
 
   /**
    * سبعة's own fixed brand color — for the platform's own marketing pages
@@ -171,4 +172,14 @@ body {
   .sbaah-error-building,
   .sbaah-error-pin,
   .sbaah-error-dot { animation: none !important; }
+}
+
+
+/* Lavender tenant palette: primary drives brand surfaces/actions, secondary drives accents/headings, background stays the page canvas. */
+.theme-lavender {
+  --lavender-ink: color-mix(in srgb, var(--tenant-secondary) 88%, #171713);
+  --lavender-muted: color-mix(in srgb, var(--lavender-ink) 68%, transparent);
+  --lavender-line: color-mix(in srgb, var(--tenant-secondary) 18%, transparent);
+  --lavender-soft: color-mix(in srgb, var(--tenant-primary) 7%, var(--tenant-background));
+  --lavender-card: color-mix(in srgb, white 88%, var(--tenant-background));
 }
