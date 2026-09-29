@@ -7,7 +7,7 @@ export function TextSection({ type, locale, config }: TextSectionProps) {
   if (!body) return null;
   const title = config.title_ar || DEFAULT_SECTION_TITLE[type].ar;
   return (
-    <LavenderSection className="bg-white text-[#171713]">
+    <LavenderSection className="bg-transparent text-[var(--lavender-ink)]">
       <div className="border-current/20 grid gap-10 border-t pt-7 lg:grid-cols-[.8fr_1.2fr] lg:gap-20">
         <div>
           {type === 'about' && (
