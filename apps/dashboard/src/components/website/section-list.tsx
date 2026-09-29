@@ -4,13 +4,12 @@ import { useEffect, useRef, useState } from 'react';
 import type { WebsiteSection } from '@sbaah/shared';
 import { SectionRowMenu } from './section-row-menu';
 import { useLocale } from '@/lib/i18n/locale-context';
-import { reorderSections } from '@/lib/api/website';
 import { PencilIcon } from './editor-icons';
 
 interface SectionListProps {
   /** أقسام مُفعَّلة (ظاهرة) فقط — الإخفاء يُزيل القسم من هذه القائمة عائدًا لمكتبة "إضافة قسم" (onHide/onDuplicate، مُدارتان بصفحة المحرر نفسها ككل الأقسام معًا، بما فيها المخفية). */
   sections: WebsiteSection[];
-  accessToken: string;
+  accessToken?: string;
   onChange: (sections: WebsiteSection[]) => void;
   onHide: (section: WebsiteSection) => void;
   onDuplicate: (section: WebsiteSection) => void;
@@ -25,7 +24,7 @@ export const EDITABLE_TYPES: WebsiteSection['type'][] = ['hero', 'about', 'why_u
  * reorder doesn't need a full DnD library. Each drop persists the whole
  * new order in one call (sectionReorderSchema, PRODUCT_SPEC section 6).
  */
-export function SectionList({ sections, accessToken, onChange, onHide, onDuplicate, onEdit }: SectionListProps) {
+export function SectionList({ sections, onChange, onHide, onDuplicate, onEdit }: SectionListProps) {
   const { pages } = useLocale();
   const t = pages.website;
   const [ordered, setOrdered] = useState(sections);
@@ -47,10 +46,7 @@ export function SectionList({ sections, accessToken, onChange, onHide, onDuplica
     setOrdered(next);
     dragIndex.current = null;
 
-    void reorderSections(
-      accessToken,
-      next.map((section, index) => ({ id: section.id, order_index: index })),
-    ).then((result) => onChange(result.sections));
+    onChange(next.map((section, index) => ({ ...section, order_index: index })));
   }
 
   return (
