@@ -670,8 +670,13 @@ export default function WebsiteEditorPage() {
                             // SectionList لا يعرف إلا الأقسام الظاهرة (reorder
                             // API يُعيد فقط ما أرسلناه له) — لازم إعادة دمج
                             // الأقسام المخفية يدويًا هنا وإلا تضيع من الحالة.
-                            onChange={(updatedVisible) =>
-                              mergeSections(activePage.id, [...updatedVisible, ...hiddenContentSections])
+                            onChange={(updatedVisible) => {
+                              const merged = [...updatedVisible, ...hiddenContentSections];
+                              mergeSections(activePage.id, merged);
+                              if (website) {
+                                const nextPages = pages.map((page) => page.id === activePage.id ? { ...page, website_sections: merged } : page);
+                                void persistDraft(website, nextPages);
+                              }
                             }
                             onHide={(section) => void toggleSectionVisibility(section)}
                             onDuplicate={(section) => void duplicateSectionHandler(section)}
