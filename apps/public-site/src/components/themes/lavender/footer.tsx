@@ -17,17 +17,11 @@ import type { FooterProps } from '../types';
 const digitsOnly = (value: string) => value.replace(/[^0-9]/g, '');
 
 export function Footer({ locale, dict, tenant, website, customPages }: FooterProps) {
-  const name = locale === 'ar' ? tenant.name_ar : tenant.name_en,
-    homeHref = locale === 'ar' ? '/' : '/en';
-  const navigation = [
-    { href: homeHref, label: locale === 'ar' ? 'من نحن' : 'About us' },
-    { href: locale === 'ar' ? '/projects' : '/en/projects', label: dict.projects },
-    { href: locale === 'ar' ? '/properties' : '/en/properties', label: dict.properties },
-    ...customPages.map((page) => ({
-      href: locale === 'ar' ? `/pages/${page.slug}` : `/en/pages/${page.slug}`,
-      label: page.title,
-    })),
-  ];
+  const name = locale === 'ar' ? tenant.name_ar : tenant.name_en;
+  const navigation = customPages.map((page) => ({
+    href: locale === 'ar' ? `/pages/${page.slug}` : `/en/pages/${page.slug}`,
+    label: page.title,
+  }));
   const socialLinks = [
     tenant.social_whatsapp && {
       key: 'whatsapp',
