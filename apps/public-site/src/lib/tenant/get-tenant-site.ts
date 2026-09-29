@@ -128,3 +128,19 @@ export async function getTenantCustomPage(
     throw error;
   }
 }
+
+/** Editor-only preview overlay. The random draft token is never used by normal visitors. */
+export async function applyEditorPreview(site: TenantSite, token: string | undefined, pageKey: 'home'|'properties'|'projects'): Promise<TenantSite> {
+  if (!token) return site;
+  try {
+    const preview = await apiGet<{website:Record<string,unknown>;sections:Array<{id:string;page_id:string;is_visible:boolean;order_index:number;config:Record<string,unknown>}>}>(
+      `/public/website/editor-preview?token=${encodeURIComponent(token)}&page=${pageKey}`,
+    );
+    const currentById = new Map(site.sections.map((section) => [section.id, section]));
+    const sections = preview.sections.map((draft) => {
+      const current = currentById.get(draft.id);
+      return current ? { ...current, order_index: draft.order_index, config: draft.config } : null;
+    }).filter((section): section is TenantSite['sections'][number] => section !== null);
+    return { ...site, website: { ...site.website, ...preview.website } as TenantSite['website'], sections };
+  } catch { return site; }
+}
