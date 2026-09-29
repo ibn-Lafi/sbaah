@@ -489,12 +489,12 @@ export default function WebsiteEditorPage() {
           — لا إضافة فورية بمجرد الضغط على الصف — مطابقةً لمرجع الجوال
           (اختيار يبقي النافذة مفتوحة، ثم "إضافة"/"إلغاء" صريحان).
         */}
-        <div className="fixed inset-x-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-40 mx-auto flex max-w-md items-center gap-2 rounded-[22px] bg-[#21102d] p-2.5 shadow-xl">
-          <button type="button" onClick={() => setMobilePreviewOpen((v) => !v)} aria-label="معاينة الموقع" className="flex h-11 w-11 flex-none items-center justify-center rounded-full border border-white/60 text-white">
+        <div className="fixed inset-x-3 bottom-[max(.75rem,env(safe-area-inset-bottom))] z-40 mx-auto flex max-w-[420px] items-center gap-1.5 rounded-2xl border border-border-default bg-surface-card p-2 shadow-xl">
+          <button type="button" onClick={() => setMobilePreviewOpen((v) => !v)} aria-label="معاينة الموقع" className="flex h-10 w-10 flex-none items-center justify-center rounded-xl border border-border-default bg-surface-subtle text-brand transition hover:bg-surface-subtle-2">
             <MobileIcon className="h-5 w-5" />
           </button>
-          <Button type="button" variant="secondary" disabled={!hasDraft || draftBusy} onClick={() => void discardDraft()} className="h-11 flex-1 rounded-full border-white/60 bg-transparent text-white hover:bg-white/10">التراجع عن جميع التغييرات</Button>
-          <Button type="button" disabled={!hasDraft || draftBusy} onClick={() => void publishDraft()} className="h-11 min-w-[92px] rounded-full bg-white text-[#21102d] hover:bg-white/90">{draftBusy ? '...' : 'حفظ'}</Button>
+          <Button type="button" variant="secondary" disabled={!hasDraft || draftBusy} onClick={() => void discardDraft()} className="h-10 flex-1 rounded-xl border-border-default bg-surface-card px-3 text-xs text-text-primary hover:bg-surface-subtle sm:text-sm">التراجع عن جميع التغييرات</Button>
+          <Button type="button" disabled={!hasDraft || draftBusy} onClick={() => void publishDraft()} className="h-10 min-w-[82px] rounded-xl bg-brand px-4 text-sm text-white hover:opacity-90">{draftBusy ? '...' : 'حفظ'}</Button>
         </div>
         {mobilePreviewOpen && (
           <div className="fixed inset-0 z-30 bg-surface-page pt-14 pb-20">
@@ -582,8 +582,8 @@ export default function WebsiteEditorPage() {
         <div className="border-border-subtle bg-surface-card flex h-14 flex-none items-center gap-2 border-b px-4">
           <BackButton href="/website" label={t.editor.backToThemeStore} />
           <div className="ms-auto flex items-center gap-2">
-            <Button type="button" variant="secondary" disabled={!hasDraft || draftBusy} onClick={() => void discardDraft()}>التراجع عن جميع التغييرات</Button>
-            <Button type="button" disabled={!hasDraft || draftBusy} onClick={() => void publishDraft()}>{draftBusy ? 'جارٍ الحفظ…' : 'حفظ'}</Button>
+            <Button type="button" variant="secondary" disabled={!hasDraft || draftBusy} onClick={() => void discardDraft()} className="h-9 rounded-xl px-4">التراجع عن جميع التغييرات</Button>
+            <Button type="button" disabled={!hasDraft || draftBusy} onClick={() => void publishDraft()} className="h-9 rounded-xl px-5">{draftBusy ? 'جارٍ الحفظ…' : 'حفظ'}</Button>
           </div>
         </div>
 
@@ -677,7 +677,7 @@ export default function WebsiteEditorPage() {
                                 const nextPages = pages.map((page) => page.id === activePage.id ? { ...page, website_sections: merged } : page);
                                 void persistDraft(website, nextPages);
                               }
-                            }
+                            }}
                             onHide={(section) => void toggleSectionVisibility(section)}
                             onDuplicate={(section) => void duplicateSectionHandler(section)}
                             onEdit={(sectionId) => setEditingSectionId(sectionId)}
