@@ -14,21 +14,21 @@ export async function PropertyGridSection({ locale, config }: PropertyGridSectio
   ]);
   const cityMap = new Map(cities.map((c) => [c.id, c]));
   return (
-    <LavenderSection className="bg-[#f4f1ea]">
+    <LavenderSection className="bg-[var(--lavender-soft)]">
       <LavenderHeading
         eyebrow={locale === 'ar' ? 'محفظتنا العقارية' : 'Our portfolio'}
         title={title}
         action={
           <a
             href={href}
-            className="focus-visible:ring-tenant-primary hidden border-b border-black/40 pb-1 text-sm font-semibold text-black outline-none hover:border-black focus-visible:ring-2 sm:block"
+            className="focus-visible:ring-tenant-primary hidden border-b border-[var(--lavender-line)] pb-1 text-sm font-semibold text-[var(--lavender-ink)] outline-none hover:border-black focus-visible:ring-2 sm:block"
           >
             {locale === 'ar' ? 'عرض جميع العقارات' : 'View all properties'}
           </a>
         }
       />
       {properties.length === 0 ? (
-        <div className="border-y border-black/15 py-16 text-center text-black/65">
+        <div className="border-y border-[var(--lavender-line)] py-16 text-center text-[var(--lavender-muted)]">
           {locale === 'ar' ? 'لا توجد عقارات منشورة بعد' : 'No published properties yet'}
         </div>
       ) : (
