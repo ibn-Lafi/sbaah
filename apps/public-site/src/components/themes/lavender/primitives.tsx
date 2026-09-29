@@ -31,7 +31,7 @@ export function LavenderHeading({
             {eyebrow}
           </p>
         )}
-        <h2 className="max-w-4xl text-3xl font-medium leading-[1.16] tracking-[-.02em] text-[#171a17] sm:text-5xl lg:text-[3.5rem]">
+        <h2 className="max-w-4xl text-3xl font-medium leading-[1.16] tracking-[-.02em] text-[var(--lavender-ink)] sm:text-5xl lg:text-[3.5rem]">
           {title}
         </h2>
       </div>
