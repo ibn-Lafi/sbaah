@@ -67,7 +67,7 @@ export function SitePreview({ siteUrl, pageKey, device, accessToken, revision = 
       {path ? (
         <iframe
           key={pageKey + device + path + revision}
-          src={`${siteUrl}${path}`}
+          src={`${siteUrl}${path}${path.includes('?') ? '&' : '?'}__sbaah_preview=${revision}`}
           title={t.editor.sitePreviewTitle}
           className="h-full max-h-full rounded-input border border-border-subtle bg-white shadow-[0_2px_12px_rgba(31,29,34,.06)] transition-[width]"
           style={{ width: DEVICE_WIDTHS[device] }}
