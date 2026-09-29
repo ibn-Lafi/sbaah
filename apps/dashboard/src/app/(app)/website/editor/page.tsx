@@ -38,6 +38,10 @@ import {
   updateSection,
   duplicateSection,
   type WebsitePageWithSections,
+  getWebsiteEditorDraft,
+  saveWebsiteEditorDraft,
+  discardWebsiteEditorDraft,
+  publishWebsiteEditorDraft,
 } from '@/lib/api/website';
 import { ApiRequestError } from '@/lib/api/client';
 
@@ -80,6 +84,11 @@ export default function WebsiteEditorPage() {
   const [addSectionOpen, setAddSectionOpen] = useState(false);
   const [addSectionQuery, setAddSectionQuery] = useState('');
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
+  const [savedWebsite, setSavedWebsite] = useState<Website | null>(null);
+  const [savedPages, setSavedPages] = useState<WebsitePageWithSections[]>([]);
+  const [hasDraft, setHasDraft] = useState(false);
+  const [draftBusy, setDraftBusy] = useState(false);
+  const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
 
   const siteUrl = `https://${me.tenant.subdomain}.${getPlatformRootDomain()}`;
   const activePage = pages.find((p) => p.key === activePageKey);
@@ -111,9 +120,29 @@ export default function WebsiteEditorPage() {
       try {
         const result = await getWebsite(accessToken);
         if (cancelled) return;
-        setWebsite(result.website);
-        setPages(result.pages);
-        setTextDraft({ footerDescription: result.website.footer_description ?? '' });
+        setSavedWebsite(result.website);
+        setSavedPages(result.pages);
+        const { draft } = await getWebsiteEditorDraft(accessToken);
+        if (cancelled) return;
+        if (draft) {
+          const draftWebsite = { ...result.website, ...draft.website } as Website;
+          const sectionMap = new Map(draft.sections.map((section) => [section.id, section]));
+          const draftPages = result.pages.map((page) => ({
+            ...page,
+            website_sections: page.website_sections.map((section) => {
+              const d = sectionMap.get(section.id);
+              return d ? { ...section, ...d } as WebsiteSection : section;
+            }),
+          }));
+          setWebsite(draftWebsite);
+          setPages(draftPages);
+          setTextDraft({ footerDescription: draftWebsite.footer_description ?? '' });
+          setHasDraft(true);
+        } else {
+          setWebsite(result.website);
+          setPages(result.pages);
+          setTextDraft({ footerDescription: result.website.footer_description ?? '' });
+        }
       } catch (err) {
         if (!cancelled) setLoadError(err instanceof ApiRequestError ? err.message : 'تعذر تحميل تخصيص الموقع.');
       }
@@ -122,6 +151,44 @@ export default function WebsiteEditorPage() {
     return () => { cancelled = true; };
   }, [accessToken]);
 
+  async function persistDraft(nextWebsite: Website, nextPages: WebsitePageWithSections[]) {
+    await saveWebsiteEditorDraft(accessToken, {
+      website: nextWebsite as unknown as Record<string, unknown>,
+      sections: nextPages.flatMap((page) => page.website_sections.map((section) => ({
+        id: section.id, page_id: section.page_id, is_visible: section.is_visible,
+        order_index: section.order_index, config: section.config,
+      }))),
+    });
+    setHasDraft(true);
+    setPreviewRevision((value) => value + 1);
+  }
+
+  async function publishDraft() {
+    if (!hasDraft || draftBusy) return;
+    setDraftBusy(true); setError(null);
+    try {
+      await publishWebsiteEditorDraft(accessToken);
+      const result = await getWebsite(accessToken);
+      setWebsite(result.website); setPages(result.pages);
+      setSavedWebsite(result.website); setSavedPages(result.pages);
+      setTextDraft({ footerDescription: result.website.footer_description ?? '' });
+      setHasDraft(false); setPreviewRevision((value) => value + 1);
+    } catch (err) { setError(err instanceof ApiRequestError ? err.message : 'تعذر حفظ التغييرات.'); }
+    finally { setDraftBusy(false); }
+  }
+
+  async function discardDraft() {
+    if (!hasDraft || draftBusy || !savedWebsite) return;
+    setDraftBusy(true); setError(null);
+    try {
+      await discardWebsiteEditorDraft(accessToken);
+      setWebsite(savedWebsite); setPages(savedPages);
+      setTextDraft({ footerDescription: savedWebsite.footer_description ?? '' });
+      setHasDraft(false); setEditingSectionId(null); setPreviewRevision((value) => value + 1);
+    } catch (err) { setError(err instanceof ApiRequestError ? err.message : 'تعذر التراجع عن التغييرات.'); }
+    finally { setDraftBusy(false); }
+  }
+
   function toggleZone(zone: ZoneKey) {
     setOpenZones((current) => ({ ...current, [zone]: !current[zone] }));
   }
@@ -129,11 +196,10 @@ export default function WebsiteEditorPage() {
   async function saveFooterDescription(value: string) {
     setError(null);
     try {
-      const { website: updated } = await updateWebsite(accessToken, {
-        footer_description: value || null,
-      });
-      setWebsite((current) => (current ? { ...current, ...updated } : current));
-      setPreviewRevision((value) => value + 1);
+      if (!website) return;
+      const updated = { ...website, footer_description: value || null };
+      setWebsite(updated);
+      await persistDraft(updated, pages);
     } catch (err) {
       setError(err instanceof ApiRequestError ? err.message : t.editor.errors.saveFooterDescription);
     }
@@ -152,18 +218,14 @@ export default function WebsiteEditorPage() {
   /** يُحدّث قسمًا واحدًا (رؤية و/أو محتوى) في حالة الصفحة النشطة دفعة واحدة. */
   async function patchSection(sectionId: string, input: { is_visible?: boolean; config?: Record<string, unknown> }) {
     if (!activePage) return;
-    const { section: updated } = await updateSection(accessToken, sectionId, input);
-    setPreviewRevision((value) => value + 1);
-    setPages((current) =>
-      current.map((p) =>
-        p.id === activePage.id
-          ? {
-              ...p,
-              website_sections: p.website_sections.map((s) => (s.id === updated.id ? updated : s)),
-            }
-          : p,
-      ),
-    );
+    const current = activePage.website_sections.find((section) => section.id === sectionId);
+    if (!current || !website) return;
+    const updated = { ...current, ...input, config: input.config ?? current.config };
+    const nextPages = pages.map((p) => p.id === activePage.id ? {
+      ...p, website_sections: p.website_sections.map((s) => s.id === updated.id ? updated : s),
+    } : p);
+    setPages(nextPages);
+    await persistDraft(website, nextPages);
   }
 
   /** مفتاح الفوتر بالطريقة القديمة، وبند "إخفاء/حذف القسم" بقائمة SectionRowMenu بمحرري الجوال والكمبيوتر. */
@@ -427,6 +489,19 @@ export default function WebsiteEditorPage() {
           — لا إضافة فورية بمجرد الضغط على الصف — مطابقةً لمرجع الجوال
           (اختيار يبقي النافذة مفتوحة، ثم "إضافة"/"إلغاء" صريحان).
         */}
+        <div className="fixed inset-x-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-40 mx-auto flex max-w-md items-center gap-2 rounded-[22px] bg-[#21102d] p-2.5 shadow-xl">
+          <button type="button" onClick={() => setMobilePreviewOpen((v) => !v)} aria-label="معاينة الموقع" className="flex h-11 w-11 flex-none items-center justify-center rounded-full border border-white/60 text-white">
+            <MobileIcon className="h-5 w-5" />
+          </button>
+          <Button type="button" variant="secondary" disabled={!hasDraft || draftBusy} onClick={() => void discardDraft()} className="h-11 flex-1 rounded-full border-white/60 bg-transparent text-white hover:bg-white/10">التراجع عن جميع التغييرات</Button>
+          <Button type="button" disabled={!hasDraft || draftBusy} onClick={() => void publishDraft()} className="h-11 min-w-[92px] rounded-full bg-white text-[#21102d] hover:bg-white/90">{draftBusy ? '...' : 'حفظ'}</Button>
+        </div>
+        {mobilePreviewOpen && (
+          <div className="fixed inset-0 z-30 bg-surface-page pt-14 pb-20">
+            <SitePreview siteUrl={siteUrl} pageKey={activePageKey} device="mobile" accessToken={accessToken} revision={previewRevision} />
+          </div>
+        )}
+
         {addSectionOpen && (
           <>
             <div
@@ -506,6 +581,10 @@ export default function WebsiteEditorPage() {
         {/* Toolbar */}
         <div className="border-border-subtle bg-surface-card flex h-14 flex-none items-center gap-2 border-b px-4">
           <BackButton href="/website" label={t.editor.backToThemeStore} />
+          <div className="ms-auto flex items-center gap-2">
+            <Button type="button" variant="secondary" disabled={!hasDraft || draftBusy} onClick={() => void discardDraft()}>التراجع عن جميع التغييرات</Button>
+            <Button type="button" disabled={!hasDraft || draftBusy} onClick={() => void publishDraft()}>{draftBusy ? 'جارٍ الحفظ…' : 'حفظ'}</Button>
+          </div>
         </div>
 
         {/* Panel + preview — panel first in DOM so it renders on the right under RTL, matching the reference tool. */}
