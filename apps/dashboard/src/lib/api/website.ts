@@ -89,7 +89,7 @@ export function uploadSectionAsset(accessToken: string, sectionId: string, file:
 }
 
 export interface WebsiteEditorDraftSection { id:string; page_id:string; is_visible:boolean; order_index:number; config:Record<string,unknown> }
-export interface WebsiteEditorDraft { website:Record<string,unknown>; sections:WebsiteEditorDraftSection[]; updated_at?:string }
+export interface WebsiteEditorDraft { website:Record<string,unknown>; sections:WebsiteEditorDraftSection[]; updated_at?:string; preview_token?:string }
 export function getWebsiteEditorDraft(accessToken:string):Promise<{draft:WebsiteEditorDraft|null}>{return apiGet('/website/editor-draft',accessToken);}
 export function saveWebsiteEditorDraft(accessToken:string,draft:Omit<WebsiteEditorDraft,'updated_at'>):Promise<{draft:WebsiteEditorDraft}>{return apiPut('/website/editor-draft',draft,accessToken);}
 export function discardWebsiteEditorDraft(accessToken:string):Promise<{status:string}>{return apiDelete('/website/editor-draft',accessToken);}
