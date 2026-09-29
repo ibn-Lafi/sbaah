@@ -53,14 +53,14 @@ export function LavenderStats({ locale, config }: { locale: Locale; config: Stat
   const configured = (config.items ?? []).slice(0, 3);
   const items = Array.from({ length: 3 }, (_, index) => configured[index] ?? { value: '0', label: '' });
   return (
-    <LavenderSection className="bg-[#f4f1ea] py-10 text-[#171713] sm:py-14 lg:py-16">
+    <LavenderSection className="bg-[var(--lavender-soft)] py-10 text-[var(--lavender-ink)] sm:py-14 lg:py-16">
       <div className="mx-auto max-w-6xl">
         <h2 className="mb-5 text-center text-xl font-semibold sm:mb-8 sm:text-3xl lg:text-4xl">{config.title_ar || copy[locale].stats}</h2>
         <dl className="grid grid-cols-3 gap-2 sm:gap-4 lg:gap-6">
           {items.map((item, index) => (
             <div key={index} className="flex min-h-[88px] min-w-0 flex-col items-center justify-center rounded-[18px] border border-white/50 bg-white/30 px-1.5 py-3 text-center shadow-[0_8px_28px_rgba(23,23,19,.05)] backdrop-blur-xl sm:min-h-[135px] sm:rounded-[24px] sm:px-4 sm:py-5 lg:min-h-[155px]">
               <dd className="max-w-full truncate text-xl font-semibold tracking-tight text-tenant-primary sm:text-4xl lg:text-5xl"><LavenderStatsCounter value={item.value || '0'} /></dd>
-              <dt className="mt-1.5 line-clamp-2 text-[9px] leading-3 text-black/60 sm:mt-3 sm:text-sm sm:leading-5 lg:text-base">{item.label}</dt>
+              <dt className="mt-1.5 line-clamp-2 text-[9px] leading-3 text-[var(--lavender-muted)] sm:mt-3 sm:text-sm sm:leading-5 lg:text-base">{item.label}</dt>
             </div>
           ))}
         </dl>
