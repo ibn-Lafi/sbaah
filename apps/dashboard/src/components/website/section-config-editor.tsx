@@ -3,15 +3,12 @@
 import { useEffect, useState } from 'react';
 import {
   HERO_VARIANTS,
-  HERO_SEARCH_MODES,
   type AboutSectionConfig,
   type StatsSectionConfig,
   type ServicesSectionConfig,
   type FaqSectionConfig,
   type HeroSectionConfig,
-  type HeroSearchMode,
   type HeroVariant,
-  resolveHeroSearchMode,
   type Website,
   type WebsiteSection,
   type City,
@@ -91,8 +88,7 @@ export function SectionConfigEditor({
   const [titleAr, setTitleAr] = useState(config.title_ar ?? '');
   const [subtitleAr, setSubtitleAr] = useState(config.subtitle_ar ?? '');
   const [bodyAr, setBodyAr] = useState(config.body_ar ?? '');
-  const [variant, setVariant] = useState<HeroVariant>(config.variant ?? 'image_search');
-  const [searchMode, setSearchMode] = useState<HeroSearchMode>(() => resolveHeroSearchMode(config));
+  const [variant, setVariant] = useState<HeroVariant>(config.variant === 'video' || config.variant === 'video_search' ? 'video' : 'image');
   const [loading, setLoading] = useState(false);
   type EditorItem = {
     value?: string;
@@ -176,15 +172,7 @@ export function SectionConfigEditor({
       if (isPropertiesByCity) nextConfig.city_ids = selectedCityIds;
       if (isHero && subtitleAr) nextConfig.subtitle_ar = subtitleAr;
       if (hasBody && bodyAr) nextConfig.body_ar = bodyAr;
-      if (isHero) {
-        nextConfig.variant = variant;
-        const variantHasSearch = variant === 'image_search' || variant === 'video_search';
-        nextConfig.search_mode = variantHasSearch
-          ? searchMode === 'none'
-            ? 'both'
-            : searchMode
-          : 'none';
-      }
+      if (isHero) nextConfig.variant = variant === 'video' ? 'video' : 'image';
       if (supportsPresentation) {
         nextConfig.tone = tone;
         nextConfig.heading_align = headingAlign;
@@ -200,8 +188,8 @@ export function SectionConfigEditor({
     }
   }
 
-  const showImageUploader = isHero && (variant === 'image' || variant === 'image_search');
-  const showVideoUploader = isHero && (variant === 'video' || variant === 'video_search');
+  const showImageUploader = isHero && variant === 'image';
+  const showVideoUploader = isHero && variant === 'video';
 
   return (
     <div className="rounded-input border-border-subtle bg-surface-subtle flex flex-col gap-3 border p-4">
@@ -458,93 +446,12 @@ export function SectionConfigEditor({
               type="file"
               accept="image/jpeg,image/png,image/webp"
               className="hidden"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                e.target.value = '';
-                if (file)
-                  void uploadSectionAsset(accessToken, section.id, file).then((r) =>
-                    setGalleryUrls((v) => [...v, r.url]),
-                  );
-              }}
-            />
-          </label>
-        </div>
-      )}
-      {hasImageUrl && (
-        <AssetUploader
-          label="صورة القسم"
-          currentUrl={mediaUrl || null}
-          onUpload={async (file) => {
-            const r = await uploadSectionAsset(accessToken, section.id, file);
-            setMediaUrl(r.url);
-          }}
-          onRemove={async () => setMediaUrl('')}
-        />
-      )}
-      {hasVideoUrl && (
-        <Input
-          placeholder="رابط الفيديو"
-          value={mediaUrl}
-          onChange={(e) => setMediaUrl(e.target.value)}
-        />
-      )}
-
-      {isHero && (
-        <Input
-          placeholder={t.sectionConfigEditor.subtitle}
-          value={subtitleAr}
-          onChange={(e) => setSubtitleAr(e.target.value)}
-        />
-      )}
-
-      {hasBody && (
-        <Textarea
-          placeholder={t.sectionConfigEditor.body}
-          value={bodyAr}
-          onChange={(e) => setBodyAr(e.target.value)}
-        />
-      )}
-
-      {isHero && (
-        <div className="flex flex-col gap-2">
-          <label className="text-text-secondary text-xs">
-            {t.sectionConfigEditor.heroVariantLabel}
-          </label>
-          <Select
-            value={variant}
-            onChange={(e) => {
-              const nextVariant = e.target.value as HeroVariant;
-              const variantHasSearch =
-                nextVariant === 'image_search' || nextVariant === 'video_search';
-              setVariant(nextVariant);
-              setSearchMode((current) =>
-                variantHasSearch ? (current === 'none' ? 'both' : current) : 'none',
-              );
-            }}
+              onChange={(e) => setVariant(e.target.value as HeroVariant)}
             className="h-10"
           >
-            {HERO_VARIANTS.map((v) => (
+            {HERO_VARIANTS.filter((v) => v === 'image' || v === 'video').map((v) => (
               <option key={v} value={v}>
                 {t.sectionConfigEditor.heroVariants[v]}
-              </option>
-            ))}
-          </Select>
-        </div>
-      )}
-
-      {isHero && (variant === 'image_search' || variant === 'video_search') && (
-        <div className="flex flex-col gap-2">
-          <label className="text-text-secondary text-xs">
-            {t.sectionConfigEditor.heroSearchModeLabel}
-          </label>
-          <Select
-            value={searchMode}
-            onChange={(e) => setSearchMode(e.target.value as HeroSearchMode)}
-            className="h-10"
-          >
-            {HERO_SEARCH_MODES.map((mode) => (
-              <option key={mode} value={mode}>
-                {t.sectionConfigEditor.heroSearchModes[mode]}
               </option>
             ))}
           </Select>
