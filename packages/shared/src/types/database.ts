@@ -71,6 +71,10 @@ export interface Plan {
   max_users: number | null;
   custom_domain_allowed: boolean;
   is_active: boolean;
+  /** checkout = direct StreamPay purchase; request = custom sales request only. */
+  purchase_mode: 'checkout' | 'request';
+  /** Central feature entitlement metadata for plan cards and gates. */
+  features: Record<string, boolean | number | string | null>;
   /** The matching recurring Product's id in StreamPay's own dashboard (set up manually there first) — null until console fills it in. */
   streampay_product_id: string | null;
   /** The one free-trial plan (migration 0047) — chosen only at registration step 5, never shown on /billing or any later plan switch. */
