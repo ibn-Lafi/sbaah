@@ -40,14 +40,13 @@ export function createWhatsAppInboundHandler(systemSupabase: SupabaseClient) {
     if (historyError) throw new Error(`Failed to load WhatsApp history: ${historyError.message}`);
     const messages=(history ?? []).reverse().map((row)=>({ role: row.direction === 'inbound' ? 'user' as const : 'assistant' as const, content: row.text_body as string }));
 
-    // The WhatsApp core does not impersonate a dashboard user. The caller object is never used by its service-principal executor.
     const generated = await runSbaahAiCore({
       supabase: systemSupabase,
-      caller: { tenantId: task.tenant_id } as never,
       context: {
-        channel:'whatsapp', tenantId:task.tenant_id, actorUserId:'00000000-0000-0000-0000-000000000000',
+        channel:'whatsapp', tenantId:task.tenant_id,
         actorName:contact.profile_name || 'العميل', assistantId:assistant.id, assistantName:assistant.name,
         personality:assistant.personality, conversationId, customerPhone:contact.phone_e164,
+        sourceMessageId:message.id,
         whatsappPrincipal:{ tenantId:task.tenant_id, contactId:contact.id, leadId:contact.lead_id, phone:contact.phone_e164 },
       },
       messages,
