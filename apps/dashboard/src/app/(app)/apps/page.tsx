@@ -4,6 +4,7 @@ import { AppShell } from '@/components/layout/app-shell';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { useLocale } from '@/lib/i18n/locale-context';
 import { createAiConversation, decideAiAction, getAiAssistant, getAiConversation, listAiConversations, saveAiAssistant, sendAiMessage, type AiAssistant, type AiConversation, type AiMessage } from '@/lib/api/ai';
+import { WhatsAppAiPreview } from '@/components/ai/whatsapp-ai-preview';
 
 type Section = 'assistant' | 'whatsapp';
 
@@ -492,34 +493,7 @@ export default function AppsPage() {
             </section>
           )
         ) : (
-          <section className="border-border-default bg-surface-card relative flex min-h-[360px] flex-1 overflow-hidden rounded-card border sm:min-h-[460px]">
-            <div className="bg-brand/5 absolute -end-20 -top-20 h-64 w-64 rounded-full blur-3xl" aria-hidden="true" />
-            <div className="bg-brand/5 absolute -bottom-24 -start-24 h-72 w-72 rounded-full blur-3xl" aria-hidden="true" />
-            <div className="relative flex w-full items-center justify-center p-6 sm:justify-end sm:p-10">
-              <div className="w-full max-w-sm text-center sm:text-start">
-                <div className="relative mx-auto mb-7 h-32 w-32 sm:mx-0">
-                  <span className="bg-brand/10 absolute inset-0 animate-pulse rounded-[34px]" />
-                  <span className="border-brand/15 absolute -inset-3 animate-[spin_10s_linear_infinite] rounded-full border border-dashed" />
-                  <div className="border-brand/15 bg-surface-card text-brand relative flex h-32 w-32 items-center justify-center rounded-[34px] border shadow-sm">
-                    <svg viewBox="0 0 64 64" className="h-16 w-16" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                      <path d="M12 50h40M17 50V30l15-12 15 12v20M25 50V37h14v13" />
-                      <path d="M9 25h14M12 20l-3 5 3 5M55 20H41M52 15l3 5-3 5" />
-                    </svg>
-                    <span className="bg-brand absolute -end-2 -top-2 h-4 w-4 animate-bounce rounded-full shadow-sm" />
-                    <span className="bg-brand/40 absolute -bottom-1 -start-1 h-3 w-3 animate-ping rounded-full" />
-                  </div>
-                </div>
-                <div className="text-brand mb-2 inline-flex items-center gap-2 rounded-full bg-brand/10 px-3 py-1 text-xs font-bold">
-                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-brand" />
-                  {ar ? 'قيد البناء' : 'In development'}
-                </div>
-                <h2 className="text-text-primary text-3xl font-bold tracking-tight sm:text-4xl">{ar ? 'قريبًا' : 'Coming soon'}</h2>
-                <p className="text-text-secondary mt-3 text-sm leading-7">
-                  {ar ? 'مساعد واتساب لردود العملاء قادم قريبًا.' : 'WhatsApp customer assistant is coming soon.'}
-                </p>
-              </div>
-            </div>
-          </section>
+          <WhatsAppAiPreview ar={ar} />
         )}
 
         {error && assistant ? <p className="mt-3 text-sm text-red-600">{error}</p> : null}
