@@ -1,6 +1,5 @@
 import { AI_TOOL_DEFINITIONS } from '@/lib/ai/tools';
-import type { AiChannel } from '@/lib/ai/core';
-
+export type AiChannel = 'assistant' | 'whatsapp';
 export type AiToolRisk = 'read' | 'write' | 'sensitive';
 
 interface ToolPolicy {
