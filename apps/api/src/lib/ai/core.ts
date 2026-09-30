@@ -3,7 +3,7 @@ import type { CallerContext } from '@/lib/auth/get-caller-context';
 import { createServiceRoleClient } from '@sbaah/shared';
 import { generateGrokReply } from '@/lib/ai/grok';
 import { executeAiTool } from '@/lib/ai/tools';
-import { assertToolRegistryComplete, getToolPolicy, getToolsForChannel, isToolAllowed, type AiChannel } from '@/lib/ai/tool-registry';
+import { assertToolRegistryComplete, getToolPolicy, getToolsForChannel, isToolAllowed } from '@/lib/ai/tool-registry';
 import { loadCustomerContextByPhone, serializeCustomerContext } from '@/lib/ai/customer-context';
 import { publishAiEvent } from '@/lib/ai/events';
 import { assertWhatsAppCustomerToolArgs, executeWhatsAppReadTool, type WhatsAppPrincipal } from '@/lib/whatsapp/service-principal';
@@ -41,6 +41,8 @@ export async function runSbaahAiCore(input: SbaahAiInput) {
   assertToolRegistryComplete();
   const systemSupabase = createServiceRoleClient();
   const { context, supabase } = input;
+  const assistantCaller = context.channel === 'assistant' ? input.caller : null;
+  if (context.channel === 'assistant' && !assistantCaller) throw new Error('Assistant caller context is required');
   const customerContext = context.channel === 'whatsapp' && context.customerPhone
     ? await loadCustomerContextByPhone({ supabase, tenantId: context.tenantId, phone: context.customerPhone })
     : null;
@@ -111,7 +113,8 @@ export async function runSbaahAiCore(input: SbaahAiInput) {
             throw new Error(`WhatsApp write tool ${name} is not enabled until its service executor is implemented`);
           }
         } else {
-          result = await executeAiTool({ supabase, caller: input.caller, name, arguments: args });
+          if (!assistantCaller) throw new Error('Assistant caller context is required');
+          result = await executeAiTool({ supabase, caller: assistantCaller, name, arguments: args });
         }
         if (log) {
           const { error: updateError } = await systemSupabase.from('ai_action_logs').update({ status: 'succeeded', output: result }).eq('id', log.id).eq('tenant_id', context.tenantId);
