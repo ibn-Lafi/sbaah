@@ -29,6 +29,10 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   const caller = await getCallerContext(supabase);
   if (caller.role === 'agent') throw new ApiError(403, 'forbidden', 'لا يملك الوسيط صلاحية إضافة عقارات');
   const input = assetInputSchema.parse(await request.json());
+  const {data:tenantPlan,error:planError}=await supabase.from('tenants').select('plans(max_properties)').eq('id',caller.tenantId).single();
+  if(planError)throw new Error(`Failed to load property entitlement: ${planError.message}`);
+  const maxProperties=(tenantPlan.plans as unknown as {max_properties:number|null}|null)?.max_properties??null;
+  if(maxProperties!=null){const {count,error:countError}=await supabase.from('assets').select('id',{count:'exact',head:true}).eq('tenant_id',caller.tenantId).is('archived_at',null);if(countError)throw new Error(`Failed to check property limit: ${countError.message}`);if((count??0)>=maxProperties)throw new ApiError(403,'plan_property_limit',`وصلت للحد المسموح في باقتك (${maxProperties} عقار). رقِّ باقتك لإضافة المزيد.`);}
   let effectiveProjectId=input.project_id??null;
   if (input.parent_asset_id) {
     const { data: parent, error: parentError } = await supabase.from('assets').select('id,project_id,parent_asset_id').eq('id', input.parent_asset_id).eq('tenant_id', caller.tenantId).is('archived_at', null).maybeSingle();
