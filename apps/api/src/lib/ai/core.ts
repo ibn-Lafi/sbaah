@@ -62,24 +62,28 @@ export async function runSbaahAiCore(input: {
       }
 
       const sensitive = policy.risk === 'sensitive';
-      const { data: log, error: logError } = await systemSupabase
-        .from('ai_action_logs')
-        .insert({
-          tenant_id: context.tenantId,
-          assistant_id: context.assistantId,
-          conversation_id: context.conversationId,
-          requested_by: context.actorUserId,
-          tool_name: name,
-          risk_level: policy.risk,
-          status: sensitive ? 'awaiting_confirmation' : 'running',
-          input: args,
-          executed_at: new Date().toISOString(),
-        })
-        .select('id')
-        .single();
-      if (logError || !log) throw new Error(`Failed to create AI action log: ${logError?.message}`);
-
+      let log: { id: string } | null = null;
+      if (context.channel === 'assistant') {
+        const { data, error: logError } = await systemSupabase
+          .from('ai_action_logs')
+          .insert({
+            tenant_id: context.tenantId,
+            assistant_id: context.assistantId,
+            conversation_id: context.conversationId,
+            requested_by: context.actorUserId,
+            tool_name: name,
+            risk_level: policy.risk,
+            status: sensitive ? 'awaiting_confirmation' : 'running',
+            input: args,
+            executed_at: new Date().toISOString(),
+          })
+          .select('id')
+          .single();
+        if (logError || !data) throw new Error(`Failed to create AI action log: ${logError?.message}`);
+        log = data;
+      }
       if (sensitive) {
+        if (!log) throw new Error(`Sensitive tool ${name} is not available on WhatsApp`);
         return { requires_confirmation: true, action_id: log.id, tool_name: name, input: args };
       }
 
@@ -98,12 +102,10 @@ export async function runSbaahAiCore(input: {
         } else {
           result = await executeAiTool({ supabase, caller, name, arguments: args });
         }
-        const { error: updateError } = await systemSupabase
-          .from('ai_action_logs')
-          .update({ status: 'succeeded', output: result })
-          .eq('id', log.id)
-          .eq('tenant_id', context.tenantId);
-        if (updateError) console.error('Failed to mark AI action succeeded', updateError);
+        if (log) {
+          const { error: updateError } = await systemSupabase.from('ai_action_logs').update({ status: 'succeeded', output: result }).eq('id', log.id).eq('tenant_id', context.tenantId);
+          if (updateError) console.error('Failed to mark AI action succeeded', updateError);
+        }
         try {
           await publishAiEvent({
             systemSupabase,
@@ -112,23 +114,18 @@ export async function runSbaahAiCore(input: {
             source: context.channel,
             actorUserId: context.actorUserId,
             correlationId: context.conversationId,
-            idempotencyKey: `ai-tool:${log.id}:succeeded`,
-            payload: { action_log_id: log.id, tool_name: name },
+            idempotencyKey: `ai-tool:${context.channel}:${context.conversationId}:${name}:${log?.id ?? crypto.randomUUID()}:succeeded`,
+            payload: { action_log_id: log?.id ?? null, tool_name: name },
           });
         } catch (eventError) {
           console.error('Failed to publish AI tool event', eventError);
         }
         return result;
       } catch (error) {
-        const { error: updateError } = await systemSupabase
-          .from('ai_action_logs')
-          .update({
-            status: 'failed',
-            error_message: error instanceof Error ? error.message.slice(0, 1000) : 'Unknown tool error',
-          })
-          .eq('id', log.id)
-          .eq('tenant_id', context.tenantId);
-        if (updateError) console.error('Failed to mark AI action failed', updateError);
+        if (log) {
+          const { error: updateError } = await systemSupabase.from('ai_action_logs').update({ status: 'failed', error_message: error instanceof Error ? error.message.slice(0, 1000) : 'Unknown tool error' }).eq('id', log.id).eq('tenant_id', context.tenantId);
+          if (updateError) console.error('Failed to mark AI action failed', updateError);
+        }
         throw error;
       }
     },
