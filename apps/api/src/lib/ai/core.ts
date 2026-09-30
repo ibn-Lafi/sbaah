@@ -5,6 +5,7 @@ import { generateGrokReply } from '@/lib/ai/grok';
 import { executeAiTool } from '@/lib/ai/tools';
 import { assertToolRegistryComplete, getToolPolicy, getToolsForChannel, isToolAllowed, type AiChannel } from '@/lib/ai/tool-registry';
 import { loadCustomerContextByPhone, serializeCustomerContext } from '@/lib/ai/customer-context';
+import { publishAiEvent } from '@/lib/ai/events';
 
 export interface SbaahAiContext {
   channel: AiChannel;
@@ -88,6 +89,20 @@ export async function runSbaahAiCore(input: {
           .eq('id', log.id)
           .eq('tenant_id', context.tenantId);
         if (updateError) console.error('Failed to mark AI action succeeded', updateError);
+        try {
+          await publishAiEvent({
+            systemSupabase,
+            tenantId: context.tenantId,
+            eventType: 'ai.tool.succeeded',
+            source: context.channel,
+            actorUserId: context.actorUserId,
+            correlationId: context.conversationId,
+            idempotencyKey: `ai-tool:${log.id}:succeeded`,
+            payload: { action_log_id: log.id, tool_name: name },
+          });
+        } catch (eventError) {
+          console.error('Failed to publish AI tool event', eventError);
+        }
         return result;
       } catch (error) {
         const { error: updateError } = await systemSupabase
