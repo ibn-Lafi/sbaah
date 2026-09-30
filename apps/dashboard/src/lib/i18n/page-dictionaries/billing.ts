@@ -51,7 +51,7 @@ export const billingAr = {
     usersLimitLabel: 'حد المستخدمين',
     customDomainLabel: 'دومين مخصص',
     allowedLabel: 'مسموح',
-    subdomainLabel: 'دومين فرعي',
+    subdomainLabel: 'نطاق فرعي .sbaah.com',
     selectButton: 'اختيار هذه الباقة',
   },
 };
@@ -107,7 +107,7 @@ export const billingEn: typeof billingAr = {
     usersLimitLabel: 'Users limit',
     customDomainLabel: 'Custom domain',
     allowedLabel: 'Included',
-    subdomainLabel: 'Subdomain',
+    subdomainLabel: 'Subdomain .sbaah.com',
     selectButton: 'Select This Plan',
   },
 };
