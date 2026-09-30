@@ -8,28 +8,39 @@ import { loadCustomerContextByPhone, serializeCustomerContext } from '@/lib/ai/c
 import { publishAiEvent } from '@/lib/ai/events';
 import { assertWhatsAppCustomerToolArgs, executeWhatsAppReadTool, type WhatsAppPrincipal } from '@/lib/whatsapp/service-principal';
 
-export interface SbaahAiContext {
-  channel: AiChannel;
+type BaseAiContext = {
   tenantId: string;
-  actorUserId: string;
   actorName: string;
   assistantId: string;
   assistantName: string;
   personality: string;
   conversationId: string;
-  customerPhone?: string;
-  whatsappPrincipal?: WhatsAppPrincipal;
-}
+};
 
-export async function runSbaahAiCore(input: {
+export type AssistantAiContext = BaseAiContext & {
+  channel: 'assistant';
+  actorUserId: string;
+};
+
+export type WhatsAppAiContext = BaseAiContext & {
+  channel: 'whatsapp';
+  customerPhone: string;
+  whatsappPrincipal: WhatsAppPrincipal;
+  sourceMessageId: string;
+};
+
+type SbaahAiInput = {
   supabase: SupabaseClient;
-  caller: CallerContext;
-  context: SbaahAiContext;
   messages: Array<{ role: 'user' | 'assistant'; content: string }>;
-}) {
+} & (
+  | { context: AssistantAiContext; caller: CallerContext }
+  | { context: WhatsAppAiContext; caller?: never }
+);
+
+export async function runSbaahAiCore(input: SbaahAiInput) {
   assertToolRegistryComplete();
   const systemSupabase = createServiceRoleClient();
-  const { caller, context, supabase } = input;
+  const { context, supabase } = input;
   const customerContext = context.channel === 'whatsapp' && context.customerPhone
     ? await loadCustomerContextByPhone({ supabase, tenantId: context.tenantId, phone: context.customerPhone })
     : null;
@@ -100,7 +111,7 @@ export async function runSbaahAiCore(input: {
             throw new Error(`WhatsApp write tool ${name} is not enabled until its service executor is implemented`);
           }
         } else {
-          result = await executeAiTool({ supabase, caller, name, arguments: args });
+          result = await executeAiTool({ supabase, caller: input.caller, name, arguments: args });
         }
         if (log) {
           const { error: updateError } = await systemSupabase.from('ai_action_logs').update({ status: 'succeeded', output: result }).eq('id', log.id).eq('tenant_id', context.tenantId);
@@ -112,9 +123,11 @@ export async function runSbaahAiCore(input: {
             tenantId: context.tenantId,
             eventType: 'ai.tool.succeeded',
             source: context.channel,
-            actorUserId: context.actorUserId,
+            actorUserId: context.channel === 'assistant' ? context.actorUserId : null,
             correlationId: context.conversationId,
-            idempotencyKey: `ai-tool:${context.channel}:${context.conversationId}:${name}:${log?.id ?? crypto.randomUUID()}:succeeded`,
+            idempotencyKey: context.channel === 'assistant'
+              ? `ai-tool:assistant:${context.conversationId}:${name}:${log?.id}:succeeded`
+              : `ai-tool:whatsapp:${context.sourceMessageId}:${name}:succeeded`,
             payload: { action_log_id: log?.id ?? null, tool_name: name },
           });
         } catch (eventError) {
