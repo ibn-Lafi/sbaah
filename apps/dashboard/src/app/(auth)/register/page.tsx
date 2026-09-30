@@ -109,7 +109,8 @@ export default function RegisterPage() {
     if (trialPlan && selectedPlanId === trialPlan.id) return;
     const currentTier = tiers?.find((tier) => tier.monthly?.id === selectedPlanId || tier.annual?.id === selectedPlanId);
     if (currentTier) {
-      setSelectedPlanId(planForCycle(currentTier, newCycle).id);
+      const nextPlan=newCycle==='annual'?currentTier.annual:currentTier.monthly;
+      setSelectedPlanId(nextPlan?.id ?? null);
     }
   }
 
@@ -373,8 +374,8 @@ export default function RegisterPage() {
               )}
               <PlanCycleToggle value={cycle} onChange={handleCycleChange} />
               <div className="flex flex-col gap-3">
-                {tiers.map((tier) => {
-                  const plan = planForCycle(tier, cycle);
+                {tiers.filter((tier)=>cycle==='annual'?Boolean(tier.annual):Boolean(tier.monthly)).map((tier) => {
+                  const plan = (cycle==='annual'?tier.annual:tier.monthly)!;
                   return (
                     <PlanCard
                       key={tier.key}
@@ -385,7 +386,8 @@ export default function RegisterPage() {
                       selecting={false}
                       selectDisabled={loading}
                       showIntroPricing
-                      onSelect={() => setSelectedPlanId(plan.id)}
+                      actionLabel={plan.purchase_mode==='request'?'اطلب الباقة':undefined}
+                      onSelect={() => plan.purchase_mode==='request' ? (window.location.href='/billing/plans') : setSelectedPlanId(plan.id)}
                     />
                   );
                 })}
