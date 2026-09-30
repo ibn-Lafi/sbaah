@@ -45,7 +45,7 @@ async function shutdown(signal:string){
 process.on('SIGTERM',()=>void shutdown('SIGTERM'));
 process.on('SIGINT',()=>void shutdown('SIGINT'));
 
-console.info('Sbaah AI worker started',{workerId,pollMs});
+console.info('Sbaah AI worker started',{workerId,pollMs, runtime:'durable-task-processor'});
 while(!stopping){
   await tick();
   await new Promise((resolve)=>setTimeout(resolve,pollMs));
