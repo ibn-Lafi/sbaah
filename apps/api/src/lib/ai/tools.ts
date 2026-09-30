@@ -192,7 +192,7 @@ export async function executeAiTool(input: {
   }
 
   if (name === 'add_lead_interest') {
-    const grant = assertPermission(caller.role, 'crm.write');
+    const grant = assertPermission(caller.role, 'crm.update');
     const args = z.object({
       lead_id: z.string().uuid(),
       project_id: z.string().uuid().nullable().optional(),
@@ -243,7 +243,7 @@ export async function executeAiTool(input: {
   }
 
   if (name === 'add_lead_note') {
-    const grant = assertPermission(caller.role, 'crm.write');
+    const grant = assertPermission(caller.role, 'crm.update');
     const args = z.object({
       lead_id: z.string().uuid(),
       note_text: z.string().trim().min(1).max(4000),
@@ -262,7 +262,7 @@ export async function executeAiTool(input: {
   }
 
   if (name === 'set_lead_follow_up') {
-    const grant = assertPermission(caller.role, 'crm.write');
+    const grant = assertPermission(caller.role, 'crm.update');
     const args = z.object({
       lead_id: z.string().uuid(),
       follow_up_at: z.string().datetime({ offset: true }).nullable(),
@@ -288,7 +288,7 @@ export async function executeAiTool(input: {
   }
 
   if (name === 'update_lead_status') {
-    const grant = assertPermission(caller.role, 'crm.write');
+    const grant = assertPermission(caller.role, 'crm.update');
     const args = z.object({
       lead_id: z.string().uuid(),
       status: z.enum(['new', 'contacted', 'qualified', 'in_progress', 'won', 'lost', 'expired']),
@@ -314,7 +314,7 @@ export async function executeAiTool(input: {
   }
 
   if (name === 'create_lead') {
-    const createGrant = assertPermission(caller.role, 'crm.write');
+    const createGrant = assertPermission(caller.role, 'crm.create');
     if (isAssignedScope(createGrant)) throw new ApiError(403, 'forbidden_scope', 'نطاق صلاحيتك لا يسمح بإنشاء عميل غير مسند مسبقًا');
     const args = createLeadSchema.parse(input.arguments);
     const { data: existing, error: duplicateError } = await supabase.from('leads').select('id,full_name,phone,email,status').eq('tenant_id', caller.tenantId).eq('phone', args.phone).maybeSingle();
