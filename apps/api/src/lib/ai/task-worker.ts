@@ -18,7 +18,7 @@ export async function claimAiTasks(input: {
   limit?: number;
   lockTimeoutSeconds?: number;
 }): Promise<AiTask[]> {
-  const { data, error } = await input.systemSupabase.schema('private').rpc('claim_ai_tasks', {
+  const { data, error } = await input.systemSupabase.rpc('claim_ai_tasks', {
     p_worker_id: input.workerId,
     p_limit: input.limit ?? 10,
     p_lock_timeout_seconds: input.lockTimeoutSeconds ?? 120,
@@ -32,7 +32,7 @@ export async function completeAiTask(input: {
   taskId: string;
   workerId: string;
 }) {
-  const { data, error } = await input.systemSupabase.schema('private').rpc('complete_ai_task', {
+  const { data, error } = await input.systemSupabase.rpc('complete_ai_task', {
     p_task_id: input.taskId,
     p_worker_id: input.workerId,
   });
@@ -48,7 +48,7 @@ export async function failAiTask(input: {
   baseDelaySeconds?: number;
 }) {
   const message = input.error instanceof Error ? input.error.message : String(input.error);
-  const { data, error } = await input.systemSupabase.schema('private').rpc('fail_ai_task', {
+  const { data, error } = await input.systemSupabase.rpc('fail_ai_task', {
     p_task_id: input.taskId,
     p_worker_id: input.workerId,
     p_error: message,
