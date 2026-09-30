@@ -9,7 +9,7 @@ const pollMs=Math.max(500,Number(process.env.AI_WORKER_POLL_MS ?? 1500));
 let stopping=false;
 let running=false;
 
-async function resolveAccessToken(connection:{access_token_ciphertext:string|null}) {
+async function resolveAccessToken(connection:{access_token_ciphertext:string|null}): Promise<string> {
   if (!connection.access_token_ciphertext) throw new Error('WhatsApp access token is not configured');
   // Ciphertext must never be treated as a usable token. A real decryptor is wired during Meta onboarding.
   throw new Error('WhatsApp secure token resolver is not configured');
