@@ -374,12 +374,11 @@ export default function RegisterPage() {
                 />
               )}
               <PlanCycleToggle value={cycle} onChange={handleCycleChange} />
-              <div className="flex flex-col gap-3">
+              <div className="flex snap-x gap-3 overflow-x-auto pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 {tiers.filter((tier)=>cycle==='annual'?Boolean(tier.annual):Boolean(tier.monthly)).map((tier) => {
                   const plan = (cycle==='annual'?tier.annual:tier.monthly)!;
                   return (
-                    <PlanCard
-                      key={tier.key}
+                    <div key={tier.key} className="w-[86vw] max-w-[360px] shrink-0 snap-center"><PlanCard
                       plan={plan}
                       monthlyEquivalent={tier.monthly}
                       isCurrent={false}
@@ -389,7 +388,7 @@ export default function RegisterPage() {
                       showIntroPricing
                       actionLabel={plan.purchase_mode==='request'?'اطلب الباقة':plan.purchase_mode==='free'?'ابدأ مجانًا':undefined}
                       onSelect={() => plan.purchase_mode==='request' ? (window.location.href='/billing/plans') : setSelectedPlanId(plan.id)}
-                    />
+                    /></div>
                   );
                 })}
               </div>
