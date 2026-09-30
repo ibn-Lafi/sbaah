@@ -38,8 +38,8 @@ export function getToolsForChannel(channel: AiChannel) {
 }
 
 export function assertToolRegistryComplete() {
-  const definitionNames = new Set(AI_TOOL_DEFINITIONS.map((tool) => tool.name));
-  const policyNames = new Set(Object.keys(POLICIES));
+  const definitionNames = new Set<string>(AI_TOOL_DEFINITIONS.map((tool) => tool.name));
+  const policyNames = new Set<string>(Object.keys(POLICIES));
   const missingPolicies = [...definitionNames].filter((name) => !policyNames.has(name));
   const orphanPolicies = [...policyNames].filter((name) => !definitionNames.has(name));
   if (missingPolicies.length || orphanPolicies.length) {
