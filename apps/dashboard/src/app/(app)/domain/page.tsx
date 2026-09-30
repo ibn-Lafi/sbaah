@@ -389,12 +389,15 @@ export default function DomainPage() {
             )}
           </>
         ) : (
-          <SubdomainCard
-            accessToken={accessToken}
-            currentSubdomain={me.tenant.subdomain}
-            canEdit
-            showUpsell
-          />
+          <>
+            <Card className="p-4 sm:p-6">
+              <h2 className="text-text-primary mb-1 text-base font-semibold">{locale==='ar'?'النطاق المخصص':'Custom domain'}</h2>
+              <p className="text-text-secondary mb-4 text-sm">{locale==='ar'?'هذه الميزة غير متاحة في باقتك الحالية. رقِّ باقتك لتفعيل ربط نطاق مخصص.':'This feature is locked on your current plan. Upgrade to connect a custom domain.'}</p>
+              <Input placeholder="www.example.com" disabled dir="ltr" compact />
+              <a href="/billing/plans" className="mt-4 inline-flex h-10 items-center justify-center rounded-xl bg-brand px-4 text-sm font-semibold text-white">{locale==='ar'?'ترقية الباقة':'Upgrade plan'}</a>
+            </Card>
+            <SubdomainCard accessToken={accessToken} currentSubdomain={me.tenant.subdomain} canEdit showUpsell={false}/>
+          </>
         )}
       </div>
     </AppShell>
