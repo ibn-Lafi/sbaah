@@ -67,9 +67,16 @@ export function createWhatsAppOutboundHandler(input: {
     }
 
     const sentAt=new Date().toISOString();
-    const {error:updateError}=await input.systemSupabase.from('whatsapp_messages').update({meta_message_id:sent.messageId,status:'sent',sent_at:sentAt,send_started_at:null,error_code:null,error_message:null})
-      .eq('id',message.id).eq('tenant_id',task.tenant_id).is('meta_message_id',null);
-    if(updateError) throw new Error(`Failed to persist Meta message id: ${updateError.message}`);
+    const {data:persisted,error:updateError}=await input.systemSupabase.from('whatsapp_messages').update({meta_message_id:sent.messageId,status:'sent',sent_at:sentAt,send_started_at:null,error_code:null,error_message:null})
+      .eq('id',message.id).eq('tenant_id',task.tenant_id).eq('status','sending').is('meta_message_id',null).select('id').maybeSingle();
+    if(updateError||!persisted){
+      // Meta already returned a wamid. Retrying the send task could duplicate a customer message.
+      // Best effort: persist the wamid once more, then finish the task without another provider send.
+      await input.systemSupabase.from('whatsapp_messages').update({meta_message_id:sent.messageId,status:'sent',sent_at:sentAt,send_started_at:null,error_code:null,error_message:null})
+        .eq('id',message.id).eq('tenant_id',task.tenant_id).is('meta_message_id',null);
+      await publishAiEvent({systemSupabase:input.systemSupabase,tenantId:task.tenant_id,eventType:'whatsapp.send_persistence_reconciliation',source:'whatsapp',entityType:'whatsapp_message',entityId:message.id,correlationId:conversation.id,idempotencyKey:`whatsapp-persist-reconcile:${message.id}`,payload:{meta_message_id:sent.messageId}});
+      return;
+    }
 
     await input.systemSupabase.from('whatsapp_conversations').update({last_message_at:sentAt,last_outbound_at:sentAt,updated_at:sentAt}).eq('id',conversation.id).eq('tenant_id',task.tenant_id);
     await publishAiEvent({systemSupabase:input.systemSupabase,tenantId:task.tenant_id,eventType:'whatsapp.message_sent',source:'whatsapp',entityType:'whatsapp_message',entityId:message.id,correlationId:conversation.id,idempotencyKey:`whatsapp-sent:${message.id}`,payload:{meta_message_id:sent.messageId}});
