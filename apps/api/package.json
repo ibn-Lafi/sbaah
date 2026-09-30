@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "next dev --port 3001",
     "build": "next build",
+    "build:worker": "tsc -p tsconfig.worker.json",
+    "start:worker": "node dist-worker/worker.js",
     "start": "next start --port 3001",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
