@@ -6,8 +6,8 @@ export function PlanCycleToggle({ value, onChange }: { value: BillingCycle; onCh
   const { pages } = useLocale();
   const t = pages.billing.plans.cycleToggle;
   const options: { value: BillingCycle; label: string }[] = [
-    { value: 'annual', label: t.annual },
     { value: 'monthly', label: t.monthly },
+    { value: 'annual', label: t.annual },
   ];
 
   return (
