@@ -11,7 +11,8 @@ export function PlanCycleToggle({ value, onChange, savingsPercent }: { value: Bi
   ];
 
   return (
-    <div className="mx-auto flex w-[280px] gap-1 rounded-full bg-brand/[.08] p-1 ring-1 ring-brand/15">
+    <div className="relative mx-auto mt-5 flex w-[220px] gap-1 rounded-full bg-brand/[.08] p-1 ring-1 ring-brand/15">
+      {savingsPercent ? <span className="absolute -top-5 end-3 rounded-full bg-brand px-2 py-0.5 text-[10px] font-semibold leading-4 text-white shadow-sm">{pages.billing.pageTitle==='Billing & Subscription'?'Save':'وفّر'} {savingsPercent}%</span> : null}
       {options.map((option) => (
         <button
           key={option.value}
@@ -21,7 +22,7 @@ export function PlanCycleToggle({ value, onChange, savingsPercent }: { value: Bi
             value === option.value ? 'bg-brand text-white shadow-sm' : 'text-text-secondary hover:bg-surface-subtle hover:text-brand'
           }`}
         >
-          {option.label}{option.value==='annual'&&savingsPercent?` · ${pages.billing.pageTitle==='Billing & Subscription'?'Save':'وفّر'} ${savingsPercent}%`:''}
+          {option.label}
         </button>
       ))}
     </div>
