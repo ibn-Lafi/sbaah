@@ -13,6 +13,7 @@ export function verifyMetaSignature(rawBody: string, signature: string | null, a
 }
 
 export async function ingestMetaWebhook(systemSupabase: SupabaseClient, payload: Record<string, unknown>) {
+  if (payload.object !== 'whatsapp_business_account') return { accepted: 0 };
   const entries = Array.isArray(payload.entry) ? payload.entry : [];
   let accepted = 0;
   for (const entry of entries) {
@@ -20,6 +21,7 @@ export async function ingestMetaWebhook(systemSupabase: SupabaseClient, payload:
     const changes = Array.isArray((entry as { changes?: unknown[] }).changes) ? (entry as { changes: unknown[] }).changes : [];
     for (const change of changes) {
       if (!change || typeof change !== 'object') continue;
+      if ((change as { field?: unknown }).field !== 'messages') continue;
       const value = (change as { value?: Record<string, unknown> }).value;
       if (!value) continue;
       const metadata = value.metadata as { phone_number_id?: string } | undefined;
@@ -57,10 +59,17 @@ export async function ingestMetaWebhook(systemSupabase: SupabaseClient, payload:
           created_at: message.timestamp ? new Date(Number(message.timestamp) * 1000).toISOString() : new Date().toISOString(),
         }, { onConflict: 'tenant_id,meta_message_id', ignoreDuplicates: true }).select('id').maybeSingle();
         if (messageError) throw new Error(`Failed to store WhatsApp message: ${messageError.message}`);
-        if (!stored) continue;
 
-        const event = await publishAiEvent({ systemSupabase, tenantId: connection.tenant_id, eventType:'whatsapp.message_received', source:'whatsapp', entityType:'whatsapp_message', entityId:stored.id, correlationId:conversation.id, idempotencyKey:`whatsapp-in:${message.id}`, payload:{ conversation_id:conversation.id, message_id:stored.id } });
-        await enqueueAiTask({ systemSupabase, tenantId:connection.tenant_id, taskType:'whatsapp.process_inbound', sourceEventId:event.id, idempotencyKey:`whatsapp-process:${message.id}`, payload:{ conversation_id:conversation.id, message_id:stored.id } });
+        let storedId = stored?.id as string | undefined;
+        if (!storedId) {
+          const { data: existing, error: existingError } = await systemSupabase.from('whatsapp_messages')
+            .select('id,conversation_id').eq('tenant_id',connection.tenant_id).eq('meta_message_id',message.id).single();
+          if (existingError || !existing) throw new Error(`Failed to resolve idempotent inbound WhatsApp message: ${existingError?.message}`);
+          storedId = existing.id;
+        }
+
+        const event = await publishAiEvent({ systemSupabase, tenantId: connection.tenant_id, eventType:'whatsapp.message_received', source:'whatsapp', entityType:'whatsapp_message', entityId:storedId, correlationId:conversation.id, idempotencyKey:`whatsapp-in:${message.id}`, payload:{ conversation_id:conversation.id, message_id:storedId } });
+        await enqueueAiTask({ systemSupabase, tenantId:connection.tenant_id, taskType:'whatsapp.process_inbound', sourceEventId:event.id, idempotencyKey:`whatsapp-process:${message.id}`, payload:{ conversation_id:conversation.id, message_id:storedId } });
         accepted++;
       }
 
