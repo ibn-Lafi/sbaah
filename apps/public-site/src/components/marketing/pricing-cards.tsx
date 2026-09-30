@@ -6,9 +6,9 @@ import type { Locale } from '@/lib/i18n/locales';
 import { MARKETING_CONTENT } from '@/lib/marketing/content';
 import { CheckIcon } from './icons';
 
-function CycleToggle({ value, onChange, labels }: { value: BillingCycle; onChange: (cycle: BillingCycle) => void; labels: { annual: string; monthly: string } }) {
+function CycleToggle({ value, onChange, labels, savingsPercent }: { value: BillingCycle; onChange: (cycle: BillingCycle) => void; labels: { annual: string; monthly: string }; savingsPercent?:number }) {
   const options: { value: BillingCycle; label: string }[] = [{ value: 'monthly', label: labels.monthly }, { value: 'annual', label: labels.annual }];
-  return <div className="mx-auto flex w-[220px] gap-1 rounded-full bg-brand/[.08] p-1 ring-1 ring-brand/15">{options.map(option=><button key={option.value} type="button" onClick={()=>onChange(option.value)} aria-pressed={value===option.value} className={`h-10 flex-1 rounded-full text-[13px] font-semibold transition-all ${value===option.value?'bg-brand text-white shadow-sm':'text-text-secondary hover:bg-surface-subtle hover:text-brand'}`}>{option.label}</button>)}</div>;
+  return <div className="mx-auto flex w-[280px] gap-1 rounded-full bg-brand/[.08] p-1 ring-1 ring-brand/15">{options.map(option=><button key={option.value} type="button" onClick={()=>onChange(option.value)} aria-pressed={value===option.value} className={`h-10 flex-1 rounded-full text-[13px] font-semibold transition-all ${value===option.value?'bg-brand text-white shadow-sm':'text-text-secondary hover:bg-surface-subtle hover:text-brand'}`}>{option.label}{option.value==='annual'&&savingsPercent?` · ${labels.annual==='سنوي'?'وفّر':'Save'} ${savingsPercent}%`:''}</button>)}</div>;
 }
 
 function MetallicBackdrop({ tone }: { tone: 'platinum' | 'gold' | 'lavender' }) {
@@ -22,10 +22,13 @@ function MetallicBackdrop({ tone }: { tone: 'platinum' | 'gold' | 'lavender' }) 
 export function PricingCards({ plans, locale, dashboardUrl }: { plans: Plan[]; locale: Locale; dashboardUrl: string | undefined }) {
   const t=MARKETING_CONTENT[locale].pricing;
   const [cycle,setCycle]=useState<BillingCycle>('annual');
-  const tiers=groupPlansByTier(plans).filter(tier=>cycle==='annual'?Boolean(tier.annual):Boolean(tier.monthly));
+  const allTiers=groupPlansByTier(plans);
+  const goldTier=allTiers.find(tier=>tier.key.toLowerCase()==='gold');
+  const goldSavingsPercent=goldTier?.monthly&&goldTier.annual&&goldTier.monthly.price>0?Math.round((1-goldTier.annual.price/(goldTier.monthly.price*12))*100):undefined;
+  const tiers=allTiers.filter(tier=>cycle==='annual'?Boolean(tier.annual):Boolean(tier.monthly));
 
   return <div className="mt-8 flex flex-col items-center gap-8 bg-surface-card">
-    <CycleToggle value={cycle} onChange={setCycle} labels={t.cycleToggle}/>
+    <CycleToggle value={cycle} onChange={setCycle} labels={t.cycleToggle} savingsPercent={goldSavingsPercent}/>
     <div className="pricing-scrollbar-hidden flex w-[calc(100%+3rem)] snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-2 sm:w-full sm:max-w-none sm:justify-start sm:px-6 lg:justify-center lg:gap-6">
       {tiers.map((tier,index)=>{
         const plan=(cycle==='annual'?tier.annual:tier.monthly)!;
