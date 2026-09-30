@@ -6,6 +6,7 @@ import { executeAiTool } from '@/lib/ai/tools';
 import { assertToolRegistryComplete, getToolPolicy, getToolsForChannel, isToolAllowed, type AiChannel } from '@/lib/ai/tool-registry';
 import { loadCustomerContextByPhone, serializeCustomerContext } from '@/lib/ai/customer-context';
 import { publishAiEvent } from '@/lib/ai/events';
+import { assertWhatsAppCustomerToolArgs, executeWhatsAppReadTool, type WhatsAppPrincipal } from '@/lib/whatsapp/service-principal';
 
 export interface SbaahAiContext {
   channel: AiChannel;
@@ -17,6 +18,7 @@ export interface SbaahAiContext {
   personality: string;
   conversationId: string;
   customerPhone?: string;
+  whatsappPrincipal?: WhatsAppPrincipal;
 }
 
 export async function runSbaahAiCore(input: {
@@ -82,7 +84,20 @@ export async function runSbaahAiCore(input: {
       }
 
       try {
-        const result = await executeAiTool({ supabase, caller, name, arguments: args });
+        let result: unknown;
+        if (context.channel === 'whatsapp') {
+          const principal = context.whatsappPrincipal;
+          if (!principal) throw new Error('WhatsApp principal is required');
+          if (policy.risk === 'read') {
+            result = await executeWhatsAppReadTool({ systemSupabase, principal, name, arguments: args });
+          } else {
+            if (!policy.customerScoped) throw new Error(`WhatsApp write tool ${name} is not customer-scoped`);
+            assertWhatsAppCustomerToolArgs(principal, args);
+            throw new Error(`WhatsApp write tool ${name} is not enabled until its service executor is implemented`);
+          }
+        } else {
+          result = await executeAiTool({ supabase, caller, name, arguments: args });
+        }
         const { error: updateError } = await systemSupabase
           .from('ai_action_logs')
           .update({ status: 'succeeded', output: result })
