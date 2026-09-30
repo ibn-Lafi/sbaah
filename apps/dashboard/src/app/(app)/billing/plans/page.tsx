@@ -67,11 +67,11 @@ export default function ChangePlanPage() {
         {billing === null || tiers === null ? (
           <LoadingState />
         ) : (
-          <div className="-mx-3.5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-3.5 py-1 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 sm:pb-0">
+          <div className="-mx-3.5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-3.5 py-1 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:flex sm:overflow-x-auto sm:px-0 sm:pb-4 lg:justify-center">
             {tiers.map((tier) => {
               const plan = planForCycle(tier, cycle);
               return (
-                <div key={tier.key} className="w-[calc(100vw-44px)] max-w-[360px] shrink-0 snap-center sm:w-auto sm:max-w-none">
+                <div key={tier.key} className="w-[calc(100vw-44px)] max-w-[360px] shrink-0 snap-center sm:w-[360px] sm:max-w-[360px]">
                 <PlanCard
                   plan={plan}
                   monthlyEquivalent={tier.monthly}
