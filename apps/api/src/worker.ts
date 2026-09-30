@@ -1,9 +1,19 @@
-import { createServiceRoleClient } from '@sbaah/shared';
+import { createClient } from '@supabase/supabase-js';
 import { processAiTaskBatch } from '@/lib/ai/task-worker';
 import { createWhatsAppInboundHandler } from '@/lib/whatsapp/inbound-handler';
 import { createWhatsAppOutboundHandler } from '@/lib/whatsapp/outbound-handler';
 
-const systemSupabase=createServiceRoleClient();
+function requireEnv(name: string): string {
+  const value = process.env[name];
+  if (!value) throw new Error(`Missing required environment variable: ${name}`);
+  return value;
+}
+
+const systemSupabase=createClient(
+  requireEnv('SUPABASE_URL'),
+  requireEnv('SUPABASE_SERVICE_ROLE_KEY'),
+  { auth: { persistSession: false, autoRefreshToken: false } },
+);
 const workerId=`sbaah-worker:${process.env.RAILWAY_REPLICA_ID ?? process.pid}`;
 const pollMs=Math.max(500,Number(process.env.AI_WORKER_POLL_MS ?? 1500));
 let stopping=false;
