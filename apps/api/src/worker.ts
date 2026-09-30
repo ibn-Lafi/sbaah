@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { processAiTaskBatch } from './lib/ai/task-worker';
 import { createWhatsAppInboundHandler } from './lib/whatsapp/inbound-handler';
 import { createWhatsAppOutboundHandler } from './lib/whatsapp/outbound-handler';
+import { decryptWhatsAppCredential } from './lib/whatsapp/credentials';
 
 function requireEnv(name: string): string {
   const value = process.env[name];
@@ -21,8 +22,7 @@ let running=false;
 
 async function resolveAccessToken(connection:{access_token_ciphertext:string|null}): Promise<string> {
   if (!connection.access_token_ciphertext) throw new Error('WhatsApp access token is not configured');
-  // Ciphertext must never be treated as a usable token. A real decryptor is wired during Meta onboarding.
-  throw new Error('WhatsApp secure token resolver is not configured');
+  return decryptWhatsAppCredential(connection.access_token_ciphertext,requireEnv('WHATSAPP_CREDENTIALS_ENCRYPTION_KEY'));
 }
 
 const handlers={
