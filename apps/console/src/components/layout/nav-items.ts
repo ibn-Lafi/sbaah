@@ -22,6 +22,7 @@ export const NAV_ITEMS:NavEntry[]=[
  ]},
  {group:'commercial',label:'المنتج والاشتراكات',icon:PlansIcon,children:[
   {href:'/plans',label:'الباقات',icon:PlansIcon},
+  {href:'/plan-requests',label:'طلبات الباقات',icon:PlansIcon},
   {href:'/themes',label:'الثيمات',icon:ThemesIcon},
  ]},
  {group:'content',label:'محتوى المنصة',icon:FaqIcon,children:[
