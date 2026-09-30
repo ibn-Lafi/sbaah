@@ -5,7 +5,6 @@ import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
 import { createServiceRoleClient } from '@sbaah/shared';
 import { runSbaahAiCore } from '@/lib/ai/core';
-import { applyCreditEntry } from '@/lib/ai/credits';
 
 const paramsSchema = z.object({ id: z.string().uuid() });
 const messageSchema = z.object({ content: z.string().trim().min(1).max(12000) });
@@ -81,25 +80,6 @@ export const POST = withErrorHandling(async (
   });
 
   const assistantMessageId = crypto.randomUUID();
-  try {
-    await applyCreditEntry({
-      systemSupabase,
-      tenantId: caller.tenantId,
-      creditType: 'ai_agent',
-      direction: 'debit',
-      amount: 1,
-      reason: 'ai_response',
-      idempotencyKey: `ai-response:${assistantMessageId}`,
-      referenceType: 'ai_conversation',
-      referenceId: conversation.id,
-      metadata: { provider: 'xai', model: generated.model },
-    });
-  } catch (creditError) {
-    if (creditError instanceof Error && creditError.message.includes('Insufficient ai_agent credits')) {
-      throw new ApiError(402, 'insufficient_ai_credits', 'رصيد Ai Agent غير كافٍ');
-    }
-    throw creditError;
-  }
   const assistantMessagePayload = {
     id: assistantMessageId,
     tenant_id: caller.tenantId,
