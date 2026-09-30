@@ -47,6 +47,8 @@ export default function ChangePlanPage() {
   }
 
   const tiers: PlanTier[] | null = plans ? groupPlansByTier(plans) : null;
+  const goldTier=tiers?.find(t=>t.key.toLowerCase()==='gold');
+  const goldSavingsPercent=goldTier?.monthly&&goldTier.annual&&goldTier.monthly.price>0?Math.round((1-goldTier.annual.price/(goldTier.monthly.price*12))*100):undefined;
 
   return (
     <AppShell
@@ -62,7 +64,7 @@ export default function ChangePlanPage() {
           <p className="mt-1 text-sm text-text-secondary">{t.plans.subheading}</p>
         </div>
 
-        <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center"><PlanCycleToggle value={cycle} onChange={setCycle} /><PlanComparisonButton /></div>
+        <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center"><PlanCycleToggle value={cycle} onChange={setCycle} savingsPercent={goldSavingsPercent} /><PlanComparisonButton /></div>
 
         {billing === null || tiers === null ? (
           <LoadingState />
