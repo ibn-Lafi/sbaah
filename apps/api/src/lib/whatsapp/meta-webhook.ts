@@ -75,13 +75,28 @@ export async function ingestMetaWebhook(systemSupabase: SupabaseClient, payload:
 
       for (const status of (Array.isArray(value.statuses) ? value.statuses : []) as MetaStatus[]) {
         if (!status.id || !status.status || !['sent','delivered','read','failed'].includes(status.status)) continue;
-        const patch: Record<string,unknown>={ status:status.status };
+        const { data: current } = await systemSupabase.from('whatsapp_messages')
+          .select('id,status,sent_at,delivered_at,read_at').eq('tenant_id',connection.tenant_id).eq('meta_message_id',status.id).maybeSingle();
+        if (!current) continue;
         const at=status.timestamp ? new Date(Number(status.timestamp)*1000).toISOString() : new Date().toISOString();
-        if(status.status==='sent') patch.sent_at=at;
-        if(status.status==='delivered') patch.delivered_at=at;
-        if(status.status==='read') patch.read_at=at;
-        if(status.status==='failed'){patch.error_code=String(status.errors?.[0]?.code ?? '');patch.error_message=status.errors?.[0]?.message ?? status.errors?.[0]?.title ?? null;}
-        await systemSupabase.from('whatsapp_messages').update(patch).eq('tenant_id',connection.tenant_id).eq('meta_message_id',status.id);
+        const rank: Record<string,number>={queued:0,sending:0,sent:1,delivered:2,read:3};
+        const patch: Record<string,unknown>={};
+        if(status.status==='failed'){
+          if(current.status!=='delivered' && current.status!=='read'){
+            patch.status='failed';
+            patch.error_code=String(status.errors?.[0]?.code ?? 'meta_failed');
+            patch.error_message=status.errors?.[0]?.message ?? status.errors?.[0]?.title ?? 'Meta reported delivery failure';
+          }
+        } else if((rank[status.status] ?? -1) >= (rank[current.status] ?? -1)){
+          patch.status=status.status;
+          if(status.status==='sent' && !current.sent_at) patch.sent_at=at;
+          if(status.status==='delivered' && !current.delivered_at) patch.delivered_at=at;
+          if(status.status==='read' && !current.read_at) patch.read_at=at;
+          patch.send_started_at=null;
+          patch.error_code=null;
+          patch.error_message=null;
+        }
+        if(Object.keys(patch).length) await systemSupabase.from('whatsapp_messages').update(patch).eq('id',current.id).eq('tenant_id',connection.tenant_id);
       }
     }
   }
