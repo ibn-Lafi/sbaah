@@ -20,3 +20,8 @@ export function getBilling(accessToken: string) {
 export function startCheckout(accessToken: string, planId?: string) {
   return apiPost<{ checkout_url: string }>('/billing/checkout', planId ? { plan_id: planId } : {}, accessToken);
 }
+
+
+export function requestCustomPlan(accessToken:string,input:{plan_id:string;full_name:string;email:string;phone:string;details?:string}) {
+  return apiPost<{request:{id:string}}>('/billing/plan-requests',input,accessToken);
+}
