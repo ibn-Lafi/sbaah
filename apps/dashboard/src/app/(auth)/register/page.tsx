@@ -222,7 +222,8 @@ export default function RegisterPage() {
         plan_id: selectedPlanId,
       });
       await adoptSession(access_token, refresh_token);
-      if (is_trial) {
+      const chosenPlan=tiers?.flatMap(t=>[t.monthly,t.annual]).find(p=>p?.id===selectedPlanId);
+      if (is_trial || chosenPlan?.purchase_mode==='free') {
         setProvisioningDone(true);
         window.location.href = '/';
         return;
@@ -386,7 +387,7 @@ export default function RegisterPage() {
                       selecting={false}
                       selectDisabled={loading}
                       showIntroPricing
-                      actionLabel={plan.purchase_mode==='request'?'اطلب الباقة':undefined}
+                      actionLabel={plan.purchase_mode==='request'?'اطلب الباقة':plan.purchase_mode==='free'?'ابدأ مجانًا':undefined}
                       onSelect={() => plan.purchase_mode==='request' ? (window.location.href='/billing/plans') : setSelectedPlanId(plan.id)}
                     />
                   );
@@ -400,7 +401,7 @@ export default function RegisterPage() {
               ? t.register.preparingButton
               : trialPlan && selectedPlanId === trialPlan.id
                 ? t.register.startTrialButton
-                : t.register.payAndSubscribeButton}
+                : tiers?.flatMap(t=>[t.monthly,t.annual]).find(p=>p?.id===selectedPlanId)?.purchase_mode==='free' ? 'ابدأ مجانًا' : t.register.payAndSubscribeButton}
           </Button>
         </form>
       )}
