@@ -5,6 +5,7 @@ export type AiToolRisk = 'read' | 'write' | 'sensitive';
 interface ToolPolicy {
   channels: readonly AiChannel[];
   risk: AiToolRisk;
+  customerScoped?: boolean;
 }
 
 const POLICIES: Record<string, ToolPolicy> = {
@@ -12,11 +13,11 @@ const POLICIES: Record<string, ToolPolicy> = {
   search_leads: { channels: ['assistant'], risk: 'read' },
   search_projects: { channels: ['assistant', 'whatsapp'], risk: 'read' },
   search_listings: { channels: ['assistant', 'whatsapp'], risk: 'read' },
-  add_lead_interest: { channels: ['assistant', 'whatsapp'], risk: 'write' },
-  add_lead_note: { channels: ['assistant', 'whatsapp'], risk: 'write' },
-  set_lead_follow_up: { channels: ['assistant', 'whatsapp'], risk: 'write' },
+  add_lead_interest: { channels: ['assistant', 'whatsapp'], risk: 'write', customerScoped: true },
+  add_lead_note: { channels: ['assistant', 'whatsapp'], risk: 'write', customerScoped: true },
+  set_lead_follow_up: { channels: ['assistant', 'whatsapp'], risk: 'write', customerScoped: true },
   update_lead_status: { channels: ['assistant'], risk: 'sensitive' },
-  create_lead: { channels: ['assistant', 'whatsapp'], risk: 'sensitive' },
+  create_lead: { channels: ['assistant'], risk: 'sensitive' },
 };
 
 const definitionsByName = new Map<string, (typeof AI_TOOL_DEFINITIONS)[number]>(AI_TOOL_DEFINITIONS.map((tool) => [tool.name, tool]));
