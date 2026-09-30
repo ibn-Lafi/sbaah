@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { AppShell } from '@/components/layout/app-shell';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { useLocale } from '@/lib/i18n/locale-context';
-import { createAiConversation, decideAiAction, getAiAssistant, getAiConversation, listAiConversations, saveAiAssistant, sendAiMessage, type AiAssistant, type AiConversation, type AiMessage } from '@/lib/api/ai';
+import { createAiConversation, decideAiAction, getAiAssistant, getAiConversation, listAiConversations, saveAiAssistant, sendAiMessage, getAiCredits, type AiCreditBalance, type AiAssistant, type AiConversation, type AiMessage } from '@/lib/api/ai';
 import { WhatsAppAiPreview } from '@/components/ai/whatsapp-ai-preview';
 
 type Section = 'assistant' | 'whatsapp';
@@ -126,6 +126,9 @@ export default function AppsPage() {
   const [historyOpen, setHistoryOpen] = useState(false);
   const [creditsOpen, setCreditsOpen] = useState(false);
   const [creditType, setCreditType] = useState<'whatsapp' | 'agent' | null>(null);
+  const [creditBalances, setCreditBalances] = useState<{ whatsapp_message: AiCreditBalance; ai_agent: AiCreditBalance } | null>(null);
+  const [creditsLoading, setCreditsLoading] = useState(false);
+  const [creditsError, setCreditsError] = useState('');
   const [openingConversationId, setOpeningConversationId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -186,7 +189,20 @@ export default function AppsPage() {
   }, [sending]);
 
 
-  async function handleSend(event: React.FormEvent) {
+  async function loadCredits() {
+    setCreditsLoading(true);
+    setCreditsError('');
+    try {
+      const data = await getAiCredits(accessToken);
+      setCreditBalances(data.balances);
+    } catch {
+      setCreditsError(ar ? 'تعذر تحميل الرصيد.' : 'Could not load credits.');
+    } finally {
+      setCreditsLoading(false);
+    }
+  }
+
+    async function handleSend(event: React.FormEvent) {
     event.preventDefault();
     const content = draft.trim();
     if (!content || sending || !assistant) return;
@@ -216,6 +232,7 @@ export default function AppsPage() {
         ...current.map((item) => item.id === optimisticId ? result.message : item),
         result.assistant_message,
       ]);
+      if (creditBalances) void loadCredits();
     } catch {
       setMessages((current) => current.filter((item) => item.id !== optimisticId));
       setDraft(content);
@@ -301,7 +318,7 @@ export default function AppsPage() {
               </button>
             ))}
           </div>
-          <button type="button" onClick={() => { setCreditType(null); setCreditsOpen(true); }} aria-label={ar ? 'الرصيد' : 'Credits'} className="bg-brand flex h-10 w-10 shrink-0 items-center justify-center rounded-[11px] text-white shadow-sm transition active:scale-95 sm:h-11 sm:w-11">
+          <button type="button" onClick={() => { setCreditType(null); setCreditsOpen(true); void loadCredits(); }} aria-label={ar ? 'الرصيد' : 'Credits'} className="bg-brand flex h-10 w-10 shrink-0 items-center justify-center rounded-[11px] text-white shadow-sm transition active:scale-95 sm:h-11 sm:w-11">
             <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3.5" y="6" width="17" height="12" rx="3"/><path d="M16 10h4.5v4H16a2 2 0 1 1 0-4ZM7 6V4.5h9V6"/></svg>
           </button>
         </div>
@@ -316,11 +333,11 @@ export default function AppsPage() {
                 <button type="button" onClick={() => { setCreditsOpen(false); setCreditType(null); }} className="bg-surface-subtle text-text-primary flex h-10 w-10 shrink-0 items-center justify-center rounded-full" aria-label={ar ? 'إغلاق' : 'Close'}><svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
               </header>
               <div className="min-h-0 overflow-y-auto p-4 sm:p-5">
-                {!creditType ? <div className="space-y-3">
+                {!creditType ? <div className="space-y-3">{creditsError ? <p className="rounded-[12px] bg-red-50 px-3 py-2 text-xs font-semibold text-red-700">{creditsError}</p> : null}
                   {([
                     ['whatsapp', ar ? 'رصيد رسائل واتساب' : 'WhatsApp message credits', ar ? 'لإرسال واستقبال رسائل العملاء' : 'For customer WhatsApp messages'],
                     ['agent', ar ? 'رصيد Ai Agent' : 'AI Agent credits', ar ? 'لاستخدام الوكلاء والردود الذكية' : 'For agents and AI responses'],
-                  ] as const).map(([type,title,desc]) => <div key={type} className="border-border-default rounded-[16px] border p-4 sm:p-5"><div className="flex items-start gap-3"><span className="bg-brand-surface text-brand flex h-11 w-11 shrink-0 items-center justify-center rounded-[13px]">{type==='whatsapp'?<svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M20 11.5a8 8 0 0 1-11.8 7L4 20l1.5-4A8 8 0 1 1 20 11.5Z"/><path d="M9 8.5c.5 2 2 3.5 4 4"/></svg>:<svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="5" y="7" width="14" height="11" rx="3"/><path d="M9 12h.01M15 12h.01M9 15h6M12 7V4M10 4h4"/></svg>}</span><div className="min-w-0 flex-1"><h3 className="text-text-primary text-sm font-bold">{title}</h3><p className="text-text-secondary mt-1 text-xs">{desc}</p><p className="text-text-primary mt-3 text-xl font-bold">— <span className="text-text-secondary text-xs font-medium">{ar ? 'كريدت متاح' : 'credits available'}</span></p></div></div><button type="button" onClick={() => setCreditType(type)} className="bg-brand mt-4 w-full rounded-[11px] px-4 py-2.5 text-sm font-bold text-white">{ar ? 'شحن الرصيد +' : 'Top up +'}</button></div>)}
+                  ] as const).map(([type,title,desc]) => <div key={type} className="border-border-default rounded-[16px] border p-4 sm:p-5"><div className="flex items-start gap-3"><span className="bg-brand-surface text-brand flex h-11 w-11 shrink-0 items-center justify-center rounded-[13px]">{type==='whatsapp'?<svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M20 11.5a8 8 0 0 1-11.8 7L4 20l1.5-4A8 8 0 1 1 20 11.5Z"/><path d="M9 8.5c.5 2 2 3.5 4 4"/></svg>:<svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="5" y="7" width="14" height="11" rx="3"/><path d="M9 12h.01M15 12h.01M9 15h6M12 7V4M10 4h4"/></svg>}</span><div className="min-w-0 flex-1"><h3 className="text-text-primary text-sm font-bold">{title}</h3><p className="text-text-secondary mt-1 text-xs">{desc}</p><p className="text-text-primary mt-3 text-xl font-bold">{creditsLoading ? '…' : (type === 'whatsapp' ? creditBalances?.whatsapp_message.balance : creditBalances?.ai_agent.balance)?.toLocaleString(ar ? 'ar-SA' : 'en-US') ?? '0'} <span className="text-text-secondary text-xs font-medium">{ar ? 'كريدت متاح' : 'credits available'}</span></p></div></div><button type="button" onClick={() => setCreditType(type)} className="bg-brand mt-4 w-full rounded-[11px] px-4 py-2.5 text-sm font-bold text-white">{ar ? 'شحن الرصيد +' : 'Top up +'}</button></div>)}
                 </div> : <div className="space-y-3">
                   {[
                     ['basic', creditType==='whatsapp'?'10,000':'1,000','50'],
