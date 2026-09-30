@@ -16,9 +16,8 @@ export function groupPlansByTier(plans: Plan[]): PlanTier[] {
     else tier.monthly = plan;
     tiers.set(plan.name_en, tier);
   }
-  return Array.from(tiers.values()).sort(
-    (a, b) => (a.monthly ?? a.annual)!.price - (b.monthly ?? b.annual)!.price,
-  );
+  const order=(tier:PlanTier)=>{const name=(tier.monthly??tier.annual)!.name_en.toLowerCase();if(name==='platinum')return 10;if(name==='gold')return 20;if(name==='lavender')return 30;return 100};
+  return Array.from(tiers.values()).sort((a,b)=>order(a)-order(b));
 }
 
 /** The row to actually display for a tier at the chosen cycle — falls back to whichever cycle the tier does have, so a tier missing one cycle's row doesn't just disappear. */
