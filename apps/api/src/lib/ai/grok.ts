@@ -63,6 +63,7 @@ export async function generateGrokReply(input: {
   messages: GrokMessage[];
   conversationId: string;
   channel?: 'assistant' | 'whatsapp';
+  customerContext?: string;
   tools: readonly ToolDefinition[];
   executeTool: (name: string, args: unknown) => Promise<unknown>;
 }) {
@@ -81,6 +82,7 @@ export async function generateGrokReply(input: {
     'إذا نجحت بعض خطوات الرحلة وفشلت خطوة لاحقة، اذكر بوضوح ما تم وما لم يتم ولا تعِد تنفيذ الخطوات الناجحة مرة أخرى دون حاجة.',
     'الإجراءات الحساسة المتاحة لك يجب أن تتوقف عند طلب التأكيد من المستخدم، ولا تعتبرها منفذة قبل التأكيد. الحذف غير متاح.',
     input.personality ? `تعليمات وشخصية المساعد التي حددها العميل: ${input.personality}` : '',
+    input.customerContext || '',
   ].filter(Boolean).join('\n');
   const model = process.env.XAI_MODEL || 'grok-4.20';
   const base = {
