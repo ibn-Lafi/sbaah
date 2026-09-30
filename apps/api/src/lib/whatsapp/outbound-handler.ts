@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { AiTask } from '@/lib/ai/task-worker';
-import { sendMetaTextMessage } from '@/lib/whatsapp/meta-client';
+import { MetaSendError, sendMetaTextMessage } from '@/lib/whatsapp/meta-client';
 import { applyCreditEntry } from '@/lib/ai/credits';
 import { publishAiEvent } from '@/lib/ai/events';
 
@@ -36,6 +36,8 @@ export function createWhatsAppOutboundHandler(input: {
     if(connectionError||!connection||connection.status!=='connected'||!connection.meta_phone_number_id) throw new Error('WhatsApp Meta connection is not ready');
     if(contactError||!contact?.wa_id) throw new Error('WhatsApp recipient is not available');
 
+    // Resolve/decrypt credentials before reserving credits or moving the message to sending.
+    const token=await input.resolveAccessToken(connection);
     await applyCreditEntry({systemSupabase:input.systemSupabase,tenantId:task.tenant_id,creditType:'whatsapp_message',direction:'debit',amount:1,reason:'whatsapp_message_reserved',idempotencyKey:`whatsapp-message:${message.id}:reserve`,referenceType:'whatsapp_message',referenceId:message.id});
     const {data:claimed,error:claimError}=await input.systemSupabase.from('whatsapp_messages')
       .update({status:'sending',send_started_at:new Date().toISOString(),error_code:null,error_message:null})
@@ -43,16 +45,25 @@ export function createWhatsAppOutboundHandler(input: {
     if(claimError) throw new Error(`Failed to claim outbound WhatsApp message: ${claimError.message}`);
     if(!claimed) throw new Error('Outbound WhatsApp message is already being processed');
 
-    const token=await input.resolveAccessToken(connection);
     let sent: { messageId:string };
     try {
       sent=await sendMetaTextMessage({phoneNumberId:connection.meta_phone_number_id,accessToken:token,to:contact.wa_id,text:message.text_body,graphApiVersion:input.graphApiVersion});
     } catch (sendError) {
       const errorMessage=sendError instanceof Error?sendError.message:'Meta send failed';
-      await input.systemSupabase.from('whatsapp_messages').update({status:'failed',send_started_at:null,error_code:'meta_send_failed',error_message:errorMessage.slice(0,1000)})
+      const kind=sendError instanceof MetaSendError?sendError.kind:'ambiguous';
+      if(kind==='rejected'){
+        await input.systemSupabase.from('whatsapp_messages').update({status:'failed',send_started_at:null,error_code:'meta_send_rejected',error_message:errorMessage.slice(0,1000)})
+          .eq('id',message.id).eq('tenant_id',task.tenant_id).eq('status','sending').is('meta_message_id',null);
+        await applyCreditEntry({systemSupabase:input.systemSupabase,tenantId:task.tenant_id,creditType:'whatsapp_message',direction:'credit',amount:1,reason:'whatsapp_message_send_rejected_refund',idempotencyKey:`whatsapp-message:${message.id}:refund`,referenceType:'whatsapp_message',referenceId:message.id,metadata:{error:errorMessage.slice(0,500)}});
+        await publishAiEvent({systemSupabase:input.systemSupabase,tenantId:task.tenant_id,eventType:'whatsapp.message_rejected',source:'whatsapp',entityType:'whatsapp_message',entityId:message.id,correlationId:conversation.id,idempotencyKey:`whatsapp-rejected:${message.id}`,payload:{}});
+        return;
+      }
+      // No provider response (or no wamid) means the outcome is ambiguous. Never refund or auto-resend:
+      // Meta may already have accepted the message. Keep the reservation and require reconciliation.
+      await input.systemSupabase.from('whatsapp_messages').update({status:'sending',error_code:'meta_send_ambiguous',error_message:errorMessage.slice(0,1000)})
         .eq('id',message.id).eq('tenant_id',task.tenant_id).eq('status','sending').is('meta_message_id',null);
-      await applyCreditEntry({systemSupabase:input.systemSupabase,tenantId:task.tenant_id,creditType:'whatsapp_message',direction:'credit',amount:1,reason:'whatsapp_message_send_failed_refund',idempotencyKey:`whatsapp-message:${message.id}:refund`,referenceType:'whatsapp_message',referenceId:message.id,metadata:{error:errorMessage.slice(0,500)}});
-      throw sendError;
+      await publishAiEvent({systemSupabase:input.systemSupabase,tenantId:task.tenant_id,eventType:'whatsapp.send_reconciliation_required',source:'whatsapp',entityType:'whatsapp_message',entityId:message.id,correlationId:conversation.id,idempotencyKey:`whatsapp-reconcile:${message.id}`,payload:{}});
+      return;
     }
 
     const sentAt=new Date().toISOString();
