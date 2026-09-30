@@ -1,0 +1,20 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "incremental": false,
+    "outDir": "dist-worker",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "jsx": "react-jsx",
+    "plugins": [],
+    "declaration": false,
+    "sourceMap": false
+  },
+  "include": [
+    "src/worker.ts",
+    "src/lib/ai/**/*.ts",
+    "src/lib/whatsapp/**/*.ts"
+  ],
+  "exclude": ["node_modules", ".next", "dist-worker"]
+}
