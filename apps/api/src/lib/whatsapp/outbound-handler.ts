@@ -21,6 +21,7 @@ export function createWhatsAppOutboundHandler(input: {
       .eq('id',messageId).eq('tenant_id',task.tenant_id).eq('conversation_id',conversationId).eq('direction','outbound').maybeSingle();
     if(messageError||!message) throw new Error(`Outbound WhatsApp message not found: ${messageError?.message ?? messageId}`);
     if(message.meta_message_id && ['sent','delivered','read'].includes(message.status)) return;
+    if(message.status==='sending' && !message.meta_message_id) throw new Error('Outbound WhatsApp message is awaiting send reconciliation');
     if(!message.text_body?.trim()) throw new Error('Outbound WhatsApp text is empty');
 
     const {data:conversation,error:conversationError}=await input.systemSupabase.from('whatsapp_conversations')
@@ -35,15 +36,30 @@ export function createWhatsAppOutboundHandler(input: {
     if(connectionError||!connection||connection.status!=='connected'||!connection.meta_phone_number_id) throw new Error('WhatsApp Meta connection is not ready');
     if(contactError||!contact?.wa_id) throw new Error('WhatsApp recipient is not available');
 
+    await applyCreditEntry({systemSupabase:input.systemSupabase,tenantId:task.tenant_id,creditType:'whatsapp_message',direction:'debit',amount:1,reason:'whatsapp_message_reserved',idempotencyKey:`whatsapp-message:${message.id}:reserve`,referenceType:'whatsapp_message',referenceId:message.id});
+    const {data:claimed,error:claimError}=await input.systemSupabase.from('whatsapp_messages')
+      .update({status:'sending',error_code:null,error_message:null})
+      .eq('id',message.id).eq('tenant_id',task.tenant_id).in('status',['pending','failed']).is('meta_message_id',null).select('id').maybeSingle();
+    if(claimError) throw new Error(`Failed to claim outbound WhatsApp message: ${claimError.message}`);
+    if(!claimed) throw new Error('Outbound WhatsApp message is already being processed');
+
     const token=await input.resolveAccessToken(connection);
-    const sent=await sendMetaTextMessage({phoneNumberId:connection.meta_phone_number_id,accessToken:token,to:contact.wa_id,text:message.text_body,graphApiVersion:input.graphApiVersion});
+    let sent: { messageId:string };
+    try {
+      sent=await sendMetaTextMessage({phoneNumberId:connection.meta_phone_number_id,accessToken:token,to:contact.wa_id,text:message.text_body,graphApiVersion:input.graphApiVersion});
+    } catch (sendError) {
+      const errorMessage=sendError instanceof Error?sendError.message:'Meta send failed';
+      await input.systemSupabase.from('whatsapp_messages').update({status:'failed',error_code:'meta_send_failed',error_message:errorMessage.slice(0,1000)})
+        .eq('id',message.id).eq('tenant_id',task.tenant_id).eq('status','sending').is('meta_message_id',null);
+      await applyCreditEntry({systemSupabase:input.systemSupabase,tenantId:task.tenant_id,creditType:'whatsapp_message',direction:'credit',amount:1,reason:'whatsapp_message_send_failed_refund',idempotencyKey:`whatsapp-message:${message.id}:refund`,referenceType:'whatsapp_message',referenceId:message.id,metadata:{error:errorMessage.slice(0,500)}});
+      throw sendError;
+    }
 
     const sentAt=new Date().toISOString();
     const {error:updateError}=await input.systemSupabase.from('whatsapp_messages').update({meta_message_id:sent.messageId,status:'sent',sent_at:sentAt,error_code:null,error_message:null})
       .eq('id',message.id).eq('tenant_id',task.tenant_id).is('meta_message_id',null);
     if(updateError) throw new Error(`Failed to persist Meta message id: ${updateError.message}`);
 
-    await applyCreditEntry({systemSupabase:input.systemSupabase,tenantId:task.tenant_id,creditType:'whatsapp_message',direction:'debit',amount:1,reason:'whatsapp_message_sent',idempotencyKey:`whatsapp-message:${message.id}`,referenceType:'whatsapp_message',referenceId:message.id,metadata:{meta_message_id:sent.messageId}});
     await input.systemSupabase.from('whatsapp_conversations').update({last_message_at:sentAt,last_outbound_at:sentAt,updated_at:sentAt}).eq('id',conversation.id).eq('tenant_id',task.tenant_id);
     await publishAiEvent({systemSupabase:input.systemSupabase,tenantId:task.tenant_id,eventType:'whatsapp.message_sent',source:'whatsapp',entityType:'whatsapp_message',entityId:message.id,correlationId:conversation.id,idempotencyKey:`whatsapp-sent:${message.id}`,payload:{meta_message_id:sent.messageId}});
   };
