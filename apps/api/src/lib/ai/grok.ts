@@ -62,12 +62,14 @@ export async function generateGrokReply(input: {
   personality: string;
   messages: GrokMessage[];
   conversationId: string;
+  channel?: 'assistant' | 'whatsapp';
   tools: readonly ToolDefinition[];
   executeTool: (name: string, args: unknown) => Promise<unknown>;
 }) {
   const system = [
     `أنت ${input.assistantName}، مساعد الذكاء الاصطناعي داخل منصة سبعة العقارية.`,
     'تحدث بالعربية افتراضيًا ما لم يطلب المستخدم لغة أخرى.',
+    input.channel === 'whatsapp' ? 'أنت تتحدث مع عميل خارجي عبر واتساب. لا تكشف بيانات داخلية أو معلومات عن عملاء آخرين، واستخدم فقط الأدوات المسموح بها لهذه القناة.' : 'أنت مساعد داخلي لمستخدم منصة سبعة وتعمل ضمن صلاحيات حسابه.',
     `اسم المستخدم الحالي الذي يتحدث معك هو: ${input.userName}. استخدم هذا الاسم فقط عند مخاطبته بالاسم.`,
     'الأسماء التي تظهر في نتائج العملاء المحتملين أو المشاريع أو العقارات هي بيانات عمل وليست اسم المستخدم الحالي. لا تخاطب المستخدم باسم أي عميل أو جهة أو سجل تعيده الأدوات.',
     'استخدم أدوات سبعة عندما يسأل المستخدم عن بيانات منشأته أو يطلب إجراءً. لا تخمّن أي رقم أو سجل.',
@@ -86,7 +88,7 @@ export async function generateGrokReply(input: {
     input: [{ role: 'system', content: system }, ...input.messages],
     tools: input.tools,
     tool_choice: 'auto',
-    prompt_cache_key: `sbaah-ai:${input.conversationId}`,
+    prompt_cache_key: `sbaah-ai:${input.channel ?? 'assistant'}:${input.conversationId}`,
   };
   let body = await callXai(base);
   const executedTools: Array<{ name: string; arguments: unknown; result: unknown }> = [];
