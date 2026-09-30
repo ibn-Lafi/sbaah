@@ -33,6 +33,8 @@ export function PlanCard({ plan, monthlyEquivalent, isCurrent, selected=false, o
   const savingsMonths=plan.billing_cycle==='annual'&&monthlyEquivalent?annualSavingsMonths(monthlyEquivalent,plan):0;
   const hasIntroPrice=showIntroPricing&&plan.intro_price!=null&&plan.intro_months!=null;
   const normalizedName=(plan.name_en||plan.name_ar).toLowerCase();
+  const featureLabels:Record<string,string>={custom_footer_rights:'تخصيص حقوق الموقع',custom_solutions:'حلول مخصصة حسب الاحتياج'};
+  const extraFeatures=Object.entries(plan.features??{}).filter(([key,value])=>value===true&&key!=='custom_domain'&&featureLabels[key]);
   const tone: 'platinum'|'gold'|'lavender'=normalizedName.includes('lavender')||normalizedName.includes('خزام')?'lavender':normalizedName.includes('plat')||normalizedName.includes('بلات')?'platinum':'gold';
 
   return <article className={`relative min-h-[390px] w-full overflow-hidden rounded-[26px] sm:min-h-[430px] sm:rounded-[30px] border text-white transition-all ${isCurrent||selected?'border-white/70 ring-2 ring-brand ring-offset-2 ring-offset-surface-page':'border-white/15'}`}>
@@ -51,6 +53,7 @@ export function PlanCard({ plan, monthlyEquivalent, isCurrent, selected=false, o
           <li className="flex items-center justify-between gap-3"><span className="flex items-center gap-2"><CheckIcon className="h-4 w-4"/>{t.propertiesLimitLabel}</span><strong>{plan.max_properties!=null?t.propertiesCount(plan.max_properties.toLocaleString('en-US')):pages.billing.unlimited}</strong></li>
           <li className="flex items-center justify-between gap-3"><span className="flex items-center gap-2"><CheckIcon className="h-4 w-4"/>{t.usersLimitLabel}</span><strong>{plan.max_users!=null?t.usersLabel(plan.max_users):pages.billing.unlimited}</strong></li>
           <li className="flex items-center justify-between gap-3"><span className="flex items-center gap-2"><CheckIcon className="h-4 w-4"/>{t.customDomainLabel}</span><strong>{plan.custom_domain_allowed?t.allowedLabel:t.subdomainLabel}</strong></li>
+          {extraFeatures.map(([key])=><li key={key} className="flex items-center gap-2"><CheckIcon className="h-4 w-4"/><span>{featureLabels[key]}</span></li>)}
         </>}
       </ul>
       {plan.purchase_mode!=='request'&&<p className="mt-5 text-[11px] text-white/55">{t.vatNote}</p>}
