@@ -124,6 +124,8 @@ export default function AppsPage() {
   const [thinkingStage, setThinkingStage] = useState(0);
   const [decidingActionId, setDecidingActionId] = useState<string | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [creditsOpen, setCreditsOpen] = useState(false);
+  const [creditType, setCreditType] = useState<'whatsapp' | 'agent' | null>(null);
   const [openingConversationId, setOpeningConversationId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -288,26 +290,51 @@ export default function AppsPage() {
   return (
     <AppShell title={ar ? 'سبعة Ai' : 'Sbaah AI'} orgName={me.tenant.name_ar} accountType={me.tenant.account_type}>
       <div className="mx-auto flex h-[calc(100dvh-8.5rem)] min-h-0 w-full max-w-5xl flex-col overflow-hidden">
-        <div className="bg-surface-subtle mb-4 grid w-full shrink-0 grid-cols-2 rounded-[12px] p-1 sm:mb-6">
-          {([
-            ['assistant', ar ? 'مساعد Ai' : 'AI Assistant'],
-            ['whatsapp', ar ? 'واتس اب Ai' : 'WhatsApp AI'],
-          ] as const).map(([value, label]) => (
-            <button
-              key={value}
-              type="button"
-              onClick={() => setSection(value)}
-              aria-pressed={section === value}
-              className={`h-10 rounded-[9px] px-3 text-sm font-semibold transition ${
-                section === value
-                  ? 'bg-surface-card text-text-primary border-border-default border shadow-sm'
-                  : 'text-text-secondary hover:text-text-primary'
-              }`}
-            >
-              {label}
-            </button>
-          ))}
+        <div className="mb-4 flex w-full shrink-0 items-center gap-2 sm:mb-5">
+          <div className="bg-surface-subtle grid min-w-0 flex-1 grid-cols-2 rounded-[12px] p-1">
+            {([
+              ['assistant', ar ? 'مساعد Ai' : 'AI Assistant'],
+              ['whatsapp', ar ? 'واتس اب Ai' : 'WhatsApp AI'],
+            ] as const).map(([value, label]) => (
+              <button key={value} type="button" onClick={() => setSection(value)} aria-pressed={section === value} className={`h-9 rounded-[9px] px-2 text-xs font-semibold transition sm:h-10 sm:px-3 sm:text-sm ${section === value ? 'bg-surface-card text-text-primary border-border-default border shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}>
+                {label}
+              </button>
+            ))}
+          </div>
+          <button type="button" onClick={() => { setCreditType(null); setCreditsOpen(true); }} aria-label={ar ? 'الرصيد' : 'Credits'} className="bg-brand flex h-10 w-10 shrink-0 items-center justify-center rounded-[11px] text-white shadow-sm transition active:scale-95 sm:h-11 sm:w-11">
+            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3.5" y="6" width="17" height="12" rx="3"/><path d="M16 10h4.5v4H16a2 2 0 1 1 0-4ZM7 6V4.5h9V6"/></svg>
+          </button>
         </div>
+
+        {creditsOpen ? (
+          <div className="fixed inset-0 z-[80] flex items-end justify-center bg-black/45 p-0 sm:items-center sm:p-5" role="dialog" aria-modal="true">
+            <button type="button" aria-label={ar ? 'إغلاق' : 'Close'} onClick={() => { setCreditsOpen(false); setCreditType(null); }} className="absolute inset-0" />
+            <section className="bg-surface-card relative z-10 flex max-h-[90dvh] w-full max-w-xl flex-col overflow-hidden rounded-t-[24px] shadow-2xl sm:rounded-[22px]">
+              <header className="border-border-default flex shrink-0 items-start gap-3 border-b px-4 py-4 sm:px-5">
+                {creditType ? <button type="button" onClick={() => setCreditType(null)} className="bg-surface-subtle text-text-primary flex h-10 w-10 shrink-0 items-center justify-center rounded-full" aria-label={ar ? 'رجوع' : 'Back'}><svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg></button> : null}
+                <div className="min-w-0 flex-1"><h2 className="text-text-primary text-lg font-bold">{creditType ? (ar ? 'شحن الرصيد' : 'Top up credits') : (ar ? 'رصيد سبعة Ai' : 'Sbaah AI credits')}</h2><p className="text-text-secondary mt-1 text-xs leading-5">{creditType ? (ar ? 'اختر الباقة وطريقة الدفع.' : 'Choose a package and payment method.') : (ar ? 'رصيد الرسائل والـ Ai في مكان واحد.' : 'WhatsApp and AI credits in one place.')}</p></div>
+                <button type="button" onClick={() => { setCreditsOpen(false); setCreditType(null); }} className="bg-surface-subtle text-text-primary flex h-10 w-10 shrink-0 items-center justify-center rounded-full" aria-label={ar ? 'إغلاق' : 'Close'}><svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+              </header>
+              <div className="min-h-0 overflow-y-auto p-4 sm:p-5">
+                {!creditType ? <div className="space-y-3">
+                  {([
+                    ['whatsapp', ar ? 'رصيد رسائل واتساب' : 'WhatsApp message credits', ar ? 'لإرسال واستقبال رسائل العملاء' : 'For customer WhatsApp messages'],
+                    ['agent', ar ? 'رصيد Ai Agent' : 'AI Agent credits', ar ? 'لاستخدام الوكلاء والردود الذكية' : 'For agents and AI responses'],
+                  ] as const).map(([type,title,desc]) => <div key={type} className="border-border-default rounded-[16px] border p-4 sm:p-5"><div className="flex items-start gap-3"><span className="bg-brand-surface text-brand flex h-11 w-11 shrink-0 items-center justify-center rounded-[13px]">{type==='whatsapp'?<svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M20 11.5a8 8 0 0 1-11.8 7L4 20l1.5-4A8 8 0 1 1 20 11.5Z"/><path d="M9 8.5c.5 2 2 3.5 4 4"/></svg>:<svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="5" y="7" width="14" height="11" rx="3"/><path d="M9 12h.01M15 12h.01M9 15h6M12 7V4M10 4h4"/></svg>}</span><div className="min-w-0 flex-1"><h3 className="text-text-primary text-sm font-bold">{title}</h3><p className="text-text-secondary mt-1 text-xs">{desc}</p><p className="text-text-primary mt-3 text-xl font-bold">— <span className="text-text-secondary text-xs font-medium">{ar ? 'كريدت متاح' : 'credits available'}</span></p></div></div><button type="button" onClick={() => setCreditType(type)} className="bg-brand mt-4 w-full rounded-[11px] px-4 py-2.5 text-sm font-bold text-white">{ar ? 'شحن الرصيد +' : 'Top up +'}</button></div>)}
+                </div> : <div className="space-y-3">
+                  {[
+                    ['basic', creditType==='whatsapp'?'10,000':'1,000','50'],
+                    ['normal', creditType==='whatsapp'?'25,000':'2,500','100'],
+                    ['advanced', creditType==='whatsapp'?'50,000':'5,000','180'],
+                    ['professional', creditType==='whatsapp'?'100,000':'10,000','300'],
+                  ].map(([plan,amount,price]) => <button type="button" key={plan} className="border-border-default hover:border-brand/50 flex w-full items-center justify-between rounded-[15px] border-2 px-4 py-4 text-start transition"><span><span className="text-text-primary block text-sm font-bold">{plan}</span><span className="text-text-secondary mt-1 block text-xs">{amount} {creditType==='whatsapp'?(ar?'رسالة':'messages'):(ar?'كريدت':'credits')}</span></span><span className="text-brand text-base font-bold">SAR {price}.00</span></button>)}
+                  <div className="pt-2"><p className="text-text-primary mb-2 text-sm font-bold">{ar ? 'طريقة الدفع' : 'Payment method'}</p><div className="border-border-default rounded-[14px] border-2 p-4 text-center text-sm font-semibold">{ar ? 'بنك الراجحي' : 'Al Rajhi Bank'}</div></div>
+                  <button type="button" disabled className="bg-brand mt-2 w-full rounded-[12px] px-4 py-3 text-sm font-bold text-white opacity-60">{ar ? 'تأكيد والدفع — قريبًا' : 'Confirm & pay — soon'}</button>
+                </div>}
+              </div>
+            </section>
+          </div>
+        ) : null}
 
         {section === 'assistant' ? (
           loading ? (
