@@ -46,6 +46,11 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 
   const input = projectInputSchema.parse(await request.json());
 
+  const {data:tenantPlan,error:planError}=await supabase.from('tenants').select('plans(features)').eq('id',caller.tenantId).single();
+  if(planError) throw new Error(`Failed to load project entitlement: ${planError.message}`);
+  const maxProjects=Number((tenantPlan.plans as unknown as {features?:Record<string,unknown>}|null)?.features?.max_projects??0);
+  if(maxProjects>0){const {count,error:countError}=await supabase.from('projects').select('id',{count:'exact',head:true}).eq('tenant_id',caller.tenantId).neq('status','archived');if(countError)throw new Error(`Failed to check project limit: ${countError.message}`);if((count??0)>=maxProjects)throw new ApiError(403,'plan_project_limit',`وصلت للحد المسموح في باقتك (${maxProjects} مشروع). رقِّ باقتك لإضافة المزيد.`);}
+
   // Public project URLs require a non-null, tenant-unique slug. Generate it
   // server-side so dashboard forms never need to know about URL internals.
   const baseSlug = `project-${crypto.randomUUID().slice(0, 8)}`; // required public URL slug
