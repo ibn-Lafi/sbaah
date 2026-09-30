@@ -19,7 +19,7 @@ const POLICIES: Record<string, ToolPolicy> = {
   create_lead: { channels: ['assistant', 'whatsapp'], risk: 'sensitive' },
 };
 
-const definitionsByName = new Map(AI_TOOL_DEFINITIONS.map((tool) => [tool.name, tool]));
+const definitionsByName = new Map<string, (typeof AI_TOOL_DEFINITIONS)[number]>(AI_TOOL_DEFINITIONS.map((tool) => [tool.name, tool]));
 
 export function getToolPolicy(name: string): ToolPolicy | null {
   return POLICIES[name] ?? null;
