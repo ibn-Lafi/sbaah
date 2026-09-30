@@ -4,8 +4,7 @@ import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
 import { createServiceRoleClient } from '@sbaah/shared';
-import { generateGrokReply } from '@/lib/ai/grok';
-import { AI_TOOL_DEFINITIONS, executeAiTool } from '@/lib/ai/tools';
+import { runSbaahAiCore } from '@/lib/ai/core';
 
 const paramsSchema = z.object({ id: z.string().uuid() });
 const messageSchema = z.object({ content: z.string().trim().min(1).max(12000) });
@@ -62,53 +61,22 @@ export const POST = withErrorHandling(async (
   if (assistant.status !== 'active') throw new ApiError(409, 'ai_assistant_paused', 'مساعد Ai متوقف حاليًا');
   if (historyError) throw new Error(`Failed to load AI history: ${historyError.message}`);
 
-  const generated = await generateGrokReply({
-    assistantName: assistant.name,
-    userName: caller.fullName,
-    personality: assistant.personality,
-    conversationId: conversation.id,
+  const generated = await runSbaahAiCore({
+    supabase,
+    caller,
+    context: {
+      channel: 'assistant',
+      tenantId: caller.tenantId,
+      actorUserId: caller.userId,
+      actorName: caller.fullName,
+      assistantId: conversation.assistant_id,
+      assistantName: assistant.name,
+      personality: assistant.personality,
+      conversationId: conversation.id,
+    },
     messages: (history ?? [])
       .filter((item) => item.sender === 'user' || item.sender === 'assistant')
       .map((item) => ({ role: item.sender as 'user' | 'assistant', content: item.content })),
-    tools: AI_TOOL_DEFINITIONS,
-    executeTool: async (name, args) => {
-      if(name==='create_lead'&&args&&typeof args==='object'&&typeof (args as {phone?:unknown}).phone==='string'){
-        const phone=(args as {phone:string}).phone;
-        const{data:existing,error:duplicateError}=await supabase.from('leads').select('id,full_name,phone,email,status').eq('tenant_id',caller.tenantId).eq('phone',phone).maybeSingle();
-        if(duplicateError)throw new Error(`Failed to check duplicate lead: ${duplicateError.message}`);
-        if(existing){return{duplicate_phone:true,existing_lead:existing};}
-      }
-      const sensitive = name === 'update_lead_status' || name === 'create_lead';
-      const startedAt = new Date().toISOString();
-      const { data: log, error: logError } = await systemSupabase
-        .from('ai_action_logs')
-        .insert({
-          tenant_id: caller.tenantId,
-          assistant_id: conversation.assistant_id,
-          conversation_id: conversation.id,
-          requested_by: caller.userId,
-          tool_name: name,
-          risk_level: sensitive ? 'sensitive' : ['add_lead_interest', 'add_lead_note', 'set_lead_follow_up'].includes(name) ? 'write' : 'read',
-          status: sensitive ? 'awaiting_confirmation' : 'running',
-          input: args,
-          executed_at: startedAt,
-        })
-        .select('id')
-        .single();
-      if (logError || !log) throw new Error(`Failed to create AI action log: ${logError?.message}`);
-      if (sensitive) return { requires_confirmation: true, action_id: log.id, tool_name: name, input: args };
-      try {
-        const result = await executeAiTool({ supabase, caller, name, arguments: args });
-        await systemSupabase.from('ai_action_logs').update({ status: 'succeeded', output: result }).eq('id', log.id).eq('tenant_id', caller.tenantId);
-        return result;
-      } catch (error) {
-        await systemSupabase.from('ai_action_logs').update({
-          status: 'failed',
-          error_message: error instanceof Error ? error.message.slice(0, 1000) : 'Unknown tool error',
-        }).eq('id', log.id).eq('tenant_id', caller.tenantId);
-        throw error;
-      }
-    },
   });
 
   const assistantMessageId = crypto.randomUUID();
