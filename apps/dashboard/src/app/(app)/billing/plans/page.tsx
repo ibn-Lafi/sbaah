@@ -10,7 +10,7 @@ import { PlanCard } from '@/components/billing/plan-card';
 import { PlanComparisonButton } from '@/components/billing/plan-comparison-modal';
 import { useCurrentUser } from '@/lib/auth/current-user-context';
 import { useLocale } from '@/lib/i18n/locale-context';
-import { getBilling, startCheckout, type BillingInfo } from '@/lib/api/billing';
+import { getBilling, requestCustomPlan, startCheckout, type BillingInfo } from '@/lib/api/billing';
 import { listPlans } from '@/lib/api/reference-data';
 import { ApiRequestError } from '@/lib/api/client';
 
@@ -23,6 +23,8 @@ export default function ChangePlanPage() {
   const [cycle, setCycle] = useState<BillingCycle>('annual');
   const [selectingPlanId, setSelectingPlanId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [requestPlan, setRequestPlan] = useState<Plan | null>(null);
+  const [requestSent, setRequestSent] = useState(false);
 
   useEffect(() => {
     void getBilling(accessToken).then(setBilling);
@@ -32,6 +34,7 @@ export default function ChangePlanPage() {
   }, []);
 
   async function handleSelect(plan: Plan) {
+    if (plan.purchase_mode === 'request') { setRequestPlan(plan); setRequestSent(false); return; }
     setError(null);
     setSelectingPlanId(plan.id);
     try {
@@ -75,6 +78,7 @@ export default function ChangePlanPage() {
                   isCurrent={plan.id === billing.plan.id}
                   selecting={selectingPlanId === plan.id}
                   selectDisabled={selectingPlanId !== null}
+                  actionLabel={plan.purchase_mode === 'request' ? 'اطلب الباقة' : undefined}
                   onSelect={() => void handleSelect(plan)}
                 />
                 </div>
@@ -82,6 +86,8 @@ export default function ChangePlanPage() {
             })}
           </div>
         )}
+
+        {requestPlan && <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/45 p-4" onMouseDown={(e)=>{if(e.target===e.currentTarget)setRequestPlan(null)}}><div className="w-full max-w-md rounded-[24px] bg-surface-card p-5 shadow-2xl"><div className="mb-4 flex items-center justify-between"><h2 className="text-lg font-bold text-text-primary">طلب باقة الخزامى</h2><button type="button" onClick={()=>setRequestPlan(null)} className="text-text-secondary">✕</button></div>{requestSent?<div className="py-8 text-center"><p className="font-semibold text-text-primary">تم إرسال طلبك بنجاح</p><p className="mt-2 text-sm text-text-secondary">سيتواصل معك فريق سبعة.</p></div>:<form className="space-y-3" onSubmit={async(e)=>{e.preventDefault();const fd=new FormData(e.currentTarget);setError(null);try{await requestCustomPlan(accessToken,{plan_id:requestPlan.id,full_name:String(fd.get('full_name')||''),email:String(fd.get('email')||''),phone:String(fd.get('phone')||''),details:String(fd.get('details')||'')});setRequestSent(true)}catch(err){setError(err instanceof ApiRequestError?err.message:'تعذر إرسال الطلب')}}}><input name="full_name" required placeholder="الاسم" className="h-11 w-full rounded-xl border border-border-subtle bg-surface-page px-3 text-sm"/><input name="email" type="email" required placeholder="البريد الإلكتروني" className="h-11 w-full rounded-xl border border-border-subtle bg-surface-page px-3 text-sm"/><input name="phone" required placeholder="رقم التواصل" className="h-11 w-full rounded-xl border border-border-subtle bg-surface-page px-3 text-sm"/><textarea name="details" rows={4} placeholder="تفاصيل احتياجك (اختياري)" className="w-full rounded-xl border border-border-subtle bg-surface-page p-3 text-sm"/><button className="h-11 w-full rounded-xl bg-brand font-semibold text-white">إرسال الطلب</button></form>}</div></div>}
 
         {error && (
           <p role="alert" className="rounded-control bg-danger-surface px-4 py-3 text-center text-sm text-danger">
