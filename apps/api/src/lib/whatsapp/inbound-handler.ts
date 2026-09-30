@@ -2,6 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { AiTask } from '@/lib/ai/task-worker';
 import { runSbaahAiCore } from '@/lib/ai/core';
 import { enqueueAiTask, publishAiEvent } from '@/lib/ai/events';
+import { applyCreditEntry } from '@/lib/ai/credits';
 
 export function createWhatsAppInboundHandler(systemSupabase: SupabaseClient) {
   return async (task: AiTask) => {
@@ -55,6 +56,19 @@ export function createWhatsAppInboundHandler(systemSupabase: SupabaseClient) {
     const replyKey = `whatsapp-reply:${message.id}`;
     const replyText = generated.text?.trim();
     if (!replyText) return;
+
+    await applyCreditEntry({
+      systemSupabase,
+      tenantId: task.tenant_id,
+      creditType: 'ai_agent',
+      direction: 'debit',
+      amount: 1,
+      reason: 'whatsapp_ai_reply',
+      idempotencyKey: `whatsapp-ai:${message.id}`,
+      referenceType: 'whatsapp_message',
+      referenceId: message.id,
+      metadata: { provider: 'xai', model: generated.model },
+    });
 
     const { data: insertedReply, error: insertError } = await systemSupabase.from('whatsapp_messages').insert({
       tenant_id:task.tenant_id, conversation_id:conversationId, direction:'outbound',
