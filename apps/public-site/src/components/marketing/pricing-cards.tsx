@@ -37,7 +37,7 @@ export function PricingCards({ plans, locale, dashboardUrl }: { plans: Plan[]; l
           <div className="relative z-10 flex min-h-[430px] flex-col p-7 sm:p-8">
             <div className="flex items-start justify-between gap-4">
               <div><div className="flex items-center gap-2"><h3 className="text-xl font-bold">{locale==='ar'?plan.name_ar:plan.name_en}</h3><svg viewBox="0 0 24 24" className="h-5 w-5 text-white/65" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 16l5-5 4 4 7-8"/><path d="M15 7h5v5"/></svg></div>{savingsMonths>0&&<span className="mt-2 inline-flex rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-white/75 backdrop-blur">{t.savingsLabel(savingsMonths)}</span>}</div>
-              <div className="text-end">{plan.purchase_mode==='request'?<><div className="font-display text-2xl font-bold">{locale==='ar'?'حسب الطلب':'Custom'}</div><div className="mt-1 text-xs text-white/65">{locale==='ar'?'سنوي':'Annual'}</div></>:<><div className="font-display text-4xl font-bold tracking-tight" dir="ltr">{plan.price.toLocaleString('en-US')}</div><div className="mt-1 text-xs text-white/65">{t.currency} {t.priceNote(t.cycleLabel(plan.billing_cycle))}</div></>}</div>
+              <div className="text-end">{plan.purchase_mode==='free'?<><div className="font-display text-3xl font-bold">{locale==='ar'?'مجانية':'Free'}</div><div className="mt-1 text-xs text-white/65">{locale==='ar'?'بدون رسوم':'No charge'}</div></>:plan.purchase_mode==='request'?<><div className="font-display text-2xl font-bold">{locale==='ar'?'حسب الطلب':'Custom'}</div><div className="mt-1 text-xs text-white/65">{locale==='ar'?'سنوي':'Annual'}</div></>:<><div className="font-display text-4xl font-bold tracking-tight" dir="ltr">{plan.price.toLocaleString('en-US')}</div><div className="mt-1 text-xs text-white/65">{t.currency} {t.priceNote(t.cycleLabel(plan.billing_cycle))}</div></>}</div>
             </div>
             <div className="my-7 h-px bg-white/65"/>
             <ul className="flex flex-1 flex-col gap-4 text-[14px] text-white/90">
@@ -45,7 +45,7 @@ export function PricingCards({ plans, locale, dashboardUrl }: { plans: Plan[]; l
               <li className="flex items-center justify-between gap-3"><span className="flex items-center gap-2"><CheckIcon className="h-4 w-4 flex-none text-white"/>{t.usersLimit}</span><strong dir={plan.max_users!=null?'ltr':undefined}>{plan.max_users!=null?plan.max_users.toLocaleString('en-US'):t.unlimited}</strong></li>
               <li className="flex items-center gap-2"><CheckIcon className="h-4 w-4 flex-none text-white"/>{plan.custom_domain_allowed?t.customDomainYes:t.customDomainNo}</li>
             </ul>
-            {plan.purchase_mode!=='request'&&<p className="mt-5 text-[11px] text-white/55">{t.vatNote}</p>}
+            {plan.purchase_mode==='checkout'&&<p className="mt-5 text-[11px] text-white/55">{t.vatNote}</p>}
             {dashboardUrl&&<a href={`${dashboardUrl}/register`} className="mt-5 flex h-12 items-center justify-center rounded-2xl border border-white/35 bg-white/10 text-sm font-semibold text-white backdrop-blur-md transition-all hover:bg-white hover:text-neutral-950">{plan.purchase_mode==='request'?(locale==='ar'?'اطلب الباقة':'Request plan'):t.cta}</a>}
           </div>
         </article>;
