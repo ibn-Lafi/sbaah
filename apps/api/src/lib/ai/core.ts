@@ -3,10 +3,8 @@ import type { CallerContext } from '@/lib/auth/get-caller-context';
 import { createServiceRoleClient } from '@sbaah/shared';
 import { generateGrokReply } from '@/lib/ai/grok';
 import { executeAiTool } from '@/lib/ai/tools';
-import { assertToolRegistryComplete, getToolPolicy, getToolsForChannel, isToolAllowed } from '@/lib/ai/tool-registry';
+import { assertToolRegistryComplete, getToolPolicy, getToolsForChannel, isToolAllowed, type AiChannel } from '@/lib/ai/tool-registry';
 import { loadCustomerContextByPhone, serializeCustomerContext } from '@/lib/ai/customer-context';
-
-export type AiChannel = 'assistant' | 'whatsapp';
 
 export interface SbaahAiContext {
   channel: AiChannel;
