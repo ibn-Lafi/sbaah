@@ -52,15 +52,28 @@ export function createWhatsAppInboundHandler(systemSupabase: SupabaseClient) {
       messages,
     });
 
-    const outboundId = crypto.randomUUID();
-    const { error: insertError } = await systemSupabase.from('whatsapp_messages').insert({
-      id:outboundId, tenant_id:task.tenant_id, conversation_id:conversationId, direction:'outbound',
-      sender_type:'ai', message_type:'text', text_body:generated.text, status:'pending',
-      raw_payload:{ source_inbound_message_id:message.id, provider:'xai', model:generated.model },
-    });
-    if (insertError) throw new Error(`Failed to store AI WhatsApp reply: ${insertError.message}`);
+    const replyKey = `whatsapp-reply:${message.id}`;
+    const replyText = generated.text?.trim();
+    if (!replyText) return;
 
-    const event=await publishAiEvent({systemSupabase,tenantId:task.tenant_id,eventType:'whatsapp.reply_generated',source:'whatsapp',entityType:'whatsapp_message',entityId:outboundId,correlationId:conversationId,idempotencyKey:`whatsapp-reply:${message.id}`,payload:{source_message_id:message.id,outbound_message_id:outboundId}});
+    const { data: insertedReply, error: insertError } = await systemSupabase.from('whatsapp_messages').insert({
+      tenant_id:task.tenant_id, conversation_id:conversationId, direction:'outbound',
+      sender_type:'ai', message_type:'text', text_body:replyText, status:'pending',
+      idempotency_key:replyKey,
+      raw_payload:{ source_inbound_message_id:message.id, provider:'xai', model:generated.model },
+    }).select('id').single();
+
+    let outboundId = insertedReply?.id as string | undefined;
+    if (insertError) {
+      if (insertError.code !== '23505') throw new Error(`Failed to store AI WhatsApp reply: ${insertError.message}`);
+      const { data: existingReply, error: existingReplyError } = await systemSupabase.from('whatsapp_messages')
+        .select('id').eq('tenant_id',task.tenant_id).eq('idempotency_key',replyKey).single();
+      if (existingReplyError || !existingReply) throw new Error(`Failed to resolve idempotent WhatsApp reply: ${existingReplyError?.message}`);
+      outboundId = existingReply.id;
+    }
+    if (!outboundId) throw new Error('Failed to resolve outbound WhatsApp reply');
+
+    const event=await publishAiEvent({systemSupabase,tenantId:task.tenant_id,eventType:'whatsapp.reply_generated',source:'whatsapp',entityType:'whatsapp_message',entityId:outboundId,correlationId:conversationId,idempotencyKey:replyKey,payload:{source_message_id:message.id,outbound_message_id:outboundId}});
     await enqueueAiTask({systemSupabase,tenantId:task.tenant_id,taskType:'whatsapp.send_outbound',sourceEventId:event.id,idempotencyKey:`whatsapp-send:${message.id}`,payload:{conversation_id:conversationId,message_id:outboundId}});
   };
 }
