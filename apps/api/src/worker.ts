@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
-import { processAiTaskBatch } from '@/lib/ai/task-worker';
-import { createWhatsAppInboundHandler } from '@/lib/whatsapp/inbound-handler';
-import { createWhatsAppOutboundHandler } from '@/lib/whatsapp/outbound-handler';
+import { processAiTaskBatch } from './lib/ai/task-worker';
+import { createWhatsAppInboundHandler } from './lib/whatsapp/inbound-handler';
+import { createWhatsAppOutboundHandler } from './lib/whatsapp/outbound-handler';
 
 function requireEnv(name: string): string {
   const value = process.env[name];
