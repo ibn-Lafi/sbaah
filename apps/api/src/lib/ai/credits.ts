@@ -31,7 +31,7 @@ export async function applyCreditEntry(input: {
   metadata?: Record<string, unknown>;
 }): Promise<CreditEntry> {
   if (!Number.isSafeInteger(input.amount) || input.amount <= 0) throw new Error('Credit amount must be a positive safe integer');
-  const { data, error } = await input.systemSupabase.schema('private').rpc('apply_credit_entry', {
+  const { data, error } = await input.systemSupabase.rpc('apply_credit_entry', {
     p_tenant_id: input.tenantId,
     p_credit_type: input.creditType,
     p_direction: input.direction,
