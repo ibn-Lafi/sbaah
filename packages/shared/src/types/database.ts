@@ -72,7 +72,7 @@ export interface Plan {
   custom_domain_allowed: boolean;
   is_active: boolean;
   /** checkout = direct StreamPay purchase; request = custom sales request only. */
-  purchase_mode: 'checkout' | 'request';
+  purchase_mode: 'checkout' | 'request' | 'free';
   /** Central feature entitlement metadata for plan cards and gates. */
   features: Record<string, boolean | number | string | null>;
   /** The matching recurring Product's id in StreamPay's own dashboard (set up manually there first) — null until console fills it in. */
