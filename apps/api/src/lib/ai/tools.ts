@@ -248,6 +248,7 @@ export async function executeAiTool(input: {
       lead_id: z.string().uuid(),
       note_text: z.string().trim().min(1).max(4000),
     }).parse(input.arguments);
+    if (isAssignedScope(grant)) await assertAssignedLeadAccess(supabase, caller.tenantId, caller.userId, args.lead_id);
     const { data: lead, error: leadError } = await supabase.from('leads').select('id, full_name').eq('id', args.lead_id).eq('tenant_id', caller.tenantId).maybeSingle();
     if (leadError) throw new Error(`Failed to validate lead: ${leadError.message}`);
     if (!lead) throw new ApiError(404, 'lead_not_found', 'العميل المحتمل غير موجود');
