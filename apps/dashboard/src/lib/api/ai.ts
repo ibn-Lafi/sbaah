@@ -64,3 +64,30 @@ export function decideAiAction(accessToken: string, actionId: string, decision: 
     accessToken,
   );
 }
+
+export interface AiCreditBalance {
+  credit_type: 'whatsapp_message' | 'ai_agent';
+  balance: number;
+  lifetime_credited: number;
+  lifetime_debited: number;
+  updated_at: string | null;
+}
+
+export interface AiCreditLedgerEntry {
+  id: string;
+  credit_type: 'whatsapp_message' | 'ai_agent';
+  direction: 'credit' | 'debit';
+  amount: number;
+  balance_after: number;
+  reason: string;
+  reference_type: string | null;
+  reference_id: string | null;
+  created_at: string;
+}
+
+export function getAiCredits(accessToken: string) {
+  return apiGet<{
+    balances: { whatsapp_message: AiCreditBalance; ai_agent: AiCreditBalance };
+    ledger: AiCreditLedgerEntry[];
+  }>('/ai/credits', accessToken);
+}
