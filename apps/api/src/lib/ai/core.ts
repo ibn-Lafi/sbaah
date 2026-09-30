@@ -3,6 +3,7 @@ import type { CallerContext } from '@/lib/auth/get-caller-context';
 import { createServiceRoleClient } from '@sbaah/shared';
 import { generateGrokReply } from '@/lib/ai/grok';
 import { AI_TOOL_DEFINITIONS, executeAiTool } from '@/lib/ai/tools';
+import { loadCustomerContextByPhone, serializeCustomerContext } from '@/lib/ai/customer-context';
 
 export type AiChannel = 'assistant' | 'whatsapp';
 
@@ -15,6 +16,7 @@ export interface SbaahAiContext {
   assistantName: string;
   personality: string;
   conversationId: string;
+  customerPhone?: string;
 }
 
 const SENSITIVE_TOOLS = new Set(['update_lead_status', 'create_lead']);
@@ -28,6 +30,9 @@ export async function runSbaahAiCore(input: {
 }) {
   const systemSupabase = createServiceRoleClient();
   const { caller, context, supabase } = input;
+  const customerContext = context.channel === 'whatsapp' && context.customerPhone
+    ? await loadCustomerContextByPhone({ supabase, tenantId: context.tenantId, phone: context.customerPhone })
+    : null;
 
   return generateGrokReply({
     assistantName: context.assistantName,
@@ -35,6 +40,7 @@ export async function runSbaahAiCore(input: {
     personality: context.personality,
     conversationId: context.conversationId,
     channel: context.channel,
+    customerContext: serializeCustomerContext(customerContext),
     messages: input.messages,
     tools: AI_TOOL_DEFINITIONS,
     executeTool: async (name, args) => {
