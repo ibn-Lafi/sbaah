@@ -307,9 +307,9 @@ export default function AppsPage() {
         </div>
 
         {creditsOpen ? (
-          <div className="fixed inset-0 z-[80] flex items-end justify-center bg-black/45 p-0 sm:items-center sm:p-5" role="dialog" aria-modal="true">
+          <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/45 p-4 sm:p-5" role="dialog" aria-modal="true">
             <button type="button" aria-label={ar ? 'إغلاق' : 'Close'} onClick={() => { setCreditsOpen(false); setCreditType(null); }} className="absolute inset-0" />
-            <section className="bg-surface-card relative z-10 flex max-h-[90dvh] w-full max-w-xl flex-col overflow-hidden rounded-t-[24px] shadow-2xl sm:rounded-[22px]">
+            <section className="bg-surface-card relative z-10 flex max-h-[88dvh] w-full max-w-xl flex-col overflow-hidden rounded-[22px] shadow-2xl">
               <header className="border-border-default flex shrink-0 items-start gap-3 border-b px-4 py-4 sm:px-5">
                 {creditType ? <button type="button" onClick={() => setCreditType(null)} className="bg-surface-subtle text-text-primary flex h-10 w-10 shrink-0 items-center justify-center rounded-full" aria-label={ar ? 'رجوع' : 'Back'}><svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg></button> : null}
                 <div className="min-w-0 flex-1"><h2 className="text-text-primary text-lg font-bold">{creditType ? (ar ? 'شحن الرصيد' : 'Top up credits') : (ar ? 'رصيد سبعة Ai' : 'Sbaah AI credits')}</h2><p className="text-text-secondary mt-1 text-xs leading-5">{creditType ? (ar ? 'اختر الباقة وطريقة الدفع.' : 'Choose a package and payment method.') : (ar ? 'رصيد الرسائل والـ Ai في مكان واحد.' : 'WhatsApp and AI credits in one place.')}</p></div>
