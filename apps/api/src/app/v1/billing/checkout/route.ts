@@ -46,7 +46,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 
   const { data: tenantRow, error: tenantError } = await supabase
     .from('tenants')
-    .select('created_at, plans(id, name_ar, price, intro_price, intro_months, streampay_product_id)')
+    .select('created_at, plans(id, name_ar, price, intro_price, intro_months, streampay_product_id, purchase_mode)')
     .eq('id', caller.tenantId)
     .single();
   if (tenantError || !tenantRow) {
@@ -60,6 +60,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
     intro_price: number | null;
     intro_months: number | null;
     streampay_product_id: string | null;
+    purchase_mode: 'checkout' | 'request';
   } | null;
 
   if (plan_id) {
@@ -67,7 +68,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
     // whatever the tenant happens to be on already.
     const { data, error } = await supabase
       .from('plans')
-      .select('id, name_ar, price, intro_price, intro_months, streampay_product_id')
+      .select('id, name_ar, price, intro_price, intro_months, streampay_product_id, purchase_mode')
       .eq('id', plan_id)
       .eq('is_active', true)
       .maybeSingle();
@@ -84,6 +85,9 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 
   if (!plan) {
     throw new Error('No plan resolved for checkout');
+  }
+  if (plan.purchase_mode === 'request') {
+    throw new ApiError(409, 'plan_request_only', 'هذه الباقة حسب الطلب ولا يمكن شراؤها مباشرة');
   }
   if (!plan.streampay_product_id) {
     throw new ApiError(
