@@ -2,7 +2,8 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { CallerContext } from '@/lib/auth/get-caller-context';
 import { createServiceRoleClient } from '@sbaah/shared';
 import { generateGrokReply } from '@/lib/ai/grok';
-import { AI_TOOL_DEFINITIONS, executeAiTool } from '@/lib/ai/tools';
+import { executeAiTool } from '@/lib/ai/tools';
+import { assertToolRegistryComplete, getToolPolicy, getToolsForChannel, isToolAllowed } from '@/lib/ai/tool-registry';
 import { loadCustomerContextByPhone, serializeCustomerContext } from '@/lib/ai/customer-context';
 
 export type AiChannel = 'assistant' | 'whatsapp';
@@ -19,15 +20,13 @@ export interface SbaahAiContext {
   customerPhone?: string;
 }
 
-const SENSITIVE_TOOLS = new Set(['update_lead_status', 'create_lead']);
-const WRITE_TOOLS = new Set(['add_lead_interest', 'add_lead_note', 'set_lead_follow_up']);
-
 export async function runSbaahAiCore(input: {
   supabase: SupabaseClient;
   caller: CallerContext;
   context: SbaahAiContext;
   messages: Array<{ role: 'user' | 'assistant'; content: string }>;
 }) {
+  assertToolRegistryComplete();
   const systemSupabase = createServiceRoleClient();
   const { caller, context, supabase } = input;
   const customerContext = context.channel === 'whatsapp' && context.customerPhone
@@ -42,8 +41,13 @@ export async function runSbaahAiCore(input: {
     channel: context.channel,
     customerContext: serializeCustomerContext(customerContext),
     messages: input.messages,
-    tools: AI_TOOL_DEFINITIONS,
+    tools: getToolsForChannel(context.channel),
     executeTool: async (name, args) => {
+      if (!isToolAllowed(context.channel, name)) {
+        throw new Error(`AI tool ${name} is not allowed for channel ${context.channel}`);
+      }
+      const policy = getToolPolicy(name);
+      if (!policy) throw new Error(`AI tool ${name} has no registry policy`);
       if (name === 'create_lead' && args && typeof args === 'object' && typeof (args as { phone?: unknown }).phone === 'string') {
         const phone = (args as { phone: string }).phone;
         const { data: existing, error } = await supabase
@@ -56,7 +60,7 @@ export async function runSbaahAiCore(input: {
         if (existing) return { duplicate_phone: true, existing_lead: existing };
       }
 
-      const sensitive = SENSITIVE_TOOLS.has(name);
+      const sensitive = policy.risk === 'sensitive';
       const { data: log, error: logError } = await systemSupabase
         .from('ai_action_logs')
         .insert({
@@ -65,7 +69,7 @@ export async function runSbaahAiCore(input: {
           conversation_id: context.conversationId,
           requested_by: context.actorUserId,
           tool_name: name,
-          risk_level: sensitive ? 'sensitive' : WRITE_TOOLS.has(name) ? 'write' : 'read',
+          risk_level: policy.risk,
           status: sensitive ? 'awaiting_confirmation' : 'running',
           input: args,
           executed_at: new Date().toISOString(),
