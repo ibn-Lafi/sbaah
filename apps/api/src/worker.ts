@@ -45,8 +45,15 @@ async function shutdown(signal:string){
 process.on('SIGTERM',()=>void shutdown('SIGTERM'));
 process.on('SIGINT',()=>void shutdown('SIGINT'));
 
-console.info('Sbaah AI worker started',{workerId,pollMs, runtime:'durable-task-processor'});
-while(!stopping){
-  await tick();
-  await new Promise((resolve)=>setTimeout(resolve,pollMs));
+async function main(): Promise<void> {
+  console.info('Sbaah AI worker started',{workerId,pollMs, runtime:'durable-task-processor'});
+  while(!stopping){
+    await tick();
+    await new Promise((resolve)=>setTimeout(resolve,pollMs));
+  }
 }
+
+void main().catch((error) => {
+  console.error('Sbaah AI worker crashed', error);
+  process.exit(1);
+});
