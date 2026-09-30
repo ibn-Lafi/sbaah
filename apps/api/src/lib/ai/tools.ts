@@ -2,6 +2,8 @@ import { z } from 'zod';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { CallerContext } from '@/lib/auth/get-caller-context';
 import { ApiError, databaseWriteError } from '@/lib/http';
+import { assertPermission } from '@/lib/auth/permissions';
+import { assertAssignedLeadAccess, isAssignedScope } from '@/lib/auth/crm-scope';
 
 export const AI_TOOL_DEFINITIONS = [
   {
@@ -140,7 +142,11 @@ export async function executeAiTool(input: {
   const { supabase, caller, name } = input;
 
   if (name === 'get_portfolio_summary') {
-    const leadsQuery = supabase.from('leads').select('id', { count: 'exact', head: true }).eq('tenant_id', caller.tenantId);
+    const crmGrant = assertPermission(caller.role, 'crm.read');
+    assertPermission(caller.role, 'projects.read');
+    assertPermission(caller.role, 'properties.read');
+    let leadsQuery = supabase.from('leads').select('id', { count: 'exact', head: true }).eq('tenant_id', caller.tenantId);
+    if (isAssignedScope(crmGrant)) leadsQuery = leadsQuery.eq('assigned_agent_id', caller.userId);
     const [leads, projects, listings] = await Promise.all([
       leadsQuery,
       supabase.from('projects').select('id', { count: 'exact', head: true }).eq('tenant_id', caller.tenantId),
@@ -151,12 +157,14 @@ export async function executeAiTool(input: {
   }
 
   if (name === 'search_leads') {
+    const grant = assertPermission(caller.role, 'crm.read');
     const args = z.object({ query: z.string().trim().max(100).default('') }).parse(input.arguments);
     const escaped = args.query.replace(/[%,]/g, '');
-    const query = supabase
+    let query = supabase
       .from('leads')
       .select('id, full_name, phone, email, status, source, follow_up_at, created_at')
       .eq('tenant_id', caller.tenantId);
+    if (isAssignedScope(grant)) query = query.eq('assigned_agent_id', caller.userId);
     const { data, error } = await query
       .or(escaped ? `full_name.ilike.%${escaped}%,phone.ilike.%${escaped}%` : 'id.not.is.null')
       .order('created_at', { ascending: false })
@@ -166,6 +174,7 @@ export async function executeAiTool(input: {
   }
 
   if (name === 'search_projects') {
+    assertPermission(caller.role, 'projects.read');
     const args = z.object({ query: z.string().trim().max(100).default('') }).parse(input.arguments);
     const escaped = args.query.replace(/[%,]/g, '');
     const { data, error } = await supabase.from('projects').select('id, name_ar, name_en, status, reference_number, slug, created_at').eq('tenant_id', caller.tenantId).or(escaped ? `name_ar.ilike.%${escaped}%,name_en.ilike.%${escaped}%,reference_number.ilike.%${escaped}%` : 'id.not.is.null').order('created_at', { ascending: false }).limit(10);
@@ -174,6 +183,7 @@ export async function executeAiTool(input: {
   }
 
   if (name === 'search_listings') {
+    assertPermission(caller.role, 'properties.read');
     const args = z.object({ query: z.string().trim().max(100).default('') }).parse(input.arguments);
     const escaped = args.query.replace(/[%,]/g, '');
     const { data, error } = await supabase.from('listings').select('id, listing_number, title_ar, title_en, listing_type, publication_status, commercial_status, asking_price, created_at').eq('tenant_id', caller.tenantId).or(escaped ? `title_ar.ilike.%${escaped}%,title_en.ilike.%${escaped}%,listing_number.ilike.%${escaped}%` : 'id.not.is.null').order('created_at', { ascending: false }).limit(10);
@@ -182,6 +192,7 @@ export async function executeAiTool(input: {
   }
 
   if (name === 'add_lead_interest') {
+    const grant = assertPermission(caller.role, 'crm.write');
     const args = z.object({
       lead_id: z.string().uuid(),
       project_id: z.string().uuid().nullable().optional(),
@@ -193,6 +204,7 @@ export async function executeAiTool(input: {
       if (targets.length !== 1) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'يجب تحديد مشروع أو عقار أو عرض واحد فقط' });
     }).parse(input.arguments);
 
+    if (isAssignedScope(grant)) await assertAssignedLeadAccess(supabase, caller.tenantId, caller.userId, args.lead_id);
     const { data: lead, error: leadError } = await supabase.from('leads').select('id, full_name').eq('id', args.lead_id).eq('tenant_id', caller.tenantId).maybeSingle();
     if (leadError) throw new Error(`Failed to validate lead: ${leadError.message}`);
     if (!lead) throw new ApiError(404, 'lead_not_found', 'العميل المحتمل غير موجود');
@@ -231,6 +243,7 @@ export async function executeAiTool(input: {
   }
 
   if (name === 'add_lead_note') {
+    const grant = assertPermission(caller.role, 'crm.write');
     const args = z.object({
       lead_id: z.string().uuid(),
       note_text: z.string().trim().min(1).max(4000),
@@ -248,10 +261,12 @@ export async function executeAiTool(input: {
   }
 
   if (name === 'set_lead_follow_up') {
+    const grant = assertPermission(caller.role, 'crm.write');
     const args = z.object({
       lead_id: z.string().uuid(),
       follow_up_at: z.string().datetime({ offset: true }).nullable(),
     }).parse(input.arguments);
+    if (isAssignedScope(grant)) await assertAssignedLeadAccess(supabase, caller.tenantId, caller.userId, args.lead_id);
     const { data: previous, error: previousError } = await supabase.from('leads').select('id, full_name, follow_up_at').eq('id', args.lead_id).eq('tenant_id', caller.tenantId).maybeSingle();
     if (previousError) throw new Error(`Failed to load lead: ${previousError.message}`);
     if (!previous) throw new ApiError(404, 'lead_not_found', 'العميل المحتمل غير موجود');
@@ -272,10 +287,12 @@ export async function executeAiTool(input: {
   }
 
   if (name === 'update_lead_status') {
+    const grant = assertPermission(caller.role, 'crm.write');
     const args = z.object({
       lead_id: z.string().uuid(),
       status: z.enum(['new', 'contacted', 'qualified', 'in_progress', 'won', 'lost', 'expired']),
     }).parse(input.arguments);
+    if (isAssignedScope(grant)) await assertAssignedLeadAccess(supabase, caller.tenantId, caller.userId, args.lead_id);
     const { data: previous, error: previousError } = await supabase.from('leads').select('id, full_name, status').eq('id', args.lead_id).eq('tenant_id', caller.tenantId).maybeSingle();
     if (previousError) throw new Error(`Failed to load lead: ${previousError.message}`);
     if (!previous) throw new ApiError(404, 'lead_not_found', 'العميل المحتمل غير موجود');
@@ -296,6 +313,8 @@ export async function executeAiTool(input: {
   }
 
   if (name === 'create_lead') {
+    const createGrant = assertPermission(caller.role, 'crm.write');
+    if (isAssignedScope(createGrant)) throw new ApiError(403, 'forbidden_scope', 'نطاق صلاحيتك لا يسمح بإنشاء عميل غير مسند مسبقًا');
     const args = createLeadSchema.parse(input.arguments);
     const { data: existing, error: duplicateError } = await supabase.from('leads').select('id,full_name,phone,email,status').eq('tenant_id', caller.tenantId).eq('phone', args.phone).maybeSingle();
     if (duplicateError) throw new Error(`Failed to check duplicate lead: ${duplicateError.message}`);
