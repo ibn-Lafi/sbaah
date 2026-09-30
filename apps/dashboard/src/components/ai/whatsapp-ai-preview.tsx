@@ -38,17 +38,6 @@ function Icon({ name, className = 'h-5 w-5' }: { name: 'whatsapp' | 'chat' | 'sp
   return <svg {...common}><path d="m5 12 4 4L19 6"/></svg>;
 }
 
-function EmptyConnection({ ar, onOpenSettings }: { ar: boolean; onOpenSettings: () => void }) {
-  return <div className="flex min-h-[420px] items-center justify-center px-5 py-10">
-    <div className="max-w-md text-center">
-      <div className="bg-brand-surface text-brand mx-auto flex h-16 w-16 items-center justify-center rounded-[20px]"><Icon name="whatsapp" className="h-8 w-8"/></div>
-      <h2 className="text-text-primary mt-5 text-xl font-bold">{ar ? 'اربط واتساب لبدء العمل' : 'Connect WhatsApp to get started'}</h2>
-      <p className="text-text-secondary mt-2 text-sm leading-7">{ar ? 'هذه معاينة للواجهة الجديدة. عند بدء مرحلة الربط سنوصل رقم المنشأة الرسمي ونفعّل المحادثات الحقيقية.' : 'This is the new interface preview. The official business number will be connected in the integration phase.'}</p>
-      <button type="button" onClick={onOpenSettings} className="bg-brand mt-5 rounded-[10px] px-5 py-2.5 text-sm font-semibold text-white">{ar ? 'عرض إعدادات الربط' : 'View connection settings'}</button>
-    </div>
-  </div>;
-}
-
 function Overview({ ar, onInbox, onSettings }: { ar: boolean; onInbox: () => void; onSettings: () => void }) {
   const stats = [
     ['24', ar ? 'المحادثات اليوم' : 'Conversations today', 'chat'],
@@ -91,7 +80,7 @@ function Overview({ ar, onInbox, onSettings }: { ar: boolean; onInbox: () => voi
 function Inbox({ ar }: { ar: boolean }) {
   const [selected, setSelected] = useState(0);
   const [mobileChat, setMobileChat] = useState(false);
-  const c = conversations[selected];
+  const c = conversations[selected] ?? conversations[0]!;
   return <section className="border-border-default bg-surface-card flex min-h-[560px] flex-1 overflow-hidden rounded-card border">
     <aside className={`${mobileChat ? 'hidden md:flex' : 'flex'} border-border-default w-full shrink-0 flex-col border-e md:w-[290px] lg:w-[320px]`}>
       <div className="border-border-default border-b p-3"><div className="bg-surface-subtle text-text-secondary flex h-10 items-center gap-2 rounded-[10px] px-3"><Icon name="search" className="h-4 w-4"/><span className="text-xs">{ar ? 'بحث في المحادثات' : 'Search conversations'}</span></div></div>
