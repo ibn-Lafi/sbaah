@@ -13,14 +13,19 @@ import { ApiRequestError } from '@/lib/api/client';
 import { createTeamMember, getTeam, updateTeamMember, type TeamMember } from '@/lib/api/team';
 
 const GROUPS: Array<{ title: string; permissions: Array<[Permission, string]> }> = [
-  { title: 'الإعدادات', permissions: [['tenant.settings.read','عرض الإعدادات'],['tenant.settings.manage','تعديل الإعدادات']] },
-  { title: 'فريق العمل', permissions: [['team.read','عرض أعضاء الفريق'],['team.manage','إدارة الفريق والصلاحيات']] },
-  { title: 'العملاء', permissions: [['crm.read','عرض العملاء'],['crm.create','إضافة'],['crm.update','تعديل'],['crm.assign','إسناد'],['crm.manage','إدارة العملاء']] },
-  { title: 'المشاريع', permissions: [['projects.read','عرض'],['projects.create','إضافة'],['projects.update','تعديل'],['projects.publish','نشر'],['projects.archive','أرشفة']] },
-  { title: 'العقارات', permissions: [['properties.read','عرض'],['properties.create','إضافة'],['properties.update','تعديل'],['properties.publish','نشر'],['properties.archive','أرشفة']] },
-  { title: 'الموقع الإلكتروني', permissions: [['website.read','عرض'],['website.manage','إدارة وتخصيص الموقع']] },
-  { title: 'التقارير', permissions: [['reports.read','عرض التقارير']] },
-  { title: 'الاشتراك والفوترة', permissions: [['billing.read','عرض'],['billing.manage','إدارة']] },
+  { title: 'الرئيسية', permissions: [['dashboard.read','عرض الرئيسية'],['dashboard.metrics.read','عرض الإحصائيات والمؤشرات']] },
+  { title: 'العملاء', permissions: [['crm.read','عرض العملاء'],['crm.create','إضافة'],['crm.update','تعديل'],['crm.assign','إسناد'],['crm.manage','إدارة'],['customers.delete','حذف'],['customers.import','استيراد'],['customers.export','تصدير']] },
+  { title: 'المشاريع', permissions: [['projects.read','عرض'],['projects.create','إضافة'],['projects.update','تعديل'],['projects.properties.manage','إدارة عقارات المشروع'],['projects.units.manage','إدارة الوحدات'],['projects.media.manage','إدارة الوسائط'],['projects.publish','نشر'],['projects.archive','أرشفة']] },
+  { title: 'العقارات', permissions: [['properties.read','عرض'],['properties.create','إضافة'],['properties.update','تعديل'],['properties.units.manage','إدارة الوحدات'],['properties.media.manage','إدارة الوسائط'],['properties.publish','نشر'],['properties.archive','أرشفة']] },
+  { title: 'العقود', permissions: [['contracts.read','عرض'],['contracts.create','إضافة'],['contracts.update','تعديل'],['contracts.attachments.manage','إدارة المرفقات'],['contracts.delete','حذف']] },
+  { title: 'المواعيد', permissions: [['appointments.read','عرض'],['appointments.create','إضافة'],['appointments.update','تعديل'],['appointments.delete','حذف']] },
+  { title: 'الموقع الإلكتروني', permissions: [['website.read','عرض'],['website.theme.manage','تخصيص الموقع والثيم'],['website.pages.manage','إدارة الصفحات'],['website.domain.manage','إدارة الدومين'],['website.identity.manage','بيانات التواصل والهوية'],['website.publish','نشر وحفظ التغييرات']] },
+  { title: 'سبعة AI', permissions: [['ai.assistant.use','استخدام المساعد'],['ai.data.read','عرض البيانات'],['ai.data.create','إضافة البيانات'],['ai.data.update','تعديل البيانات'],['ai.whatsapp.manage','إدارة واتساب AI'],['ai.agents.manage','إدارة الوكلاء'],['ai.credits.use','استخدام الرصيد والكروت']] },
+  { title: 'التقارير', permissions: [['reports.read','عرض'],['reports.export','تصدير']] },
+  { title: 'التنبيهات', permissions: [['notifications.read','عرض'],['notifications.manage','إدارة الحالة']] },
+  { title: 'الإعدادات', permissions: [['tenant.settings.read','عرض'],['settings.account.manage','تعديل الحساب'],['settings.organization.manage','بيانات المنشأة'],['settings.contact.manage','معلومات التواصل'],['settings.brand.manage','الهوية التجارية']] },
+  { title: 'فريق العمل', permissions: [['team.read','عرض الأعضاء'],['team.create','إضافة عضو'],['team.update','تعديل العضو'],['team.permissions.manage','تعديل الصلاحيات'],['team.status.manage','تفعيل وتعطيل'],['team.delete','حذف']] },
+  { title: 'الاشتراك والفوترة', permissions: [['billing.read','عرض الباقة'],['billing.subscription.manage','إدارة الاشتراك'],['billing.invoices.read','الفواتير والمدفوعات'],['billing.payment_methods.manage','وسائل الدفع']] },
 ];
 const ALL = GROUPS.flatMap((group) => group.permissions.map(([key]) => key));
 
