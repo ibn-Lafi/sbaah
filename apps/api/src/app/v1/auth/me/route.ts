@@ -22,6 +22,14 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     .eq('id', caller.userId)
     .single();
   if (userError || !user) {
+    // Keep existing accounts usable while the team migration is rolling out.
+    if (userError?.code === '42703') {
+      const { data: legacyUser, error: legacyError } = await supabase.from('users').select('id, full_name, phone, email, role, status').eq('id', caller.userId).single();
+      if (legacyError || !legacyUser) throw new Error(`Failed to load current user: ${legacyError?.message}`);
+      const { data: tenant, error: tenantError } = await supabase.from('tenants').select('id, name_ar, name_en, account_type, subdomain, custom_domain, custom_domain_status, status, trial_ends_at, cr_number, tax_number, fal_license_number, freelance_document_number, wafi_license_number, social_instagram, social_tiktok, social_whatsapp, social_snapchat, social_phone').eq('id', caller.tenantId).single();
+      if (tenantError || !tenant) throw new Error(`Failed to load current tenant: ${tenantError?.message}`);
+      return okResponse({ user: { ...legacyUser, must_change_password: false }, tenant });
+    }
     throw new Error(`Failed to load current user: ${userError?.message}`);
   }
 
