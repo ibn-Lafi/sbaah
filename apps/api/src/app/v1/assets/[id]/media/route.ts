@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
+import { requireUserPermission } from '@/lib/auth/permissions';
 import { assertTenantOwnedRow } from '@/lib/tenant/assert-tenant-owned-row';
 
 interface RouteContext { params: Promise<{ id: string }>; }
@@ -20,6 +21,7 @@ export const GET = withErrorHandling<RouteContext>(async (request, { params }) =
   const { id } = await params;
   const { supabase } = getAuthenticatedClient(request);
   const caller = await getCallerContext(supabase);
+  await requireUserPermission(supabase, 'properties.read');
   await assertTenantOwnedRow({ supabase, table: 'assets', id, tenantId: caller.tenantId, label: 'العقار' });
   const { data: asset, error: assetError } = await supabase.from('assets').select('project_id').eq('id', id).eq('tenant_id', caller.tenantId).maybeSingle();
   if (assetError) throw new Error(assetError.message);
@@ -33,7 +35,7 @@ export const POST = withErrorHandling<RouteContext>(async (request, { params }) 
   const { id } = await params;
   const { supabase } = getAuthenticatedClient(request);
   const caller = await getCallerContext(supabase);
-  if (caller.role === 'agent') throw new ApiError(403, 'forbidden', 'لا يملك الوسيط صلاحية إدارة وسائط العقار');
+  await requireUserPermission(supabase, 'properties.media.manage');
   await assertTenantOwnedRow({ supabase, table: 'assets', id, tenantId: caller.tenantId, label: 'العقار' });
   const { data: asset, error: assetError } = await supabase.from('assets').select('project_id').eq('id', id).eq('tenant_id', caller.tenantId).maybeSingle();
   if (assetError) throw new Error(assetError.message);

@@ -4,6 +4,7 @@ import { projectInputSchema, PROJECT_STATUSES } from '@sbaah/shared';
 import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
+import { requireUserPermission } from '@/lib/auth/permissions';
 import { notifyTenant } from '@/lib/notifications/notify';
 
 const listQuerySchema = z.object({
@@ -15,6 +16,7 @@ const listQuerySchema = z.object({
 export const GET = withErrorHandling(async (request: NextRequest) => {
   const { supabase } = getAuthenticatedClient(request);
   const caller = await getCallerContext(supabase);
+  await requireUserPermission(supabase, 'projects.read');
   const { status, page, page_size } = listQuerySchema.parse(
     Object.fromEntries(request.nextUrl.searchParams),
   );
@@ -38,11 +40,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   const { supabase } = getAuthenticatedClient(request);
   const caller = await getCallerContext(supabase);
 
-  // No agent INSERT policy on `projects` at all (migration 0009) — agents
-  // only read, for context on which project/building a unit belongs to.
-  if (caller.role === 'agent') {
-    throw new ApiError(403, 'forbidden', 'لا يملك الوسيط صلاحية إدارة المشاريع');
-  }
+  await requireUserPermission(supabase, 'projects.create');
 
   const input = projectInputSchema.parse(await request.json());
 

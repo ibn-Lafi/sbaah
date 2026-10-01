@@ -2,6 +2,7 @@ import { assetUpdateSchema } from '@sbaah/shared';
 import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
+import { requireUserPermission } from '@/lib/auth/permissions';
 
 interface RouteContext { params: Promise<{ id: string }>; }
 
@@ -9,6 +10,7 @@ export const GET = withErrorHandling<RouteContext>(async (request, { params }) =
   const { id } = await params;
   const { supabase } = getAuthenticatedClient(request);
   const caller = await getCallerContext(supabase);
+  await requireUserPermission(supabase, 'properties.read');
   const { data, error } = await supabase.from('assets').select('*, asset_media(*)').eq('id', id).eq('tenant_id', caller.tenantId).maybeSingle();
   if (error) throw new Error(`Failed to load asset: ${error.message}`);
   if (!data) throw new ApiError(404, 'asset_not_found', 'العقار غير موجود');
@@ -59,7 +61,7 @@ export const PATCH = withErrorHandling<RouteContext>(async (request, { params })
   const { id } = await params;
   const { supabase } = getAuthenticatedClient(request);
   const caller = await getCallerContext(supabase);
-  if (caller.role === 'agent') throw new ApiError(403, 'forbidden', 'لا يملك الوسيط صلاحية تعديل العقارات');
+  await requireUserPermission(supabase, 'properties.update');
   const input = assetUpdateSchema.parse(await request.json());
   const { data: current, error: currentError } = await supabase.from('assets').select('asset_type,project_id,phase_id,unit_type_id,parent_asset_id').eq('id',id).eq('tenant_id',caller.tenantId).maybeSingle();
   if (currentError) throw new Error(`Failed to load asset before update: ${currentError.message}`);
@@ -93,7 +95,7 @@ export const DELETE = withErrorHandling<RouteContext>(async (request, { params }
   const { id } = await params;
   const { supabase } = getAuthenticatedClient(request);
   const caller = await getCallerContext(supabase);
-  if (caller.role === 'agent') throw new ApiError(403, 'forbidden', 'لا يملك الوسيط صلاحية أرشفة العقارات');
+  await requireUserPermission(supabase, 'properties.archive');
   const { count: childrenCount, error: childrenError } = await supabase.from('assets').select('id', { count: 'exact', head: true }).eq('parent_asset_id', id).eq('tenant_id', caller.tenantId).is('archived_at', null);
   if (childrenError) throw new Error(`Failed to validate child assets: ${childrenError.message}`);
   if ((childrenCount ?? 0) > 0) throw new ApiError(409, 'asset_has_children', 'انقل أو أرشف العقارات التابعة أولًا');

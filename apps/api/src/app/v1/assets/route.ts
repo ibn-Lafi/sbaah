@@ -3,11 +3,13 @@ import { assetInputSchema, assetSearchSchema } from '@sbaah/shared';
 import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
+import { requireUserPermission } from '@/lib/auth/permissions';
 import { notifyTenant } from '@/lib/notifications/notify';
 
 export const GET = withErrorHandling(async (request: NextRequest) => {
   const { supabase } = getAuthenticatedClient(request);
   const caller = await getCallerContext(supabase);
+  await requireUserPermission(supabase, 'properties.read');
   const input = assetSearchSchema.parse(Object.fromEntries(request.nextUrl.searchParams));
   const { page, page_size, scope, ...filters } = input;
   let query = supabase.from('assets').select('*', { count: 'exact' }).eq('tenant_id', caller.tenantId).is('archived_at', null);
@@ -27,7 +29,7 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
 export const POST = withErrorHandling(async (request: NextRequest) => {
   const { supabase } = getAuthenticatedClient(request);
   const caller = await getCallerContext(supabase);
-  if (caller.role === 'agent') throw new ApiError(403, 'forbidden', 'لا يملك الوسيط صلاحية إضافة عقارات');
+  await requireUserPermission(supabase, 'properties.create');
   const input = assetInputSchema.parse(await request.json());
   const {data:tenantPlan,error:planError}=await supabase.from('tenants').select('plans(max_properties)').eq('id',caller.tenantId).single();
   if(planError)throw new Error(`Failed to load property entitlement: ${planError.message}`);
