@@ -19,6 +19,7 @@ const GROUPS: Array<{ title: string; permissions: Array<[Permission, string]> }>
   { title: 'العقارات', permissions: [['properties.read','عرض'],['properties.create','إضافة'],['properties.update','تعديل'],['properties.units.manage','إدارة الوحدات'],['properties.media.manage','إدارة الوسائط'],['properties.publish','نشر'],['properties.archive','أرشفة']] },
   { title: 'العقود', permissions: [['contracts.read','عرض'],['contracts.create','إضافة'],['contracts.update','تعديل'],['contracts.attachments.manage','إدارة المرفقات'],['contracts.delete','حذف']] },
   { title: 'المواعيد', permissions: [['appointments.read','عرض'],['appointments.create','إضافة'],['appointments.update','تعديل'],['appointments.delete','حذف']] },
+  { title: 'إيجار Plus', permissions: [['ejar_plus.read','عرض'],['ejar_plus.manage','إدارة العمليات']] },
   { title: 'الموقع الإلكتروني', permissions: [['website.read','عرض'],['website.theme.manage','تخصيص الموقع والثيم'],['website.pages.manage','إدارة الصفحات'],['website.domain.manage','إدارة الدومين'],['website.identity.manage','بيانات التواصل والهوية'],['website.publish','نشر وحفظ التغييرات']] },
   { title: 'سبعة AI', permissions: [['ai.assistant.use','استخدام المساعد'],['ai.data.read','عرض البيانات'],['ai.data.create','إضافة البيانات'],['ai.data.update','تعديل البيانات'],['ai.whatsapp.manage','إدارة واتساب AI'],['ai.agents.manage','إدارة الوكلاء'],['ai.credits.use','استخدام الرصيد والكروت']] },
   { title: 'التقارير', permissions: [['reports.read','عرض'],['reports.export','تصدير']] },
