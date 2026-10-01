@@ -30,3 +30,23 @@ export function assertPermissionScope(
   }
   return grant;
 }
+
+
+/** Runtime permission check for the signed-in user. Unlike the legacy role
+ * bridge above, this reads the explicit per-user RBAC grants through the
+ * database helper and is the preferred path for migrated endpoints. */
+export async function requireUserPermission(
+  supabase: { rpc: (fn: string, args: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }> },
+  permission: Permission,
+  legacy?: Permission,
+): Promise<void> {
+  const result = await supabase.rpc('auth_has_permission', { check_permission: permission });
+  if (result.error) throw new Error('Failed to check permission: ' + result.error.message);
+  if (result.data) return;
+  if (legacy) {
+    const fallback = await supabase.rpc('auth_has_permission', { check_permission: legacy });
+    if (fallback.error) throw new Error('Failed to check legacy permission: ' + fallback.error.message);
+    if (fallback.data) return;
+  }
+  throw new ApiError(403, 'forbidden', 'ليس لديك صلاحية لتنفيذ هذا الإجراء');
+}
