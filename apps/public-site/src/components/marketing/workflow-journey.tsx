@@ -87,7 +87,9 @@ export function WorkflowJourney({locale}:{locale:Locale}) {
               <div className="grid grid-cols-2 gap-2"><div className="rounded-2xl bg-purple-50 p-3"><small>إجمالي العملاء</small><b className="mt-2 block text-2xl">162</b><span className="text-xs text-emerald-500">↑ 12%</span></div><div className="rounded-2xl bg-purple-50 p-3"><small>العقارات النشطة</small><b className="mt-2 block text-2xl">48</b><span className="text-xs text-emerald-500">↑ 8%</span></div></div>
               <div className="mt-4 grid grid-cols-4 gap-2 text-center text-[10px]"><span>العملاء</span><span>المواعيد</span><span>العقارات</span><span>العقود</span></div>
               <h4 className="mt-5 font-bold">العقارات المميزة</h4>
-              <img src={VILLA_IMAGE} alt="" className="mt-3 h-[190px] w-full rounded-2xl object-cover object-center sm:h-[225px]"/>
+              <div className="-mx-4 mt-3 overflow-hidden">
+                <img src={VILLA_IMAGE} alt="" className="block h-[210px] w-full object-cover object-center sm:h-[250px]"/>
+              </div>
               </div>
             </div>
           </div>
