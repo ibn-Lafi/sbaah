@@ -1,5 +1,5 @@
 import type { Permission, UserRole, UserStatus } from '@sbaah/shared';
-import { apiGet, apiPatch, apiPost } from './client';
+import { apiDelete, apiGet, apiPatch, apiPost } from './client';
 
 export interface TeamMember {
   id: string;
@@ -33,4 +33,8 @@ export function updateTeamMember(accessToken: string, id: string, input: {
   permissions?: Permission[];
 }) {
   return apiPatch<{ member: TeamMember }>('/team/' + id, input, accessToken);
+}
+
+export function deleteTeamMember(accessToken: string, id: string) {
+  return apiDelete<{ deleted: boolean; id: string }>('/team/' + id, accessToken);
 }
