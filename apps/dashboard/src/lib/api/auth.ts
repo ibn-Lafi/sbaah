@@ -152,3 +152,7 @@ export function getBusinessActivities(accessToken: string) {
 export function changeTemporaryPassword(accessToken: string, currentPassword: string, newPassword: string) {
   return apiPost<{ status: 'ok' }>('/auth/change-temporary-password', { current_password: currentPassword, new_password: newPassword }, accessToken);
 }
+
+export function changePassword(accessToken: string, currentPassword: string, newPassword: string) {
+  return apiPost<{ status: 'ok' }>('/auth/password', { current_password: currentPassword, new_password: newPassword }, accessToken);
+}
