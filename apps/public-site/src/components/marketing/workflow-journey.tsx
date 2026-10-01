@@ -33,18 +33,15 @@ const iconPaths = [
 export function WorkflowJourney({locale}:{locale:Locale}) {
   const ar=locale==='ar';
   return (
-    <section className="workflow-journey relative isolate overflow-hidden bg-[#fbfaff] py-16 sm:py-24" dir={ar?'rtl':'ltr'}>
-      <div className="pointer-events-none absolute inset-0 opacity-80" style={{background:'radial-gradient(circle at 50% 26%,rgba(124,58,237,.12),transparent 30%),linear-gradient(180deg,#fff 0%,#fbfaff 55%,#f1eaff 100%)'}}/>
+    <section className="workflow-journey relative isolate overflow-hidden bg-surface-card py-16 sm:py-24" dir={ar?'rtl':'ltr'}>
       <div className="pointer-events-none absolute inset-x-0 bottom-0 top-[22%] z-[1] overflow-hidden">
         <img src={VILLA_IMAGE} alt="" className="absolute inset-0 h-full w-full object-cover opacity-95" loading="lazy"/>
-        <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-44 sm:h-56" style={{background:'linear-gradient(to bottom,#fbfaff 0%,rgba(251,250,255,.94) 22%,rgba(251,250,255,.68) 52%,transparent 100%)'}}/>
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-52 sm:h-64" style={{background:'linear-gradient(to top,#fbfaff 0%,rgba(251,250,255,.96) 18%,rgba(251,250,255,.72) 50%,transparent 100%)'}}/>
-        <div className="absolute inset-y-0 left-0 w-16 sm:w-28" style={{background:'linear-gradient(to right,#fbfaff 0%,rgba(251,250,255,.94) 30%,rgba(251,250,255,.5) 62%,transparent 100%)'}}/>
-        <div className="absolute inset-y-0 right-0 w-16 sm:w-28" style={{background:'linear-gradient(to left,#fbfaff 0%,rgba(251,250,255,.94) 30%,rgba(251,250,255,.5) 62%,transparent 100%)'}}/>
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-44 sm:h-56" style={{background:'linear-gradient(to bottom,var(--color-surface-card) 0%,rgba(251,250,255,.94) 22%,rgba(251,250,255,.68) 52%,transparent 100%)'}}/>
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-52 sm:h-64" style={{background:'linear-gradient(to top,var(--color-surface-card) 0%,rgba(251,250,255,.96) 18%,rgba(251,250,255,.72) 50%,transparent 100%)'}}/>
+        <div className="absolute inset-y-0 left-0 w-16 sm:w-28" style={{background:'linear-gradient(to right,var(--color-surface-card) 0%,rgba(251,250,255,.94) 30%,rgba(251,250,255,.5) 62%,transparent 100%)'}}/>
+        <div className="absolute inset-y-0 right-0 w-16 sm:w-28" style={{background:'linear-gradient(to left,var(--color-surface-card) 0%,rgba(251,250,255,.94) 30%,rgba(251,250,255,.5) 62%,transparent 100%)'}}/>
       </div>
-      <div className="pointer-events-none absolute -left-20 top-[12%] h-80 w-80 rounded-full bg-purple-100/50 blur-3xl"/>
-      <div className="pointer-events-none absolute -right-28 top-[34%] h-96 w-96 rounded-full bg-purple-100/60 blur-3xl"/>
-
+ 
       <div className="relative z-10 mx-auto max-w-6xl px-5 sm:px-6">
         <div className="mx-auto max-w-3xl text-center">
           <span className="inline-flex rounded-full bg-purple-100/80 px-5 py-2 text-sm font-bold text-brand">{ar?'رحلة العمل مع سبعة':'The Sbaah workflow'}</span>
