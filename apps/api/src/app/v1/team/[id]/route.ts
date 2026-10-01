@@ -95,3 +95,24 @@ export const PATCH = withErrorHandling(async (
 
   return okResponse({ member: { ...member, permissions: (grants ?? []).map((grant) => grant.permission) } });
 });
+
+
+export const DELETE = withErrorHandling(async (request: NextRequest, context: { params: Promise<{ id: string }> }) => {
+  const { supabase } = getAuthenticatedClient(request);
+  const caller = await getCallerContext(supabase);
+  await requireAction(supabase, 'team.delete');
+  const { id } = await context.params;
+  const service = createServiceRoleClient();
+  const { data: target, error } = await service.from('users').select('id,tenant_id,auth_user_id,role').eq('id', id).eq('tenant_id', caller.tenantId).maybeSingle();
+  if (error) throw new Error('Failed to load team member: ' + error.message);
+  if (!target) throw new ApiError(404, 'member_not_found', 'عضو الفريق غير موجود');
+  if (target.role === 'owner') throw new ApiError(403, 'owner_immutable', 'لا يمكن حذف مالك الحساب');
+  if (target.id === caller.userId) throw new ApiError(400, 'cannot_delete_self', 'لا يمكنك حذف حسابك بنفسك');
+  const { error: grantError } = await service.from('user_permission_grants').delete().eq('user_id', target.id);
+  if (grantError) throw new Error('Failed to revoke team grants: ' + grantError.message);
+  const { error: disableError } = await service.from('users').update({ status: 'disabled', must_change_password: false }).eq('id', target.id).eq('tenant_id', caller.tenantId);
+  if (disableError) throw new Error('Failed to remove team member: ' + disableError.message);
+  const { error: authError } = await service.auth.admin.deleteUser(target.auth_user_id, true);
+  if (authError) throw new Error('Failed to revoke member login: ' + authError.message);
+  return okResponse({ deleted: true, id: target.id });
+});
