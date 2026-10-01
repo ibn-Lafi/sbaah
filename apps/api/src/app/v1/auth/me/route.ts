@@ -1,5 +1,5 @@
 import type { NextRequest } from 'next/server';
-import { updateMyEmailSchema, updateMyProfileSchema } from '@sbaah/shared';
+import { createServiceRoleClient, updateMyEmailSchema, updateMyProfileSchema } from '@sbaah/shared';
 import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
