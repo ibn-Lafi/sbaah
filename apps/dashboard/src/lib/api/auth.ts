@@ -8,6 +8,7 @@ import type {
   TenantStatus,
   UserRole,
   UserStatus,
+  Permission,
 } from '@sbaah/shared';
 import { apiGet, apiPatch, apiPost } from './client';
 
@@ -90,6 +91,7 @@ export interface MeResponse {
     role: UserRole;
     status: UserStatus;
     must_change_password: boolean;
+    permissions: Permission[] | null;
   };
   tenant: {
     id: string;
