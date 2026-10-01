@@ -60,7 +60,8 @@ export default function LeadsPage() {
     );
   }
 
-  const canManage = me.user.role !== 'agent';
+  const canCreate = me.user.role === 'owner' || Boolean(me.user.permissions?.includes('crm.create'));
+  const canUpdate = me.user.role === 'owner' || Boolean(me.user.permissions?.includes('crm.update'));
 
   return (
     <AppShell
@@ -92,7 +93,7 @@ export default function LeadsPage() {
             </option>
           ))}
         </Select> : <div />}
-        {canManage && <Button onClick={() => setShowCreate(true)} className="mr-auto h-10 min-w-0 rounded-full px-5 sm:h-11 sm:min-w-[160px] sm:px-7">+ عميل</Button>}
+        {canCreate && <Button onClick={() => setShowCreate(true)} className="mr-auto h-10 min-w-0 rounded-full px-5 sm:h-11 sm:min-w-[160px] sm:px-7">+ عميل</Button>}
       </div>
 
       {showCreate && (
@@ -153,7 +154,7 @@ export default function LeadsPage() {
                       </td>
                       <td className="px-2 py-3 text-right sm:px-3 md:px-4">
                         {customerKind === 'prospect' ? (
-                          <LeadStatusPillSelect value={lead.status} onChange={(status) => void handleStatusChange(lead.id, status)} />
+                          canUpdate ? <LeadStatusPillSelect value={lead.status} onChange={(status) => void handleStatusChange(lead.id, status)} /> : <span>{t.statusLabels[lead.status]}</span>
                         ) : (
                           <span className="inline-flex rounded-full bg-surface-subtle px-2.5 py-1 text-xs font-medium text-text-secondary">
                             {((lead as Lead & { customer_relationships?: string[] }).customer_relationships ?? []).map((relationship) => relationshipLabels[relationship]??relationship).join(' · ') || 'عميل'}
