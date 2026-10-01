@@ -89,11 +89,6 @@ export function WorkflowJourney({locale}:{locale:Locale}) {
             </div>
           </div>
 
-          <div className="absolute left-0 top-36 rounded-2xl border border-white bg-white/95 p-4 shadow-xl sm:left-[8%]"><b className="text-sm">واتساب</b><p className="mt-1 text-xs text-text-secondary">استقبال العملاء</p></div>
-          <div className="absolute right-0 top-20 rounded-2xl border border-white bg-white/95 p-4 shadow-xl sm:right-[7%]"><b className="text-sm text-brand">سبعة AI</b><p className="mt-1 text-xs text-text-secondary">مساعد ذكي ينجز معك</p></div>
-          <div className="absolute right-0 top-64 rounded-2xl border border-white bg-white/95 p-4 shadow-xl sm:right-[3%]"><b className="text-sm">إدارة العقارات</b><p className="mt-1 text-xs text-text-secondary">والمشاريع</p></div>
-          <div className="absolute left-0 top-[330px] rounded-2xl border border-white bg-white/95 p-4 shadow-xl sm:left-[4%]"><b className="text-sm">مواعيد ومعاينات</b><p className="mt-1 text-xs text-text-secondary">بكل سهولة</p></div>
-
           <div className="absolute inset-x-0 bottom-4 flex flex-col items-center">
             <p className="mt-4 text-sm text-white/90 drop-shadow">{ar?'كل أعمالك العقارية ... في مكان واحد':'All your real-estate work ... in one place'}</p>
           </div>
