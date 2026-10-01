@@ -110,6 +110,7 @@ export default function AppsPage() {
   const { locale } = useLocale();
   const ar = locale === 'ar';
   const [section, setSection] = useState<Section>('assistant');
+  const [mobileFullscreen, setMobileFullscreen] = useState(false);
   const [assistant, setAssistant] = useState<AiAssistant | null>(null);
   const [name, setName] = useState('');
   const [personality, setPersonality] = useState('');
@@ -305,9 +306,12 @@ export default function AppsPage() {
   }
 
   return (
-    <AppShell title={ar ? 'سبعة Ai' : 'Sbaah AI'} orgName={me.tenant.name_ar} accountType={me.tenant.account_type}>
-      <div className="mx-auto flex h-[calc(100dvh-8.5rem)] min-h-0 w-full max-w-5xl flex-col overflow-hidden">
+    <AppShell title={ar ? 'سبعة Ai' : 'Sbaah AI'} orgName={me.tenant.name_ar} accountType={me.tenant.account_type} mobileImmersive={mobileFullscreen}>
+      <div className={`mx-auto flex min-h-0 w-full max-w-5xl flex-col overflow-hidden ${mobileFullscreen ? 'h-dvh' : 'h-[calc(100dvh-8.5rem)]'}`}>
         <div className="mb-4 flex w-full shrink-0 items-center gap-2 sm:mb-5">
+          <button type="button" onClick={() => setMobileFullscreen((value) => !value)} aria-label={mobileFullscreen ? (ar ? 'إظهار واجهة النظام' : 'Show dashboard navigation') : (ar ? 'ملء الشاشة' : 'Full screen')} title={mobileFullscreen ? (ar ? 'إظهار واجهة النظام' : 'Show dashboard navigation') : (ar ? 'ملء الشاشة' : 'Full screen')} className="bg-surface-subtle text-text-primary flex h-10 w-10 shrink-0 items-center justify-center rounded-[11px] transition active:scale-95 md:hidden">
+            {mobileFullscreen ? <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M9 3v6H3M15 3v6h6M9 21v-6H3M15 21v-6h6"/></svg> : <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9V3h6M21 9V3h-6M3 15v6h6M21 15v6h-6"/></svg>}
+          </button>
           <div className="bg-surface-subtle grid min-w-0 flex-1 grid-cols-2 rounded-[12px] p-1">
             {([
               ['assistant', ar ? 'مساعد Ai' : 'AI Assistant'],
