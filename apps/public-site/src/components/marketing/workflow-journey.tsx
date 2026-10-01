@@ -70,8 +70,12 @@ export function WorkflowJourney({locale}:{locale:Locale}) {
         </div>
 
         <div className="relative mx-auto mt-10 min-h-[610px] max-w-5xl sm:min-h-[690px]">
-          <div className="absolute left-1/2 top-16 h-[500px] w-[285px] -translate-x-1/2 rotate-[-5deg] rounded-[46px] border-[9px] border-[#171124] bg-white shadow-[0_32px_90px_rgba(35,16,70,.35)] sm:h-[570px] sm:w-[330px]">
-            <div className="rounded-t-[35px] bg-[#1d1729] px-5 pb-4 pt-5 text-white"><div className="flex items-center justify-between"><b>سبعة</b><span>•••</span></div></div>
+          <div className="absolute left-1/2 top-16 h-[500px] w-[285px] -translate-x-1/2 rotate-[-5deg] overflow-hidden rounded-[52px] border-[8px] border-[#111113] bg-white shadow-[0_32px_90px_rgba(35,16,70,.35)] sm:h-[570px] sm:w-[330px] sm:rounded-[58px]">
+            <div className="relative rounded-t-[43px] bg-[#1d1729] px-5 pb-4 pt-8 text-white sm:rounded-t-[49px]">
+              <div className="absolute left-1/2 top-2.5 h-[22px] w-[78px] -translate-x-1/2 rounded-full bg-black sm:h-[24px] sm:w-[88px]"/>
+              <div className="absolute left-[calc(50%+25px)] top-[17px] h-1.5 w-1.5 rounded-full bg-[#23242b] sm:left-[calc(50%+28px)] sm:top-[18px]"/>
+              <div className="flex items-center justify-between"><b>سبعة</b><span>•••</span></div>
+            </div>
             <div className="p-4 text-right">
               <div className="grid grid-cols-2 gap-2"><div className="rounded-2xl bg-purple-50 p-3"><small>إجمالي العملاء</small><b className="mt-2 block text-2xl">162</b><span className="text-xs text-emerald-500">↑ 12%</span></div><div className="rounded-2xl bg-purple-50 p-3"><small>العقارات النشطة</small><b className="mt-2 block text-2xl">48</b><span className="text-xs text-emerald-500">↑ 8%</span></div></div>
               <div className="mt-4 grid grid-cols-4 gap-2 text-center text-[10px]"><span>العملاء</span><span>المواعيد</span><span>العقارات</span><span>العقود</span></div>
