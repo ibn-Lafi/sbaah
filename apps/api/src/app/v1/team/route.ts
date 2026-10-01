@@ -5,13 +5,16 @@ import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
 
-async function requirePermission(
-  scoped: ReturnType<typeof getAuthenticatedClient>['supabase'],
-  permission: Permission,
-) {
+async function requirePermission(scoped: ReturnType<typeof getAuthenticatedClient>['supabase'], permission: Permission, legacy?: Permission) {
   const { data, error } = await scoped.rpc('auth_has_permission', { check_permission: permission });
   if (error) throw new Error(`Failed to check permission: ${error.message}`);
-  if (!data) throw new ApiError(403, 'forbidden', 'ليس لديك صلاحية لتنفيذ هذا الإجراء');
+  if (data) return;
+  if (legacy) {
+    const fallback = await scoped.rpc('auth_has_permission', { check_permission: legacy });
+    if (fallback.error) throw new Error(`Failed to check legacy permission: ${fallback.error.message}`);
+    if (fallback.data) return;
+  }
+  throw new ApiError(403, 'forbidden', 'ليس لديك صلاحية لتنفيذ هذا الإجراء');
 }
 
 async function assertGrantSubset(caller: Awaited<ReturnType<typeof getCallerContext>>, permissions: Permission[]) {
@@ -65,7 +68,7 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
 export const POST = withErrorHandling(async (request: NextRequest) => {
   const { supabase } = getAuthenticatedClient(request);
   const caller = await getCallerContext(supabase);
-  await requirePermission(supabase, 'team.manage');
+  await requirePermission(supabase, 'team.create', 'team.manage');
 
   const input = createTeamMemberSchema.parse(await request.json());
   await assertGrantSubset(caller, input.permissions);
