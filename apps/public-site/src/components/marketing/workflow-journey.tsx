@@ -52,17 +52,22 @@ export function WorkflowJourney({locale}:{locale:Locale}) {
         </div>
 
         <div className="relative mx-auto mt-10 max-w-2xl sm:mt-14">
-          <div className="absolute bottom-8 left-1/2 top-8 w-px -translate-x-1/2 border-l-2 border-dashed border-purple-300"/>
+          <svg className="pointer-events-none absolute inset-0 h-full w-full overflow-visible" viewBox="0 0 100 600" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M50 18 C61 68 39 110 50 160 C61 210 39 255 50 305 C61 355 39 405 50 455 C61 505 39 548 50 582" fill="none" stroke="rgba(124,58,237,.34)" strokeWidth="0.65" strokeDasharray="3 4"/>
+          </svg>
           {steps[locale].map(([title,body],i)=>{
-            const side=i%2===0?'md:mr-auto md:ml-0':'md:ml-auto md:mr-0';
-            return <div key={title} className={`relative mb-3 flex min-h-[76px] w-[47%] items-center ${i%2===0?'mr-auto ml-0':'ml-auto mr-0'} md:mb-3 md:min-h-[104px] md:w-[46%] ${side}`}>
-              <div className="w-full rounded-[16px] border border-white/80 bg-white/90 px-2.5 py-2 shadow-[0_10px_26px_rgba(80,48,150,.07)] backdrop-blur-xl sm:rounded-[22px] sm:px-5 sm:py-4">
-                <span className="text-[9px] font-extrabold text-brand sm:text-xs">{String(i+1).padStart(2,'0')}</span>
-                <h3 className="mt-0.5 text-[12px] font-extrabold leading-4 text-text-primary sm:mt-1 sm:text-lg">{title}</h3>
-                <p className="mt-0.5 text-[9px] leading-[1.45] text-text-secondary sm:mt-1 sm:text-sm sm:leading-6">{body}</p>
-              </div>
-              <div className={`absolute top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-purple-100 text-brand shadow-lg sm:h-12 sm:w-12 md:h-14 md:w-14 ${i%2===0?'-left-[2.65rem] md:-left-[4.6rem]':'-right-[2.65rem] md:-right-[4.6rem]'}`}>
-                <svg viewBox="0 0 24 24" className="h-4 w-4 sm:h-6 sm:w-6 md:h-8 md:w-8" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d={iconPaths[i]}/></svg>
+            const left=i%2===0;
+            return <div key={title} className={`relative mb-4 flex min-h-[92px] w-[48%] items-center sm:mb-5 sm:min-h-[116px] sm:w-[46%] ${left?'mr-auto ml-0':'ml-auto mr-0'}`}>
+              <span className={`absolute top-1/2 z-20 h-2.5 w-2.5 -translate-y-1/2 rounded-full bg-brand ring-[5px] ring-purple-100/80 ${left?'-left-[1.58rem] sm:-left-[2.15rem]':'-right-[1.58rem] sm:-right-[2.15rem]'}`}/>
+              <div className="relative w-full overflow-visible rounded-[20px] border border-white/90 bg-white/88 px-3.5 py-3 shadow-[0_14px_38px_rgba(70,38,130,.09)] backdrop-blur-xl sm:rounded-[26px] sm:px-5 sm:py-4">
+                <div className={`absolute top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-[15px] border border-white/80 bg-purple-100/95 text-brand shadow-[0_8px_22px_rgba(124,58,237,.14)] sm:h-14 sm:w-14 sm:rounded-[18px] ${left?'-left-6 sm:-left-8':'-right-6 sm:-right-8'}`}>
+                  <svg viewBox="0 0 24 24" className="h-5 w-5 sm:h-7 sm:w-7" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d={iconPaths[i]}/></svg>
+                </div>
+                <div className={left?'pl-5 sm:pl-7':'pr-5 sm:pr-7'}>
+                  <span className="block text-[9px] font-black leading-none text-brand sm:text-xs">{String(i+1).padStart(2,'0')}</span>
+                  <h3 className="mt-1 text-[12px] font-extrabold leading-4 text-text-primary sm:text-lg sm:leading-6">{title}</h3>
+                  <p className="mt-1 text-[9px] leading-[1.55] text-text-secondary sm:text-sm sm:leading-6">{body}</p>
+                </div>
               </div>
             </div>
           })}
