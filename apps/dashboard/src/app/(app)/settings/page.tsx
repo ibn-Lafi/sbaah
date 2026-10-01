@@ -14,6 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { VerifiedBadge } from '@/components/ui/verified-badge';
 import { SegmentedToggle } from '@/components/ui/segmented-toggle';
 import { BillingPanel } from '@/components/billing/billing-panel';
+import { TeamPanel } from '@/components/team/team-panel';
 import { WebsiteBrandingCard } from '@/components/website/website-branding-card';
 import { LanguageThemeSwitchCard } from '@/components/layout/language-theme-switch-card';
 import {
@@ -632,7 +633,7 @@ export default function SettingsPage() {
         {tabOptions.length > 1 && <SegmentedToggle value={tab} onChange={setTab} options={tabOptions} className="settings-tabs" />}
 
         {tab === 'account' && <AccountTab accessToken={accessToken} />}
-        {tab === 'team' && (canSeeTeam ? <div aria-label={locale === 'ar' ? 'الفريق والصلاحيات' : 'Team & Permissions'} /> : null)}
+        {tab === 'team' && (canSeeTeam ? <TeamPanel accessToken={accessToken} /> : null)}
         {tab === 'billing' &&
           (canSeeBilling ? (
             <Suspense fallback={null}>
