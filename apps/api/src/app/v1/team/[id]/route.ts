@@ -110,9 +110,9 @@ export const DELETE = withErrorHandling(async (request: NextRequest, context: { 
   if (target.id === caller.userId) throw new ApiError(400, 'cannot_delete_self', 'لا يمكنك حذف حسابك بنفسك');
   const { error: grantError } = await service.from('user_permission_grants').delete().eq('user_id', target.id);
   if (grantError) throw new Error('Failed to revoke team grants: ' + grantError.message);
-  const { error: disableError } = await service.from('users').update({ status: 'disabled', must_change_password: false }).eq('id', target.id).eq('tenant_id', caller.tenantId);
-  if (disableError) throw new Error('Failed to remove team member: ' + disableError.message);
-  const { error: authError } = await service.auth.admin.deleteUser(target.auth_user_id, true);
-  if (authError) throw new Error('Failed to revoke member login: ' + authError.message);
+  const { error: deleteError } = await service.from('users').delete().eq('id', target.id).eq('tenant_id', caller.tenantId);
+  if (deleteError) throw new ApiError(409, 'member_has_history', 'تعذر حذف الموظف نهائيًا لوجود بيانات مرتبطة به. أعد إسناد بياناته أولًا ثم حاول مرة أخرى.');
+  const { error: authError } = await service.auth.admin.deleteUser(target.auth_user_id, false);
+  if (authError) throw new Error('Failed to delete member login: ' + authError.message);
   return okResponse({ deleted: true, id: target.id });
 });
