@@ -64,12 +64,12 @@ export function AppShell({ title, orgName, accountType, children, mobileImmersiv
       <div className={mobileImmersive ? 'hidden md:contents' : 'contents'}>
         <Sidebar orgName={orgName} accountType={accountType} />
       </div>
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+      <div className={`flex min-h-0 min-w-0 flex-1 flex-col ${mobileImmersive ? 'max-md:fixed max-md:inset-0 max-md:z-[70] max-md:h-dvh max-md:w-screen max-md:bg-surface-page' : ''}`}>
         <div className={mobileImmersive ? 'hidden md:block' : undefined}>
           <Topbar title={title} siteUrl={siteUrl} />
         </div>
         {/* Mobile: the page content is a rounded-top sheet that overlaps UP into the purple header by -mt-5 (founder's Zid reference, red-circled) — the header stays a plain square rectangle behind it; the curve itself, and the small light notches it cuts into the header's own bottom corners, come entirely from this card's corner radius sitting on top. Desktop is untouched (no radius, no overlap, transparent). */}
-        <div className={`bg-surface-page relative z-10 flex min-h-0 flex-1 flex-col md:mt-0 md:rounded-none md:bg-transparent ${mobileImmersive ? 'mt-0 rounded-none' : '-mt-5 overflow-hidden rounded-t-[28px]'}`}>
+        <div className={`bg-surface-page relative z-10 flex min-h-0 flex-1 flex-col md:mt-0 md:rounded-none md:bg-transparent ${mobileImmersive ? 'mt-0 h-dvh rounded-none max-md:absolute max-md:inset-0 max-md:w-full' : '-mt-5 overflow-hidden rounded-t-[28px]'}`}>
           {status !== 'active' && (
             <div className="bg-warning-surface text-warning px-4 py-3 text-sm font-medium md:px-7">
               {status === 'suspended' ? t.appShell.suspended : t.appShell.cancelled}
