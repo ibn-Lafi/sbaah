@@ -17,13 +17,13 @@ interface MobileNavProps {
 
 /**
  * The 3 quick-access slots on the bottom bar itself — the founder's
- * explicit picks. A plain string pins that leaf's href directly; 'properties'
+ * explicit picks (الرئيسية + سبعة Ai). A plain string pins that leaf's href directly; 'properties'
  * pins the "العقارات" group by its `group` key instead, using the group's
  * own icon/label with its first child (الوحدات /properties) as the tap
  * target, while lighting up for a visit to ANY of the group's pages
  * (العمارات/المشاريع/الإيجارات included) — not just /properties itself.
  */
-const PINNED_KEYS = ['/', '/viewings'];
+const PINNED_KEYS = ['/', '/apps'];
 
 interface PinnedNavItem {
   key: string;
