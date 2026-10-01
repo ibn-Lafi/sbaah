@@ -39,6 +39,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         // configuration is product metadata and must never turn a valid login
         // into a redirect loop if that endpoint is temporarily unavailable.
         const me = await getMe(accessToken);
+        if (me.user.must_change_password) {
+          window.location.replace('/change-password');
+          return;
+        }
         const business = await getBusinessActivities(accessToken).catch(() => ({
           activities: [],
           configured: false,
