@@ -52,25 +52,13 @@ export const PATCH = withErrorHandling(async (
   if (input.full_name !== undefined) updates.full_name = input.full_name;
   if (input.status !== undefined) updates.status = input.status;
 
-  let member = target;
   if (Object.keys(updates).length > 0) {
-    const { data, error } = await service
+    const { error } = await service
       .from('users')
       .update(updates)
       .eq('id', target.id)
-      .eq('tenant_id', caller.tenantId)
-      .select('id, full_name, phone, email, role, status, must_change_password, created_at')
-      .single();
-    if (error || !data) throw new Error(`Failed to update team member: ${error?.message}`);
-    member = data;
-  } else {
-    const { data, error } = await service
-      .from('users')
-      .select('id, full_name, phone, email, role, status, must_change_password, created_at')
-      .eq('id', target.id)
-      .single();
-    if (error || !data) throw new Error(`Failed to reload team member: ${error?.message}`);
-    member = data;
+      .eq('tenant_id', caller.tenantId);
+    if (error) throw new Error(`Failed to update team member: ${error.message}`);
   }
 
   if (input.permissions) {
@@ -90,10 +78,18 @@ export const PATCH = withErrorHandling(async (
     await service.auth.admin.signOut(target.auth_user_id);
   }
 
-  const { data: grants, error: grantsError } = await service
+  const [{ data: member, error: memberError }, { data: grants, error: grantsError }] = await Promise.all([
+    service
+      .from('users')
+      .select('id, full_name, phone, email, role, status, must_change_password, created_at')
+      .eq('id', target.id)
+      .single(),
+    service
     .from('user_permission_grants')
     .select('permission')
-    .eq('user_id', target.id);
+    .eq('user_id', target.id),
+  ]);
+  if (memberError || !member) throw new Error(`Failed to reload team member: ${memberError?.message}`);
   if (grantsError) throw new Error(`Failed to reload team grants: ${grantsError.message}`);
 
   return okResponse({ member: { ...member, permissions: (grants ?? []).map((grant) => grant.permission) } });
