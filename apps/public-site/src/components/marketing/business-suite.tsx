@@ -5,14 +5,16 @@ const BUSINESS_IMAGE =
 
 const items = {
   ar: [
-    ['موقعك العقاري', 'بهويتك ونطاقك'],
+    ['موقعك الإلكتروني', 'بهويتك ونطاقك'],
     ['إدارة العملاء', 'CRM لمتابعة عملائك'],
     ['إدارة العقارات', 'عقاراتك ومشاريعك'],
+    ['سبعة AI', 'مساعد ذكي ينجز معك'],
   ],
   en: [
-    ['Real-estate website', 'Your brand and domain'],
+    ['Your website', 'Your brand and domain'],
     ['Client management', 'CRM for client follow-up'],
     ['Property management', 'Properties and projects'],
+    ['Sbaah AI', 'A smart assistant that gets work done with you'],
   ],
 } as const;
 
@@ -20,7 +22,7 @@ const icons = [
   <path key="site" d="M3 10.5 12 3l9 7.5M5.5 9v11h13V9M9 20v-6h6v6" />,
   <path key="crm" d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />,
   <path key="property" d="M4 21h16M6 21V7l6-4 6 4v14M9 10h1M14 10h1M9 14h1M14 14h1M10 21v-4h4v4" />,
-  <path key="rent" d="M6 2v4M18 2v4M3 9h18M5 4h14a2 2 0 0 1 2-2ZM8 13h3M8 17h6" />,
+  <path key="ai" d="M12 3l1.25 3.25L16.5 7.5l-3.25 1.25L12 12l-1.25-3.25L7.5 7.5l3.25-1.25L12 3ZM18.5 12l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8.8-2.2ZM6 13l1 2.5 2.5 1-2.5 1L6 20l-1-2.5-2.5-1 2.5-1L6 13Z" />,
 ];
 
 export function BusinessSuite({ locale }: { locale: Locale }) {
@@ -36,12 +38,15 @@ export function BusinessSuite({ locale }: { locale: Locale }) {
           {ar ? 'موقعك، عقاراتك، عملاؤك وتأجيرك. كلها تُدار من سبعة.' : 'Your website, properties, clients and rentals — all managed with Sbaah.'}
         </p>
 
-        <div className="mx-auto mt-9 grid max-w-4xl grid-cols-3 border-y border-border-subtle md:border-y-0">
+        <div className="mx-auto mt-9 grid max-w-xl grid-cols-2">
           {items[locale].map(([title, body], index) => (
-            <div key={title} className={`flex min-h-32 flex-col items-center justify-center px-3 py-5 ${index !== items[locale].length - 1 ? (ar ? 'border-l' : 'border-r') : 'border-0'} border-border-subtle`}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="text-brand h-7 w-7" aria-hidden="true">{icons[index]}</svg>
-              <h3 className="mt-3 text-sm font-semibold text-text-primary sm:text-base">{title}</h3>
-              <p className="mt-1 text-xs text-text-secondary sm:text-sm">{body}</p>
+            <div
+              key={title}
+              className={`flex min-h-36 flex-col items-center justify-center px-5 py-6 ${index % 2 === 0 ? (ar ? 'border-l' : 'border-r') : ''} ${index < 2 ? 'border-b' : ''} border-border-subtle sm:min-h-40`}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="text-brand h-8 w-8" aria-hidden="true">{icons[index]}</svg>
+              <h3 className="mt-4 text-base font-bold leading-7 text-text-primary sm:text-lg">{title}</h3>
+              <p className="mt-1 max-w-40 text-sm leading-6 text-text-secondary">{body}</p>
             </div>
           ))}
         </div>
