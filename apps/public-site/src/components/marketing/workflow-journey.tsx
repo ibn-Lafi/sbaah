@@ -75,22 +75,13 @@ export function WorkflowJourney({locale}:{locale:Locale}) {
             <span className="absolute -left-[3px] top-[136px] h-14 w-[3px] rounded-l bg-[#2c2c2e]"/>
             <span className="absolute -left-[3px] top-[200px] h-14 w-[3px] rounded-l bg-[#2c2c2e]"/>
             <span className="absolute -right-[3px] top-[145px] h-20 w-[3px] rounded-r bg-[#2c2c2e]"/>
-            <div className="relative h-full overflow-hidden rounded-[44px] bg-white sm:rounded-[50px]">
-              <div className="absolute left-1/2 top-[9px] z-30 h-[25px] w-[82px] -translate-x-1/2 rounded-full bg-black shadow-[0_1px_0_rgba(255,255,255,.08)] sm:h-[27px] sm:w-[92px]">
-                <span className="absolute right-[9px] top-1/2 h-[7px] w-[7px] -translate-y-1/2 rounded-full bg-[#111827] ring-1 ring-[#303444]"/>
-              </div>
-              <div className="absolute bottom-[7px] left-1/2 z-30 h-[4px] w-[92px] -translate-x-1/2 rounded-full bg-black/85 sm:w-[108px]"/>
-              <div className="relative rounded-t-[44px] bg-[#1d1729] px-5 pb-4 pt-11 text-white sm:rounded-t-[50px]">
-                <div className="flex items-center justify-between"><b>سبعة</b><span>•••</span></div>
-              </div>
-              <div className="p-4 text-right">
-              <div className="grid grid-cols-2 gap-2"><div className="rounded-2xl bg-purple-50 p-3"><small>إجمالي العملاء</small><b className="mt-2 block text-2xl">162</b><span className="text-xs text-emerald-500">↑ 12%</span></div><div className="rounded-2xl bg-purple-50 p-3"><small>العقارات النشطة</small><b className="mt-2 block text-2xl">48</b><span className="text-xs text-emerald-500">↑ 8%</span></div></div>
-              <div className="mt-4 grid grid-cols-4 gap-2 text-center text-[10px]"><span>العملاء</span><span>المواعيد</span><span>العقارات</span><span>العقود</span></div>
-              <h4 className="mt-5 font-bold">العقارات المميزة</h4>
-              <div className="-mx-4 mt-3 overflow-hidden">
-                <img src={VILLA_IMAGE} alt="" className="block h-[210px] w-full object-cover object-center sm:h-[250px]"/>
-              </div>
-              </div>
+            <div className="relative h-full overflow-hidden rounded-[44px] bg-black sm:rounded-[50px]">
+              <img
+                src="https://raw.githubusercontent.com/ibn-Lafi/sbaah/claude/real-estate-saas-platform-sp7ua9/IMG_2273.png"
+                alt={ar?'لوحة قيادة سبعة على الجوال':'Sbaah mobile dashboard'}
+                className="absolute inset-0 h-full w-full object-cover object-top"
+                loading="lazy"
+              />
             </div>
           </div>
 
