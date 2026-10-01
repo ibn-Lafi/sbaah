@@ -10,7 +10,7 @@ import { PhoneInput } from '@/components/ui/phone-input';
 import { FormError } from '@/components/ui/form-error';
 import { Modal } from '@/components/ui/modal';
 import { ApiRequestError } from '@/lib/api/client';
-import { createTeamMember, getTeam, updateTeamMember, type TeamMember } from '@/lib/api/team';
+import { createTeamMember, deleteTeamMember, getTeam, updateTeamMember, type TeamMember } from '@/lib/api/team';
 
 const GROUPS: Array<{ title: string; permissions: Array<[Permission, string]> }> = [
   { title: 'الرئيسية', permissions: [['dashboard.read','عرض الرئيسية'],['dashboard.metrics.read','عرض الإحصائيات والمؤشرات']] },
@@ -62,9 +62,10 @@ export function TeamPanel({accessToken}:{accessToken:string}) {
 function MemberForm({accessToken,member,onClose,onSaved}:{accessToken:string;member:TeamMember|null;onClose:()=>void;onSaved:()=>Promise<void>}) {
   const [name,setName]=useState(member?.full_name||'');const [email,setEmail]=useState(member?.email||'');const [phone,setPhone]=useState(member?.phone||'');const [password,setPassword]=useState('');const [permissions,setPermissions]=useState<Permission[]>(member?.permissions||[]);const [status,setStatus]=useState<'active'|'disabled'>(member?.status==='disabled'?'disabled':'active');const [saving,setSaving]=useState(false);const [error,setError]=useState<string|null>(null);
   async function submit(event:FormEvent){event.preventDefault();setSaving(true);setError(null);try{if(member)await updateTeamMember(accessToken,member.id,{full_name:name,status,permissions});else await createTeamMember(accessToken,{full_name:name,email,phone,temporary_password:password,permissions});await onSaved()}catch(e){setError(e instanceof ApiRequestError?e.message:'تعذر حفظ عضو الفريق');setSaving(false)}}
+  async function remove(){if(!member||!window.confirm('هل تريد حذف حساب هذا الموظف؟ سيتم إلغاء دخوله وصلاحياته نهائيًا.'))return;setSaving(true);setError(null);try{await deleteTeamMember(accessToken,member.id);await onSaved()}catch(e){setError(e instanceof ApiRequestError?e.message:'تعذر حذف حساب الموظف');setSaving(false)}}
   return <Modal title={member?'تعديل عضو الفريق':'إضافة عضو فريق'} onClose={onClose} maxWidth="760px" mobileCentered><form onSubmit={submit} className="flex flex-col gap-5">
     <div><h3 className="mb-3 text-sm font-bold">معلومات العضو</h3><div className="grid gap-3 sm:grid-cols-2"><Input required placeholder="الاسم" value={name} onChange={(e)=>setName(e.target.value)}/><Input required={!member} disabled={!!member} type="email" placeholder="البريد الإلكتروني" value={email} onChange={(e)=>setEmail(e.target.value)} dir="ltr"/><PhoneInput placeholder="5xxxxxxxx" value={phone} onChange={setPhone} disabled={!!member}/>{!member&&<PasswordInput required placeholder="كلمة المرور المؤقتة" value={password} onChange={(e)=>setPassword(e.target.value)}/>}</div></div>
     {member&&<label className="flex items-center justify-between rounded-[16px] border border-border-default p-4"><span className="text-sm font-semibold">حالة الحساب</span><select value={status} onChange={(e)=>setStatus(e.target.value as 'active'|'disabled')} className="rounded-control border border-border-default bg-surface-card p-2 text-sm"><option value="active">نشط</option><option value="disabled">معطل</option></select></label>}
-    <div><h3 className="mb-3 text-sm font-bold">الصلاحيات</h3><PermissionPicker value={permissions} onChange={setPermissions}/></div><FormError message={error}/><div className="flex gap-2"><Button type="submit" loading={saving}>حفظ</Button><Button type="button" variant="secondary" onClick={onClose}>إلغاء</Button></div>
+    <div><h3 className="mb-3 text-sm font-bold">الصلاحيات</h3><PermissionPicker value={permissions} onChange={setPermissions}/></div><FormError message={error}/><div className="flex gap-2"><Button type="submit" loading={saving}>حفظ</Button><Button type="button" variant="secondary" onClick={onClose}>إلغاء</Button>{member&&<Button type="button" variant="secondary" onClick={remove} disabled={saving}>حذف الحساب</Button>}</div>
   </form></Modal>;
 }
