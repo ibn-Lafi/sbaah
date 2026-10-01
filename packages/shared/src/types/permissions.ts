@@ -62,6 +62,22 @@ export const PERMISSIONS = [
   'team.permissions.manage',
   'team.status.manage',
   'team.delete',
+  'dashboard.read',
+  'dashboard.metrics.read',
+  'ai.assistant.use',
+  'ai.data.read',
+  'ai.data.create',
+  'ai.data.update',
+  'ai.whatsapp.manage',
+  'ai.agents.manage',
+  'ai.credits.use',
+  'settings.account.manage',
+  'settings.organization.manage',
+  'settings.contact.manage',
+  'settings.brand.manage',
+  'billing.subscription.manage',
+  'billing.invoices.read',
+  'billing.payment_methods.manage',
 ] as const;
 export type Permission = (typeof PERMISSIONS)[number];
 
