@@ -89,6 +89,7 @@ export interface MeResponse {
     email: string | null;
     role: UserRole;
     status: UserStatus;
+    must_change_password: boolean;
   };
   tenant: {
     id: string;
@@ -144,4 +145,8 @@ export interface BusinessActivitiesResponse {
 
 export function getBusinessActivities(accessToken: string) {
   return apiGet<BusinessActivitiesResponse>('/tenant/activities', accessToken);
+}
+
+export function changeTemporaryPassword(accessToken: string, currentPassword: string, newPassword: string) {
+  return apiPost<{ status: 'ok' }>('/auth/change-temporary-password', { current_password: currentPassword, new_password: newPassword }, accessToken);
 }
