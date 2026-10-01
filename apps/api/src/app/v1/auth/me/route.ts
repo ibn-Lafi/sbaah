@@ -18,7 +18,7 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
 
   const { data: user, error: userError } = await supabase
     .from('users')
-    .select('id, full_name, phone, email, role, status')
+    .select('id, full_name, phone, email, role, status, must_change_password')
     .eq('id', caller.userId)
     .single();
   if (userError || !user) {
@@ -52,7 +52,7 @@ export const PATCH = withErrorHandling(async (request: NextRequest) => {
   const profile = updateMyProfileSchema.safeParse(body);
   if (profile.success && profile.data.full_name !== undefined) {
     const updates = profile.data;
-    const { data: updated, error: profileError } = await supabase.from('users').update(updates).eq('id', caller.userId).select('id, full_name, phone, email, role, status').single();
+    const { data: updated, error: profileError } = await supabase.from('users').update(updates).eq('id', caller.userId).select('id, full_name, phone, email, role, status, must_change_password').single();
     if (profileError) throw new Error(`Failed to update profile: ${profileError.message}`);
     return okResponse({ user: updated });
   }
@@ -62,7 +62,7 @@ export const PATCH = withErrorHandling(async (request: NextRequest) => {
     .from('users')
     .update({ email })
     .eq('id', caller.userId)
-    .select('id, full_name, phone, email, role, status')
+    .select('id, full_name, phone, email, role, status, must_change_password')
     .single();
   if (error) {
     if (error.code === '23505') {
