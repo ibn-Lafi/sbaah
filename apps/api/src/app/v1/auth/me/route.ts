@@ -28,7 +28,7 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
       if (legacyError || !legacyUser) throw new Error(`Failed to load current user: ${legacyError?.message}`);
       const { data: tenant, error: tenantError } = await supabase.from('tenants').select('id, name_ar, name_en, account_type, subdomain, custom_domain, custom_domain_status, status, trial_ends_at, cr_number, tax_number, fal_license_number, freelance_document_number, wafi_license_number, social_instagram, social_tiktok, social_whatsapp, social_snapchat, social_phone').eq('id', caller.tenantId).single();
       if (tenantError || !tenant) throw new Error(`Failed to load current tenant: ${tenantError?.message}`);
-      return okResponse({ user: { ...legacyUser, must_change_password: false }, tenant });
+      return okResponse({ user: { ...legacyUser, must_change_password: false, permissions: legacyUser.role === 'owner' ? null : [] }, tenant });
     }
     throw new Error(`Failed to load current user: ${userError?.message}`);
   }
@@ -44,7 +44,13 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     throw new Error(`Failed to load current tenant: ${tenantError?.message}`);
   }
 
-  return okResponse({ user, tenant });
+  const service = createServiceRoleClient();
+  const { data: grants, error: grantsError } = user.role === 'owner'
+    ? { data: null, error: null }
+    : await service.from('user_permission_grants').select('permission').eq('user_id', user.id);
+  if (grantsError) throw new Error(`Failed to load current permissions: ${grantsError.message}`);
+
+  return okResponse({ user: { ...user, permissions: user.role === 'owner' ? null : (grants ?? []).map((grant) => grant.permission) }, tenant });
 });
 
 /**
