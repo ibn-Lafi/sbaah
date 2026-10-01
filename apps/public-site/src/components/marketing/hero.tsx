@@ -60,17 +60,17 @@ export function Hero({ locale }: { locale: Locale }) {
         <p className="whitespace-nowrap text-[11px] text-white sm:max-w-xl sm:whitespace-normal sm:text-lg">{subtitle}</p>
       </div>
 
-      <div className="absolute inset-x-0 bottom-5 z-[5] sm:bottom-7">
-        <div className="mx-auto max-w-5xl px-5">
-          <div className="flex items-center justify-center text-center">
-            <h2 className="hero-trusted-gold text-xl font-bold sm:text-2xl">{ar?'موثوق من':'Trusted by'}</h2>
+      <div className="absolute inset-x-0 bottom-[19%] z-[6] sm:bottom-[18%]">
+        <div className="mx-auto max-w-6xl px-5 sm:px-6">
+          <div className={`flex ${ar ? 'justify-end text-right' : 'justify-start text-left'}`}>
+            <h2 className="hero-trusted-gold text-base font-bold sm:text-xl">{ar?'موثوق من':'Trusted by'}</h2>
           </div>
         </div>
-        <div className="relative mt-3 overflow-hidden">
+        <div className="hero-partners-window relative mt-2 overflow-hidden sm:mt-3">
           <div className="hero-partners-marquee flex w-max" dir="ltr"><LogoSet copy={1}/><LogoSet copy={2}/><LogoSet copy={3}/><LogoSet copy={4}/></div>
         </div>
       </div>
-      <style>{`.hero-trusted-gold{color:var(--color-brand);background:linear-gradient(110deg,color-mix(in srgb,var(--color-brand) 72%,black) 0%,var(--color-brand) 20%,color-mix(in srgb,var(--color-brand) 32%,white) 39%,var(--color-brand) 52%,color-mix(in srgb,var(--color-brand) 18%,white) 64%,color-mix(in srgb,var(--color-brand) 82%,black) 82%,color-mix(in srgb,var(--color-brand) 70%,white) 100%);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;text-shadow:0 1px 1px color-mix(in srgb,var(--color-brand) 28%,transparent);animation:trustedBrandShine 3.8s ease-in-out infinite}@keyframes trustedBrandShine{0%,100%{background-position:100% 50%}50%{background-position:0 50%}}@keyframes heroPartnersMarquee{from{transform:translate3d(0,0,0)}to{transform:translate3d(-25%,0,0)}}.hero-partners-marquee{animation:heroPartnersMarquee 15s linear infinite;will-change:transform;transform:translate3d(0,0,0)}.hero-partners-set{flex:none}@media(max-width:639px){.hero-partners-marquee{position:relative;left:100vw;animation:heroPartnersMarqueeMobile 18s linear infinite}@keyframes heroPartnersMarqueeMobile{from{transform:translate3d(0,0,0)}to{transform:translate3d(calc(-25% - 100vw),0,0)}}}@media (prefers-reduced-motion:reduce){.hero-partners-marquee{animation-duration:30s}}`}</style>
+      <style>{`.hero-trusted-gold{color:var(--color-brand);background:linear-gradient(110deg,color-mix(in srgb,var(--color-brand) 72%,black) 0%,var(--color-brand) 20%,color-mix(in srgb,var(--color-brand) 32%,white) 39%,var(--color-brand) 52%,color-mix(in srgb,var(--color-brand) 18%,white) 64%,color-mix(in srgb,var(--color-brand) 82%,black) 82%,color-mix(in srgb,var(--color-brand) 70%,white) 100%);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;text-shadow:0 1px 1px color-mix(in srgb,var(--color-brand) 28%,transparent);animation:trustedBrandShine 3.8s ease-in-out infinite}.hero-partners-window{-webkit-mask-image:linear-gradient(to right,transparent 0,#000 7%,#000 93%,transparent 100%);mask-image:linear-gradient(to right,transparent 0,#000 7%,#000 93%,transparent 100%)}@keyframes trustedBrandShine{0%,100%{background-position:100% 50%}50%{background-position:0 50%}}@keyframes heroPartnersMarquee{from{transform:translate3d(0,0,0)}to{transform:translate3d(-25%,0,0)}}.hero-partners-marquee{animation:heroPartnersMarquee 15s linear infinite;will-change:transform;transform:translate3d(0,0,0)}.hero-partners-set{flex:none}@media(max-width:639px){.hero-partners-marquee{position:relative;left:100vw;animation:heroPartnersMarqueeMobile 18s linear infinite}@keyframes heroPartnersMarqueeMobile{from{transform:translate3d(0,0,0)}to{transform:translate3d(calc(-25% - 100vw),0,0)}}}@media (prefers-reduced-motion:reduce){.hero-partners-marquee{animation-duration:30s}}`}</style>
     </section>
   );
 }
