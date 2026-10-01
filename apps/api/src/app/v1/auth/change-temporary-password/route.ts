@@ -6,7 +6,7 @@ import { getCallerContext } from '@/lib/auth/get-caller-context';
 
 export const POST = withErrorHandling(async (request: NextRequest) => {
   const { supabase } = getAuthenticatedClient(request);
-  const caller = await getCallerContext(supabase);
+  const caller = await getCallerContext(supabase, { allowPasswordChangeRequired: true });
   const body = await request.json() as { current_password?: string; new_password?: string };
   const currentPassword = body.current_password ?? '';
   const newPassword = body.new_password ?? '';
