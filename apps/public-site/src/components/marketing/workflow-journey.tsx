@@ -35,12 +35,13 @@ export function WorkflowJourney({locale}:{locale:Locale}) {
   return (
     <section className="workflow-journey relative isolate overflow-hidden bg-[#fbfaff] py-16 sm:py-24" dir={ar?'rtl':'ltr'}>
       <div className="pointer-events-none absolute inset-0 opacity-80" style={{background:'radial-gradient(circle at 50% 26%,rgba(124,58,237,.12),transparent 30%),linear-gradient(180deg,#fff 0%,#fbfaff 55%,#f1eaff 100%)'}}/>
-      <img src={VILLA_IMAGE} alt="" className="absolute inset-x-0 bottom-0 h-[44%] w-full object-cover opacity-95" loading="lazy"/>
-      <div className="absolute inset-x-0 bottom-[28%] h-[24%]" style={{background:'linear-gradient(to bottom,#fbfaff 0%,rgba(251,250,255,.96) 20%,rgba(251,250,255,.55) 58%,transparent 100%)'}}/>
-      <div className="pointer-events-none absolute inset-y-0 left-0 z-[2] w-16 sm:w-28" style={{background:'linear-gradient(to right,#fbfaff 0%,rgba(251,250,255,.94) 28%,rgba(251,250,255,.55) 58%,transparent 100%)'}}/>
-      <div className="pointer-events-none absolute inset-y-0 right-0 z-[2] w-16 sm:w-28" style={{background:'linear-gradient(to left,#fbfaff 0%,rgba(251,250,255,.94) 28%,rgba(251,250,255,.55) 58%,transparent 100%)'}}/>
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-[2] h-24 sm:h-36" style={{background:'linear-gradient(to bottom,#fbfaff 0%,rgba(251,250,255,.96) 34%,rgba(251,250,255,.5) 68%,transparent 100%)'}}/>
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] h-28 sm:h-40" style={{background:'linear-gradient(to top,#fbfaff 0%,rgba(251,250,255,.96) 32%,rgba(251,250,255,.5) 68%,transparent 100%)'}}/>
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 top-[22%] z-[1] overflow-hidden">
+        <img src={VILLA_IMAGE} alt="" className="absolute inset-0 h-full w-full object-cover opacity-95" loading="lazy"/>
+        <div className="absolute inset-x-0 top-0 h-52" style={{background:'linear-gradient(to bottom,#fbfaff 0%,rgba(251,250,255,.98) 24%,rgba(251,250,255,.72) 55%,transparent 100%)'}}/>
+        <div className="absolute inset-x-0 bottom-0 h-44" style={{background:'linear-gradient(to top,#fbfaff 0%,rgba(251,250,255,.98) 24%,rgba(251,250,255,.62) 58%,transparent 100%)'}}/>
+        <div className="absolute inset-y-0 left-0 w-16 sm:w-28" style={{background:'linear-gradient(to right,#fbfaff 0%,rgba(251,250,255,.94) 30%,rgba(251,250,255,.5) 62%,transparent 100%)'}}/>
+        <div className="absolute inset-y-0 right-0 w-16 sm:w-28" style={{background:'linear-gradient(to left,#fbfaff 0%,rgba(251,250,255,.94) 30%,rgba(251,250,255,.5) 62%,transparent 100%)'}}/>
+      </div>
       <div className="pointer-events-none absolute -left-20 top-[12%] h-80 w-80 rounded-full bg-purple-100/50 blur-3xl"/>
       <div className="pointer-events-none absolute -right-28 top-[34%] h-96 w-96 rounded-full bg-purple-100/60 blur-3xl"/>
 
@@ -58,14 +59,14 @@ export function WorkflowJourney({locale}:{locale:Locale}) {
           <div className="absolute bottom-8 left-1/2 top-8 w-px -translate-x-1/2 border-l-2 border-dashed border-purple-300"/>
           {steps[locale].map(([title,body],i)=>{
             const side=i%2===0?'md:mr-auto md:ml-0':'md:ml-auto md:mr-0';
-            return <div key={title} className={`relative mb-2 flex min-h-[88px] w-[76%] items-center ${i%2===0?'mr-auto ml-0':'ml-auto mr-0'} md:mb-3 md:min-h-[104px] md:w-[46%] ${side}`}>
-              <div className="w-full rounded-[18px] border border-white/80 bg-white/88 px-3.5 py-2.5 shadow-[0_12px_30px_rgba(80,48,150,.07)] backdrop-blur-xl sm:rounded-[22px] sm:px-5 sm:py-4">
-                <span className="text-xs font-extrabold text-brand">{String(i+1).padStart(2,'0')}</span>
-                <h3 className="mt-0.5 text-sm font-extrabold leading-5 text-text-primary sm:mt-1 sm:text-lg">{title}</h3>
-                <p className="mt-0.5 text-[11px] leading-[1.55] text-text-secondary sm:mt-1 sm:text-sm sm:leading-6">{body}</p>
+            return <div key={title} className={`relative mb-3 flex min-h-[76px] w-[47%] items-center ${i%2===0?'mr-auto ml-0':'ml-auto mr-0'} md:mb-3 md:min-h-[104px] md:w-[46%] ${side}`}>
+              <div className="w-full rounded-[16px] border border-white/80 bg-white/90 px-2.5 py-2 shadow-[0_10px_26px_rgba(80,48,150,.07)] backdrop-blur-xl sm:rounded-[22px] sm:px-5 sm:py-4">
+                <span className="text-[9px] font-extrabold text-brand sm:text-xs">{String(i+1).padStart(2,'0')}</span>
+                <h3 className="mt-0.5 text-[12px] font-extrabold leading-4 text-text-primary sm:mt-1 sm:text-lg">{title}</h3>
+                <p className="mt-0.5 text-[9px] leading-[1.45] text-text-secondary sm:mt-1 sm:text-sm sm:leading-6">{body}</p>
               </div>
-              <div className={`absolute top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-purple-100 text-brand shadow-lg sm:h-12 sm:w-12 md:h-14 md:w-14 ${i%2===0?'-left-[3.15rem] md:-left-[4.6rem]':'-right-[3.15rem] md:-right-[4.6rem]'}`}>
-                <svg viewBox="0 0 24 24" className="h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d={iconPaths[i]}/></svg>
+              <div className={`absolute top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-purple-100 text-brand shadow-lg sm:h-12 sm:w-12 md:h-14 md:w-14 ${i%2===0?'-left-[2.65rem] md:-left-[4.6rem]':'-right-[2.65rem] md:-right-[4.6rem]'}`}>
+                <svg viewBox="0 0 24 24" className="h-4 w-4 sm:h-6 sm:w-6 md:h-8 md:w-8" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d={iconPaths[i]}/></svg>
               </div>
             </div>
           })}
