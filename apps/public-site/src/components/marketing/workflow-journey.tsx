@@ -44,7 +44,6 @@ export function WorkflowJourney({locale}:{locale:Locale}) {
  
       <div className="relative z-10 mx-auto max-w-6xl px-5 sm:px-6">
         <div className="mx-auto max-w-3xl text-center">
-          <span className="inline-flex rounded-full bg-purple-100/80 px-5 py-2 text-sm font-bold text-brand">{ar?'رحلة العمل مع سبعة':'The Sbaah workflow'}</span>
           <h2 className="font-display mt-5 text-[2.45rem] font-extrabold leading-[1.12] tracking-tight text-text-primary sm:text-6xl">
             {ar?<><span>من أول عميل ...</span><br/><span className="text-brand">إلى إتمام العمل</span></>:<>From first lead ...<br/><span className="text-brand">to completed work</span></>}
           </h2>
@@ -91,7 +90,6 @@ export function WorkflowJourney({locale}:{locale:Locale}) {
           <div className="absolute left-0 top-[330px] rounded-2xl border border-white bg-white/95 p-4 shadow-xl sm:left-[4%]"><b className="text-sm">مواعيد ومعاينات</b><p className="mt-1 text-xs text-text-secondary">بكل سهولة</p></div>
 
           <div className="absolute inset-x-0 bottom-4 flex flex-col items-center">
-            <a href={`/${locale}/register`} className="inline-flex h-16 min-w-[280px] items-center justify-center rounded-full bg-brand px-8 text-xl font-bold text-white shadow-[0_18px_45px_rgba(124,58,237,.35)] transition-transform hover:scale-[1.02]">{ar?'ابدأ رحلتك الآن':'Start your journey'}</a>
             <p className="mt-4 text-sm text-white/90 drop-shadow">{ar?'كل أعمالك العقارية ... في مكان واحد':'All your real-estate work ... in one place'}</p>
           </div>
         </div>
