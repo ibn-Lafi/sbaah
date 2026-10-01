@@ -74,12 +74,14 @@ export function MobileNav({ orgName, accountType }: MobileNavProps) {
   const roleLabel = t.roleLabels[me.user.role];
   const [sheetOpen, setSheetOpen] = useState(false);
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
+  const allowed = (permission?: import('@sbaah/shared').Permission) => me.user.role === 'owner' || !permission || Boolean(me.user.permissions?.includes(permission));
   const visibleItems = getNavItems(t)
     .filter((item) => !item.roles || item.roles.includes(me.user.role))
+    .filter((item) => allowed(item.permission))
     .filter((item) => !business.configured || !item.capability || capabilities.has(item.capability))
     .map((item) =>
       isNavGroup(item)
-        ? { ...item, children: item.children.filter((child) => !business.configured || !child.capability || capabilities.has(child.capability)) }
+        ? { ...item, children: item.children.filter((child) => allowed(child.permission)).filter((child) => !business.configured || !child.capability || capabilities.has(child.capability)) }
         : item,
     )
     .filter((item) => !isNavGroup(item) || item.children.length > 0);
