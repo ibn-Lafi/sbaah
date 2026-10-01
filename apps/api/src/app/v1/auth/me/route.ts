@@ -14,7 +14,7 @@ import { getCallerContext } from '@/lib/auth/get-caller-context';
  */
 export const GET = withErrorHandling(async (request: NextRequest) => {
   const { supabase } = getAuthenticatedClient(request);
-  const caller = await getCallerContext(supabase);
+  const caller = await getCallerContext(supabase, { allowPasswordChangeRequired: true });
 
   const { data: user, error: userError } = await supabase
     .from('users')
