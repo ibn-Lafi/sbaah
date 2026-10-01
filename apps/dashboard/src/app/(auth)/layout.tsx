@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { AuthPanel } from '@/components/auth/auth-panel';
 import { Card } from '@/components/ui/card';
 import { LanguageToggle } from '@/components/layout/language-toggle';
 import { ThemeToggle } from '@/components/layout/theme-toggle';
 import { getAccessToken } from '@/lib/auth/session';
+import { getMe } from '@/lib/api/auth';
 
 /**
  * Shared shell for /login, /register, /forgot-password — no sidebar/topbar
@@ -24,15 +25,30 @@ import { getAccessToken } from '@/lib/auth/session';
  * on its own without moving the surrounding viewport.
  */
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
+  const [ready, setReady] = useState(false);
+
   useEffect(() => {
     let cancelled = false;
-    void getAccessToken().then((token) => {
-      if (token && !cancelled) window.location.replace('/');
-    });
+    void (async () => {
+      const token = await getAccessToken();
+      if (cancelled) return;
+      if (!token) { setReady(true); return; }
+      try {
+        const me = await getMe(token);
+        if (cancelled) return;
+        if (me.user.must_change_password) { setReady(true); return; }
+        window.location.replace('/');
+      } catch {
+        // Let the auth page render instead of creating a redirect loop.
+        if (!cancelled) setReady(true);
+      }
+    })();
     return () => {
       cancelled = true;
     };
   }, []);
+
+  if (!ready) return null;
 
   return (
     <div className="flex h-dvh overflow-hidden">
