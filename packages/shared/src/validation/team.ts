@@ -1,31 +1,29 @@
 import { z } from 'zod';
-import { emailSchema, saudiPhoneSchema } from './auth';
+import { emailSchema, passwordSchema, saudiPhoneSchema } from './auth';
+import { PERMISSIONS } from '../types/permissions';
 
-/**
- * POST /v1/team/invite — Owner/Admin only (PRODUCT_SPEC section 8).
- * `role` deliberately excludes 'owner': exactly one Owner per tenant, set
- * at registration, immutable — inviting can only add Admin/Agent.
- */
-export const inviteTeamMemberSchema = z.object({
-  full_name: z.string().min(3, 'الاسم الثلاثي مطلوب'),
+export const teamPermissionSchema = z.enum(PERMISSIONS);
+
+export const createTeamMemberSchema = z.object({
+  full_name: z.string().trim().min(3, 'الاسم مطلوب'),
   phone: saudiPhoneSchema,
-  role: z.enum(['admin', 'agent']),
-  /** Optional — used for the invite notification, and later as an email-OTP login/reset identifier. */
-  email: emailSchema.optional(),
+  email: emailSchema,
+  temporary_password: passwordSchema,
+  permissions: z.array(teamPermissionSchema).max(PERMISSIONS.length).default([]),
 });
-export type InviteTeamMemberInput = z.infer<typeof inviteTeamMemberSchema>;
+export type CreateTeamMemberInput = z.infer<typeof createTeamMemberSchema>;
 
-/**
- * PATCH /v1/team/[id] — role/status only. No 'owner' role here either,
- * and no hard delete: `user_status` already has 'disabled' for removal
- * (preserves the row other tables reference, e.g. lead_notes.user_id).
- */
+export const inviteTeamMemberSchema = createTeamMemberSchema;
+export type InviteTeamMemberInput = CreateTeamMemberInput;
+
 export const updateTeamMemberSchema = z
   .object({
-    role: z.enum(['admin', 'agent']).optional(),
+    full_name: z.string().trim().min(3, 'الاسم مطلوب').optional(),
     status: z.enum(['active', 'disabled']).optional(),
+    permissions: z.array(teamPermissionSchema).max(PERMISSIONS.length).optional(),
   })
-  .refine((data) => data.role !== undefined || data.status !== undefined, {
-    message: 'يجب تحديد الدور أو الحالة على الأقل',
-  });
+  .refine(
+    (data) => data.full_name !== undefined || data.status !== undefined || data.permissions !== undefined,
+    { message: 'لا توجد تغييرات للحفظ' },
+  );
 export type UpdateTeamMemberInput = z.infer<typeof updateTeamMemberSchema>;
