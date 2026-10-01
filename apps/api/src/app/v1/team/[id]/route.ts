@@ -4,10 +4,16 @@ import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
 
-async function requireTeamManage(scoped: ReturnType<typeof getAuthenticatedClient>['supabase']) {
-  const { data, error } = await scoped.rpc('auth_has_permission', { check_permission: 'team.manage' });
+async function hasPermission(scoped: ReturnType<typeof getAuthenticatedClient>['supabase'], permission: Permission) {
+  const { data, error } = await scoped.rpc('auth_has_permission', { check_permission: permission });
   if (error) throw new Error(`Failed to check team permission: ${error.message}`);
-  if (!data) throw new ApiError(403, 'forbidden', 'ليس لديك صلاحية لإدارة الفريق');
+  return Boolean(data);
+}
+
+async function requireAction(scoped: ReturnType<typeof getAuthenticatedClient>['supabase'], permission: Permission) {
+  if (await hasPermission(scoped, permission)) return;
+  if (await hasPermission(scoped, 'team.manage')) return;
+  throw new ApiError(403, 'forbidden', 'ليس لديك صلاحية لإدارة هذا الجزء من فريق العمل');
 }
 
 async function assertGrantSubset(caller: Awaited<ReturnType<typeof getCallerContext>>, permissions: Permission[]) {
@@ -27,10 +33,11 @@ export const PATCH = withErrorHandling(async (
 ) => {
   const { supabase } = getAuthenticatedClient(request);
   const caller = await getCallerContext(supabase);
-  await requireTeamManage(supabase);
-
   const { id } = await context.params;
   const input = updateTeamMemberSchema.parse(await request.json());
+  if (input.full_name !== undefined) await requireAction(supabase, 'team.update');
+  if (input.status !== undefined) await requireAction(supabase, 'team.status.manage');
+  if (input.permissions !== undefined) await requireAction(supabase, 'team.permissions.manage');
   const service = createServiceRoleClient();
 
   const { data: target, error: targetError } = await service
@@ -70,12 +77,6 @@ export const PATCH = withErrorHandling(async (
       );
       if (insertError) throw new Error(`Failed to save team grants: ${insertError.message}`);
     }
-  }
-
-  // Revokes refresh tokens when a member is disabled. RLS also denies any
-  // still-live access token immediately because users.status is checked.
-  if (input.status === 'disabled') {
-    await service.auth.admin.signOut(target.auth_user_id);
   }
 
   const [{ data: member, error: memberError }, { data: grants, error: grantsError }] = await Promise.all([
