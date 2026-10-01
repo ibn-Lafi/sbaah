@@ -59,14 +59,18 @@ export function WorkflowJourney({locale}:{locale:Locale}) {
             const left=i%2===0;
             return <div key={title} className={`relative mb-5 flex min-h-[98px] w-[46%] items-center sm:mb-7 sm:min-h-[126px] sm:w-[44%] ${left?'mr-auto ml-0':'ml-auto mr-0'}`}>
               <span className={`absolute top-1/2 z-30 h-2.5 w-2.5 -translate-y-1/2 rounded-full bg-brand shadow-[0_0_0_5px_rgba(237,233,254,.95),0_0_18px_rgba(124,58,237,.28)] sm:h-3 sm:w-3 ${left?'-left-[2.1rem] sm:-left-[3.55rem]':'-right-[2.1rem] sm:-right-[3.55rem]'}`}/>
-              <article className="group relative w-full rounded-[22px] border border-white/90 bg-white/82 px-3.5 py-3.5 shadow-[0_16px_44px_rgba(52,32,92,.08)] backdrop-blur-2xl sm:rounded-[28px] sm:px-5 sm:py-5">
-                <div className={`absolute top-1/2 z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-[17px] border border-white bg-[linear-gradient(145deg,rgba(250,247,255,.98),rgba(237,228,255,.96))] text-brand shadow-[0_10px_26px_rgba(111,58,190,.16)] sm:h-[62px] sm:w-[62px] sm:rounded-[21px] ${left?'-left-6 sm:-left-8':'-right-6 sm:-right-8'}`}>
-                  <svg viewBox="0 0 24 24" className="h-[22px] w-[22px] sm:h-8 sm:w-8" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d={iconPaths[i]}/></svg>
-                </div>
-                <div className={left?'pl-6 text-right sm:pl-8':'pr-6 text-right sm:pr-8'}>
-                  <span className="inline-flex rounded-full bg-purple-50 px-1.5 py-0.5 text-[9px] font-black leading-none text-brand sm:px-2 sm:py-1 sm:text-[11px]">{String(i+1).padStart(2,'0')}</span>
-                  <h3 className="mt-1.5 text-[13px] font-black leading-[1.25] text-text-primary sm:mt-2 sm:text-xl">{title}</h3>
-                  <p className="mt-1 text-[9.5px] leading-[1.6] text-text-secondary sm:mt-1.5 sm:text-sm sm:leading-6">{body}</p>
+              <article className="group relative w-full rounded-[22px] border border-white/90 bg-white/88 px-3 py-3 shadow-[0_16px_44px_rgba(52,32,92,.08)] backdrop-blur-2xl sm:rounded-[28px] sm:px-5 sm:py-5">
+                <div className="flex items-start gap-2.5 sm:gap-4">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] border border-purple-100/80 bg-[linear-gradient(145deg,rgba(250,247,255,.98),rgba(237,228,255,.96))] text-brand shadow-[0_7px_18px_rgba(111,58,190,.12)] sm:h-14 sm:w-14 sm:rounded-[18px]">
+                    <svg viewBox="0 0 24 24" className="h-5 w-5 sm:h-7 sm:w-7" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d={iconPaths[i]}/></svg>
+                  </div>
+                  <div className="min-w-0 flex-1 text-right">
+                    <div className="flex items-center justify-between gap-2">
+                      <h3 className="text-[12px] font-black leading-[1.3] text-text-primary sm:text-xl">{title}</h3>
+                      <span className="shrink-0 text-[9px] font-black leading-none text-brand sm:text-[11px]">{String(i+1).padStart(2,'0')}</span>
+                    </div>
+                    <p className="mt-1.5 text-[9.5px] leading-[1.6] text-text-secondary sm:mt-2 sm:text-sm sm:leading-6">{body}</p>
+                  </div>
                 </div>
               </article>
             </div>
