@@ -4,7 +4,7 @@ import { LEAD_SOURCES, LEAD_STATUSES, manualLeadInputSchema } from '@sbaah/share
 import { ApiError, okResponse, withErrorHandling, databaseWriteError } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
-import { assertPermission } from '@/lib/auth/permissions';
+import { assertPermission, requireUserPermission } from '@/lib/auth/permissions';
 import { isAssignedScope } from '@/lib/auth/crm-scope';
 import { notifyTenant } from '@/lib/notifications/notify';
 
@@ -95,12 +95,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   const { supabase } = getAuthenticatedClient(request);
   const caller = await getCallerContext(supabase);
 
-  // No agent INSERT policy on `leads` (migration 0005) — staff-entered
-  // leads (source='manual') are an Owner/Admin action, e.g. logging a
-  // walk-in. Agents work leads assigned to them, not add new ones.
-  if (caller.role === 'agent') {
-    throw new ApiError(403, 'forbidden', 'لا يملك الوسيط صلاحية إضافة عملاء محتملين يدويًا');
-  }
+  await requireUserPermission(supabase, 'crm.create');
 
   const input = manualLeadInputSchema.parse(await request.json());
 

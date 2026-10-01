@@ -2,7 +2,7 @@ import { leadUpdateSchema } from '@sbaah/shared';
 import { ApiError, okResponse, withErrorHandling } from '@/lib/http';
 import { getAuthenticatedClient } from '@/lib/auth/get-authenticated-client';
 import { getCallerContext } from '@/lib/auth/get-caller-context';
-import { assertPermission } from '@/lib/auth/permissions';
+import { assertPermission, requireUserPermission } from '@/lib/auth/permissions';
 import { assertAssignedLeadAccess, isAssignedScope } from '@/lib/auth/crm-scope';
 import { sendEmail } from '@/lib/email/send';
 import { newLeadAssignedEmail } from '@/lib/email/templates';
@@ -191,10 +191,7 @@ export const DELETE = withErrorHandling<RouteContext>(async (request, { params }
   const { supabase } = getAuthenticatedClient(request);
   const caller = await getCallerContext(supabase);
 
-  // No agent DELETE policy on `leads` (migration 0005).
-  if (caller.role === 'agent') {
-    throw new ApiError(403, 'forbidden', 'لا يملك الوسيط صلاحية حذف عملاء محتملين');
-  }
+  await requireUserPermission(supabase, 'customers.delete');
 
   const { data, error } = await supabase.from('leads').delete().eq('id', id).eq('tenant_id', caller.tenantId).select().maybeSingle();
   if (error) {
