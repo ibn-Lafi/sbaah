@@ -49,6 +49,8 @@ export const PERMISSIONS = [
   'appointments.create',
   'appointments.update',
   'appointments.delete',
+  'ejar_plus.read',
+  'ejar_plus.manage',
   'website.theme.manage',
   'website.pages.manage',
   'website.domain.manage',
