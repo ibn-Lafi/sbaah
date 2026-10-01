@@ -308,21 +308,21 @@ export default function AppsPage() {
   return (
     <AppShell title={ar ? 'سبعة Ai' : 'Sbaah AI'} orgName={me.tenant.name_ar} accountType={me.tenant.account_type} mobileImmersive={mobileFullscreen}>
       <div className={`mx-auto flex min-h-0 w-full max-w-5xl flex-col overflow-hidden ${mobileFullscreen ? 'h-dvh' : 'h-[calc(100dvh-8.5rem)]'}`}>
-        <div className="mb-4 flex w-full shrink-0 items-center gap-2 sm:mb-5">
-          <button type="button" onClick={() => setMobileFullscreen((value) => !value)} aria-label={mobileFullscreen ? (ar ? 'إظهار واجهة النظام' : 'Show dashboard navigation') : (ar ? 'ملء الشاشة' : 'Full screen')} title={mobileFullscreen ? (ar ? 'إظهار واجهة النظام' : 'Show dashboard navigation') : (ar ? 'ملء الشاشة' : 'Full screen')} className="bg-surface-subtle text-text-primary flex h-10 w-10 shrink-0 items-center justify-center rounded-[11px] transition active:scale-95 md:hidden">
+        <div className={`mb-4 flex w-full shrink-0 items-center gap-2 sm:mb-5 ${mobileFullscreen ? 'px-3 pt-[calc(env(safe-area-inset-top)+12px)]' : ''}`}>
+          <button type="button" onClick={() => setMobileFullscreen((value) => !value)} aria-label={mobileFullscreen ? (ar ? 'إظهار واجهة النظام' : 'Show dashboard navigation') : (ar ? 'ملء الشاشة' : 'Full screen')} title={mobileFullscreen ? (ar ? 'إظهار واجهة النظام' : 'Show dashboard navigation') : (ar ? 'ملء الشاشة' : 'Full screen')} className={`bg-surface-subtle text-text-primary flex shrink-0 items-center justify-center transition active:scale-95 md:hidden ${mobileFullscreen ? 'h-12 w-12 rounded-[14px]' : 'h-10 w-10 rounded-[11px]'}` }>
             {mobileFullscreen ? <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M9 3v6H3M15 3v6h6M9 21v-6H3M15 21v-6h6"/></svg> : <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9V3h6M21 9V3h-6M3 15v6h6M21 15v6h-6"/></svg>}
           </button>
-          <div className="bg-surface-subtle grid min-w-0 flex-1 grid-cols-2 rounded-[12px] p-1">
+          <div className={`bg-surface-subtle grid min-w-0 flex-1 grid-cols-2 ${mobileFullscreen ? 'h-12 rounded-[14px] p-1.5' : 'rounded-[12px] p-1'}` }>
             {([
               ['assistant', ar ? 'مساعد Ai' : 'AI Assistant'],
               ['whatsapp', ar ? 'واتس اب Ai' : 'WhatsApp AI'],
             ] as const).map(([value, label]) => (
-              <button key={value} type="button" onClick={() => setSection(value)} aria-pressed={section === value} className={`h-9 rounded-[9px] px-2 text-xs font-semibold transition sm:h-10 sm:px-3 sm:text-sm ${section === value ? 'bg-surface-card text-text-primary border-border-default border shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}>
+              <button key={value} type="button" onClick={() => setSection(value)} aria-pressed={section === value} className={`${mobileFullscreen ? 'h-9 rounded-[10px] px-2.5 text-[13px]' : 'h-9 rounded-[9px] px-2 text-xs'} font-semibold transition sm:h-10 sm:px-3 sm:text-sm ${section === value ? 'bg-surface-card text-text-primary border-border-default border shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}>
                 {label}
               </button>
             ))}
           </div>
-          <button type="button" onClick={() => { setCreditType(null); setCreditsOpen(true); void loadCredits(); }} aria-label={ar ? 'الرصيد' : 'Credits'} className="bg-brand flex h-10 w-10 shrink-0 items-center justify-center rounded-[11px] text-white shadow-sm transition active:scale-95 sm:h-11 sm:w-11">
+          <button type="button" onClick={() => { setCreditType(null); setCreditsOpen(true); void loadCredits(); }} aria-label={ar ? 'الرصيد' : 'Credits'} className={`bg-brand flex shrink-0 items-center justify-center text-white shadow-sm transition active:scale-95 sm:h-11 sm:w-11 ${mobileFullscreen ? 'h-12 w-12 rounded-[14px]' : 'h-10 w-10 rounded-[11px]'}` }>
             <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3.5" y="6" width="17" height="12" rx="3"/><path d="M16 10h4.5v4H16a2 2 0 1 1 0-4ZM7 6V4.5h9V6"/></svg>
           </button>
         </div>
