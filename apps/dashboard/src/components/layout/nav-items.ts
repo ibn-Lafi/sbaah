@@ -18,7 +18,7 @@
  * old plain dot indicator per the founder's explicit request.
  */
 import type { ComponentType } from 'react';
-import type { BusinessCapability, UserRole } from '@sbaah/shared';
+import type { BusinessCapability, Permission, UserRole } from '@sbaah/shared';
 import type { ChromeDictionary } from '@/lib/i18n/dictionaries';
 import {
   AppsIcon,
@@ -44,6 +44,7 @@ export interface NavLeaf {
   /** Omitted = visible to every role. PRODUCT_SPEC section 8: Agent has no website/team/billing access. */
   roles?: UserRole[];
   capability?: BusinessCapability;
+  permission?: Permission;
 }
 
 export interface NavGroup {
@@ -52,6 +53,7 @@ export interface NavGroup {
   icon: Icon;
   roles?: UserRole[];
   capability?: BusinessCapability;
+  permission?: Permission;
   children: NavLeaf[];
 }
 
@@ -64,23 +66,25 @@ export function isNavGroup(entry: NavEntry): entry is NavGroup {
 /** Same hrefs/icons/roles regardless of language — only `label` comes from the active dictionary (`t`), so a language switch relabels the existing nav instead of needing a second, parallel list. */
 export function getNavItems(t: ChromeDictionary): NavEntry[] {
   return [
-    { href: '/', label: t.nav.dashboard, icon: DashboardIcon },
-    { href: '/leads', label: t.nav.leads, icon: ClientsIcon, capability: 'crm' },
-    { href: '/viewings', label: 'التقويم', icon: CalendarIcon, capability: 'crm' },
-    { href: '/contracts', label: 'العقود', icon: PagesIcon },
+    { href: '/', label: t.nav.dashboard, icon: DashboardIcon, permission: 'dashboard.read' },
+    { href: '/leads', label: t.nav.leads, icon: ClientsIcon, capability: 'crm', permission: 'crm.read' },
+    { href: '/viewings', label: 'التقويم', icon: CalendarIcon, capability: 'crm', permission: 'appointments.read' },
+    { href: '/contracts', label: 'العقود', icon: PagesIcon, permission: 'contracts.read' },
     {
       group: 'properties',
       capability: 'properties',
+      permission: 'properties.read',
       label: t.nav.propertiesGroup.label,
       icon: PropertiesIcon,
       children: [
-        { href: '/properties', label: t.nav.propertiesGroup.all, icon: PropertiesIcon },
-        { href: '/projects', label: t.nav.propertiesGroup.projects, icon: ProjectsIcon, capability: 'projects' },
+        { href: '/properties', label: t.nav.propertiesGroup.all, icon: PropertiesIcon, permission: 'properties.read' },
+        { href: '/projects', label: t.nav.propertiesGroup.projects, icon: ProjectsIcon, capability: 'projects', permission: 'projects.read' },
       ],
     },
     {
       group: 'rent-plus',
       label: t.nav.rentPlus.label,
+      permission: 'ejar_plus.read',
       icon: RentalsIcon,
       children: [
         { href: '/rent-plus/maintenance', label: t.nav.rentPlus.maintenance, icon: SupportIcon },
@@ -93,13 +97,14 @@ export function getNavItems(t: ChromeDictionary): NavEntry[] {
       label: t.nav.website.label,
       icon: WebsiteIcon,
       roles: ['owner', 'admin'],
+      permission: 'website.read',
       children: [
-        { href: '/website', label: t.nav.website.themeStore, icon: ThemeStoreIcon },
-        { href: '/website/pages', label: t.nav.website.pages, icon: PagesIcon },
-        { href: '/domain', label: t.nav.website.domain, icon: DomainIcon },
+        { href: '/website', label: t.nav.website.themeStore, icon: ThemeStoreIcon, permission: 'website.read' },
+        { href: '/website/pages', label: t.nav.website.pages, icon: PagesIcon, permission: 'website.pages.manage' },
+        { href: '/domain', label: t.nav.website.domain, icon: DomainIcon, permission: 'website.domain.manage' },
       ],
     },
-    { href: '/apps', label: 'سبعة Ai', icon: AppsIcon, roles: ['owner', 'admin'] },
+    { href: '/apps', label: 'سبعة Ai', icon: AppsIcon, permission: 'ai.assistant.use' },
     { href: '/support', label: t.nav.support, icon: SupportIcon },
   ];
 }
