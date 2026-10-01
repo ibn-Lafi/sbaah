@@ -8,6 +8,11 @@ export interface CallerContext {
   tenantId: string;
   role: UserRole;
   fullName: string;
+  mustChangePassword: boolean;
+}
+
+export interface CallerContextOptions {
+  allowPasswordChangeRequired?: boolean;
 }
 
 export function accountDisabledError(): ApiError {
@@ -22,7 +27,7 @@ export function accountDisabledError(): ApiError {
  * authoritative way to resolve the caller's own auth_user_id from their
  * bearer token.
  */
-export async function getCallerContext(supabase: SupabaseClient): Promise<CallerContext> {
+export async function getCallerContext(supabase: SupabaseClient, options: CallerContextOptions = {}): Promise<CallerContext> {
   const { data: authData, error: authError } = await supabase.auth.getUser();
   if (authError || !authData?.user) {
     throw new ApiError(401, 'unauthenticated', 'الجلسة غير صالحة');
@@ -30,7 +35,7 @@ export async function getCallerContext(supabase: SupabaseClient): Promise<Caller
 
   const { data: userRow, error: userError } = await supabase
     .from('users')
-    .select('id, tenant_id, role, status, full_name')
+    .select('id, tenant_id, role, status, full_name, must_change_password')
     .eq('auth_user_id', authData.user.id)
     .maybeSingle();
   if (userError) {
@@ -38,6 +43,9 @@ export async function getCallerContext(supabase: SupabaseClient): Promise<Caller
   }
   if (userRow?.status === 'disabled') {
     throw accountDisabledError();
+  }
+  if (userRow?.must_change_password && !options.allowPasswordChangeRequired) {
+    throw new ApiError(403, 'password_change_required', 'يجب تغيير كلمة المرور المؤقتة قبل متابعة استخدام الحساب');
   }
   if (!userRow) {
     // Migration 0105 hides a disabled member's own row from RLS, so tell
@@ -53,5 +61,5 @@ export async function getCallerContext(supabase: SupabaseClient): Promise<Caller
     throw new ApiError(403, 'no_tenant_membership', 'الحساب غير مرتبط بأي حساب على المنصة');
   }
 
-  return { authUserId: authData.user.id, userId: userRow.id, tenantId: userRow.tenant_id, role: userRow.role, fullName: userRow.full_name };
+  return { authUserId: authData.user.id, userId: userRow.id, tenantId: userRow.tenant_id, role: userRow.role, fullName: userRow.full_name, mustChangePassword: Boolean(userRow.must_change_password) };
 }
