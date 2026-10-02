@@ -59,7 +59,7 @@ export function WorkflowJourney({locale}:{locale:Locale}) {
             const left=i%2===0;
             return <div key={title} className={`relative mb-5 flex min-h-[98px] w-[46%] items-center sm:mb-7 sm:min-h-[126px] sm:w-[44%] ${left?'mr-auto ml-0':'ml-auto mr-0'}`}>
               <span className={`absolute top-1/2 z-30 h-2.5 w-2.5 -translate-y-1/2 rounded-full bg-brand shadow-[0_0_0_5px_rgba(237,233,254,.95),0_0_18px_rgba(124,58,237,.28)] sm:h-3 sm:w-3 ${left?'-left-[2.1rem] sm:-left-[3.55rem]':'-right-[2.1rem] sm:-right-[3.55rem]'}`}/>
-              <article className="group relative w-full rounded-[22px] border border-white/90 bg-white/88 px-3 py-3 shadow-[0_16px_44px_rgba(52,32,92,.08)] backdrop-blur-2xl sm:rounded-[28px] sm:px-5 sm:py-5">
+              <article className="group relative flex h-[98px] w-full items-center rounded-[22px] border border-white/90 bg-white/88 px-3 py-3 shadow-[0_16px_44px_rgba(52,32,92,.08)] backdrop-blur-2xl sm:h-[126px] sm:rounded-[28px] sm:px-5 sm:py-5">
                 <div className="flex items-start gap-2.5 sm:gap-4">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] border border-purple-100/80 bg-[linear-gradient(145deg,rgba(250,247,255,.98),rgba(237,228,255,.96))] text-brand shadow-[0_7px_18px_rgba(111,58,190,.12)] sm:h-14 sm:w-14 sm:rounded-[18px]">
                     <svg viewBox="0 0 24 24" className="h-5 w-5 sm:h-7 sm:w-7" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d={iconPaths[i]}/></svg>
