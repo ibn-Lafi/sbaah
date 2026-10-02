@@ -4,6 +4,7 @@ import { Pricing } from './marketing/pricing';
 import { BusinessSuite } from './marketing/business-suite';
 import { ProblemSection } from './marketing/problem-section';
 import { WorkflowJourney } from './marketing/workflow-journey';
+import { AudienceSection } from './marketing/audience-section';
 import { Testimonials } from './marketing/testimonials';
 import { Faq } from './marketing/faq';
 
@@ -33,5 +34,5 @@ function CtaBanner({ locale }: { locale: Locale }) {
 }
 
 export function MarketingHome({locale}:{locale:Locale}) {
-  return <div><Hero locale={locale}/><ProblemSection locale={locale}/><BusinessSuite locale={locale}/><WorkflowJourney locale={locale}/><Pricing locale={locale}/><Testimonials locale={locale}/><CtaBanner locale={locale}/><Faq locale={locale}/></div>;
+  return <div><Hero locale={locale}/><ProblemSection locale={locale}/><BusinessSuite locale={locale}/><AudienceSection locale={locale}/><WorkflowJourney locale={locale}/><Pricing locale={locale}/><Testimonials locale={locale}/><CtaBanner locale={locale}/><Faq locale={locale}/></div>;
 }
